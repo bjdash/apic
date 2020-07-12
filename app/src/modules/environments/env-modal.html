@@ -1,0 +1,212 @@
+<div class="modal-header">
+    <h3 class="modal-title custom">Environments</h3>
+</div>
+
+<div class="modal-body envModal">
+    <div>
+        <div class="addEnvBtn">
+            <a href class="btn" ng-click="vm.showAddEnvBox()">
+                <i class="glyphicon glyphicon-plus" ng-class="{rotateZ:vm.showAddEnv}"></i>
+            </a>
+        </div>
+
+        <div class="env-ctrls">
+            <div uib-dropdown auto-close="outsideClick" style="display: inline-block"
+                ng-show="vm.environments.length>0">
+                <a href uib-dropdown-toggle style="margin-right: 10px;text-decoration: none;"
+                    ng-click="checkLogin($event);">
+                    <span class="icon bj-share-alt" uib-tooltip="Share"></span></a>
+                </a>
+
+                <ul ng-if="userData.UID" class="dropdown-menu dropdown-menu-right envDnl" uib-dropdown-menu role="menu">
+                    <li role="menuitem" ng-click="vm.toggleAllSelection('share')">
+                        <label class="btn btn-link align-left">{{vm.selectAll.share?'Unselect':'Select'}} all</label>
+                    </li>
+                    <li class="divider"></li>
+                    <li role="menuitem" ng-repeat="ev in vm.environments track by $index"
+                        ng-if="!ev.team && ev._id.indexOf('-dem0')<0 && ev.owner === userData.UID && !ev.proj">
+                        <label class="btn btn-link align-left">
+                            <input type="checkbox" ng-checked="vm.checkedEnvs.share.indexOf(ev._id)>=0"
+                                ng-click="vm.selectionToggled('share', ev._id)">{{ev.name}}
+                        </label>
+                    </li>
+                    <li class="divider"></li>
+                    <li style="text-align: center"><button class="btn btn-primary btn-themed btn-sm"
+                            ng-disabled="vm.checkedEnvs.share.length<1"
+                            ng-click="openShareModal(vm.checkedEnvs.share,'Envs')">Share</button></li>
+                </ul>
+            </div>
+
+            <a href style="margin-right: 10px;" ng-click="vm.importFromFile()">
+                <span class="glyphicon glyphicon-import" uib-tooltip="Import"></span></a>
+            <div uib-dropdown auto-close="outsideClick" style="display: inline-block"
+                ng-show="vm.environments.length>0">
+                <a href uib-dropdown-toggle>
+                    <span class="glyphicon glyphicon-export" uib-tooltip="Export"></span>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right envDnl" uib-dropdown-menu role="menu"
+                    aria-labelledby="single-button">
+                    <li role="menuitem" ng-click="vm.toggleAllSelection('export')">
+                        <label class="btn btn-link align-left">{{vm.selectAll.export?'Unselect':'Select'}} all</label>
+                    </li>
+                    <li class="divider"></li>
+                    <li role="menuitem" ng-repeat="ev in vm.environments track by $index">
+                        <label class="btn btn-link align-left">
+                            <input type="checkbox" ng-checked="vm.checkedEnvs.export.indexOf(ev._id)>=0"
+                                ng-click="vm.selectionToggled('export', ev._id)" />{{ev.name}}
+                        </label>
+                    </li>
+                    <li class="divider"></li>
+                    <li style="text-align: center"><button class="btn btn-primary btn-themed btn-sm"
+                            ng-disabled="vm.checkedEnvs.export.length<1"
+                            ng-click="vm.downloadMultiple()">Download</button></li>
+                </ul>
+            </div>
+        </div>
+
+
+        <div class="envCont" ng-show="vm.environments.length>0 || vm.showAddEnv">
+            <div class="envList">
+                <div class="input-group addEnvForm" ng-show="vm.showAddEnv">
+                    <input type="text" maxlength="30" ng-model="vm.newEnvName" placeholder="New environment name"
+                        class="form-control" on-enter-key="vm.saveNewEnv(vm.newEnvName)" id="newEnvName" />
+                    <a href class="input-group-addon ok" ng-click="vm.saveNewEnv(vm.newEnvName)">
+                        <i class="glyphicon glyphicon-ok"></i>
+                    </a>
+                </div>
+                <ul class="modal-cont">
+                    <li ng-class="{active:env._id === vm.selectedEnv._id}" ng-click="vm.showInMemEnv()">
+                        <a href ng-click="vm.selectEnv(env)" class="btn btn-link align-left">In-memory/generated
+                            variables</a>
+                    </li>
+                    <li ng-repeat="env in vm.environments track by $index"
+                        ng-class="{active:env._id === vm.selectedEnv._id}">
+                        <a href title="{{env.name}}" ng-click="vm.selectEnv(env)"
+                            class="btn btn-link align-left">{{env.name}}</a>
+                        <span class="env-optn">
+                            <i class="icon bj-copy green"
+                                ng-click="vm.saveNewEnv(env.name+' Copy', env.vals, true)"></i>
+                            <i class="icon bj-download3 blue" ng-click="vm.downloadEnv(env)"></i>
+                            <i class="icon bj-share-alt blue" ng-if="!env.team && env.owner === userData.UID"
+                                ng-click="vm.shareEnv(env)"></i>
+                            <i class="icon bj-unshare red" ng-if="env.team && env.owner === userData.UID"
+                                ng-click="vm.unshareEnv(env)"></i>
+                            <i class="glyphicon glyphicon-trash icon red" ng-if="env.owner === userData.UID"
+                                ng-click="vm.deleteEnv(env,$index)" confirm="Do you want to delete the environment?"
+                                confirm-title="Delete Confirmation" confirm-ok="Delete" confirm-cancel="Cancel"></i>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="envVals" ng-show="vm.flags.showType == 'env'">
+                <div class="modal-cont">
+                    <form name="envDetailForm">
+                        <fieldset ng-disabled="vm.selectedEnv.owner && vm.selectedEnv.owner !== userData.UID">
+                            <div class="name">
+                                <span ng-hide="vm.edit.show">{{vm.selectedEnv.name}}
+                                    <a href ng-click="vm.showEnvEdit()"
+                                        ng-if="vm.selectedEnv.owner === userData.UID && !vm.selectedEnv.proj"><i
+                                            class="glyphicon glyphicon-pencil edit"></i></a>
+                                </span>
+                                <i ng-if="vm.selectedEnv.proj" class="icon bj-alert warn-icon"
+                                    uib-popover="This environment is auto generated from the saved settings for API project '{{vm.selectedEnv.proj.name}}'. This will be auto deleted when the API design project is deleted. To modify 'host' & 'basePath', go to the Designer section "
+                                    popover-placement="bottom" style="vertical-align:baseline"></i>
+                                <span ng-show="vm.edit.show">
+                                    <input style="width:50%;display: inline-block" maxlength="30" type="text"
+                                        ng-model="vm.edit.copy" class="form-control" id="envEditName"
+                                        on-enter-key="vm.saveEnvEdit()" ng-blur="vm.saveEnvEdit()" />
+                                    <a href style="color: #4CAF50" ng-click="vm.saveEnvEdit()"><i
+                                            class="glyphicon glyphicon-ok edit"></i></a>
+                                    <a href style="color: #F44336" ng-click="vm.discardEdit()"><i
+                                            class="glyphicon glyphicon-remove edit"></i></a>
+                                </span>
+                            </div>
+                            <div class="envForm">
+                                <div class="form-group" style="width: 100%"
+                                    ng-repeat="entry in vm.selectedEnv.vals track by $index">
+                                    <span ng-if="entry.readOnly">
+                                        <span class="form-control sm width40 fakeInp">{{entry.key}}</span>
+                                        <span class="form-control sm width40 fakeInp">{{entry.val}}</span>
+                                    </span>
+                                    <span ng-if="!entry.readOnly">
+                                        <input only-alpna-num use-parent-scope="true" style="display:inline-block"
+                                            type="text" placeholder="Name" ng-model="entry.key"
+                                            class="form-control sm width40">
+                                        <input style="display:inline-block" type="text" class="form-control sm width40"
+                                            placeholder="Value" ng-model="entry.val" />
+                                        <a href="" class="btn btn-link btn-round red"
+                                            ng-click="vm.removeEnvVals($index)"><i
+                                                class="glyphicon glyphicon-remove"></i></a>
+                                    </span>
+                                </div>
+
+                                <button type="button" ng-show="vm.selectedEnv.name"
+                                    class="btn btn-primary btn-themed btn-sm"
+                                    ng-click="vm.selectedEnv.vals.push({key:'',val:''})">+ Add another</button>
+                            </div>
+                            <div ng-if="vm.selectedEnv.team && vm.selectedEnv.owner !== userData.UID"
+                                style="margin-left: 13px;"> This environment is shared with you and hence can only be
+                                modified by it's owner.</div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+            <div class="envVals inMemEnvs" ng-show="vm.flags.showType == 'inMem'">
+                <div class="modal-cont">
+                    <form name="inMemEnvForm">
+                        <fieldset ng-disabled="vm.selectedEnv.owner && vm.selectedEnv.owner !== userData.UID">
+                            <div class="name">
+                                <span ng-hide="vm.edit.show">In-memory/generated variables</span>
+                            </div>
+                            <div class="envForm">
+                                <div class="form-group" style="width: 100%"
+                                    ng-repeat="key in getKeys(vm.inMemEnvCopy) track by $index"
+                                    ng-hide="vm.inMemEnvCopy[key] === undefined">
+                                    <label class="width40">{{key}}</label>
+                                    <input style="display:inline-block" type="text" name="mem.{{key}}"
+                                        class="form-control sm width40" ng-change="vm.inMemEnvChanged()"
+                                        placeholder="Value" ng-model="vm.inMemEnvCopy[key]" />
+                                    <a href="" class="btn btn-link btn-round red"
+                                        ng-click="vm.inMemEnvCopy[key]=undefined;vm.inMemEnvChanged();"><i
+                                            class="glyphicon glyphicon-remove"></i></a>
+                                </div>
+                                <div ng-if="vm.flags.inMemAdd">
+                                    <input type="text" only-alpna-num ng-model="vm.flags.inMemModel"
+                                        on-enter-key="vm.addInMemVar()" class="form-control "
+                                        style="display: inline-block; width: 300px;vertical-align: top"
+                                        placeholder="Environment variable name">
+                                    <a href="" class="glyphicon glyphicon-ok green btn btn-link"
+                                        ng-click="vm.addInMemVar()"></a>
+                                    <a href="" class="glyphicon glyphicon-remove red btn btn-link"
+                                        ng-click="vm.closeInMemVar()"></a>
+                                </div>
+                                <button type="button" ng-show="!vm.flags.inMemAdd" class="btn btn-link c btn-sm"
+                                    ng-click="vm.flags.inMemAdd=true; ">+ Add another</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div ng-if="vm.environments.length===0 && !vm.showAddEnv && vm.envsLoaded"
+            style="text-align: center;font-size: 20px;">No Environments found. Please <a href
+                ng-click="vm.showAddEnvBox();">create</a> one or <a href ng-click="vm.importFromFile();">import</a> from
+            file.</div>
+    </div>
+
+
+
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-link btn-sm" type="button" ng-hide="vm.saveRequired"
+        ng-click="closeEnvModal()">Close</button>
+    <span ng-show="vm.saveRequired">
+        <button class="btn btn-link btn-sm" type="button" ng-click="closeEnvModal()">Discard</button>
+        <button class="btn btn-primary btn-themed btn-sm" type="button" ng-click="vm.saveEnvs()">Save</button>
+        <button class="btn btn-primary btn-themed btn-sm" type="button" ng-click="vm.saveEnvs(true);">Save &
+            Close</button>
+    </span>
+
+</div>

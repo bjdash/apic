@@ -1,0 +1,174 @@
+<div class="pdocs container-fluid">
+    <div ui-view>
+        <h4 class="head">
+            <a href="" class="t_color" ng-click="vm.reload()" title="Click to Refresh">Teams</a> <span
+                ng-if="vm.selectedName">/ {{vm.selectedName}}</span>
+        </h4>
+        <button type="button" title="New Team" class="btn btn-primary btn-themed btn-circle apiproj-name new"
+            ng-click="vm.showCreate()"><i class="glyphicon glyphicon-plus"></i></button>
+        <div class="d-panel pad-15" ng-show="vm.flags.new">
+            <div class="d-panel-head">Create new team <span class="spinner" ng-if="vm.flags.creating"></span></div>
+            <div>
+                <form ng-submit="vm.createTeam()">
+                    <div class="col-md-8">
+                        <input type="text" ng-model="vm.newName" class="form-control" required=""
+                            placeholder="Team name" id="newTeam" />
+                    </div>
+                    <div class="col-md-4" style="padding-top: 5px;">
+                        <button type="submit" class="btn btn-primary btn-themed btn-sm"
+                            ng-disabled="!vm.newName">Create</button>
+                        <button type="reset" class="btn btn-link btn-sm" ng-click="vm.flags.new = false">Cancel</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+        <div ng-hide="vm.flags.inEdit">
+            <h5>Teams you own: <span class="spinner t_color" ng-if="vm.flags.loading"></span></h5>
+            <div class="d-panel pad-20">
+                <table class="table apic-table table-hover narrow">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%">Team Name</th>
+                            <th style="width: 5%">Members</th>
+                            <th style="width: 20%">Created</th>
+                            <th style="width: 20%">Last Modified</th>
+                            <th style="width: 25%">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="team in vm.data">
+                            <td>{{team.name}}</td>
+                            <td>{{team.members.length}}</td>
+                            <td>{{team.created| date:'MMM dd,yyyy h:mm a'}}</td>
+                            <td>{{team.modified| date:'MMM dd,yyyy h:mm a'}}</td>
+                            <td>
+                                <a href="" class="btn btn-link btn-sm" ng-click="vm.edit(team)"><i
+                                        class="glyphicon glyphicon-pencil"></i></a>
+                                <a href="" class="btn btn-link btn-sm" ng-click="vm.edit(team)"><i
+                                        class="icon bj-user-plus  icon-md"></i></a>
+                                <a href="" class="btn btn-link btn-sm" ng-click="vm.deleteTeam(team.id)"
+                                    confirm="Do you want to delete this team?" confirm-title="Delete Confirmation"
+                                    confirm-ok="Delete" confirm-cancel="Cancel"><i class="glyphicon glyphicon-trash"
+                                        style="color: #e51c23"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div ng-hide="vm.data.length || vm.flags.loading">You don't have any teams created. <a href=""
+                        class="t_color" ng-click="vm.showCreate()">Create one now.</a></div>
+            </div>
+        </div>
+
+
+        <div ng-hide="vm.flags.inEdit" style="margin-top: 30px;">
+            <h5>Teams you are a member of: <span class="spinner t_color"
+                    ng-if="vm.flags.exiting || vm.flags.membersOf"></span></h5>
+            <div class="d-panel pad-20">
+                <table class="table apic-table table-hover narrow">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%">Team Name</th>
+                            <th style="width: 35%">Owner</th>
+                            <th style="width: 15%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="team in vm.memberOf">
+                            <td>{{team.name}}</td>
+                            <td>{{team.ownerEmail}}</td>
+                            <td><a href="" class="btn btn-link btn-sm" ng-click="vm.exitTeam(team.id)"
+                                    confirm="You will loose all the stuff sharedwith you once you leave the team. Do you want to leave this team?"
+                                    confirm-title="Leave Team" confirm-ok="Leave" confirm-cancel="Cancel"><i
+                                        class="icon bj-exit gap"></i>Leave Team</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div ng-hide="vm.memberOf.length || vm.flags.membersOf">You are not a member of any team yet.</div>
+            </div>
+        </div>
+
+
+        <div ng-show="vm.flags.inEdit" class="row">
+            <div class="col-xs-3">
+                <ul class="list-items d-panel d-panel-sm tpad-10">
+                    <li ng-repeat="team in vm.data" class="list-item">
+                        <a href="" ng-click="vm.edit(team)"
+                            ng-class="team.id===vm.selected.id?'t_bg':''">{{team.name}}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-xs-9" style="border-left: 0px solid #ddd">
+                <form class="form-horizontal" ng-submit="vm.updateTeam()">
+                    <fieldset ng-disabled="vm.flags.saving">
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">Team Name:</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" placeholder="Team Name"
+                                    ng-model="vm.selected.name" id="teamName" style="display: inline-block;width: 70%;">
+                                <a href="" ng-click="vm.updateTeam()" class="btn btn-primary btn-themed btn-sm">
+                                    Save <span class="spinner t_color" ng-if="vm.flags.saving"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+
+                <div class="form-group">
+                    <h5>Add member: <span class="spinner t_color" ng-if="vm.flags.finding"></span></h5>
+                    <div class="d-panel pad-20" style="min-height: 80px;">
+                        <div class="col-xs-7">
+                            <input type="email" name="addUserEmail" on-enter-key="vm.addMember()"
+                                placeholder="Find user by email to add to your team" class="form-control input-sm"
+                                ng-model="vm.newMember.email" />
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="form-control input-sm" ng-model="vm.newMember.role">
+                                <option value="1">Can Edit</option>
+                                <!--<option value="0">Can Read</option>-->
+                            </select>
+                        </div>
+                        <div class="col-xs-2">
+                            <button type="button" class="btn btn-primary btn-themed btn-sm" ng-click="vm.addMember()"
+                                ng-disabled="!vm.newMember.email">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <h5>Team Members: <span class="spinner t_color" ng-if="vm.flags.members"></span></h5>
+                    <div class="col-xs-12 d-panel pad-15">
+                        <table class="table apic-table narrow">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%">Member</th>
+                                    <th style="width: 40%">Permission</th>
+                                    <th style="width: 10%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>You</td>
+                                    <td>Admin</td>
+                                    <td></td>
+                                </tr>
+                                <tr ng-repeat="memb in vm.selected.members track by $index">
+                                    <td>{{memb.email}}</td>
+                                    <td>{{memb.role == '1'?'Can Edit': 'Can Read'}}</td>
+                                    <td><a href="" class="btn btn-link btn-sm" ng-click="vm.deleteMember(memb.uid)"><i
+                                                class="icon bj-user-minus icon-md" style="color: #e51c23"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>

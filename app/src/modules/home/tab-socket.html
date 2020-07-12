@@ -1,0 +1,349 @@
+<div class="container-home">
+    <div class="url-cont">
+        <div class="progress-holder">
+            <div class="progress progress-striped active" style="height: 35px;margin-bottom: 0">
+                <div class="progress-bar custom" ng-style="{width: vm.progress?'100%':'0%'}"></div>
+            </div>
+        </div>
+        <div class="input-group">
+            <a ng-if="vm.URL.indexOf('{{')>=0" href class="glyphicon glyphicon-eye-open peek-url" uib-popover="{{interpolate(vm.URL,vm.curEnv.vals)}}"
+                popover-placement="right" popover-trigger="'mouseenter'"></a>
+            <div apic-wysiwyg env="curEnv" ng-model="vm.URL" ng-readonly="vm.progress || vm.connected"
+                class="form-control URL mousetrap" on-enter-key="vm.connect()" placeholder="Socket URL"></div>
+            <span class="input-group-btn" style="z-index: 1">
+                <a href="" class="icon bj-files-empty copy-url" title="Copy compiled URL"
+                    ng-click="copyToClipboard(interpolate(vm.URL, vm.curEnv.vals))"></a>
+            </span>
+            <!-- <span class="input-group-btn" uib-dropdown keyboard-nav style="z-index: 1">
+                <button ng-disabled="vm.progress || vm.connected" 
+                        type="button" class="btn btn-link meth-btn" 
+                        uib-dropdown-toggle>
+                    {{vm.METHOD}} <span class="caret"></span>
+                </button>
+                <ul uib-dropdown-menu role="menu" 
+                    class="dropdown-menu-right" >
+                    <li role="menuitem">
+                        <a href="" ng-click="vm.METHOD = 'Websocket'">Websocket</a>
+                    </li>
+                    <li role="menuitem">
+                        <a href="" ng-click="vm.METHOD = 'Stomp'">Stomp</a>
+                    </li>
+                </ul>
+            </span> -->
+            <span class="input-group-btn" style="z-index: 1">
+                <button class="btn btn-link run-extra" ng-disabled="vm.progress" ng-click="vm.connect()"
+                    ng-if="!vm.connected">Connect</button>
+                <button class="btn btn-link run-extra" ng-disabled="vm.progress" ng-click="vm.disconnect()"
+                    ng-if="vm.connected">Disconnect</button>
+            </span>
+        </div>
+    </div>
+    <div style="padding-top: 52px;">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="form-group panel panel-primary dark">
+                    <div class="panel-heading panel-sm">
+                        <h3 class="panel-title custom pointer" ng-click="vm.flags.conn = !vm.flags.conn">
+                            <span class="glyphicon glyphicon-menu-down"
+                                ng-class="vm.flags.conn?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                            Connection
+                        </h3>
+                        <div class="reqControls">
+                            <span class="holder">
+                                <div class="btn-group" style="width:100px;">
+                                    <a href class="btn btn-sm btn-link c t_color" ng-click="vm.initReqSave()"><i
+                                            class="glyphicon glyphicon-floppy-save"></i> Save</a>
+                                    <span class="input-group-btn" uib-dropdown>
+                                        <button type="button" class="btn btn-sm btn-link c" uib-dropdown-toggle
+                                            aria-haspopup="true" aria-expanded="false"
+                                            style="padding:6px 6px 7px 4px;"><span class="caret"></span></button>
+
+                                        <ul uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
+                                            <li>
+                                                <a href ng-click="vm.initReqSave(true)"> <i
+                                                        class="glyphicon glyphicon-floppy-save"></i>Save as</a></li>
+                                        </ul>
+                                    </span>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="panel-body resetTop" ng-show="!vm.flags.conn">
+                        <fieldset class="controls btn-group" ng-disabled="vm.connected">
+                            <button class="btn btn-flat btn-default f18" ng-class="{'active':vm.METHOD == 'Websocket'}"
+                                ng-click="vm.METHOD = 'Websocket'">Websocket</button>
+                            <button class="btn btn-flat btn-default f18" ng-class="{'active':vm.METHOD == 'Socketio'}"
+                                ng-click="vm.METHOD = 'Socketio'">Socket.io</button>
+                            <button class="btn btn-flat btn-default f18" ng-class="{'active':vm.METHOD == 'Stomp'}"
+                                ng-click="vm.METHOD = 'Stomp'">Stomp</button>
+                            <button class="btn btn-flat btn-default f18" ng-class="{'active':vm.METHOD == 'SSE'}"
+                                ng-click="vm.METHOD = 'SSE'">SSE</button>
+                        </fieldset>
+
+                        <div style="margin-top: 5px;;">
+                            <div ng-if="vm.METHOD === 'Stomp'">
+                                <form class="form-horizontal form-compact" role="form">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Subscription URL:</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" value="" ng-model="vm.connection.subscUrl"
+                                                class="form-control sm" placeholder="Stomp Subscription URL">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Virtual Host:</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" value="" ng-model="vm.connection.vhost"
+                                                class="form-control sm"
+                                                placeholder="Stomp Virtual Host name (optional)">
+                                        </div>
+                                    </div>
+                                    <div ng-if="vm.flags.useCred">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4" for="email">Login:</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" value="" ng-model="vm.connection.id"
+                                                    class="form-control sm" placeholder="Login Id">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4" for="b-auth-pwd">Passcode:</label>
+                                            <div class="col-sm-8">
+                                                <input type="{{vm.flags.showPsd?'text':'password'}}"
+                                                    ng-model="vm.connection.psd" value="" class="form-control sm"
+                                                    id="b-auth-pwd" placeholder="Password">
+                                                <label><input type="checkbox" ng-model="vm.flags.showPsd"> Show
+                                                    Password</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 2px;padding-left: 5px;" class="col-md-6 col-xs-offset-4">
+                                        <button type="button" class="btn btn-sm btn-default"
+                                            ng-click="vm.flags.useCred = true" ng-if="!vm.flags.useCred">Use
+                                            credentials</button>
+                                    </div>
+                                    <div class="headers form-inline" role="form" style="clear: both">
+                                        <h6>Headers</h6>
+                                        <div class="kvCont" ng-repeat="param in vm.connection.headers track by $index">
+                                            <input type="text" placeholder="Header name" ng-model="param.key"
+                                                class="form-control sm"
+                                                ng-focus="vm.addRow(vm.connection.headers, $index)">
+                                            <input type="text" placeholder="Value" ng-model="param.val"
+                                                class="form-control sm"
+                                                ng-focus="vm.addRow(vm.connection.headers, $index)" />
+                                            <div>
+                                                <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                                                    ng-click="vm.connection.headers.splice($index,1)"><i
+                                                        class="glyphicon glyphicon-remove"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div ng-if="vm.METHOD === 'Socketio'">
+                                <form class="form-horizontal form-compact" role="form">
+                                    <div class="row">
+
+                                        <div class="col-sm-6">
+                                            <div class="margV5">
+                                                <label>Path:</label>
+                                                <div>
+                                                    <input type="text" value="" ng-model="vm.socketio.path"
+                                                        class="form-control sm" placeholder="Default /socket.io">
+                                                </div>
+                                            </div>
+                                            <!-- <div class="form-group">
+                                                <label>Force New <input type="checkbox" /></label>
+                                            </div> -->
+                                            <div class="margV5">
+                                                <label>Transport:</label>
+                                                <div>
+                                                    <label class="col-sm-6"><input type="checkbox"
+                                                            ng-model="vm.socketio.transport[0]" /> Pooling</label>
+                                                    <label><input type="checkbox" ng-model="vm.socketio.transport[1]" />
+                                                        Websockets</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 margV5">
+                                            <label class="">Listeners</label>
+                                            <div ng-repeat="lis in vm.socketio.listeners track by $index">
+                                                <label><input type="checkbox" ng-model="lis.active"
+                                                        ng-change="vm.wsToggleListener(lis.name, lis.active, 'socketio')" />
+                                                    {{lis.name}}</label>
+                                                <i class="glyphicon glyphicon-remove pull-right red"
+                                                    ng-click="vm.wsRemoveListener($index, 'socketio')"></i>
+                                            </div>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control input-sm"
+                                                    placeholder="New listener name" ng-model="vm.newListener"
+                                                    on-enter-key="vm.wsAddListener(vm.newListener, 'socketio')">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-primary btn-themed btn-sm" type="submit"
+                                                        ng-click="vm.wsAddListener(vm.newListener,'socketio')"><span
+                                                            class="glyphicon glyphicon-plus"></span></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6>Query Params</h6>
+                                        <div class="kvCont" ng-repeat="param in vm.socketio.query track by $index">
+                                            <input type="text" placeholder="Query param name" ng-model="param.key"
+                                                class="form-control sm" ng-focus="vm.addRow(vm.socketio.query, $index)">
+                                            <input type="text" placeholder="Value" ng-model="param.val"
+                                                class="form-control sm"
+                                                ng-focus="vm.addRow(vm.socketio.query, $index)" />
+                                            <div>
+                                                <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                                                    ng-click="vm.socketio.query.splice($index,1)"><i
+                                                        class="glyphicon glyphicon-remove"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div ng-if="vm.socketio.transport[0]">
+                                        <h6>Headers</h6>
+                                        <div class="kvCont" ng-repeat="param in vm.socketio.headers track by $index">
+                                            <input type="text" placeholder="Header name" ng-model="param.key"
+                                                class="form-control sm"
+                                                ng-focus="vm.addRow(vm.socketio.headers, $index)">
+                                            <input type="text" placeholder="Value" ng-model="param.val"
+                                                class="form-control sm"
+                                                ng-focus="vm.addRow(vm.socketio.headers, $index)" />
+                                            <div>
+                                                <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                                                    ng-click="vm.socketio.headers.splice($index,1)"><i
+                                                        class="glyphicon glyphicon-remove"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div ng-if="vm.METHOD === 'SSE'">
+                                <form class="form-horizontal form-compact" role="form">
+                                    <div class="col-sm-5">
+                                        <div class="margV10">
+                                            <label><input type="checkbox" ng-model="vm.sse.withCred"> With
+                                                Credentials</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <label>Listeners</label>
+                                        <div ng-repeat="lis in vm.sse.listeners track by $index">
+                                            <label><input type="checkbox" ng-model="lis.active"
+                                                    ng-change="vm.wsToggleListener(lis.name, lis.active, 'sse')" />
+                                                {{lis.name}}</label>
+                                            <i ng-hide="lis.readonly" class="glyphicon glyphicon-remove pull-right red"
+                                                ng-click="vm.wsRemoveListener($index, 'sse')"></i>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control input-sm"
+                                                placeholder="New listener name" ng-model="vm.newListener"
+                                                on-enter-key="vm.wsAddListener(vm.newListener, 'sse')">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-primary btn-themed btn-sm" type="submit"
+                                                    ng-click="vm.wsAddListener(vm.newListener, 'sse')"><span
+                                                        class="glyphicon glyphicon-plus"></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group panel panel-primary dark">
+                    <div class="panel-heading panel-sm">
+                        <h3 class="panel-title custom pointer" ng-click="vm.flags.msg = !vm.flags.msg">
+                            <span class="glyphicon glyphicon-menu-down"
+                                ng-class="vm.flags.msg?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                            Messages</h3>
+                        <a href="" title="Clear" class="btn btn-sm btn-link pull-right"
+                            ng-click="vm.messages.length = 0"><span class="icon bj-rubber"></span></a>
+                        <!-- <div class="controls btn-group pull-right" ng-init="tab = 1">
+                            <button class="btn btn-flat btn-default" ng-click="tab=0" ng-class="tab===0?'active':''">Pretty</button>
+                            <button class="btn btn-flat btn-default" ng-click="tab=1" ng-class="tab===1?'active':''">Raw</button>
+                            <button class="btn btn-flat btn-default" ng-click="tab=2" ng-class="tab===2?'active':''">Headers</button>
+                        </div> -->
+                    </div>
+                    <div class="panel-body resetTop" style="max-height: 400px;overflow: auto;" ng-show="!vm.flags.msg">
+                        <div ng-repeat="msg in vm.messages track by $index" time="{{msg.time | date:'hh:mm:ss a'}}"
+                            class="sock-resp" ng-class="msg.type">
+                            <div ng-if="msg.head" class="bold">{{msg.head}}</div>
+                            <pre ng-class="msg.type==='error'?'red bold':''">{{msg.body | json : spacing}}</pre>
+                        </div>
+                        <div ng-show="vm.messages.length===0" class="bold center">
+                            No messages to show yet...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group panel panel-primary dark" ng-if="vm.METHOD != 'SSE'">
+            <div class="panel-heading panel-sm relative">
+                <h3 class="panel-title custom pointer" ng-click="vm.flags.send = !vm.flags.send">
+                    <span class="glyphicon glyphicon-menu-down"
+                        ng-class="vm.flags.send?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                    Send</h3>
+                <span class="green margL90" ng-show="vm.flags.sent"><span class="glyphicon glyphicon-ok"></span>
+                    Sent</span>
+                <div class="modal-ctrls">
+                    <div class="btn-group gap" role="group" aria-label="Export" style="margin-top:-10px;">
+                        <button type="button" ng-class="vm.flags.sendOptn.mode == 'text'?'t_bg':''"
+                            class="btn btn-default btn-sm btn-secondary"
+                            ng-click="vm.flags.sendOptn.mode='text'">Text</button>
+                        <button type="button" ng-class="vm.flags.sendOptn.mode == 'json'?'t_bg':''"
+                            class="btn btn-default btn-sm btn-secondary"
+                            ng-click="vm.flags.sendOptn.mode='json'">JSON</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body sock-resp-cont" ng-show="!vm.flags.send">
+                <div class="s-send-cont relative">
+                    <div ng-if="vm.METHOD === 'Stomp'">
+                        <div class="form-group">
+                            <label class="control-label">Destination Queue:</label>
+                            <input type="text" value="" ng-model="vm.destQ" class="form-control sm"
+                                placeholder="Destination Queue URL">
+                        </div>
+                    </div>
+                    <div ng-if="vm.METHOD === 'Socketio'">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="control-label">Event name to emit:</label>
+                                <input type="text" value="" ng-model="vm.socketio.emitName" class="form-control sm"
+                                    placeholder="Event name">
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Arguments</label>
+                                <div>
+                                    <div class="sioarg" ng-click="vm.sioSaveCurrentArg();vm.sioLoadArgVal($index)"
+                                        ng-repeat="x in vm.socketio.args track by $index"
+                                        ng-class="$index===vm.socketio.curArg?'t_bgo':''">
+                                        <i ng-if="vm.socketio.args.length > 1" class="glyphicon glyphicon-remove"
+                                            ng-click="vm.sioRemoveArg($index, $event)"></i>
+                                        Arg {{$index+1}}
+                                    </div>
+                                    <a class="sioarg btn btn-link" ng-click="vm.sioAddArg()"><i
+                                            class="glyphicon glyphicon-plus"></i> Add Arg</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div style="flex:2">
+                        <div ng-class="vm.METHOD + '-editor'" ui-ace="vm.flags.sendOptn" ng-model="vm.sendText"
+                            ng-ace-resize></div>
+                    </div>
+                    <button class="btn btn-sm btn-primary btn-themed" ng-click="vm.send()"><span
+                            class="icon bj-paper-plane gap"></span> Send</button>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+<div>
+    <div class="right-cont full-width" ng-hide="hideDocs">
+        <div class="tab-container">
+            <ol class="breadcrumb proj-brcmb">
+                <li ng-click="vm.showWorkspace()">
+                    <a href="">Docs</a>
+                </li>
+            </ol>
+        </div>
+        <div style="overflow :auto;position :absolute;left :0;right :0;bottom :0;top :32px;">
+            <div class="workspace">
+                <div class="workspace-title">Available Docs</div>
+                <div class="projects">
+                    <div class="projects-list">
+                        <div class="api-project docs-proj" ng-repeat="proj in vm.projects track by $index" ng-click="vm.showDocs(proj)">
+                                <div class="apiproj-name">{{proj.title}}</div>
+                        </div>
+                        <div class="api-project" style="width: 120px">
+                            <button class="btn btn-primary btn-themed btn-circle apiproj-name" ng-click="vm.openProjInfoModal()">
+                                <i class="glyphicon glyphicon-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div ui-view></div>
+</div>

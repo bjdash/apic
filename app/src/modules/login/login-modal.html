@@ -1,0 +1,146 @@
+<div class="login-modal">
+    <div class="login-bg" ng-class="vm.window">
+        <button class="back" type="button" ng-click="closeLoginModal()">
+            <i class="icon bj-arrow_back"></i>
+        </button>
+        <div class="msg" ng-show="vm.msg.text" ng-class="vm.msg.type"
+            style="position: absolute;width: 80%;margin-left: 10%;bottom: 50px;">{{vm.msg.text}}</div>
+        <div class="login-cont login">
+            <div class="login-logo">apic</div>
+            <div class="login-type">Login</div>
+            <form class="form-horizontal" role="form" ng-submit="vm.login()">
+                <div class="form-group">
+                    <label class="control-label col-sm-1" for="email-login">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="email" required="" id="email-login" class="form-control sm" placeholder="Email"
+                            pattern=".{3,255}" ng-model="vm.loginModel.email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-1" for="pwd-login">
+                        <i class="icon bj-key"></i>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="password" required="" class="form-control sm" id="pwd-login" placeholder="Password"
+                            pattern=".{6,255}" ng-model="vm.loginModel.psd">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-9">
+                        <button type="submit" class="btn btn-success btn-sm btn-login">
+                            <i class="icon bj-arrow_forward"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <!--<a href="https://github.com/login/oauth/authorize?scope=user:email&client_id=8ea57f09c04c01d9a557">Login with Github</a>-->
+            <button class="login-g" id="login-g" ng-click="vm.initGoogleLogin()">
+                <span class="g-logo">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48"
+                        class="abcRioButtonSvg">
+                        <g>
+                            <path fill="#EA4335"
+                                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z">
+                            </path>
+                            <path fill="#4285F4"
+                                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z">
+                            </path>
+                            <path fill="#FBBC05"
+                                d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z">
+                            </path>
+                            <path fill="#34A853"
+                                d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z">
+                            </path>
+                            <path fill="none" d="M0 0h48v48H0z"></path>
+                        </g>
+                    </svg>
+                </span>
+                <span class="g-text">Sign in with Google</span>
+            </button>
+            <!--<div class="msg" ng-show="vm.msg.text" ng-class="vm.msg.type">{{vm.msg.text}}</div>-->
+            <div class="login-ctrls">
+                <a href class="login-ctrl reg" ng-click="vm.window='reg'">Register</a>
+                <a href class="login-ctrl forgot" ng-click="vm.window='forgot'">Forgot Password</a>
+                <!--<a href="https://apic.app/identity/#!/register" class="login-ctrl reg" target="_blank">Register</a>
+                <a href="https://apic.app/identity/#!/forgotPassword" class="login-ctrl forgot" target="_blank">Forgot Password</a>-->
+            </div>
+        </div>
+
+        <div class="login-cont reg">
+            <div class="login-logo">apic</div>
+            <div class="login-type">Register</div>
+            <form class="form-horizontal" role="form" name="regForm">
+                <div class="form-group">
+                    <label class="control-label col-sm-1" for="name-reg">
+                        <i class="icon bj-user"></i>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="text" id="name-reg" ng-model="vm.regModel.name" class="form-control sm"
+                            placeholder="Name" required pattern=".{3,30}" title="Name between 3-30 characters">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-1" for="email-reg">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="email" id="email-reg" ng-model="vm.regModel.email" class="form-control sm"
+                            placeholder="Email" required pattern=".{3,255}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-1" for="pwd-reg">
+                        <i class="icon bj-key"></i>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="password" id="pwd-reg" ng-model="vm.regModel.psd" class="form-control sm"
+                            placeholder="Password" pattern=".{6,255}" title="Password minimum 6 characters">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-9">
+                        <button type="submit" ng-disabled="regForm.$invalid" class="btn btn-warning btn-sm btn-login"
+                            ng-click="vm.register()">
+                            <i class="icon bj-arrow_forward"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+            <div class="login-ctrls">
+                <a href class="login-ctrl login" ng-click="vm.window='login'">Login</a>
+                <a href class="login-ctrl forgot" ng-click="vm.window='forgot'">Forgot Password</a>
+            </div>
+        </div>
+
+        <div class="login-cont forgot">
+            <div class="login-logo">apic</div>
+            <div class="login-type">Forgot Password</div>
+            <form class="form-horizontal" role="form" name="forgot">
+                <div class="form-group">
+                    <label class="control-label col-sm-1" for="email-forgot">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="text" id="email-forgot" class="form-control sm" placeholder="Email"
+                            ng-model="vm.forgotEmail">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-9">
+                        <button type="button" class="btn btn-danger btn-sm btn-login" ng-click="vm.forgotPassword()">
+                            <i class="icon bj-arrow_forward"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div class="login-ctrls">
+                <a href class="login-ctrl login" ng-click="vm.window='login'">Login</a>
+                <a href class="login-ctrl reg" ng-click="vm.window='reg'">Register</a>
+            </div>
+        </div>
+
+    </div>
+</div>

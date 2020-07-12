@@ -1,0 +1,158 @@
+.modal-body.envModal {
+  padding: 5px 0 0;
+}
+.envModal .addEnvBtn {
+  position: absolute;
+  right: -15px;
+  top: -20px;
+}
+.addEnvBtn a.btn {
+  width: 50px;
+  height: 50px;
+  font-size: 18px;
+  border-radius: 50%;
+  box-shadow: -3px 2px 7px 1px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  line-height: 55px;
+  font-size: 18px;
+  padding: 0;
+  font-weight: bold;
+  background: var(--accent-color);
+  color: var(--accent-bg-text);
+}
+.addEnvBtn a i {
+  transition: transform 0.3s;
+}
+.envCont {
+  display: table;
+  width: 100%;
+}
+.envCont .envList {
+  border-right: 1px solid var(--border-color);
+}
+.envList .input-group.addEnvForm {
+  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.3);
+}
+.env-ctrls {
+  font-size: 25px;
+  position: absolute;
+  right: 60px;
+  top: -25px;
+}
+.envCont .envList {
+  display: table-cell;
+  width: 260px;
+  vertical-align: top;
+}
+.envList .input-group.addEnvForm {
+  padding: 5px;
+}
+.addEnvForm .ok {
+  padding: 6px 2px;
+}
+.envList ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+.envList ul li {
+  position: relative;
+}
+.envList ul li .env-optn {
+  display: none;
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  background: var(--content-bg);
+  height: 31px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  padding: 3px;
+}
+.envList ul li:hover .env-optn {
+  display: block;
+}
+.env-optn .icon {
+  display: inline-block;
+  padding: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: #fff;
+}
+.env-optn .icon.green:hover {
+  background: #4caf50;
+  color: #fff;
+}
+.env-optn .icon.red:hover,
+.env-optn .glyphicon.red:hover {
+  background: #f44336;
+  color: #fff;
+}
+.envList ul li a {
+  padding: 5px 10px;
+  display: block;
+  width: 260px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.envList ul li.active a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--header-bg);
+  font-weight: bold;
+  border-radius: 0;
+}
+.envList .glyphicon-ok {
+  cursor: pointer;
+  color: #4caf50;
+  font-size: 18px;
+}
+input.error {
+  border-bottom: 2px solid #f44336 !important;
+  box-shadow: none !important;
+  background: #ffcdd2 !important;
+}
+.envCont .envVals {
+  display: table-cell;
+  width: 70%;
+}
+.envVals .name {
+  font-size: 22px;
+  font-weight: bold;
+  margin-left: 10px;
+}
+.envVals .name .edit {
+  font-size: 16px;
+  margin: 5px;
+}
+.envForm {
+  padding: 5px 15px;
+  overflow: auto;
+}
+.rotateZ {
+  transform: rotateZ(135deg);
+}
+input.error {
+}
+.envDnl {
+  max-height: 350px;
+  overflow: auto;
+}
+.envDnl li label {
+  width: 100%;
+  padding: 4px 5px;
+}
+.envDnl .divider {
+  margin: 5px 0;
+}
+.dark-theme .envList ul li a {
+  border-bottom: 1px solid #777;
+}
+.dark-theme .envCont .envList {
+  border-right: 1px solid #777;
+}
+.dark-theme .envList ul li.active a {
+  background: #5f5f5f;
+}

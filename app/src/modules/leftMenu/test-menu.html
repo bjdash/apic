@@ -1,0 +1,239 @@
+<div class="tests" >
+    <div class="top-menu" style="text-align: right">
+        <a class="btn btn-link round-btn t_color" href="" ng-click="vm.importTestProject()">
+            <i class="glyphicon glyphicon-import" uib-tooltip="Import Test Project" tooltip-placement="left"></i>
+        </a>
+        <a href class="btn btn-link round-btn t_color" 
+            uib-tooltip="New Project" 
+            tooltip-placement="left"
+            ng-click="vm.showNewProjForm()">
+            <span class="glyphicon glyphicon-plus"></span>
+        </a>
+    </div>
+    <div class="input-group new-folder" ng-show="vm.newProj.showForm">
+        <input type="text" 
+               class="form-control" 
+               ng-model="vm.newProj.name" 
+               placeholder="Project Name" 
+               maxlength="35"
+               id="newProjName"/>
+
+        <span class="input-group-btn">
+            <button ng-click="vm.createProj();" 
+                    ng-disabled="!vm.newProj.name" 
+                    class="btn btn-link save" 
+                    uib-tooltip="Create" 
+                    tooltip-placement="top" 
+                    type="button">
+                <i class="glyphicon glyphicon-ok"></i>
+            </button>
+            <button ng-click="vm.newProj.showForm = false;" 
+                    class="btn btn-link cancel" 
+                    uib-tooltip="Cancel" 
+                    tooltip-placement="top" 
+                    type="button">
+                <i class="glyphicon glyphicon-remove"></i>
+            </button>
+        </span>
+    </div>
+    <div>
+        <div ng-repeat="proj in vm.PROJECTS track by $index">
+            <div class="folder" ng-class="proj.expanded?'opened':'closed'">
+                <div class="l-sec folder-icon">
+                    <i class="icon bj-make-group" ng-click="proj.expanded = !proj.expanded"></i>
+                </div>
+                
+                <div class="r-sec">
+                    <span uib-dropdown class="">
+                        <a href id="proj-optn" class="folder-optn" uib-dropdown-toggle>
+                            <i class="glyphicon glyphicon-option-vertical"></i>
+                        </a>
+                        <ul 
+                            uib-dropdown-menu aria-labelledby="proj-optn"
+                            class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a href 
+                                    ng-click="vm.showNewSuitForm(proj)">
+                                    <i class="icon bj-box-filled"></i>
+                                    <span>New Test Suite</span>
+                                </a>
+                            </li>
+                            <li ng-if="!proj.team && proj.owner === userData.UID">
+                                <a href 
+                                    ng-click="openShareModal(proj._id,'TestCaseProjects')">
+                                        <i class="icon bj-share-alt"></i>
+                                Share </a>
+                            </li>
+                            <li ng-if="proj.team && proj.owner === userData.UID">
+                                <a href 
+                                    ng-click="unshare(proj.team,proj._id, 'TestCaseProjects')" confirm="Do you want to unshare this Test project?" confirm-title="Unshare Test Project" confirm-ok="Unshare" confirm-cancel="Cancel">
+                                        <i class="icon bj-unshare red"></i>
+                                Unshare: {{Teams[proj.team]}} </a>
+                            </li>
+                            <li>
+                                <a href ng-click="vm.importTestSuit(proj)">
+                                    <i class="glyphicon glyphicon-import"></i>
+                                    <span>Import Test Suite</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href ng-click="vm.exportTestProj(proj)">
+                                    <i class="glyphicon glyphicon-download-alt"></i>
+                                    <span>Export Project</span>
+                                </a>
+                            </li>
+                            <li ng-hide="proj.team && userData.UID && proj.owner !== userData.UID">
+                                <a href="" 
+                                    confirm="Want to delete the Project?" 
+                                    confirm-title="Delete Confirmation" 
+                                    confirm-ok="Delete" 
+                                    confirm-cancel="Cancel"
+                                    ng-click="vm.deleteProject(proj._id);">
+                                    <i class="glyphicon glyphicon-trash red" ></i>Delete Project</a>
+                            </li>
+                        </ul>
+                    </span>
+                </div>
+                <div class="folder-name m-sec" ng-click="proj.expanded = !proj.expanded">
+                    <div class="f-name">{{proj.name}}</div>
+                </div>
+            </div>
+            <div ng-show="proj.expanded" class="proj-content">
+                <div class="input-group new-folder" style="margin: 0px; box-shadow: none;" 
+                     ng-if="vm.newSuit.show && vm.newSuit.parentId === proj._id">
+                    <input type="text" 
+                           class="form-control" 
+                           ng-model="vm.newSuit.name" 
+                           placeholder="Test Suite Name" 
+                           maxlength="35"
+                           id="newSuitName"/>
+
+                    <span class="input-group-btn">
+                        <button ng-click="vm.createSuit();" 
+                                ng-disabled="!vm.newSuit.name" 
+                                class="btn btn-link save" 
+                                uib-tooltip="Create" 
+                                tooltip-placement="top" 
+                                type="button">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </button>
+                        <button ng-click="vm.newSuit.show = false;" 
+                                class="btn btn-link cancel" 
+                                uib-tooltip="Cancel" 
+                                tooltip-placement="top" 
+                                type="button">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </button>
+                    </span>
+                </div>
+                <div ng-repeat="suit in proj.suits track by suit._id">
+                    <div class="savedReq suit"  ng-class="suit.expanded?'opened':'closed'">
+                        <div class="l-sec">
+                            <i class="icon bj-box-filled" ng-click="suit.expanded = !suit.expanded"></i>
+                        </div>
+                        
+                        <div class="r-sec">
+                            <div class="r-item">
+                                <a class="folder-optn">
+                                    <i class="glyphicon glyphicon-play" ng-click="vm.openSuit(suit)"></i>
+                                </a>
+                            </div>
+                            <div class="r-item">
+                                <a class="folder-optn">
+                                    <i class="glyphicon glyphicon-plus" ng-click="vm.showReqSelector(suit._id)"></i>
+                                </a>
+                            </div>
+                            <div uib-dropdown class="r-item">
+                                <a href id="suit-optn" class="folder-optn" uib-dropdown-toggle>
+                                    <i class="glyphicon glyphicon-option-vertical"></i>
+                                </a>
+                                <ul 
+                                    uib-dropdown-menu aria-labelledby="suit-optn"
+                                    class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href 
+                                            ng-click="vm.showReqSelector(suit._id)">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                            <span>Add Request</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href 
+                                            ng-click="vm.openSuit(suit)">
+                                            <i class="glyphicon glyphicon-new-window"></i>
+                                            <span>Open Suite</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href 
+                                            ng-click="vm.exportSuit(suit)">
+                                            <i class="glyphicon glyphicon-download-alt"></i>
+                                            <span>Export Suite</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href 
+                                            ng-click="vm.exportSuit(suit, true)">
+                                            <i class="glyphicon glyphicon-download-alt"></i>
+                                            <span>Export with Environment</span>
+                                        </a>
+                                    </li>
+                                    <li ng-hide="suit.team && userData.UID && suit.owner !== userData.UID">
+                                        <a href="" 
+                                            confirm="Want to delete the Test Suite?" 
+                                            confirm-title="Delete Confirmation" 
+                                            confirm-ok="Delete" 
+                                            confirm-cancel="Cancel"
+                                            ng-click="vm.deleteSuit(suit._id, proj._id)">
+                                            <i class="glyphicon glyphicon-trash red" ></i>Delete</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="name m-sec" ng-click="suit.expanded = !suit.expanded">
+                            {{suit.name}}
+                        </div>
+                    </div>
+                    <div ng-show="suit.expanded" style="padding-left: 10px;">
+                        <div ng-repeat="req in suit.reqs track by $index" 
+                             class="savedReq" >
+                            <div class="l-sec">
+                                <div class="method" ng-class="req.method" ng-click="vm.openSuitReq(req._id, suit, $index)"></div>
+                            </div>
+                            <div class="r-sec" uib-dropdown uib-dropdown-toggle>
+                                <a href id="history-optn" class="req-menu">
+                                    <i class="icon bj-more_vert"></i>
+                                </a>
+                                <ul uib-dropdown-menu class="dropdown-menu-right">
+                                    <li>
+                                        <a href="" 
+                                           ng-click="vm.duplicateReqInSuit(suit, req)">
+                                            <i class="icon bj-files-empty" ></i>Duplicate</a>
+                                    </li>
+                                    <li>
+                                        <a href="" 
+                                           ng-click="vm.removeReqFromSuit(suit, req._id, $index)">
+                                            <i class="glyphicon glyphicon-trash red" ></i>Remove from Suite</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="name m-sec" ng-click="vm.openSuitReq(req._id, suit, $index)">{{req.name}}</div>
+                        </div>
+                        <div ng-hide="suit.reqs.length>0">Empty</div>
+                    </div>
+                </div>
+                <div ng-if="!proj.suits" style="padding: 5px;font-size: 16px;">
+                    No Test Suites found. 
+                    <a class="t_color" href ng-click="vm.showNewSuitForm(proj)">Create</a> one.
+                </div>
+            </div>
+        </div>
+        <div ng-if="vm.noProjects" style="text-align: center;font-size: 18px;">
+            No Projects found. 
+            <a href class="t_color" ng-click="vm.newProj.showForm = true">Create</a> a new one.
+        </div>
+    </div>
+    <div class="center pad10">
+        <a href class="btn btn-link c" ng-click="vm.showNewProjForm()"><span class="glyphicon glyphicon-plus gap"></span>New Project</a>
+    </div>
+</div>

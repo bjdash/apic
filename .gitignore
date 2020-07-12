@@ -1,0 +1,17 @@
+#directories
+node_modules
+dist
+build
+buildUI
+buildExtn
+war
+.vscode
+release
+
+#files
+*.tgz
+*.log
+.git-bitbkt
+.git-github
+/app/src/nbproject/private/
+/build/win/src/nbproject/private/

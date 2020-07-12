@@ -1,0 +1,29 @@
+<div class="treeSelector">
+    <div ng-repeat="item in items" ng-if="type === 'array'">
+        <button ng-click="select(item)" 
+             class="btn btn-link custom parent" 
+             ng-disabled="disableParent === true"
+             ng-class="model.$viewValue === item._id?'active':''">{{item[displayName]}}</button>
+        <div ng-repeat="child in item[children]" class="tschildCont">
+            <button class="btn btn-link custom child" 
+                 ng-click="select(child)" 
+                 ng-class="model.$viewValue === child._id?'active':''">{{child[displayName]}}</button>
+        </div>
+    </div>
+    
+    <div ng-repeat="(key, val) in items" ng-if="type === 'object'">
+        <button ng-click="select(val)" 
+             class="btn btn-link custom parent" 
+             ng-disabled="disableParent === true"
+             ng-class="model.$viewValue === val._id?'active':''">{{val[displayName]}}</button>
+        <div ng-repeat="(keyCh, valCh) in val[children]" class="tschildCont">
+            <button class="btn btn-link custom child" 
+                 ng-click="select(valCh)" 
+                 ng-class="model.$viewValue === valCh._id?'active':''">{{valCh[displayName]}}</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button ng-disabled="!model.$viewValue" ng-click="done()" class="btn btn-primary btn-themed btn-sm">Done</button>
+    </div>
+</div>

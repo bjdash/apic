@@ -1,0 +1,23 @@
+<div class="json-schema">
+    <uib-tabset active="active">
+        <uib-tab index="0" heading="Designer" select="convertSchema2Obj()">
+            <div>
+                <fieldset ng-disabled="readonly">
+                    <div class="main relative">
+                        <div ng-include="'modules/JsonSchemeEditor/main-schema.html'"></div>
+                        <div tb-helper ng-if="configs.tbHelper.show" cfg="configs.tbHelper"></div>
+                    </div>
+                    <div class="model-type-selector" id="model-type-selector" style="display: none">
+                        <div ng-include="'modules/JsonSchemeEditor/model-selector-schema.html'"></div>
+                    </div>
+                </fieldset>
+            </div>
+        </uib-tab>
+        <uib-tab index="1" heading="JSON Schema" select="convertObj2Schema()">
+            <div ui-ace="{mode: 'json'}" ng-model="$schema.original" ng-ace-resize></div>
+        </uib-tab>
+    </uib-tabset>
+    <a href="" class="icon bj-files-empty t_color copy" ng-click="$root.copyToClipboard($schema.original)"></a>
+    <a href="" class="icon bj-download3 t_color dnl" ng-click="$root.download('schema.json',$schema.original)"></a>
+    
+</div>

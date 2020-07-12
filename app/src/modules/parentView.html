@@ -1,0 +1,14 @@
+<div ui-view="homeView" ng-show="routeIncludes('apic.home')"></div>
+<div ui-view="designerView" ng-show="routeIncludes('apic.designer')"></div>
+<div ui-view="docsView" ng-show="routeIncludes('apic.docs')"></div>
+<div ui-view="dashboardView" ng-show="routeIncludes('apic.dashboard')"></div>
+<div class="offline-db" id="signedOut" style="display: none;">
+    <div class="offline-dbtxt">
+        Connection to your account has been lost. Please login in again to continue.
+        <div style="font-size: 14px;">This could be because you have changed your password or have logged out across all your devices.</div>
+        <div>
+            <button class="btn btn-default gap" ng-click="openLoginModal()">Login again</button>            
+            <button class="btn btn-default" type="button"  ng-click="logout()">Logout from here</button>
+        </div>
+    </div>
+</div>

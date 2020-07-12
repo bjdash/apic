@@ -1,0 +1,87 @@
+<div class="dashboard">
+    <div class="right-cont full-width">
+        <div class="tab-container">
+        </div>
+        <div class="dash-leftMenuC">
+            <div class="dash-leftMenu">
+                <ul class="db-menu">
+                    <li class="db-menu-item"><a ui-sref="apic.dashboard"><i class="icon bj-dashboard"></i>Dashboard</a></li>
+                    <li class="db-menu-item"><a ui-sref="apic.dashboard.publishedDocs" ui-sref-active="active"><i class="icon bj-cloud-upload pub-icon"></i>Published Docs</a></li>
+                    <li class="db-menu-item"><a ui-sref="apic.dashboard.team" ui-sref-active="active"><i class="icon bj-group"></i>Team</a></li>
+                    <li class="db-menu-item"><a ui-sref="apic.dashboard.account" ui-sref-active="active"><i class="icon bj-user"></i>Account</a></li>
+                </ul>
+            </div>
+            <div class="dash-cont">
+                <ui-view>
+                    <div class="container-fluid">
+                        <h4 class="head">
+                            <a href ng-click="vm.loadDashboard();" class="t_color" title="Click to Refresh">
+                                Dashboard<span class="spinner" ng-if="vm.flags.loading"></span></h4>
+                            </a>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="d-panel">
+                                    <div class="db-item">
+                                        <div class="val">{{vm.db.apiProjects}}</div>
+                                        <div class="ico t_bgg t_glow">
+                                            <span class="icon bj-palette"></span>
+                                        </div>
+                                    </div>
+                                    <div class="d-panel-foot">
+                                        API Projects
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-panel">
+                                    <div class="db-item">
+                                        <div class="val">{{vm.db.publishedDocs}}</div>
+                                        <div class="ico t_bgg t_glow">
+                                            <span class="icon bj-cloud-upload"></span>
+                                        </div>
+                                    </div>
+                                    <div class="d-panel-foot">
+                                        Published Docs
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-panel">
+                                    <div class="db-item">
+                                        <div class="val">{{vm.db.reqs}}</div>
+                                        <div class="ico t_bgg t_glow">
+                                            <span class="icon bj-embed2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="d-panel-foot">
+                                        API Requests
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-panel">
+                                    <div class="db-item">
+                                        <div class="val">{{vm.db.suits}}</div>
+                                        <div class="ico t_bgg t_glow">
+                                            <span class="icon bj-box-filled"></span>
+                                        </div>
+                                    </div>
+                                    <div class="d-panel-foot">
+                                        Test Suites
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </ui-view>
+                <div class="offline-db" id="offline-db" style="display: none;">
+                    <div class="offline-dbtxt" >
+                    Dashboard is offline. Please check your internet connection.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

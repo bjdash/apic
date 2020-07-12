@@ -1,0 +1,172 @@
+.login-modal{
+    height: 100%;
+}
+.login-modal .login-bg{
+    width: 100%;
+    height: 100%;
+    background: var(--content-bg);
+    text-align: center;
+    position: relative;
+}
+.login-modal .login-bg:before{
+    content: '';
+    width: 100%;
+    height: 50%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.login-bg .login-cont{
+    background: var(--content-bg);
+    box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+    border-radius: 2px;
+    padding: 25px 50px 25px;
+    width: 500px;
+    display: inline-block;
+    margin-top: -100px;
+    margin-left: -250px;
+    vertical-align: middle;
+    position: absolute;
+    height: 200px;
+    top:50%;
+    transition: left 0.7s;
+    left:50%;
+}
+.login-bg .login-cont.reg{
+    height: 250px;
+    margin-top: -125px;
+    left:150%;
+}
+.login-bg .login-cont.forgot{
+    height: 150px;
+    margin-top: -75px;
+    left:200%;
+}
+.login-bg .login-logo{
+    text-align: center;
+    font-family: apic-font;
+    font-size: 65px;
+    line-height: 60px;
+    margin-top: -125px;
+    color: var(--accent-bg-text);
+    margin-bottom: 80px;
+}
+.login-bg .login-type{
+    font-family: apic-font;
+    font-size: 18px;
+    position: absolute;
+    left: 0;
+    top: -30px;
+    color: var(--accent-bg-text);
+}
+.login-bg input.form-control{
+    background: none;
+}
+input.form-control.ng-invalid.ng-dirty{
+    background: rgba(244, 67, 54, 0.15);
+    box-shadow: inset 0 -3px 0 #F44336;
+}
+.login-bg .back{
+    position: absolute;
+    font-size: 40px;
+    color: var(--accent-bg-text);
+}
+
+.login-cont .icon,.login-cont .glyphicon {
+    font-size: 22px;
+}
+.login-cont .form-control.sm{
+    font-size: 14px;
+}
+.btn.btn-login{
+    font-size: 22px;
+    /*outline: none;*/
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    /*color: white;*/
+    padding: 0;
+    line-height: 65px;
+    position: absolute;
+    right: -60px;
+    bottom: -48px;
+}
+.btn.btn-login:hover, .btn.btn-login:focus, .btn.btn-login:active{
+    transform: scale(1.1);
+}
+.btn.btn-login .icon{
+    font-size: 35px;
+}
+.login-ctrls{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -35px;
+}
+a.login-ctrl{
+    display: inline-block;
+    padding: 0 10px;
+    color: var(--accent-bg-text);
+    font-family: apic-font;
+    border-radius: 15px;
+    font-size: 14px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+a.login-ctrl:hover, a.login-ctrl:focus, a.login-ctrl:active{
+    text-decoration: none;
+    color: var(--accent-bg-text);
+    transform: scale(1.1);
+}
+.login-ctrl.reg{
+    background: #FF9800;
+}
+.login-ctrl.login{
+    background: #4CAF50;
+}
+.login-ctrl.forgot{
+    background: #F44336;
+}
+.login-g{
+    background:  var(--content-bg);color: var(--text-color);border-radius: 1px;box-shadow: 0 2px 4px 0 rgba(0,0,0,.25);cursor: pointer;outline: none;border: none;padding: 5px 15px 1px 15px;
+}
+.login-g:focus, .login-g:active{
+    box-shadow: 1px 1px 7px 0 rgba(4, 117, 171, 0.6);
+}
+.login-g .g-logo{
+    vertical-align: middle;margin-right: 5px;
+}
+.login-g .g-text{
+    vertical-align: text-bottom;
+}
+/******* window transition **/
+.login-bg.login .login-cont{
+    left:50%;
+}
+.login-bg.login .login-cont.reg{
+    left:150%
+}
+.login-bg.login .login-cont.forgot{
+    left: 200%;
+}
+
+.login-bg.reg .login-cont{
+    left:-100%;
+}
+.login-bg.reg .login-cont.reg{
+    left:50%
+}
+.login-bg.reg .login-cont.forgot{
+    left: 200%;
+}
+
+.login-bg.forgot .login-cont{
+    left:-200%;
+}
+.login-bg.forgot .login-cont.reg{
+    left:-100%
+}
+.login-bg.forgot .login-cont.forgot{
+    left: 50%;
+}

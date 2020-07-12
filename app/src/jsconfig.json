@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "checkJs": true
+    },
+    "typeAcquisition": {
+        "include": [
+            "angular",
+            "jquery"
+        ]
+    }
+}

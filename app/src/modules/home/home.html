@@ -1,0 +1,31 @@
+<div class="container-home">
+    <div class="left-nav">
+        <div ng-include="'modules/leftMenu/left-menu.html'"></div>
+    </div>
+    <div class="right-cont">
+        <uib-tabset class="tab-container" active="active" id="reqTabs">
+            <uib-tab ng-repeat="tab in tabs" select="tabSelected(tab)" index="tab.index" classes="req-tab">
+                <uib-tab-heading title="{{tab.title}}">
+                    <i ng-show="tab.icon" class="tab-icon" ng-class="tab.icon"></i>
+                    <span>{{tab.title}}</span>
+                    <i ng-if="tabs.length > 1" class="glyphicon glyphicon-remove"
+                       ng-click="removeTabAtPosition($event, $index)"></i>
+                </uib-tab-heading>
+                <div ng-if="tab.type==='req'" ng-controller="TabController as vm" class="tab-controller">
+                    <div ng-include="'modules/home/tab-req.html'"></div>
+                </div>
+                <div ng-if="tab.type==='suit'" ng-controller="SuitTabCtrl as vm" class="suit-controller">
+                    <div ng-include="'modules/home/tab-suit.html'"></div>
+                </div>
+                <div ng-if="tab.type==='folder'" ng-controller="FolderTabCtrl as vm" class="folder-controller">
+                    <div ng-include="'modules/home/tab-folder.html'"></div>
+                </div>
+                <div ng-if="tab.type==='socket'" ng-controller="SocketTabCtrl as vm" class="folder-controller">
+                    <div ng-include="'modules/home/tab-socket.html'"></div>
+                </div>
+            </uib-tab>
+            <button class="btn btn-default" ng-click="addTab()"><i class="glyphicon glyphicon-plus"></i></button>
+            <button class="btn btn-default" tooltip-placement="left" uib-tooltip="Test Websocket" ng-click="addTab('socket')"><i class="icon bj-websocket"></i> ws</button>
+        </uib-tabset>
+    </div>
+</div>

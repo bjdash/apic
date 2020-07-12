@@ -1,0 +1,42 @@
+<h4 class="t_color head">Publish new Doc</h4>
+<form class="form-horizontal">
+    <fieldset ng-disabled="vm.flags.loading">
+        <div class="form-group">
+            <label class="col-md-3 control-label">Title:</label>
+            <div class="col-md-7">
+                <input type="text" class="form-control" placeholder="Title" ng-model="vm.newPublished.title" required="">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Version:</label>
+            <div class="col-md-7">
+                <input type="text" class="form-control" placeholder="v 1.0.1" ng-model="vm.newPublished.version">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Logo:</label>
+            <div class="col-md-7">
+                <input type="text" class="form-control" placeholder="Eg: https://apic.app/img/logo_128.png" ng-model="vm.newPublished.logo">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Favicon:</label>
+            <div class="col-md-7">
+                <input type="text" class="form-control" placeholder="Eg: https://apic.app/favicon.ico" ng-model="vm.newPublished.favicon">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">Custom CSS:</label>
+            <div class="col-md-7">
+                <textarea class="form-control" placeholder="Add your own CSS to chang the look and feel of the docs page" ng-model="vm.newPublished.css"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3"></label>
+            <div class="col-md-7">
+                <button type="submit" class="btn btn-primary btn-themed btn-sm" ng-click="vm.publish()">Publish <span class="spinner wh" ng-if="vm.flags.loading"></span></button>
+                <button type="reset" class="btn btn-link btn-sm">Cancel</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
