@@ -28,5 +28,9 @@ Once your API design is done APIC automatically converts your APIs designs into 
 - Importing/Export of everything you have created in APIC.
 - No need to install anything. Available as a web app. But also available as Chrome extension, Windows exe and Mac dmg.
 
+Like what you see so far? Consider donating to support development.
+- [Patreon](https://www.patreon.com/apic_app "Patreon (Bijaya Dash)")
+- [PayPal](https://www.paypal.me/bdash4)
+
 # Local development guide
 //TODO: 
