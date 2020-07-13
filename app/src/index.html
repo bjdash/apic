@@ -222,6 +222,23 @@
                                 <i class="icon bj-terminal" style="font-size: 20px;"></i>
                             </a>
                         </li>
+                        <li uib-dropdown>
+                            <a href uib-dropdown-toggle class="btn btn-link" tooltip-placement="left"
+                                style="font-size: 18px;" uib-tooltip="Donate">
+                                <span class="bj-donate"></span>
+                            </a>
+                            <ul uib-dropdown-menu aria-labelledby="donate opttions"
+                                class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="https://www.paypal.me/bdash4" target="_new">
+                                        <span>PayPal</span>
+                                    </a></li>
+                                <li>
+                                    <a href="https://www.patreon.com/apic_app" target="_new">
+                                        <span>Patreon</span>
+                                    </a></li>
+                            </ul>
+                        </li>
                         <li>
                             <a href class="btn btn-link" ng-click="openSettingsModal()">
                                 <i class="glyphicon glyphicon-cog" style="font-size: 20px;"></i>
@@ -234,24 +251,29 @@
                             <ul uib-dropdown-menu aria-labelledby="proj-optn" class="dropdown-menu dropdown-menu-right">
                                 <li>
                                     <a href="https://apic.app/docs" target="_new">
-                                        <i class="icon bj-book gap"></i><span>Docs / Help</span>
+                                        <i class="icon bj-book"></i><span>Docs / Help</span>
                                     </a></li>
                                 <li>
-                                    <a href ng-click="openIntroModal()">
-                                        <i class="icon bj-newspaper-o gap"></i><span>Intro Screen</span>
+                                <li>
+                                    <a href="https://github.com/apic-apps/apic" target="_new">
+                                        <span class="icon bj-github"></span></i><span>Opensource</span>
                                     </a></li>
                                 <li>
                                     <a href="https://apic.app/identity/#!/feedback" target="_new">
-                                        <i class="glyphicon glyphicon-envelope gap"></i><span>Feedback</span>
+                                        <i class="glyphicon glyphicon-envelope"></i><span>Feedback</span>
                                     </a></li>
                                 <li>
                                     <a href="https://github.com/apic-apps/app-issues/issues" target="_new">
-                                        <i class="icon bj-bug2 gap"></i><span>Report an Issue</span>
+                                        <i class="icon bj-bug2"></i><span>Report an Issue</span>
                                     </a></li>
                                 <li>
-                                    <a href ng-click="checkForUpdate(true)">
-                                        <i class="icon bj-loop22 gap"></i><span>Check for update</span></a></li>
+                                    <a href ng-click="openIntroModal()">
+                                        <i class="icon bj-newspaper-o"></i><span>Intro Screen</span>
+                                    </a></li>
                                 <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href ng-click="checkForUpdate(true)">
+                                        <i class="icon bj-loop22"></i><span>Check for update</span></a></li>
                                 <li>
                                     <a href style="text-align: right">
                                         Version <span class="bold">{{appInfo.version}}</span></a></li>

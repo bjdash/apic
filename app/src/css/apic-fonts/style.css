@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'apic-icon';
-  src:  url('fonts/apic-icon.eot?kvxr6s');
-  src:  url('fonts/apic-icon.eot?kvxr6s#iefix') format('embedded-opentype'),
-    url('fonts/apic-icon.ttf?kvxr6s') format('truetype'),
-    url('fonts/apic-icon.woff?kvxr6s') format('woff'),
-    url('fonts/apic-icon.svg?kvxr6s#apic-icon') format('svg');
+  src:  url('fonts/apic-icon.eot?mco05h');
+  src:  url('fonts/apic-icon.eot?mco05h#iefix') format('embedded-opentype'),
+    url('fonts/apic-icon.ttf?mco05h') format('truetype'),
+    url('fonts/apic-icon.woff?mco05h') format('woff'),
+    url('fonts/apic-icon.svg?mco05h#apic-icon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,6 +25,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.bj-github:before {
+  content: "\f09b";
+}
+.bj-donate:before {
+  content: "\e935";
+}
+.bj-terminal:before {
+  content: "\e931";
+}
 .bj-remove_circledo_not_disturb_on:before {
   content: "\e934";
 }
@@ -267,7 +276,4 @@
 }
 .bj-web:before {
   content: "\e933";
-}
-.bj-terminal:before {
-  content: "\e931";
 }
