@@ -1,0 +1,61 @@
+<div class="content" *ngIf="folderForm">
+    <div class="submodMenu">
+        <div class="submodMenuOptn">
+            <span *ngIf="selectedFolder === 'NEW'">
+                <button type="button" type="submit" form="folderForm" class="sm gap" mat-raised-button
+                    color="primary">Create</button>
+                <button mat-button class="sm" type="reset" (click)="folderForm.reset()">Reset</button>
+            </span>
+            <span *ngIf="selectedFolder !== 'NEW'">
+                <button type="button" type="submit" form="folderForm" class="sm gap" mat-raised-button
+                    color="primary">Save</button>
+                <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
+                    (click)="deleteFolder(selectedFolder)">Delete</button>
+                <div class="bar"></div>
+                <button type="button" type="button" (click)="selectFolder('NEW')" class="sm gap" mat-raised-button>
+                    <mat-icon class="sm">add</mat-icon>New folder
+                </button>
+            </span>
+        </div>
+        <div class="tip"></div>
+    </div>
+
+    <h4 class="t_color head flex">
+        <span class="gap">Folders:</span>
+        <div class="margL10">
+            <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="foldersList">
+                <span class="gap">{{selectedName}}</span>
+                <span *ngIf="folderForm.dirty">(modified)</span>
+                <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #foldersList="matMenu">
+                <button mat-menu-item (click)="selectFolder('NEW')">Create new folder</button>
+                <mat-divider></mat-divider>
+                <button *ngFor="let folder of selectedPROJ.folders | keyvalue" (click)="selectFolder(folder.value._id)"
+                    mat-menu-item>{{folder.value.name}}</button>
+            </mat-menu>
+        </div>
+        <a class="f18 pull-right" mat-icon-button href="https://docs.apic.app/designer/create-folder" target="_new">
+            <mat-icon>help</mat-icon>
+        </a>
+    </h4>
+
+    <div>
+        <form class="form-horizontal form-compact " [formGroup]="folderForm" id="folderForm" (submit)="createFolder()">
+            <div class="row">
+                <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required="" placeholder="Folder Name" maxlength="30"
+                        formControlName="name">
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Description: </label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" placeholder="A short description of the folder/group."
+                        formControlName="desc"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

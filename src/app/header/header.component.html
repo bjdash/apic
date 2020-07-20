@@ -1,0 +1,40 @@
+<div class="header">
+    <div class="header-cont">
+        <div class="logo">
+            <img src="../../assets/images/apic-logo.svg" class="logo-img" />
+            <span class="logo-text">apic</span>
+        </div>
+        <div style="width: 300px;height: 50px;">
+            <!-- <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <i class="icon bj-palette"></i>
+            </button>
+            <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <i class="icon bj-lab"></i>
+            </button>
+            <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <i class="icon bj-book"></i>
+            </button>
+            <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <i class="icon bj-dashboard"></i>
+            </button> -->
+            <a id="designer-ico" href class="module-icon" routerLink="/designer" routerLinkActive="active"
+                style="font-size: 38px;padding-top: 4px;padding-left:3px;" tooltip-placement="right"
+                uib-tooltip="Designer">
+                <i class="icon bj-palette"></i>
+            </a>
+            <a id="tester-ico" href class="module-icon" routerLink="/tester" routerLinkActive="active"
+                ng-click="saveWorkspace('Tester')" tooltip-placement="right" uib-tooltip="Tester">
+                <i class="icon bj-lab"></i>
+            </a>
+            <a id="docs-ico" href class="module-icon" routerLink="/docs" routerLinkActive="active"
+                ng-click="saveWorkspace('Docs')" tooltip-placement="right" uib-tooltip="Docs">
+                <i class="icon bj-book"></i>
+            </a>
+            <a id="dash-ico" href class="module-icon" routerLink="/dashboard" routerLinkActive="active"
+                ng-click="checkLogin($event);saveWorkspace('Dashboard')" tooltip-placement="right"
+                uib-tooltip="Dashboard">
+                <i class="icon bj-dashboard"></i>
+            </a>
+        </div>
+    </div>
+</div>

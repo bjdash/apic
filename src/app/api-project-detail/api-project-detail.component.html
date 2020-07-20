@@ -1,0 +1,190 @@
+<div class="designer" *ngIf="selectedPROJ">
+    <div class="app-body">
+        <div class="left-nav">
+            <div class="nav nav-tabs">
+                <button type="button" [routerLink]="['/designer']" mat-button>
+                    <mat-icon>keyboard_backspace</mat-icon>
+                </button>
+                <span class="workspace-title" style="vertical-align: middle;">{{selectedPROJ.title}}</span>
+            </div>
+            <div class="tab-content" *ngIf="LeftTree">
+                <div class="align-right">
+                    <button color="primary" mat-icon-button aria-label="Build requests"
+                        matTooltip="Build requests to Run">
+                        <i class="icon bj-wrench f18"></i>
+                    </button>
+                    <button color="primary" mat-icon-button aria-label="View Docs" matTooltip="View Docs">
+                        <i class="icon bj-book f18"></i>
+                    </button>
+                    <button type="button" color="primary" mat-icon-button aria-label="Export" matTooltip="Export"
+                        [matMenuTriggerFor]="exportMenu">
+                        <mat-icon>open_in_new</mat-icon>
+                    </button>
+                    <mat-menu #exportMenu="matMenu">
+                        <button mat-menu-item>Open API Specs(Swagger 2)</button>
+                        <button mat-menu-item>RAML (Soon)</button>
+                        <button mat-menu-item>Raw APIC Project</button>
+                    </mat-menu>
+                </div>
+                <div *ngFor="let item of LeftTree | keyvalue: sortLeftTreeFolder">
+                    <!-- <div ngIf="item.key!=='ungrouped'"> -->
+                    <div class="folder closed" (click)="item.value.folder.expand = !item.value.folder.expand"
+                        [ngClass]="item.value.folder.expand?'opened':'closed'">
+                        <div class="l-sec">
+                            <i class="icon  bj-folder"
+                                [ngClass]="item.value.folder.expand?'bj-folder-open':'bj-folder'"></i>
+                        </div>
+                        <div class="folder-name m-sec">
+                            <div class="f-name">{{item.value.folder.name}}</div>
+                        </div>
+                        <div class="r-sec ">
+                            <button type="button" *ngIf="item.key != 'ungrouped'" color="primary" mat-icon-button
+                                (click)="changeStage('folders');foldersView.selectFolder(item.value.folder._id);$event.stopPropagation()">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sub-folder" [hidden]="!item.value.folder.expand">
+                        <!--Endpoints-->
+                        <div *ngFor="let endp of item.value.endps | keyvalue">
+                            <div class="savedReq" matRipple
+                                ng-class="{active:vm.designStage === 'models' && vm.model._id == _mid}">
+                                <div class="l-sec">
+                                    <div class="method" [ngClass]="endp.value.method.toUpperCase()"></div>
+                                </div>
+                                <div class="m-sec name"
+                                    ng-click="vm.loadMdelsView();vm.selectModel(vm.SelectedPROJ.models[model._id], 'edit')">
+                                    {{endp.value.name}}
+                                </div>
+                                <div class="r-sec">
+                                    <a color="primary" mat-icon-button [matMenuTriggerFor]="endpMenu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </a>
+                                    <mat-menu #endpMenu="matMenu">
+                                        <button mat-menu-item>
+                                            <mat-icon>edit</mat-icon> Edit
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon class="green">play_arrow</mat-icon> Run
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon>content_copy</mat-icon> Duplicate
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon class="red">delete</mat-icon>Delete
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--models-->
+                        <div *ngFor="let model of item.value.models | keyvalue">
+                            <div class="savedReq" matRipple
+                                (click)="changeStage('models');modelsView.selectModel(model.value._id);$event.stopPropagation()"
+                                [ngClass]="{active:flags.stage === 'models' && model.value._id == modelsView.selectedModel}">
+                                <div class="l-sec">
+                                    <div class="method MODEL"></div>
+                                </div>
+                                <div class="m-sec name">
+                                    {{model.value.name}}
+                                </div>
+                                <div class="r-sec">
+                                    <button type="button" color="primary" (click)="$event.stopPropagation()"
+                                        mat-icon-button [matMenuTriggerFor]="modelMenu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+                                    <mat-menu #modelMenu="matMenu">
+                                        <button mat-menu-item
+                                            (click)="changeStage('models');modelsView.selectModel(model.value._id);$event.stopPropagation()">
+                                            <mat-icon>edit</mat-icon> Edit
+                                        </button>
+                                        <button mat-menu-item
+                                            (click)="modelsView.duplicateModel(model.value._id);$event.stopPropagation()">
+                                            <mat-icon>content_copy</mat-icon> Duplicate
+                                        </button>
+                                        <button mat-menu-item
+                                            (click)="modelsView.deleteModel(model.value._id);$event.stopPropagation()">
+                                            <mat-icon class="red">delete</mat-icon>Delete
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Traits-->
+                        <div *ngFor="let trait of item.value.traits | keyvalue">
+                            <div class="savedReq" matRipple
+                                ng-class="{active:vm.designStage === 'models' && vm.model._id == _mid}">
+                                <div class="l-sec">
+                                    <div class="method TRAIT"></div>
+                                </div>
+                                <div class="m-sec name"
+                                    ng-click="vm.loadMdelsView();vm.selectModel(vm.SelectedPROJ.models[model._id], 'edit')">
+                                    {{trait.value.name}}
+                                </div>
+                                <div class="r-sec">
+                                    <a color="primary" mat-icon-button [matMenuTriggerFor]="traitMenu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </a>
+                                    <mat-menu #traitMenu="matMenu">
+                                        <button mat-menu-item>
+                                            <mat-icon>edit</mat-icon> Edit
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon class="green">play_arrow</mat-icon> Run
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon>content_copy</mat-icon> Duplicate
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon class="red">delete</mat-icon>Delete
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="right-cont">
+            <div class="tab-container">
+                <ol class="breadcrumb proj-brcmb">
+                    <li>
+                        <a href="" [routerLink]="['/designer']">Workspace</a>
+                    </li>
+                    <li>
+                        <button class="btn-link bold" (click)="changeStage('dashboard')">{{selectedPROJ.title}}</button>
+                    </li>
+                    <li>
+                        <button class="btn-link capitalize" [matMenuTriggerFor]="brcmbMenu">{{flags.stage}} ⯆</button>
+                        <mat-menu #brcmbMenu="matMenu">
+                            <button mat-menu-item (click)="changeStage('dashboard')">Dashboard</button>
+                            <button mat-menu-item (click)="changeStage('api builder')">API Builder</button>
+                            <button mat-menu-item (click)="changeStage('folders')">Folders</button>
+                            <button mat-menu-item (click)="changeStage('models')">Models</button>
+                            <button mat-menu-item (click)="changeStage('endpoints')">Endpoints</button>
+                            <button mat-menu-item (click)="changeStage('traits')">Traits</button>
+                        </mat-menu>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="designer-cont">
+                <app-project-home [hidden]="flags.stage!=='dashboard'" [selectedPROJ]="selectedPROJ"
+                    (changeStageEmitter)="changeStage($event)" [updateApiProject]="updateApiProject">
+                </app-project-home>
+                <app-project-folder #foldersView [hidden]="flags.stage!=='folders'" [selectedPROJ]="selectedPROJ"
+                    [updateApiProject]="updateApiProject" (projectUpdated)="projectUpdated($event)">
+                </app-project-folder>
+                <app-project-models #modelsView [hidden]="flags.stage!=='models'" [selectedPROJ]="selectedPROJ"
+                    [updateApiProject]="updateApiProject" (projectUpdated)="projectUpdated($event)">
+                </app-project-models>
+            </div>
+
+        </div>
+    </div>
