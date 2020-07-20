@@ -8,7 +8,8 @@ var gulp = require('gulp'),
     gconfirm = require('gulp-confirm'),
     addSrc = require('gulp-add-src'),
     del = require('del'),
-    templateCache = require('gulp-angular-templatecache');
+    templateCache = require('gulp-angular-templatecache'),
+    gulpGit = require('gulp-git');;
 
 var VERSION = ''
 
@@ -18,15 +19,37 @@ var buildExtnL = {
     clean: function () {
         return del(['./build/extnL']);
     },
+    cleanDevTools: function () {
+        return del(['./build/devtools-temp']);
+    },
     build: function () {
         return gulp.src(['./app/src/**/*.js', './extnResources/manifest.json', './extnResources/background.js'])
-            .pipe(addSrc(['./app/src/**/*.*', './extnResources/**/*.*', '!./app/src/**/*.js', '!./extnResources/manifest.json', '!./extnResources/background.js']))
+            .pipe(addSrc(['./app/src/**/*.*', './extnResources/**/*.*', '!./extnResources/devtools.*', '!./app/src/**/*.js', '!./extnResources/manifest.json', '!./extnResources/background.js']))
             .pipe(gulp.dest('./build/extnL'))
+    },
+    devTools: function () {
+        return gulp.src(['./extnResources/devtools.*'])
+            .pipe(gulp.dest('./build/extnL/devtools'))
+    },
+    cloneDevtools: function () {
+        return gulpGit.clone('https://github.com/bjdash/apic-devtools.git', { args: './build/devtools-temp' });
+    },
+    copyDevtoolsSrc: function () {
+        return gulp.src(['./build/devtools-temp/build/**/*.*', '!./build/devtools-temp/build/asset-manifest.json', '!./build/devtools-temp/build/service-worker.js', '!./build/devtools-temp/build/precache-manifest*.*'])
+            .pipe(gulp.dest('./build/extnL/devtools'))
     }
 }
 
 
-var extnL = gulp.series(buildExtnL.clean, buildExtnL.build);
+var extnL = gulp.series(
+    buildExtnL.clean,
+    buildExtnL.cleanDevTools,
+    buildExtnL.build,
+    buildExtnL.devTools,
+    buildExtnL.cloneDevtools,
+    buildExtnL.copyDevtoolsSrc,
+    buildExtnL.cleanDevTools
+);
 //END: Build extn for local
 
 
@@ -38,21 +61,57 @@ var extnTransform = textTransformation(function (s) {
     return s;
 }, {});
 
-function buildExtn() {
-    return gulp.src(['./app/src/**/*.js', './extnResources/manifest.json'])
-        .pipe(gconfirm({
-            question: 'Enter the new version number',
-            proceed: function (answer) {
-                VERSION = answer;
-                return true;
-            }
-        }))
-        .pipe(extnTransform())
-        .pipe(addSrc(['./app/src/**/*.*', './extnResources/**/*.*', '!./app/src/**/*.js', './extnResources/background.js', '!./extnResources/manifest.json']))
-        .pipe(zip('extn.zip'))
-        .pipe(gulp.dest("./build"));
+const buildExtn = {
+    clean: function () {
+        return del(['./build/extn']);
+    },
+    cleanDevTools: function () {
+        return del(['./build/devtools-temp']);
+    },
+    build: function () {
+        return gulp.src(['./app/src/**/*.js', './extnResources/manifest.json'])
+            .pipe(gconfirm({
+                question: 'Enter the new version number',
+                proceed: function (answer) {
+                    VERSION = answer;
+                    return true;
+                }
+            }))
+            .pipe(extnTransform())
+            .pipe(addSrc(['./app/src/**/*.*', './extnResources/**/*.*', '!./app/src/**/*.js', './extnResources/background.js', '!./extnResources/manifest.json', '!./extnResources/devtools.*']))
+            // .pipe(zip('extn.zip'))
+            .pipe(gulp.dest("./build/extn"));
+    },
+    devTools: function () {
+        return gulp.src(['./extnResources/devtools.*'])
+            .pipe(gulp.dest('./build/extn/devtools'))
+    },
+    cloneDevtools: function () {
+        return gulpGit.clone('https://github.com/bjdash/apic-devtools.git', { args: './build/devtools-temp' });
+    },
+    copyDevtoolsSrc: function () {
+        return gulp.src(['./build/devtools-temp/build/**/*.*', '!./build/devtools-temp/build/asset-manifest.json', '!./build/devtools-temp/build/service-worker.js', '!./build/devtools-temp/build/precache-manifest*.*'])
+            .pipe(gulp.dest('./build/extn/devtools'))
+    },
+    zip: function () {
+        return gulp.src('./build/extn')
+            .pipe(zip('extn.zip'))
+            .pipe(gulp.dest("./build"));
+    }
 }
-var extn = gulp.series(buildExtn);
+
+
+var extn = gulp.series(
+    buildExtn.clean,
+    buildExtn.cleanDevTools,
+    buildExtn.build,
+    buildExtn.devTools,
+    buildExtn.cloneDevtools,
+    buildExtn.copyDevtoolsSrc,
+    buildExtn.zip,
+    buildExtn.cleanDevTools,
+    buildExtn.clean
+);
 //END: Build chrome extension
 
 

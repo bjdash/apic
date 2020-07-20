@@ -262,12 +262,12 @@ var APP = {
             var _this = this;
             angular.forEach(headers, function (val, key) {
                 if (key) {
-                    var header = key.toUpperCase();
-                    if (Const.restrictedHeaders.indexOf(header) > -1) {
-                        header = 'APIC-' + header;
+                    var headerName = key.toUpperCase();
+                    if (Const.restrictedHeaders.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-')) {
+                        headerName = 'APIC-' + key;
                     }
                     try {
-                        _this.setRequestHeader(header, val);
+                        _this.setRequestHeader(key, val);
                     } catch (e) {
                         var m = e.message;
                         console.warn(m.slice(m.indexOf(':') + 1).trim());

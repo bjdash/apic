@@ -29,6 +29,7 @@
         vm.ctrls = {
             aborted: false,
             editReq: false,
+            type: 'suitReq', //harReq - for editing HAR imported req
             editSuitName: false,
             running: undefined,
             showReqs: true,
@@ -43,8 +44,14 @@
                 update: function () {
                     updateSuit();
                 }
-            }
+            },
+            harPanel: false,
+            harImportType: 'file'
         };
+        vm.har = {
+            file: '',
+            requests: []
+        }
         vm.reqCount = 0;
         vm.runCounter = 0;
         vm.selectedReq = 0;
@@ -77,6 +84,10 @@
         vm.loadWAU = loadWAU;
         vm.addBlankReq = addBlankReq;
         vm.addSavedReq = addSavedReq;
+        vm.processHarFile = processHarFile;
+        vm.addRequestsToSuit = addRequestsToSuit;
+        vm.getPrevReq = getPrevReq;
+        vm.getNextReq = getNextReq;
 
 
         init();
@@ -98,7 +109,7 @@
                 reqIdToOpen = reqIdToOpen.split('###');
                 reqIdToOpen[1] = parseInt(reqIdToOpen[1]);
                 if (vm.suit.reqs[reqIdToOpen[1]] && vm.suit.reqs[reqIdToOpen[1]]._id === reqIdToOpen[0]) {
-                    editSuitReq(vm.suit.reqs[reqIdToOpen[1]], reqIdToOpen[1]);
+                    editSuitReq(vm.suit.reqs[reqIdToOpen[1]], reqIdToOpen[1], 'suitReq');
                 }
             }
 
@@ -110,6 +121,14 @@
                         break;
                     }
                 }
+            }
+
+            if (vm.suit.harImportReqs) {
+                var reqsToImport = vm.suit.harImportReqs;
+                delete vm.suit.harImportReqs;
+                vm.ctrls.harPanel = true;
+                vm.ctrls.harImportType = 'auto'
+                processHarEntries(reqsToImport);
             }
         }
 
@@ -329,7 +348,10 @@
         //     updateSuit(vm.suit);
         // }
 
-        function editSuitReq(req, index) {
+        function editSuitReq(req, index, type) {
+            if (!req) {
+                return;
+            }
             vm.selectedReq = req;
             vm.selectedReqIndex = index;
             vm.selectedReqCopy = angular.copy(vm.selectedReq);
@@ -339,27 +361,37 @@
             } else {
                 vm.ctrls.editReq = true;
             }
+            vm.ctrls.editReqType = type;
         }
 
         function discardReqEdit() {
-            //vm.selectedReq  = angular.copy(vm.selectedReqCopy;
-            vm.suit.reqs[vm.selectedReqIndex] = vm.selectedReqCopy;
+            if (vm.ctrls.editReqType === 'harReq') {
+                vm.har.requests[vm.selectedReqIndex] = vm.selectedReqCopy;
+            } else {
+                vm.suit.reqs[vm.selectedReqIndex] = vm.selectedReqCopy;
+            }
             vm.ctrls.editReq = false;
 
         }
 
-        function saveSuitReq(request) {
-            //var suitToSave = angular.copy(vm.suit);
-            if (vm.selectedReqIndex === -1) {
-                vm.suit.reqs.push(request)
+        function saveSuitReq(request, partial) {
+            if (vm.ctrls.editReqType === 'harReq') {
+                if (!partial) {
+                    vm.har.requests[vm.selectedReqIndex] = request;
+                } else {
+                    delete request.tabId;
+                    vm.har.requests[vm.selectedReqIndex] = angular.merge(vm.selectedReqCopy, request);
+                }
             } else {
-                vm.suit.reqs[vm.selectedReqIndex] = request;
+                if (!partial) {
+                    vm.suit.reqs[vm.selectedReqIndex] = request;
+                } else {
+                    delete request.tabId;
+                    vm.suit.reqs[vm.selectedReqIndex] = angular.merge(vm.selectedReqCopy, request);
+                }
+                updateSuit(vm.suit);
             }
             vm.selectedReqCopy = angular.copy(request);
-            updateSuit(vm.suit);
-            // if (close) {
-            //     vm.ctrls.editReq = false;
-            // }
         }
 
         function saveResult() {
@@ -447,13 +479,72 @@
             $rootScope.$emit('AddRequestToSuit', { suitId: vm.suit._id, addAtIndex: addAtIndex });
         }
 
+        function processHarFile(event) {
+            var fileChooser = event.target.querySelector('input#harImportFile');
+            console.log('Processing har file..')
+            if (!fileChooser.value) {
+                toastr.error('Please a HAR file to import');
+                return;
+            }
+            FileSystem.readFile(fileChooser.files).then(function (file) {
+                try {
+                    var harData = JSON.parse(file.data);
+                    var entries = harData.log.entries;
+                    processHarEntries(entries);
+                    console.log(vm.har.requests)
+                } catch (e) {
+                    console.log('HAR import failed.', e);
+                    toastr.error('Import Failed. Please make sure you are importing a valid HAR file. ' + e.message);
+                }
+            }, function () {
+                toastr.error('Import Failed. Couldn\'t read file');
+            });
+        }
+
+        function processHarEntries(entries) {
+            vm.har.requests = [];
+            entries.forEach(function (entry) {
+                var apicReq;
+                try {
+                    apicReq = Utils.harToApicReq(entry);
+                } catch (e) {
+                    console.log('Failed to parse HAR request', e);
+                    toastr.error('Failed to parse one HAR request. ' + e.message);
+                }
+                if (apicReq) {
+                    vm.har.requests.push(apicReq);
+                }
+            })
+        }
+
+        function addRequestsToSuit(requests) {
+            vm.suit.reqs = vm.suit.reqs.concat(requests);
+            updateSuit(vm.suit);
+        }
+
+        function getPrevReq() {
+            if (vm.ctrls.editReqType === 'suitReq') {
+                return vm.suit.reqs[vm.selectedReqIndex - 1];
+            } else {
+                return vm.har.requests[vm.selectedReqIndex - 1];
+            }
+        }
+
+        function getNextReq() {
+            if (vm.ctrls.editReqType === 'suitReq') {
+                return vm.suit.reqs[vm.selectedReqIndex + 1];
+            } else {
+                return vm.har.requests[vm.selectedReqIndex + 1];
+            }
+        }
+
         $scope.$on('openSuitReq', function (e, args) {
             if (args.suitId === vm.suit._id && vm.suit.reqs && !vm.ctrls.editReq) {
                 if (args.reqIdToOpen && vm.suit.reqs && vm.suit.reqs.length) {
                     var reqIdToOpen = args.reqIdToOpen.split('###');
                     reqIdToOpen[1] = parseInt(reqIdToOpen[1]);
                     if (vm.suit.reqs[reqIdToOpen[1]] && vm.suit.reqs[reqIdToOpen[1]]._id === reqIdToOpen[0]) {
-                        editSuitReq(vm.suit.reqs[reqIdToOpen[1]], reqIdToOpen[1]);
+                        editSuitReq(vm.suit.reqs[reqIdToOpen[1]], reqIdToOpen[1], 'suitReq');
                     }
 
                 }

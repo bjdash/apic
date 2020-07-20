@@ -66,6 +66,7 @@
     <script type="text/javascript" src="js/lib/schema-faker-en.js"></script>
     <script type="text/javascript" src="modules/SchemaDref.js"></script>
     <script type="text/javascript" src="js/lib/socket.io.slim.js"></script>
+    <script type="text/javascript" src="js/lib/json-data-to-schema.js"></script>
 
     <!-- ACE editor-->
     <script type="text/javascript" src="js/bower_components/ace-builds/src-min-noconflict/ace.js"></script>
@@ -230,12 +231,16 @@
                             <ul uib-dropdown-menu aria-labelledby="donate opttions"
                                 class="dropdown-menu dropdown-menu-right">
                                 <li>
-                                    <a href="https://www.paypal.me/bdash4" target="_new">
+                                    <a href="https://www.paypal.me/bdash4" electron-a target="_new">
                                         <span>PayPal</span>
                                     </a></li>
                                 <li>
-                                    <a href="https://www.patreon.com/apic_app" target="_new">
+                                    <a href="https://www.patreon.com/apic_app" electron-a target="_new">
                                         <span>Patreon</span>
+                                    </a></li>
+                                <li>
+                                    <a href="https://ko-fi.com/bdash" electron-a target="_new">
+                                        <span>Buy me a coffee</span>
                                     </a></li>
                             </ul>
                         </li>
@@ -474,7 +479,7 @@
             </div>
 
             <div class="modal-body">
-                <div class="envList">
+                <div>
                     <div style="font-size:14px;">Please select a team you want to share this {{tmSelector.type}} with.</div>
                     <ul class="list-items" ng-hide="tmSelector.loading">
                         <li ng-repeat="(id, name) in Teams" class="list-item">
@@ -680,7 +685,7 @@
                             <textarea ng-model="data.input" class="form-control"></textarea>
                         </div>
                         <div class="tbh_b">
-                            <button type="button" ng-click="addTest()" class="btn btn-link c btn-sm"><i class="glyphicon glyphicon-plus gap"></i>Add</button>
+                            <button type="button" ng-click="addTest()" class="btn btn-link cbg btn-sm"><i class="glyphicon glyphicon-plus gap"></i>Add</button>
                         </div>
                         <div class="tbh_b">
                             <div class="bold">Tests</div>

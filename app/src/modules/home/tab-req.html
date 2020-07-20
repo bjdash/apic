@@ -73,18 +73,21 @@
                     </select>
                 </div>
                 <div class="info-label col-xs-8">
-                    <input type="text" class="form-control input-sm" placeholder="Request URL" ng-model="vm.URL" />
+                    <!-- <input type="text" class="form-control input-sm" placeholder="Request URL" ng-model="vm.URL" /> -->
+                    <div apic-wysiwyg ng-readonly="vm.progress" ng-model="vm.URL" env="curEnv" class="form-control sm "
+                        style="flex: 1;overflow:hidden;white-space:nowrap;" on-enter-key="vm.doSingleRun()"
+                        placeholder="Request URL"></div>
                 </div>
             </div>
         </form>
     </div>
-    <div style="margin-top: 10px;">
+    <div style="margin-top: 5px;">
         <div class="form-group panel panel-primary dark">
             <div class="panel-heading panel-sm">
                 <h3 class="panel-title custom pointer" ng-click="vm.ctrls.showReq = !vm.ctrls.showReq">Request</h3>
                 <div class="reqControls" ng-if="!vm.testTab">
-                    <a href="https://apic.app/docs/tester/make-an-api-call.html" target="_new" class="gap f18"><span
-                            class="glyphicon glyphicon-question-sign"></span></a>
+                    <a href="https://apic.app/docs/tester/make-an-api-call.html" target="_new" electron-a
+                        class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
                     <a href="" ng-if="vm.reload" ng-click="vm.reloadReq()" class="gap f18"><span class="icon bj-loop22"
                             uib-tooltip="This request is updated by another user. Reload?"
                             tooltip-placement="left"></span></a>
@@ -107,7 +110,7 @@
                                     class="glyphicon glyphicon-floppy-save"></i> Save </a>
                             <span class="input-group-btn" uib-dropdown>
                                 <button type="button" class="btn btn-sm btn-link c" uib-dropdown-toggle
-                                    aria-haspopup="true" aria-expanded="false" style="padding: 6px 6px 7px 4px;"><span
+                                    aria-haspopup="true" aria-expanded="false" style="padding: 6px 6px 7px 0px;"><span
                                         class="caret"></span></button>
                                 <ul uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
                                     <li>
@@ -759,7 +762,7 @@
                                                 ng-click="vm.scriptType = 'PostRun'">Post Run Scripts</button>
                                         </div>
                                         <div class="pull-right" style="position: relative;margin-top: -8px;">
-                                            <button class="btn btn-link c btn-sm margL10"
+                                            <button class="btn btn-link cbg btn-sm margL10"
                                                 ng-click="vm.ctrls.tBuilder = true">Build Tests</button>
                                         </div>
                                     </div>
@@ -825,7 +828,7 @@
                                     <input type="text" class="form-control input-sm" placeholder="Add status code"
                                         ng-model="vm.newReqRespCode" on-enter-key="vm.addReqResp()" maxlength="4" />
                                     <span class="input-group-btn">
-                                        <button class="btn btn-link c btn-sm" type="submit" form="reqRespAdd"
+                                        <button class="btn btn-link cbg btn-sm" type="submit" form="reqRespAdd"
                                             ng-click="vm.addReqResp()"><span
                                                 class="glyphicon glyphicon-plus"></span></button>
                                     </span>
@@ -902,24 +905,32 @@
             </div>
         </div>
 
-        <div class="form-group panel panel-primary dark resp-panel tabResponsePanel" ng-if="vm.RESP.show">
+        <div class="form-group panel panel-primary dark resp-panel tabResponsePanel"
+            ng-if="vm.RESP.show || vm.savedResp.length>0">
             <div class="panel-heading panel-sm">
                 <h3 class="panel-title custom pointer" ng-click="vm.ctrls.showRes = !vm.ctrls.showRes">Response</h3>
-                <span class="run-stats">
-                    <span>
-                        Time: <span class="status info">{{vm.RESP.time}}</span>
+                <div class="panel-menu">
+                    <span class="run-stats">
+                        <span>
+                            Time: <span class="status info">{{vm.RESP.time}}</span>
+                        </span>
+                        <span>
+                            Status: <span class="status"
+                                ng-class="{info:vm.RESP.status.charAt(0)=='1',success:vm.RESP.status.charAt(0)=='2',warning:vm.RESP.status.charAt(0)=='3',error:vm.RESP.status.charAt(0)=='5'||vm.RESP.status.charAt(0)=='4'}">{{vm.RESP.status}}
+                                {{vm.RESP.statusText}}</span>
+                        </span>
+                        <span>
+                            Size: <span class="status info">{{vm.RESP.size}}</span>
+                        </span>
                     </span>
-                    <span>
-                        Status: <span class="status"
-                            ng-class="{info:vm.RESP.status.charAt(0)=='1',success:vm.RESP.status.charAt(0)=='2',warning:vm.RESP.status.charAt(0)=='3',error:vm.RESP.status.charAt(0)=='5'||vm.RESP.status.charAt(0)=='4'}">{{vm.RESP.status}}
-                            {{vm.RESP.statusText}}</span>
-                    </span>
-                    <span>
-                        Size: <span class="status info">{{vm.RESP.size}}</span>
-                    </span>
-                </span>
+                    <button class="btn btn-link c btn-sm gap" ng-disabled="vm.TAB.fromProject" ng-show="vm.RESP.data"
+                        ng-click="vm.saveResponse()">Save
+                        response</button>
+                    <button class="btn btn-link c btn-sm gap" ng-show="vm.savedResp.length>0"
+                        ng-click="vm.loadResponse(true)">Load saved response</button>
+                </div>
             </div>
-            <div class="panel-body" ng-show="vm.ctrls.showRes">
+            <div class="panel-body padV5" ng-show="vm.ctrls.showRes && vm.RESP.data !== undefined">
                 <div class="controls btn-group">
                     <button class="btn btn-flat btn-default" ng-class="{'active':vm.ctrls.resp_opened_box == 'Body'}"
                         ng-click="vm.ctrls.resp_opened_box = 'Body'">Body/Test builder</button>
@@ -937,7 +948,8 @@
                 </div>
 
 
-                <div class="deep url-params form-inline" ng-show="vm.ctrls.resp_opened_box == 'Body'">
+                <div class="deep url-params form-inline" style="overflow: visible;"
+                    ng-show="vm.ctrls.resp_opened_box == 'Body'">
                     <div class="controls btn-group" style="margin-bottom: 10px;">
                         <button class="btn btn-flat btn-default btn-sm"
                             ng-class="{'active':vm.ctrls.resp_body_type == 'pretty'}"
@@ -970,8 +982,8 @@
                             sandbox="allow-same-origin allow-scripts"></iframe>
                     </div>
 
-                    <div class="relative" ng-if="vm.ctrls.resp_body_type == 'test'"
-                        style="height: calc(100vh - 331px);">
+                    <div class="relative padV5" ng-if="vm.ctrls.resp_body_type == 'test'"
+                        style="height: calc(100vh - 331px);overflow: auto;">
                         <div tb-helper ng-if="vm.tbHelper.show" cfg="vm.tbHelper"></div>
                         <div test-builder helper="vm.tbHelper" parent="'$response.data'" out="vm.TBldr"
                             data="vm.RESP.json"></div>

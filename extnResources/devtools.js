@@ -1,0 +1,1 @@
+chrome.devtools.panels.create("APIC", null, "devtools/index.html", null);

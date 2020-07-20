@@ -1,10 +1,10 @@
-<div  class="designer">
+<div class="designer">
     <!--- right content -->
-    
-    <div class="right-cont"ng-class="vm.flags.hideLMenu?'full-width':''">
+
+    <div class="right-cont" ng-class="vm.flags.hideLMenu?'full-width':''">
         <div class="tab-container">
             <ol class="breadcrumb proj-brcmb">
-                <li ng-click="vm.showWorkspace()" >
+                <li ng-click="vm.showWorkspace()">
                     <a href="">Workspace</a>
                 </li>
                 <li ng-click="vm.designStage= 'dashboard'" ng-show="vm.designStage">
@@ -12,7 +12,8 @@
                 </li>
                 <li ng-show="vm.stage!=='workspace'">
                     <span uib-dropdown>
-                        <button type="button" uib-dropdown-toggle id="work2">{{vm.designStage}}<span class="caret"></span>
+                        <button type="button" uib-dropdown-toggle id="work2">{{vm.designStage}}<span
+                                class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="work2">
                             <li ng-click="vm.designStage = 'dashboard'"><a href="">Dashboard</a></li>
@@ -27,35 +28,39 @@
             </ol>
         </div>
         <div style="overflow :auto;position :absolute;left :0;right :0;bottom :0;top :32px;">
-        
-        <div class="workspace" ng-show="vm.stage==='workspace'">
-            <a href="https://apic.app/docs/designer/getting-started-with-designer.html" target="_new" class="gap f18 pull-right"><span class="glyphicon glyphicon-question-sign"></span></a>
-            <div class="workspace-title">
-                Workspace
-                <button class="btn btn-primary btn-themed btn-circle" ng-click="vm.showProjImport()" uib-tooltip="Import RAW API project or Open API spec (Swagger)" tooltip-placement="right">
-                    <i class="glyphicon glyphicon-import"></i>
-                </button>
-            </div>
-            <div class="projects">
-                <div class="my-projects">
-                    <div class="projects-title">My Projects</div>
-                    <div class="projects-list">
-                        <div class="api-project ic" ng-repeat="proj in vm.projects track by $index" ng-click="vm.selectProject(proj)">
-                            <div class="apiproj-name">{{proj.title}}</div>
-                        </div>
-                        <div class="api-project" style="width: 120px">
-                            <button class="btn btn-primary btn-themed btn-circle apiproj-name" ng-click="vm.openProjInfoModal()">
-                                <i class="glyphicon glyphicon-plus"></i>
-                            </button>
+
+            <div class="workspace" ng-show="vm.stage==='workspace'">
+                <a href="https://apic.app/docs/designer/getting-started-with-designer.html" target="_new" electron-a
+                    class="gap f18 pull-right"><span class="glyphicon glyphicon-question-sign"></span></a>
+                <div class="workspace-title">
+                    Workspace
+                    <button class="btn btn-primary btn-themed btn-circle" ng-click="vm.showProjImport()"
+                        uib-tooltip="Import RAW API project or Open API spec (Swagger)" tooltip-placement="right">
+                        <i class="glyphicon glyphicon-import"></i>
+                    </button>
+                </div>
+                <div class="projects">
+                    <div class="my-projects">
+                        <div class="projects-title">My Projects</div>
+                        <div class="projects-list">
+                            <div class="api-project ic" ng-repeat="proj in vm.projects track by $index"
+                                ng-click="vm.selectProject(proj)">
+                                <div class="apiproj-name">{{proj.title}}</div>
+                            </div>
+                            <div class="api-project" style="width: 120px">
+                                <button class="btn btn-primary btn-themed btn-circle apiproj-name"
+                                    ng-click="vm.openProjInfoModal()">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        
-        <div ng-show="vm.stage==='projHome'">
-<!--            <uib-tabset active="vm.activeHomeTab.index">-->
+
+
+            <div ng-show="vm.stage==='projHome'">
+                <!--            <uib-tabset active="vm.activeHomeTab.index">-->
                 <div class="">
                     <div style="margin-bottom: 15px;">
                         <div class="proj-landing" ng-show="vm.designStage=== 'dashboard'">
@@ -63,57 +68,100 @@
                                 <h4 class="t_color head proj-head">{{vm.SelectedPROJ.title}}</h4>
                                 <div class="proj-optn">
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-default btn-sm" ng-click="vm.enableMock($event)" ng-if="!vm.SelectedPROJ.simKey"><i class="icon bj-file-code-o gap"></i>Enable Mocked response</button>
-                                        <button type="button" class="btn btn-default btn-sm" ng-click="vm.disableMock($event)" ng-if="vm.SelectedPROJ.simKey"><i class="icon bj-file-code-o gap"></i>Disable Mocked response</button>
-                                        <button type="button" class="btn btn-default btn-sm" uib-popover-html="'Backend is not yet ready? Enable Mocked response for this project to generate dynamic responses for your endpoints and continue UI/other developements.'" popover-placement="bottom" popover-trigger="'outsideClick'"><i class="glyphicon glyphicon-question-sign"></i></button>
+                                        <button type="button" class="btn btn-default btn-sm"
+                                            ng-click="vm.enableMock($event)" ng-if="!vm.SelectedPROJ.simKey"><i
+                                                class="icon bj-file-code-o gap"></i>Enable Mocked response</button>
+                                        <button type="button" class="btn btn-default btn-sm"
+                                            ng-click="vm.disableMock($event)" ng-if="vm.SelectedPROJ.simKey"><i
+                                                class="icon bj-file-code-o gap"></i>Disable Mocked response</button>
+                                        <button type="button" class="btn btn-default btn-sm"
+                                            uib-popover-html="'Backend is not yet ready? Enable Mocked response for this project to generate dynamic responses for your endpoints and continue UI/other developements.'"
+                                            popover-placement="bottom" popover-trigger="'outsideClick'"><i
+                                                class="glyphicon glyphicon-question-sign"></i></button>
                                     </div>
-                                    
+
                                     <div class="btn-group" role="group">
-                                        <a ui-sref="apic.dashboard.publishedDocs.new({projId:vm.SelectedPROJ._id,title:vm.SelectedPROJ.title})" type="button" class="btn btn-default btn-sm" ng-click="checkLogin($event);checkOwner(vm.SelectedPROJ.owner,$event)" ng-if="!vm.SelectedPROJ.publishedId"><i class="icon bj-cloud-upload gap"></i>Publish Docs</a>
-                                        <a ui-sref="apic.dashboard.publishedDocs({docId:vm.SelectedPROJ.publishedId,title:vm.SelectedPROJ.title})" type="button" class="btn btn-default btn-sm" ng-click="checkLogin($event);checkOwner(vm.SelectedPROJ.owner,$event)" ng-if="vm.SelectedPROJ.publishedId"><i class="icon bj-cloud-upload gap"></i>RePublish</a>
-                                        <a class="btn btn-default btn-sm" target="_blank" ng-if="vm.SelectedPROJ.publishedId" ng-href="https://apic.app/PublishedDocs/#!/view/{{vm.SelectedPROJ.publishedId}}">View</a>
-                                        <button type="button" class="btn btn-default btn-sm" uib-popover-html="'Want to share your API\'s documentation with thirdparty developers? Publish it with APIC. Publishing your project will make it\'s documentation available publicly for others (readonly).Know more about <a class=\'t_color\' href=\'https://apic.app/docs\'>Published Docs.</a>'" popover-placement="bottom" popover-trigger="'outsideClick'"><i class="glyphicon glyphicon-question-sign"></i></button>
+                                        <a ui-sref="apic.dashboard.publishedDocs.new({projId:vm.SelectedPROJ._id,title:vm.SelectedPROJ.title})"
+                                            type="button" class="btn btn-default btn-sm"
+                                            ng-click="checkLogin($event);checkOwner(vm.SelectedPROJ.owner,$event)"
+                                            ng-if="!vm.SelectedPROJ.publishedId"><i
+                                                class="icon bj-cloud-upload gap"></i>Publish Docs</a>
+                                        <a ui-sref="apic.dashboard.publishedDocs({docId:vm.SelectedPROJ.publishedId,title:vm.SelectedPROJ.title})"
+                                            type="button" class="btn btn-default btn-sm"
+                                            ng-click="checkLogin($event);checkOwner(vm.SelectedPROJ.owner,$event)"
+                                            ng-if="vm.SelectedPROJ.publishedId"><i
+                                                class="icon bj-cloud-upload gap"></i>RePublish</a>
+                                        <a class="btn btn-default btn-sm" target="_blank"
+                                            ng-if="vm.SelectedPROJ.publishedId"
+                                            ng-href="https://apic.app/PublishedDocs/#!/view/{{vm.SelectedPROJ.publishedId}}">View</a>
+                                        <button type="button" class="btn btn-default btn-sm"
+                                            uib-popover-html="'Want to share your API\'s documentation with thirdparty developers? Publish it with APIC. Publishing your project will make it\'s documentation available publicly for others (readonly).Know more about <a class=\'t_color\' href=\'https://apic.app/docs\'>Published Docs.</a>'"
+                                            popover-placement="bottom" popover-trigger="'outsideClick'"><i
+                                                class="glyphicon glyphicon-question-sign"></i></button>
                                     </div>
-                                    
-                                    <button uib-dropdown-toggle class="btn btn-default btn-sm" ng-click="vm.buildRequests()">
+
+                                    <button uib-dropdown-toggle class="btn btn-default btn-sm"
+                                        ng-click="vm.buildRequests()">
                                         <span class="icon bj-wrench gap"></span>Build requests
                                     </button>
-                                    
-                                    <button class="btn btn-default btn-sm" ng-if="vm.SelectedPROJ.owner === userData.UID && !vm.SelectedPROJ.team" ng-click="openShareModal(vm.SelectedPROJ._id,'APIProject')">
+
+                                    <button class="btn btn-default btn-sm"
+                                        ng-if="vm.SelectedPROJ.owner === userData.UID && !vm.SelectedPROJ.team"
+                                        ng-click="openShareModal(vm.SelectedPROJ._id,'APIProject')">
                                         <span class="icon bj-share-alt gap"></span> Share
                                     </button>
-                                    
-                                    <button class="btn btn-default btn-sm" ng-if="vm.SelectedPROJ.team && vm.SelectedPROJ.owner === userData.UID" ng-click="unshare(vm.SelectedPROJ.team,vm.SelectedPROJ._id, 'APIProject')" confirm="Do you want to unshare this project?" confirm-title="Unshare Project" confirm-ok="Unshare" confirm-cancel="Cancel">
-                                        <span class="icon bj-unshare red gap"></span> Unshare: {{Teams[vm.SelectedPROJ.team]}}
+
+                                    <button class="btn btn-default btn-sm"
+                                        ng-if="vm.SelectedPROJ.team && vm.SelectedPROJ.owner === userData.UID"
+                                        ng-click="unshare(vm.SelectedPROJ.team,vm.SelectedPROJ._id, 'APIProject')"
+                                        confirm="Do you want to unshare this project?" confirm-title="Unshare Project"
+                                        confirm-ok="Unshare" confirm-cancel="Cancel">
+                                        <span class="icon bj-unshare red gap"></span> Unshare:
+                                        {{Teams[vm.SelectedPROJ.team]}}
                                     </button>
-                                    
+
                                     <span uib-dropdown keyboard-nav>
-                                        <button uib-dropdown-toggle class="btn btn-default btn-sm" ng-click="vm.buildTestCases()"><span class="glyphicon glyphicon-export gap"></span>Export</button>
-                                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu aria-labelledby="env-dropdown">
-                                            <li><a href ng-click="vm.openExportModal('OAS')">Open API Specs(Swagger 2)</a></li>
+                                        <button uib-dropdown-toggle class="btn btn-default btn-sm"
+                                            ng-click="vm.buildTestCases()"><span
+                                                class="glyphicon glyphicon-export gap"></span>Export</button>
+                                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu
+                                            aria-labelledby="env-dropdown">
+                                            <li><a href ng-click="vm.openExportModal('OAS')">Open API Specs(Swagger
+                                                    2)</a></li>
                                             <li><a href ng-click="vm.openExportModal('RAW')">Raw APIC Project</a></li>
                                         </ul>
                                     </span>
-                                    
-                                    <button class="btn btn-default btn-sm" ng-click="vm.viewDocs()"><span class="icon bj-book gap" style="font-size: 14px;vertical-align: text-bottom;"></span> View Docs</button>
-                                    
-                                    <button class="btn btn-danger glyphicon glyphicon-trash btn-sm" ng-click="vm.deleteApiProject(vm.SelectedPROJ, vm.SelectedPROJ.setting.envId)" confirm="Do you want to delete this API Project?" confirm-title="Delete Confirmation" confirm-ok="Delete" confirm-cancel="Cancel"></button>
+
+                                    <button class="btn btn-default btn-sm" ng-click="vm.viewDocs()"><span
+                                            class="icon bj-book gap"
+                                            style="font-size: 14px;vertical-align: text-bottom;"></span> View
+                                        Docs</button>
+
+                                    <button class="btn btn-danger glyphicon glyphicon-trash btn-sm"
+                                        ng-click="vm.deleteApiProject(vm.SelectedPROJ, vm.SelectedPROJ.setting.envId)"
+                                        confirm="Do you want to delete this API Project?"
+                                        confirm-title="Delete Confirmation" confirm-ok="Delete"
+                                        confirm-cancel="Cancel"></button>
                                 </div>
                             </div>
                             <div class="dash-ctrls" style="overflow: auto;">
                                 <div class="landing-action" ng-click="vm.loadCrudView()">
                                     <div class="ac-text">
-                                        Describe your resource and auto-generate Create, Read, Update & Delete (POST, GET, PUT, DELETE) endpoints</div>
+                                        Describe your resource and auto-generate Create, Read, Update & Delete (POST,
+                                        GET, PUT, DELETE) endpoints</div>
                                     <div class="ac-head t_bg">API Builder</div>
                                 </div>
                                 <div class="landing-action" ng-click="vm.loadEndpointView()">
                                     <div class="ac-text">
-                                        Define your API endpoints in your project with request, response types etc.</div>
+                                        Define your API endpoints in your project with request, response types etc.
+                                    </div>
                                     <div class="ac-head t_bg">Endpoints</div>
                                 </div>
                                 <div class="landing-action" ng-click="vm.loadMdelsView()">
                                     <div class="ac-text">
-                                        Models represent schema objects that allows the definition of input and output data types. Should be used to reduce duplication. Used with <span class="bold">$ref</span>.</div>
+                                        Models represent schema objects that allows the definition of input and output
+                                        data types. Should be used to reduce duplication. Used with <span
+                                            class="bold">$ref</span>.</div>
                                     <div class="ac-head t_bg">Models</div>
                                 </div>
                                 <div class="landing-action" ng-click="vm.loadTraitsView()">
@@ -126,42 +174,62 @@
                                         Folders can be used to group and organize related components in one place.</div>
                                     <div class="ac-head t_bg">Folders</div>
                                 </div>
-                                <a href="https://apic.app/docs/designer/working-with-api-design.html" target="_new" class="gap f18 pull-right"><span class="glyphicon glyphicon-question-sign"></span></a>
+                                <a href="https://apic.app/docs/designer/working-with-api-design.html" target="_new"
+                                    electron-a class="gap f18 pull-right"><span
+                                        class="glyphicon glyphicon-question-sign"></span></a>
                             </div>
 
                             <div class="pad10 infoTab paper">
                                 <div class="apic-collaps-cont" ng-click="vm.flags.mocked = !vm.flags.mocked">
-                                    <span class="glyphicon" ng-class="vm.flags.mocked?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                    <span class="glyphicon"
+                                        ng-class="vm.flags.mocked?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                     <a href="" class="apic-collaps-text">
                                         Mocked Response
-                                        <span class="glyphicon glyphicon-question-sign" ng-click="vm.flags.mockHelp = !vm.flags.mockHelp;vm.flags.mocked= true;$event.stopPropagation();$event.preventDefault();"></span>
+                                        <span class="glyphicon glyphicon-question-sign"
+                                            ng-click="vm.flags.mockHelp = !vm.flags.mockHelp;vm.flags.mocked= true;$event.stopPropagation();$event.preventDefault();"></span>
                                         <span class="spinner t_color" ng-if="vm.flags.mockLoading"></span>
-                                        <button ng-show="vm.flags.mocked && !vm.SelectedPROJ.simKey" type="button" class="btn btn-sm btn-primary btn-themed" ng-click="vm.enableMock($event)">Enable Mocked Response</button>
-                                        <button ng-show="vm.flags.mocked && vm.SelectedPROJ.simKey" type="button" class="btn btn-sm btn-primary btn-themed" ng-click="vm.disableMock($event)">Disable mocked response</button>
+                                        <button ng-show="vm.flags.mocked && !vm.SelectedPROJ.simKey" type="button"
+                                            class="btn btn-sm btn-primary btn-themed"
+                                            ng-click="vm.enableMock($event)">Enable Mocked Response</button>
+                                        <button ng-show="vm.flags.mocked && vm.SelectedPROJ.simKey" type="button"
+                                            class="btn btn-sm btn-primary btn-themed"
+                                            ng-click="vm.disableMock($event)">Disable mocked response</button>
                                     </a>
                                 </div>
                                 <div ng-show="vm.flags.mocked">
                                     <div class="mockCont">
                                         <div style="padding: 15px;" ng-show="vm.flags.mockHelp">
-                                            Enabling mocked response allows APIC to simulate responses for the endpoints based on the schema defined for diffrerent status code. This helps your UI team to work in parallel with Backend team.
-                                            <br/>
-                                            Your API endpoint can be mocked at https://apic.app/mock/<span class="bold">{simkey}/{api-endpoint}?statusCode={statuscode}</span>
-                                            <br/>
-                                            You can tell APIC which status code to simulate by sending header <span class="bold">StatusCode: 200</span> or the query param <span class="bold">?statusCode=400</span>
-                                            <div style="font-size: 20px;border: 1px dashed #eee;padding: 3px 10px;text-align: center;">simKey = <span class="t_color">{{vm.SelectedPROJ.simKey}}</span></div>
+                                            Enabling mocked response allows APIC to simulate responses for the endpoints
+                                            based on the schema defined for diffrerent status code. This helps your UI
+                                            team to work in parallel with Backend team.
+                                            <br />
+                                            Your API endpoint can be mocked at https://apic.app/mock/<span
+                                                class="bold">{simkey}/{api-endpoint}?statusCode={statuscode}</span>
+                                            <br />
+                                            You can tell APIC which status code to simulate by sending header <span
+                                                class="bold">StatusCode: 200</span> or the query param <span
+                                                class="bold">?statusCode=400</span>
+                                            <div
+                                                style="font-size: 20px;border: 1px dashed #eee;padding: 3px 10px;text-align: center;">
+                                                simKey = <span class="t_color">{{vm.SelectedPROJ.simKey}}</span></div>
                                         </div>
-                                        <div ng-repeat="endp in vm.selectedProjEndps" class="endp" uib-tooltip="{{endp.summary}}" tooltip-placement="top">
+                                        <div ng-repeat="endp in vm.selectedProjEndps" class="endp"
+                                            uib-tooltip="{{endp.summary}}" tooltip-placement="top">
                                             <!--<div class="summary">{{endp.summary}}</div>-->
                                             <span class="method" ng-class="endp.method.toUpperCase()"></span>
                                             <span class="endpUrl">
-                                                <span class="host-sh" ng-if="vm.SelectedPROJ.simKey">https://apic.app/mock/...  </span>
-                                                <span class="host" ng-if="vm.SelectedPROJ.simKey">https://apic.app/mock/{{vm.SelectedPROJ.simKey}}</span>{{vm.SelectedPROJ.setting.basePath+endp.path}}
+                                                <span class="host-sh"
+                                                    ng-if="vm.SelectedPROJ.simKey">https://apic.app/mock/... </span>
+                                                <span class="host"
+                                                    ng-if="vm.SelectedPROJ.simKey">https://apic.app/mock/{{vm.SelectedPROJ.simKey}}</span>{{vm.SelectedPROJ.setting.basePath+endp.path}}
                                             </span>
                                             <span class="pull-right mockCtrls" ng-if="vm.SelectedPROJ.simKey">
                                                 <span class="mockCtrls-hidden">
-                                                    <a href="" class="icon bj-files-empty t_color" title="Copy URL" ng-click="copyToClipboard('https://apic.app/mock/'+vm.SelectedPROJ.simKey+vm.SelectedPROJ.setting.basePath+endp.path)"></a>
+                                                    <a href="" class="icon bj-files-empty t_color" title="Copy URL"
+                                                        ng-click="copyToClipboard('https://apic.app/mock/'+vm.SelectedPROJ.simKey+vm.SelectedPROJ.setting.basePath+endp.path)"></a>
                                                 </span>
-                                                <a href="" class="glyphicon glyphicon-play green" title="Run" ng-click="vm.runMockedEndp(vm.SelectedPROJ.endpoints[endp._id])"></a>
+                                                <a href="" class="glyphicon glyphicon-play green" title="Run"
+                                                    ng-click="vm.runMockedEndp(vm.SelectedPROJ.endpoints[endp._id])"></a>
                                             </span>
                                         </div>
                                     </div>
@@ -171,35 +239,46 @@
                             <div class="pad10 infoTab paper">
                                 <ul class="nav nav-tabs f14">
                                     <li class="uib-tab nav-item" ng-class="{active: vm.flags.tab=='setting'}">
-                                        <a href="" ng-click="vm.flags.tab='setting'" class="nav-link" >Settings</a>
+                                        <a href="" ng-click="vm.flags.tab='setting'" class="nav-link">Settings</a>
                                     </li>
                                     <li class="uib-tab nav-item" ng-class="{active: vm.flags.tab=='security'}">
-                                        <a href="" ng-click="vm.flags.tab='security'" class="nav-link" >Security</a>
+                                        <a href="" ng-click="vm.flags.tab='security'" class="nav-link">Security</a>
                                     </li>
                                     <li class="uib-tab nav-item" ng-class="{active: vm.flags.tab=='projInfo'}">
-                                        <a href="" ng-click="vm.flags.tab='projInfo'" class="nav-link" >Project Info</a>
+                                        <a href="" ng-click="vm.flags.tab='projInfo'" class="nav-link">Project Info</a>
                                     </li>
                                 </ul>
                                 <div class="pad10">
                                     <!--Settings-->
-                                    <div class="form-horizontal form-compact" name="projInfoForm" role="form" ng-show="vm.flags.tab=='setting'">
+                                    <div class="form-horizontal form-compact" name="projInfoForm" role="form"
+                                        ng-show="vm.flags.tab=='setting'">
                                         <form name="projSetng" role="form" ng-submit="vm.saveProjSetting()">
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >API host :<span class="red">*</span></label>
+                                                <label class="info-label col-xs-2">API host :<span
+                                                        class="red">*</span></label>
                                                 <div class="info-label col-xs-10">
-                                                    <input type="text" class="form-control input-sm" placeholder="The host name where your API is located, with protocol. Eg: http://localhost:8080" ng-model="vm.projSetting.host" required=""/>
+                                                    <input type="text" class="form-control input-sm"
+                                                        placeholder="The host name where your API is located, with protocol. Eg: http://localhost:8080"
+                                                        ng-model="vm.projSetting.host" required="" />
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >
-                                                    API base path <i ng-if="vm.projSetting.basePath && vm.projSetting.basePath.indexOf('/')!==0" class="icon bj-alert red" uib-tooltip="Consider&nbsp;using&nbsp;a&nbsp;'/'&nbsp;at&nbsp;the&nbsp;begining&nbsp;of&nbsp;base&nbsp;path, otherwise&nbsp;url&nbsp;may&nbsp;be&nbsp;malformed." tooltip-placement="right"></i> :
+                                                <label class="info-label col-xs-2">
+                                                    API base path <i
+                                                        ng-if="vm.projSetting.basePath && vm.projSetting.basePath.indexOf('/')!==0"
+                                                        class="icon bj-alert red"
+                                                        uib-tooltip="Consider&nbsp;using&nbsp;a&nbsp;'/'&nbsp;at&nbsp;the&nbsp;begining&nbsp;of&nbsp;base&nbsp;path, otherwise&nbsp;url&nbsp;may&nbsp;be&nbsp;malformed."
+                                                        tooltip-placement="right"></i> :
                                                 </label>
                                                 <div class="info-label col-xs-3">
-                                                    <input type="text" class="form-control input-sm" placeholder="Base path of your api. Eg: '/API' or '/v1'" ng-model="vm.projSetting.basePath"/> 
+                                                    <input type="text" class="form-control input-sm"
+                                                        placeholder="Base path of your api. Eg: '/API' or '/v1'"
+                                                        ng-model="vm.projSetting.basePath" />
                                                 </div>
-                                                <label class="info-label col-xs-3" >Allowed protocols :</label>
+                                                <label class="info-label col-xs-3">Allowed protocols :</label>
                                                 <div class="info-label col-xs-4">
-                                                    <select class="form-control input-sm" ng-model="vm.projSetting.protocol">
+                                                    <select class="form-control input-sm"
+                                                        ng-model="vm.projSetting.protocol">
                                                         <option value="http">http</option>
                                                         <option value="https">https</option>
                                                         <option value="ws">ws</option>
@@ -208,10 +287,14 @@
                                                 </div>
                                             </div>
                                             <div class="col-xs-2" style="margin-top: 10px;text-align: right">
-                                                <button class="btn btn-sm btn-primary btn-themed" type="submit" ng-disabled="projSetng.$invalid">Save</button>
+                                                <button class="btn btn-sm btn-primary btn-themed" type="submit"
+                                                    ng-disabled="projSetng.$invalid">Save</button>
                                                 <!--<input type="reset" value="Reset" class="btn btn-sm btn-default" />-->
                                             </div>
-                                            <div class="col-xs-10" style="margin-top: 10px;color: #9E9E9E" ng-show="projSetng.$valid">You API urls will look like {{vm.projSetting.protocol}}://{{vm.projSetting.host}}{{vm.projSetting.basePath}}/example</div>
+                                            <div class="col-xs-10" style="margin-top: 10px;color: #9E9E9E"
+                                                ng-show="projSetng.$valid">You API urls will look like
+                                                {{vm.projSetting.protocol}}://{{vm.projSetting.host}}{{vm.projSetting.basePath}}/example
+                                            </div>
                                         </form>
                                     </div>
 
@@ -219,109 +302,123 @@
                                     <div ng-show="vm.flags.tab=='projInfo'">
                                         <form class="form-horizontal form-compact" name="projInfoForm" role="form">
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Name :</label>
+                                                <label class="info-label col-xs-2">Name :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.title}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.title" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.title" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Version :</label>
+                                                <label class="info-label col-xs-2">Version :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.version}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.version" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.version" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Description :</label>
+                                                <label class="info-label col-xs-2">Description :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.description}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <textarea ng-model="vm.SelectedPROJCopy.description" class="form-control input-sm"></textarea>
+                                                        <textarea ng-model="vm.SelectedPROJCopy.description"
+                                                            class="form-control input-sm"></textarea>
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >License Name :</label>
+                                                <label class="info-label col-xs-2">License Name :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.license.name}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.license.name" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.license.name" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >License URL :</label>
+                                                <label class="info-label col-xs-2">License URL :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.license.url}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.license.url" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.license.url" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Terms of service</label>
+                                                <label class="info-label col-xs-2">Terms of service</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.termsOfService}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.termsOfService" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.termsOfService" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Contact Name :</label>
+                                                <label class="info-label col-xs-2">Contact Name :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.contact.name}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.contact.name" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.contact.name" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Contact URL :</label>
+                                                <label class="info-label col-xs-2">Contact URL :</label>
                                                 <div class="info-label col-xs-10">
                                                     <span ng-if="!vm.flags.editProj">
                                                         {{vm.SelectedPROJ.contact.url}}
                                                     </span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.contact.url" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.contact.url" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="info-label col-xs-2" >Contact email :</label>
+                                                <label class="info-label col-xs-2">Contact email :</label>
                                                 <div class="info-label col-xs-10">
-                                                    <span ng-if="!vm.flags.editProj">{{vm.SelectedPROJ.contact.email}}</span>
+                                                    <span
+                                                        ng-if="!vm.flags.editProj">{{vm.SelectedPROJ.contact.email}}</span>
                                                     <span ng-if="vm.flags.editProj">
-                                                        <input type="text" class="form-control input-sm" ng-model="vm.SelectedPROJCopy.contact.email" />
+                                                        <input type="text" class="form-control input-sm"
+                                                            ng-model="vm.SelectedPROJCopy.contact.email" />
                                                     </span>
                                                 </div>
                                             </div>
                                             <div class="form-group margV5">
                                                 <div class="col-md-offset-2">
                                                     <span ng-if="vm.flags.editProj">
-                                                        <button class="btn btn-primary btn-themed btn-sm" type="submit" ng-click="vm.saveProjEdit()">Save</button>
-                                                        <button class="btn btn-link btn-sm" type="button" ng-click="vm.cancelProjEdit()">Cancel</button>
+                                                        <button class="btn btn-primary btn-themed btn-sm" type="submit"
+                                                            ng-click="vm.saveProjEdit()">Save</button>
+                                                        <button class="btn btn-link btn-sm" type="button"
+                                                            ng-click="vm.cancelProjEdit()">Cancel</button>
                                                     </span>
-                                                    <button ng-show="!vm.flags.editProj" type="button" class="btn btn-sm btn-link c" ng-click="vm.enableProjEdit($event)">Edit</button>
+                                                    <button ng-show="!vm.flags.editProj" type="button"
+                                                        class="btn btn-sm btn-link c"
+                                                        ng-click="vm.enableProjEdit($event)">Edit</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -332,9 +429,10 @@
                                         <form name="securityDef" role="form" ng-submit="vm.saveSecDef(vm.securityDefs)">
                                             <div ng-repeat="def in vm.securityDefs track by $index" class="secDef">
                                                 <div class="form-group">
-                                                    <label class="info-label col-xs-3" >Type</label>
+                                                    <label class="info-label col-xs-3">Type</label>
                                                     <div class="col-xs-6">
-                                                        <select ng-model="def.type" ng-change="vm.secDefTypeChange(def)" class="form-control input-sm">
+                                                        <select ng-model="def.type" ng-change="vm.secDefTypeChange(def)"
+                                                            class="form-control input-sm">
                                                             <option value="basic">Basic</option>
                                                             <option value="apiKey">Api Key</option>
                                                             <option value="oauth2">OAuth2</option>
@@ -342,39 +440,47 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label class="info-label col-xs-3">Name <span class="red">*</span></label>
+                                                    <label class="info-label col-xs-3">Name <span
+                                                            class="red">*</span></label>
                                                     <div class="col-xs-6">
-                                                        <input class="form-control input-sm" required ng-model="def.name"/>
+                                                        <input class="form-control input-sm" required
+                                                            ng-model="def.name" />
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label class="info-label col-xs-3" >Description</label>
+                                                    <label class="info-label col-xs-3">Description</label>
                                                     <div class="col-xs-6">
-                                                        <textarea ng-model="def.description" class="form-control input-sm"></textarea>
+                                                        <textarea ng-model="def.description"
+                                                            class="form-control input-sm"></textarea>
                                                     </div>
                                                 </div>
                                                 <div ng-if="def.type === 'apiKey'">
                                                     <div class="form-group">
                                                         <label class="info-label col-xs-3">In</label>
                                                         <div class="col-xs-6">
-                                                            <select ng-model="def.apiKey.in" class="form-control input-sm">
+                                                            <select ng-model="def.apiKey.in"
+                                                                class="form-control input-sm">
                                                                 <option value="header">Header</option>
                                                                 <option value="query">Query</option>
                                                             </select>
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label class="info-label col-xs-3">Header/Query Name <span class="red">*</span></label>
+                                                        <label class="info-label col-xs-3">Header/Query Name <span
+                                                                class="red">*</span></label>
                                                         <div class="col-xs-6">
-                                                            <input class="form-control input-sm" required ng-model="def.apiKey.name"/>
+                                                            <input class="form-control input-sm" required
+                                                                ng-model="def.apiKey.name" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div ng-if="def.type === 'oauth2'">
                                                     <div class="form-group">
-                                                        <label class="info-label col-xs-3">Flow <span class="red">*</span></label>
+                                                        <label class="info-label col-xs-3">Flow <span
+                                                                class="red">*</span></label>
                                                         <div class="col-xs-6">
-                                                            <select ng-model="def.oauth2.flow" required class="form-control input-sm">
+                                                            <select ng-model="def.oauth2.flow" required
+                                                                class="form-control input-sm">
                                                                 <option value="implicit">implicit</option>
                                                                 <option value="password">password</option>
                                                                 <option value="application">application</option>
@@ -383,31 +489,50 @@
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label class="info-label col-xs-3">Authorization Url <span class="red">*</span></label>
+                                                        <label class="info-label col-xs-3">Authorization Url <span
+                                                                class="red">*</span></label>
                                                         <div class="col-xs-6">
-                                                            <input class="form-control input-sm" required ng-model="def.oauth2.authorizationUrl"/>
+                                                            <input class="form-control input-sm" required
+                                                                ng-model="def.oauth2.authorizationUrl" />
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
                                                         <label class="info-label col-xs-3">Scopes</label>
                                                         <div class="col-xs-9">
-                                                            <div class="kvCont" ng-repeat="scope in def.oauth2.scopes track by $index">
-                                                                <input type="text" placeholder="read:todo / write:todo" ng-model="scope.key" class="form-control sm input-sm">
-                                                                <input type="text" placeholder="description" ng-model="scope.val" class="form-control sm input-sm">
+                                                            <div class="kvCont"
+                                                                ng-repeat="scope in def.oauth2.scopes track by $index">
+                                                                <input type="text" placeholder="read:todo / write:todo"
+                                                                    ng-model="scope.key"
+                                                                    class="form-control sm input-sm">
+                                                                <input type="text" placeholder="description"
+                                                                    ng-model="scope.val"
+                                                                    class="form-control sm input-sm">
                                                                 <div class="d2">
-                                                                    <a ng-if="def.oauth2.scopes.length>1" href="" class="btn btn-link btn-round red" ng-click="def.oauth2.scopes.splice($index,1)"><i class="glyphicon glyphicon-remove"></i></a>
-                                                                    <a ng-if="$last" href="" class="btn btn-link btn-round green" ng-click="def.oauth2.scopes.push({key:'',val:''})"><i class="glyphicon glyphicon-plus"></i></a>
+                                                                    <a ng-if="def.oauth2.scopes.length>1" href=""
+                                                                        class="btn btn-link btn-round red"
+                                                                        ng-click="def.oauth2.scopes.splice($index,1)"><i
+                                                                            class="glyphicon glyphicon-remove"></i></a>
+                                                                    <a ng-if="$last" href=""
+                                                                        class="btn btn-link btn-round green"
+                                                                        ng-click="def.oauth2.scopes.push({key:'',val:''})"><i
+                                                                            class="glyphicon glyphicon-plus"></i></a>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                 </div>
-                                                <a href="" ng-click="vm.securityDefs.splice($index,1);vm.saveSecDef(vm.securityDefs)" class="red glyphicon glyphicon-trash topLeft"></a>
+                                                <a href=""
+                                                    ng-click="vm.securityDefs.splice($index,1);vm.saveSecDef(vm.securityDefs)"
+                                                    class="red glyphicon glyphicon-trash topLeft"></a>
                                             </div>
                                             <div class="col-md-offset-2" style="margin-top: 10px;">
-                                                <button class="btn btn-sm btn-primary btn-themed" type="submit" ng-show="vm.securityDefs.length>0" ng-disabled="securityDef.$invalid">Save</button>
-                                                <button class="btn btn-link c btn-sm" type="button" ng-click="vm.addSecDef()">Add {{vm.securityDefs.length>0?'another':'Security Definition'}}</button>
+                                                <button class="btn btn-sm btn-primary btn-themed" type="submit"
+                                                    ng-show="vm.securityDefs.length>0"
+                                                    ng-disabled="securityDef.$invalid">Save</button>
+                                                <button class="btn btn-link cbg btn-sm" type="button"
+                                                    ng-click="vm.addSecDef()">Add
+                                                    {{vm.securityDefs.length>0?'another':'Security Definition'}}</button>
                                             </div>
                                         </form>
                                     </div>
@@ -416,16 +541,18 @@
                             </div>
 
                         </div>
-                        
+
                         <!-----   Crud view ---->
                         <div class="proj-folders" ng-show="vm.designStage=== 'API builder'">
                             <div class="submodMenu">
                                 <div class="submodMenuOptn">
                                     <span>
-                                        <button type="button" class="btn btn-primary btn-themed btn-sm" ng-disabled="crudForm.$invalid" ng-click="vm.CRUD.generateCRUDRes()">Generate Endpoints</button>
+                                        <button type="button" class="btn btn-primary btn-themed btn-sm"
+                                            ng-disabled="crudForm.$invalid"
+                                            ng-click="vm.CRUD.generateCRUDRes()">Generate Endpoints</button>
                                         <button type="reset" class="btn btn-link btn-sm">Reset</button>
                                     </span>
-                                    
+
                                 </div>
                                 <div class="tip"></div>
                             </div>
@@ -434,153 +561,213 @@
                                 <form class="form-horizontal form-compact proj-form" name="crudForm" role="form">
                                     <div class="row">
                                         <div class="form-group marg0 col-md-6">
-                                            <label class="control-label" >Resource Name <span class="red">*</span></label>
-                                            <div >
-                                                <input type="text" class="form-control sm" required="" id="crudName" placeholder="Resource Name ex: Dog" maxlength="50" ng-model="vm.CRUD.model.name" ng-change="vm.CRUD.getResFromName()">
+                                            <label class="control-label">Resource Name <span
+                                                    class="red">*</span></label>
+                                            <div>
+                                                <input type="text" class="form-control sm" required="" id="crudName"
+                                                    placeholder="Resource Name ex: Dog" maxlength="50"
+                                                    ng-model="vm.CRUD.model.name" ng-change="vm.CRUD.getResFromName()">
                                             </div>
                                         </div>
                                         <div class="form-group marg0 col-md-6">
-                                            <label class="control-label " >Resource Path <span class="red">*</span></label>
-                                            <div >
-                                                <input type="text" class="form-control sm" required="" name="crudPath" placeholder="Resource path" maxlength="51" ng-model="vm.CRUD.model.path">
+                                            <label class="control-label ">Resource Path <span
+                                                    class="red">*</span></label>
+                                            <div>
+                                                <input type="text" class="form-control sm" required="" name="crudPath"
+                                                    placeholder="Resource path" maxlength="51"
+                                                    ng-model="vm.CRUD.model.path">
                                             </div>
                                         </div>
-                                        
+
                                     </div>
                                     <div class="form-group" style="margin:15px 0">
                                         <label class="control-label">Request/Input Model Schema:</label>
                                         <div>
-                                            <div json-schema data="vm.CRUD.model.req" models="vm.SelectedPROJ.models"></div>
+                                            <div json-schema data="vm.CRUD.model.req" models="vm.SelectedPROJ.models">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin:15px 0">
                                         <label class="control-label">Response/Output Model Schema:</label>
                                         <div>
-                                            <div json-schema data="vm.CRUD.model.resp" models="vm.SelectedPROJ.models"></div>
+                                            <div json-schema data="vm.CRUD.model.resp" models="vm.SelectedPROJ.models">
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                         </div>
-                        
-                        
+
+
                         <!-----   Folders view  ---->
                         <div class="proj-folders" ng-show="vm.designStage=== 'folders'">
                             <div class="submodMenu">
                                 <div class="submodMenuOptn">
                                     <span ng-if="vm.folderActnType === 'create'">
-                                        <button type="button" class="btn btn-primary btn-themed btn-sm" ng-disabled="folderForm.$invalid" ng-click="vm.createFolder(vm.folder)">Create</button>
-                                        <button type="reset" class="btn btn-link btn-sm" ng-click="vm.setCreate()">Reset</button>
+                                        <button type="button" class="btn btn-primary btn-themed btn-sm"
+                                            ng-disabled="folderForm.$invalid"
+                                            ng-click="vm.createFolder(vm.folder)">Create</button>
+                                        <button type="reset" class="btn btn-link btn-sm"
+                                            ng-click="vm.setCreate()">Reset</button>
                                     </span>
                                     <span ng-if="vm.folderActnType === 'edit'">
-                                        <button type="button" class="btn btn-primary btn-themed btn-sm" ng-disabled="folderForm.$invalid" ng-click="vm.createFolder(vm.folder,'true')">Save</button>
-                                        <button type="button" class="btn btn-danger btn-sm" ng-click="vm.deleteFolder(vm.folder._id)" confirm="Do you want to delete this Folder?" confirm-title="Delete Confirmation" confirm-ok="Delete" confirm-cancel="Cancel">Delete</button>
+                                        <button type="button" class="btn btn-primary btn-themed btn-sm"
+                                            ng-disabled="folderForm.$invalid"
+                                            ng-click="vm.createFolder(vm.folder,'true')">Save</button>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            ng-click="vm.deleteFolder(vm.folder._id)"
+                                            confirm="Do you want to delete this Folder?"
+                                            confirm-title="Delete Confirmation" confirm-ok="Delete"
+                                            confirm-cancel="Cancel">Delete</button>
                                         <div class="bar"></div>
-                                        <button type="button" ng-click="vm.setCreate()" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-plus gap"></span> New Folder</button>
+                                        <button type="button" ng-click="vm.setCreate()"
+                                            class="btn btn-default btn-sm"><span
+                                                class="glyphicon glyphicon-plus gap"></span> New Folder</button>
                                     </span>
                                 </div>
                                 <div class="tip"></div>
                             </div>
-                            <h4 class="t_color head flex">Folders:  
+                            <h4 class="t_color head flex">Folders:
                                 <div uib-dropdown keyboard-nav class="margL10">
-                                    <button uib-dropdown-toggle class="btn btn-link ellipsis run-env t_color bold">{{vm.folderActnType === 'edit'?vm.folderCopy.name:'Create New'}} <span ng-if="folderForm.$dirty">(modified)</span><span class="caret right"></span>
+                                    <button uib-dropdown-toggle
+                                        class="btn btn-link ellipsis run-env t_color bold">{{vm.folderActnType === 'edit'?vm.folderCopy.name:'Create New'}}
+                                        <span ng-if="folderForm.$dirty">(modified)</span><span
+                                            class="caret right"></span>
                                     </button>
                                     <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
                                         <li><a href ng-click="vm.setCreate()">Create New</a></li>
                                         <li class="divider" style="margin: 5px 0"></li>
-                                        <li ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index" class="item" ng-click="vm.selectFolder(folder, 'edit')"><a href>{{folder.name}}</a></li>
+                                        <li ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index"
+                                            class="item" ng-click="vm.selectFolder(folder, 'edit')"><a
+                                                href>{{folder.name}}</a></li>
                                     </ul>
                                 </div>
-                                <a href="https://apic.app/docs/designer/create-folder.html" target="_new" class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
+                                <a href="https://apic.app/docs/designer/create-folder.html" target="_new" electron-a
+                                    class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
                             </h4>
-                            
-                            <div  class="col-xs-9">
+
+                            <div class="col-xs-9">
                                 <form class="form-horizontal form-compact proj-form" name="folderForm" role="form">
                                     <div class="form-group marg0">
-                                        <label class="control-label col-sm-2" >Name: <span class="red">*</span></label>
+                                        <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
                                         <div class="col-sm-8">
-                                            <input type="text" class="form-control sm" required="" id="newFolderName" placeholder="Folder Name" maxlength="30" ng-model="vm.folder.name">
+                                            <input type="text" class="form-control sm" required="" id="newFolderName"
+                                                placeholder="Folder Name" maxlength="30" ng-model="vm.folder.name">
                                         </div>
                                     </div>
                                     <div class="form-group marg0">
-                                        <label class="control-label col-sm-2" >Description: </label>
+                                        <label class="control-label col-sm-2">Description: </label>
                                         <div class="col-sm-8">
-                                            <textarea class="form-control" placeholder="A short description of the folder/group." ng-model="vm.folder.desc"></textarea>
+                                            <textarea class="form-control"
+                                                placeholder="A short description of the folder/group."
+                                                ng-model="vm.folder.desc"></textarea>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                         </div>
-                        
-                        
-                        
-                        
-                        
+
+
+
+
+
                         <!-----   Models view  ---->
                         <div class="proj-models" ng-show="vm.designStage=== 'models'">
                             <div class="ctrls">
-                                
+
                             </div>
                             <div class="submodMenu">
                                 <div class="submodMenuOptn">
                                     <span ng-if="vm.modelActnType === 'create'">
-                                        <button type="button" class="btn btn-primary btn-sm btn-themed" ng-disabled="modelForm.$invalid" ng-click="vm.createModel(vm.model)" ng-if="vm.modelActnType === 'create'">Create</button>
-                                        <button type="reset" class="btn btn-link btn-sm" ng-click="vm.setCreateModel()">Reset</button>
+                                        <button type="button" class="btn btn-primary btn-sm btn-themed"
+                                            ng-disabled="modelForm.$invalid" ng-click="vm.createModel(vm.model)"
+                                            ng-if="vm.modelActnType === 'create'">Create</button>
+                                        <button type="reset" class="btn btn-link btn-sm"
+                                            ng-click="vm.setCreateModel()">Reset</button>
                                     </span>
                                     <span ng-if="vm.modelActnType === 'edit'">
-                                        <button type="button" class="btn btn-primary btn-sm btn-themed" ng-disabled="modelForm.$invalid" ng-click="vm.createModel(vm.model,'true')" >Save</button>
-                                        <button type="button" class="btn btn-danger btn-sm" ng-click="vm.deleteModel(vm.model._id)" confirm="Do you want to delete this Model?" confirm-title="Delete Confirmation" confirm-ok="Delete" confirm-cancel="Cancel">Delete</button>
+                                        <button type="button" class="btn btn-primary btn-sm btn-themed"
+                                            ng-disabled="modelForm.$invalid"
+                                            ng-click="vm.createModel(vm.model,'true')">Save</button>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            ng-click="vm.deleteModel(vm.model._id)"
+                                            confirm="Do you want to delete this Model?"
+                                            confirm-title="Delete Confirmation" confirm-ok="Delete"
+                                            confirm-cancel="Cancel">Delete</button>
                                         <div class="bar"></div>
-                                        <button type="button" ng-click="vm.setCreateModel()" class="btn btn-default btn-sm addF"><span class="glyphicon glyphicon-plus gap"></span> New Model</button>
+                                        <button type="button" ng-click="vm.setCreateModel()"
+                                            class="btn btn-default btn-sm addF"><span
+                                                class="glyphicon glyphicon-plus gap"></span> New Model</button>
                                     </span>
                                 </div>
                                 <div class="tip"></div>
                             </div>
-                            
+
                             <div class="row" style="margin: 0;">
-                                <h4 class="t_color head flex">Models:  
+                                <h4 class="t_color head flex">Models:
                                     <div uib-dropdown keyboard-nav class="margL10">
-                                        <button uib-dropdown-toggle class="btn btn-link ellipsis run-env t_color bold">{{vm.modelActnType === 'edit'?vm.modelCopy.name:'Create New'}} <span ng-if="modelForm.$dirty || vm.flags.modelPageDirty">(modified)</span><span class="caret right"></span>
+                                        <button uib-dropdown-toggle
+                                            class="btn btn-link ellipsis run-env t_color bold">{{vm.modelActnType === 'edit'?vm.modelCopy.name:'Create New'}}
+                                            <span
+                                                ng-if="modelForm.$dirty || vm.flags.modelPageDirty">(modified)</span><span
+                                                class="caret right"></span>
                                         </button>
                                         <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
                                             <li><a href ng-click="vm.setCreateModel()">Create New</a></li>
                                             <li class="divider" style="margin: 5px 0"></li>
-                                            <li ng-repeat="(name, model) in vm.SelectedPROJ.models track by $index" class="item" ng-click="vm.selectModel(model, 'edit')"><a href>{{model.name}}</a></li>
+                                            <li ng-repeat="(name, model) in vm.SelectedPROJ.models track by $index"
+                                                class="item" ng-click="vm.selectModel(model, 'edit')"><a
+                                                    href>{{model.name}}</a></li>
                                         </ul>
                                     </div>
-                                    <a href="https://apic.app/docs/designer/create-model.html" target="_new" class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
+                                    <a href="https://apic.app/docs/designer/create-model.html" target="_new" electron-a
+                                        class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
                                 </h4>
-                                
-                                                            
+
+
                                 <div class="col-xs-12">
                                     <form class="form-horizontal form-compact proj-form" name="modelForm" role="form">
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Name: <span class="red">*</span></label>
+                                            <label class="control-label col-sm-2">Name: <span
+                                                    class="red">*</span></label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control sm" required="" id="newModelName" placeholder="Model Name" maxlength="30" ng-model="vm.model.name" ng-blur="vm.setDefaultNameSpace()">
+                                                <input type="text" class="form-control sm" required="" id="newModelName"
+                                                    placeholder="Model Name" maxlength="30" ng-model="vm.model.name"
+                                                    ng-blur="vm.setDefaultNameSpace()">
                                             </div>
                                         </div>
 
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Folder: </label>
+                                            <label class="control-label col-sm-2">Folder: </label>
                                             <div class="col-sm-8">
                                                 <div uib-dropdown keyboard-nav>
                                                     <button uib-dropdown-toggle class="btn btn-link ellipsis run-env">
-                                                        {{vm.SelectedPROJ.folders[vm.model.folder]?vm.SelectedPROJ.folders[vm.model.folder].name:'Un-grouped'}} <span class="caret right"></span>
+                                                        {{vm.SelectedPROJ.folders[vm.model.folder]?vm.SelectedPROJ.folders[vm.model.folder].name:'Un-grouped'}}
+                                                        <span class="caret right"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
-                                                        <li><a href ng-click="vm.selectFolderForModel(undefined)">Un-grouped</a></li>
+                                                    <ul class="dropdown-menu" uib-dropdown-menu
+                                                        aria-labelledby="env-dropdown">
+                                                        <li><a href
+                                                                ng-click="vm.selectFolderForModel(undefined)">Un-grouped</a>
+                                                        </li>
                                                         <li class="divider" style="margin: 5px 0"></li>
-                                                        <li ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index"><a href ng-click="vm.selectFolderForModel(folder._id)">{{folder.name}}</a></li>
+                                                        <li
+                                                            ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index">
+                                                            <a href
+                                                                ng-click="vm.selectFolderForModel(folder._id)">{{folder.name}}</a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Name Space: <span class="red">*</span></label>
+                                            <label class="control-label col-sm-2">Name Space: <span
+                                                    class="red">*</span></label>
                                             <div class="input-group col-sm-8" style="padding: 0 15px;">
-                                                <span class="input-group-addon" style="background: #e9e9e9">#/definitions/</span>
-                                                <input type="text" class="form-control" required ng-model="vm.model.nameSpace">
+                                                <span class="input-group-addon"
+                                                    style="background: #e9e9e9">#/definitions/</span>
+                                                <input type="text" class="form-control" required
+                                                    ng-model="vm.model.nameSpace">
                                             </div>
                                         </div>
                                         <!--<div class="form-group marg0">
@@ -589,71 +776,99 @@
                                             </label>
                                         </div>-->
                                     </form>
-                                        <div class="form-group marg0">
-                                            <div style="font-family: apic-font; font-size: 16px;">Model Schema Design</div>
-                                            <div json-schema data="vm.model.data" models="vm.SelectedPROJ.models" dirty="vm.flags.modelPageDirty"></div>
-                                        </div>
+                                    <div class="form-group marg0">
+                                        <div style="font-family: apic-font; font-size: 16px;">Model Schema Design</div>
+                                        <div json-schema data="vm.model.data" models="vm.SelectedPROJ.models"
+                                            dirty="vm.flags.modelPageDirty"></div>
+                                    </div>
                                 </div>
                             </div>
-                            
+
                         </div>
-                        
-                    
-                        
-                        
-                        
+
+
+
+
+
                         <!-- Endpoints -->
                         <div class="proj-endps" ng-show="vm.designStage=== 'endpoints'">
                             <div class="submodMenu">
                                 <div class="submodMenuOptn">
                                     <span ng-if="vm.endpActnType === 'create'">
-                                        <button type="button" class="btn btn-primary btn-themed btn-sm" ng-click="vm.createEndp(vm.endp, vm.endpBody)" ng-disabled="endpForm.$invalid">Create</button>
-                                        <button type="button" ng-click="vm.setCreateEndp()" form="endpForm" name="reset" class="btn btn-link btn-sm">Reset</button>
+                                        <button type="button" class="btn btn-primary btn-themed btn-sm"
+                                            ng-click="vm.createEndp(vm.endp, vm.endpBody)"
+                                            ng-disabled="endpForm.$invalid">Create</button>
+                                        <button type="button" ng-click="vm.setCreateEndp()" form="endpForm" name="reset"
+                                            class="btn btn-link btn-sm">Reset</button>
                                     </span>
                                     <span ng-if="vm.endpActnType === 'edit'">
-                                        <button type="button" class="btn btn-primary btn-sm btn-themed" ng-disabled="endpForm.$invalid" ng-click="vm.createEndp(vm.endp, vm.endpBody,'true')" >Save</button>
-                                        <button type="button" class="btn btn-danger btn-sm" ng-click="vm.deleteEndp(vm.endp._id)" confirm="Do you want to delete this Endpoint?" confirm-title="Delete Confirmation" confirm-ok="Delete" confirm-cancel="Cancel">Delete</button>
+                                        <button type="button" class="btn btn-primary btn-sm btn-themed"
+                                            ng-disabled="endpForm.$invalid"
+                                            ng-click="vm.createEndp(vm.endp, vm.endpBody,'true')">Save</button>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            ng-click="vm.deleteEndp(vm.endp._id)"
+                                            confirm="Do you want to delete this Endpoint?"
+                                            confirm-title="Delete Confirmation" confirm-ok="Delete"
+                                            confirm-cancel="Cancel">Delete</button>
                                         <div class="bar"></div>
-                                        <button type="button" class="btn btn-default btn-sm" ng-click="vm.runEndp(vm.endp)"><span class="glyphicon glyphicon-play green"></span> Run</button>
+                                        <button type="button" class="btn btn-default btn-sm"
+                                            ng-click="vm.runEndp(vm.endp)"><span
+                                                class="glyphicon glyphicon-play green"></span> Run</button>
                                         <div class="bar"></div>
-                                        <button type="button" ng-click="vm.setCreateEndp()" class="btn btn-default btn-sm addF"><span class="glyphicon glyphicon-plus gap"></span> New Endpoint</button>
+                                        <button type="button" ng-click="vm.setCreateEndp()"
+                                            class="btn btn-default btn-sm addF"><span
+                                                class="glyphicon glyphicon-plus gap"></span> New Endpoint</button>
                                     </span>
                                 </div>
                                 <div class="tip"></div>
                             </div>
-                            <h4 class="t_color head flex">Endpoints: 
+                            <h4 class="t_color head flex">Endpoints:
                                 <div uib-dropdown keyboard-nav class="margL10">
                                     <button uib-dropdown-toggle class="btn btn-link ellipsis run-env t_color bold">
-                                        {{vm.endpActnType === 'edit'?vm.endpCopy.summary : 'Create New'}} <span ng-if="endpForm.$dirty || vm.flags.endpPageDirty">(modified)</span><span class="caret right"></span>
+                                        {{vm.endpActnType === 'edit'?vm.endpCopy.summary : 'Create New'}} <span
+                                            ng-if="endpForm.$dirty || vm.flags.endpPageDirty">(modified)</span><span
+                                            class="caret right"></span>
                                     </button>
                                     <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
                                         <li><a href ng-click="vm.setCreateEndp()">Create New</a></li>
                                         <li class="divider" style="margin: 5px 0"></li>
-                                        <li ng-repeat="(id, endpoint) in vm.SelectedPROJ.endpoints track by $index"><a href ng-click="vm.selectEndp(endpoint,'edit')">{{endpoint.summary}}</a></li>
+                                        <li ng-repeat="(id, endpoint) in vm.SelectedPROJ.endpoints track by $index"><a
+                                                href ng-click="vm.selectEndp(endpoint,'edit')">{{endpoint.summary}}</a>
+                                        </li>
                                     </ul>
                                 </div>
-                                <a href="https://apic.app/docs/designer/create-endpoint.html" target="_new" class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
+                                <a href="https://apic.app/docs/designer/create-endpoint.html" target="_new" electron-a
+                                    class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
                             </h4>
-                            
+
                             <div class="row" style="margin: 0;">
                                 <div class="col-xs-12">
-                                    <form class="form-horizontal form-compact proj-form" name="endpForm" role="form" id="endpForm">
+                                    <form class="form-horizontal form-compact proj-form" name="endpForm" role="form"
+                                        id="endpForm">
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Name/Summary: <span class="red">*</span></label>
+                                            <label class="control-label col-sm-2">Name/Summary: <span
+                                                    class="red">*</span></label>
                                             <div class="col-sm-10">
-                                                <input type="text" class="form-control sm" required="" id="newEndpName" placeholder="Endpoint Name/Summary" maxlength="255" ng-model="vm.endp.summary">
+                                                <input type="text" class="form-control sm" required="" id="newEndpName"
+                                                    placeholder="Endpoint Name/Summary" maxlength="255"
+                                                    ng-model="vm.endp.summary">
                                             </div>
-                                            
+
                                         </div>
 
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Path: <span class="red">*</span></label>
+                                            <label class="control-label col-sm-2">Path: <span
+                                                    class="red">*</span></label>
                                             <div class="col-sm-6">
-                                                <input type="text" class="form-control sm" required ng-model="vm.endp.path" placeholder="Eg: /user  or  /user/{id}/detail" ng-change="vm.checkForPathParams()">
+                                                <input type="text" class="form-control sm" required
+                                                    ng-model="vm.endp.path"
+                                                    placeholder="Eg: /user  or  /user/{id}/detail"
+                                                    ng-change="vm.checkForPathParams()">
                                             </div>
-                                            <label class="control-label col-sm-2" >HTTP Method: </label>
+                                            <label class="control-label col-sm-2">HTTP Method: </label>
                                             <div class="col-sm-2">
-                                                <select class="form-control" style="padding: 2px;height: 28px;" ng-model="vm.endp.method">
+                                                <select class="form-control" style="padding: 2px;height: 28px;"
+                                                    ng-model="vm.endp.method">
                                                     <option value="get">GET</option>
                                                     <option value="post">POST</option>
                                                     <option value="put">PUT</option>
@@ -663,19 +878,27 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Folder: </label>
+                                            <label class="control-label col-sm-2">Folder: </label>
                                             <div class="col-sm-4">
                                                 <div uib-dropdown keyboard-nav>
-                                                    <button type="button" uib-dropdown-toggle class="btn btn-link ellipsis run-env" style="height: 28px;padding: 0 5px;">
-                                                        {{vm.SelectedPROJ.folders[vm.endp.folder]?vm.SelectedPROJ.folders[vm.endp.folder].name:'Un-grouped'}} <span class="caret right"></span>
+                                                    <button type="button" uib-dropdown-toggle
+                                                        class="btn btn-link ellipsis run-env"
+                                                        style="height: 28px;padding: 0 5px;">
+                                                        {{vm.SelectedPROJ.folders[vm.endp.folder]?vm.SelectedPROJ.folders[vm.endp.folder].name:'Un-grouped'}}
+                                                        <span class="caret right"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
-                                                        <li><a href ng-click="vm.selectFolderForEndp(undefined)">Un-grouped</a></li>
+                                                    <ul class="dropdown-menu" uib-dropdown-menu
+                                                        aria-labelledby="env-dropdown">
+                                                        <li><a href
+                                                                ng-click="vm.selectFolderForEndp(undefined)">Un-grouped</a>
+                                                        </li>
                                                         <li class="divider" style="margin: 5px 0"></li>
-                                                        <li ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index">
-                                                            <a href ng-click="vm.selectFolderForEndp(folder._id)">{{folder.name}}</a>
+                                                        <li
+                                                            ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index">
+                                                            <a href
+                                                                ng-click="vm.selectFolderForEndp(folder._id)">{{folder.name}}</a>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -683,105 +906,150 @@
                                         </div>
 
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" ><a href="https://apic.app/docs/designer/create-trait.html" target="_new" class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a> Traits: </label>
+                                            <label class="control-label col-sm-2"><a
+                                                    href="https://apic.app/docs/designer/create-trait.html" electron-a
+                                                    target="_new" class="gap f18"><span
+                                                        class="glyphicon glyphicon-question-sign"></span></a> Traits:
+                                            </label>
                                             <div class="col-sm-10">
-                                                <tag-editor ng-model="vm.endp.traits" type="object" placeholder="Traits" suggestions="vm.SelectedPROJ.traits" config="vm.endpSuggestnCofig" mode="strict" ng-if="vm.designStage=== 'endpoints'" ></tag-editor>
+                                                <tag-editor ng-model="vm.endp.traits" type="object" placeholder="Traits"
+                                                    suggestions="vm.SelectedPROJ.traits" config="vm.endpSuggestnCofig"
+                                                    mode="strict" ng-if="vm.designStage=== 'endpoints'"></tag-editor>
                                             </div>
                                         </div>
 
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2 pointer" ng-click="vm.endpPans.more = !vm.endpPans.more" style="text-align: left;margin-left: 20px;">
-                                                <span class="glyphicon glyphicon-menu-down" ng-show="vm.endpPans.more">less</span>
-                                                <span class="glyphicon glyphicon-menu-right" ng-show="!vm.endpPans.more">more</span>
-                                                
+                                            <label class="control-label col-sm-2 pointer"
+                                                ng-click="vm.endpPans.more = !vm.endpPans.more"
+                                                style="text-align: left;margin-left: 20px;">
+                                                <span class="glyphicon glyphicon-menu-down"
+                                                    ng-show="vm.endpPans.more">less</span>
+                                                <span class="glyphicon glyphicon-menu-right"
+                                                    ng-show="!vm.endpPans.more">more</span>
+
                                             </label>
                                         </div>
                                         <div ng-show="vm.endpPans.more" style="margin-top: -10px;">
                                             <div class="form-group marg0">
-                                                <label class="control-label col-sm-2" >Tags: </label>
+                                                <label class="control-label col-sm-2">Tags: </label>
                                                 <div class="col-sm-10">
-                                                    <tag-editor ng-model="vm.endp.tags" type="string" placeholder="Tags"></tag-editor>
+                                                    <tag-editor ng-model="vm.endp.tags" type="string"
+                                                        placeholder="Tags"></tag-editor>
                                                     <!--<input type="text" class="form-control sm" ng-model="vm.endp.tags"/>-->
                                                 </div>
                                             </div>
 
                                             <div class="form-group marg0">
-                                                <label class="control-label col-sm-2" ><a href="https://docs.apic.app/designer/api-security-definitions" target="_new" class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a> Security: </label>
+                                                <label class="control-label col-sm-2"><a
+                                                        href="https://docs.apic.app/designer/api-security-definitions"
+                                                        electron-a target="_new" class="gap f18"><span
+                                                            class="glyphicon glyphicon-question-sign"></span></a>
+                                                    Security: </label>
                                                 <div class="col-sm-10">
                                                     <div class="col-sm-6 pad0" ng-if="vm.endp.security">
-                                                        <tag-editor ng-model="vm.endp.security" type="object" placeholder="{{vm.endp.security.length==0?'None':''}}" suggestions="vm.SelectedPROJ.securityDefinitions" config="{key:'name',val:'name'}" mode="strict" ng-if="vm.endp.security" ></tag-editor>
+                                                        <tag-editor ng-model="vm.endp.security" type="object"
+                                                            placeholder="{{vm.endp.security.length==0?'None':''}}"
+                                                            suggestions="vm.SelectedPROJ.securityDefinitions"
+                                                            config="{key:'name',val:'name'}" mode="strict"
+                                                            ng-if="vm.endp.security"></tag-editor>
                                                     </div>
                                                     <div class="col-sm-1"></div>
-                                                    <button type="button" class="btn btn-link c btn-sm" ng-click="vm.toggleSecDef()">{{vm.endp.security?'Remove':'Define'}} security definitions</button>
+                                                    <button type="button" class="btn btn-link cbg btn-sm"
+                                                        ng-click="vm.toggleSecDef()">{{vm.endp.security?'Remove':'Define'}}
+                                                        security definitions</button>
                                                 </div>
                                             </div>
 
                                             <div class="form-group marg0">
-                                                <label class="control-label col-sm-2" >Operation Id:</label>
+                                                <label class="control-label col-sm-2">Operation Id:</label>
                                                 <div class="col-sm-4">
-                                                    <input type="text" class="form-control sm" id="opId" maxlength="30" ng-model="vm.endp.operationId">
+                                                    <input type="text" class="form-control sm" id="opId" maxlength="30"
+                                                        ng-model="vm.endp.operationId">
                                                 </div>
-                                                <label class="control-label col-sm-2" >Schemes: </label>
+                                                <label class="control-label col-sm-2">Schemes: </label>
                                                 <div class="col-sm-4">
-                                                    <tag-editor ng-model="vm.endp.schemes" type="object" placeholder="Schemes" suggestions="vm.schemesSugg" config="vm.schemesSuggConfig" mode="strict" ng-if="vm.designStage=== 'endpoints'" ></tag-editor>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="form-group marg0">
-                                                <label class="control-label col-sm-2" >Consumes: </label>
-                                                <div class="col-sm-4">
-                                                    <tag-editor ng-model="vm.endp.consumes" type="string" placeholder="Consumes" suggestions="vm.MIMEs" ng-if="vm.designStage=== 'endpoints'" ></tag-editor>
-                                                </div>
-                                                <label class="control-label col-sm-2" >Produces: </label>
-                                                <div class="col-sm-4">
-                                                    <tag-editor ng-model="vm.endp.produces" type="string" placeholder="Produces" suggestions="vm.MIMEs" ng-if="vm.designStage=== 'endpoints'" ></tag-editor>
+                                                    <tag-editor ng-model="vm.endp.schemes" type="object"
+                                                        placeholder="Schemes" suggestions="vm.schemesSugg"
+                                                        config="vm.schemesSuggConfig" mode="strict"
+                                                        ng-if="vm.designStage=== 'endpoints'"></tag-editor>
                                                 </div>
                                             </div>
-    
+
                                             <div class="form-group marg0">
-                                                <label class="control-label col-sm-2" >Description: </label>
+                                                <label class="control-label col-sm-2">Consumes: </label>
+                                                <div class="col-sm-4">
+                                                    <tag-editor ng-model="vm.endp.consumes" type="string"
+                                                        placeholder="Consumes" suggestions="vm.MIMEs"
+                                                        ng-if="vm.designStage=== 'endpoints'"></tag-editor>
+                                                </div>
+                                                <label class="control-label col-sm-2">Produces: </label>
+                                                <div class="col-sm-4">
+                                                    <tag-editor ng-model="vm.endp.produces" type="string"
+                                                        placeholder="Produces" suggestions="vm.MIMEs"
+                                                        ng-if="vm.designStage=== 'endpoints'"></tag-editor>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group marg0">
+                                                <label class="control-label col-sm-2">Description: </label>
                                                 <div class="col-sm-10">
-                                                    <textarea class="form-control" ng-model="vm.endp.description"></textarea>
+                                                    <textarea class="form-control"
+                                                        ng-model="vm.endp.description"></textarea>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.path = !vm.endpPans.path">
-                                                <span class="glyphicon" ng-class="vm.endpPans.path?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.path = !vm.endpPans.path">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.path?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Path Params</a>
                                             </legend>
                                             <div class="form-group marg0 apic-collaps-body" ng-hide="vm.endpPans.path">
-                                                <div json-schema data="vm.endp.pathParams" mode="static" dirty="vm.flags.endpPageDirty" msg="Path params are part of the url. Add them above to the PATH with a pair of { }. Eg: /user/{id}/detail"></div>
+                                                <div json-schema data="vm.endp.pathParams" mode="static"
+                                                    dirty="vm.flags.endpPageDirty"
+                                                    msg="Path params are part of the url. Add them above to the PATH with a pair of { }. Eg: /user/{id}/detail">
+                                                </div>
                                             </div>
                                         </fieldset>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.query = !vm.endpPans.query">
-                                                <span class="glyphicon" ng-class="vm.endpPans.query?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.query = !vm.endpPans.query">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.query?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Query Params</a>
                                             </legend>
                                             <div class="form-group marg0 apic-collaps-body" ng-hide="vm.endpPans.query">
-                                                <div json-schema data="vm.endp.queryParams" mode="list" dirty="vm.flags.endpPageDirty" msg="Add query params."></div>
+                                                <div json-schema data="vm.endp.queryParams" mode="list"
+                                                    dirty="vm.flags.endpPageDirty" msg="Add query params."></div>
                                             </div>
                                         </fieldset>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.header = !vm.endpPans.header">
-                                                <span class="glyphicon" ng-class="vm.endpPans.header?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.header = !vm.endpPans.header">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.header?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Request Headers</a>
                                             </legend>
-                                            <div class="form-group marg0 apic-collaps-body" ng-hide="vm.endpPans.header">
-                                                <div json-schema data="vm.endp.headers" mode="list" dirty="vm.flags.endpPageDirty" msg="Add request heders."></div>
+                                            <div class="form-group marg0 apic-collaps-body"
+                                                ng-hide="vm.endpPans.header">
+                                                <div json-schema data="vm.endp.headers" mode="list"
+                                                    dirty="vm.flags.endpPageDirty" msg="Add request heders."></div>
                                             </div>
                                         </fieldset>
-                                        
+
                                         <fieldset class="paper2" ng-if="vm.endp.method !== 'get'">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.body = !vm.endpPans.body">
-                                                <span class="glyphicon" ng-class="vm.endpPans.body?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.body = !vm.endpPans.body">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.body?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Request Body</a>
                                             </legend>
-                                            <div class="form-group marg0 apic-collaps-body form-inline" ng-hide="vm.endpPans.body">
+                                            <div class="form-group marg0 apic-collaps-body form-inline"
+                                                ng-hide="vm.endpPans.body">
                                                 <div class="">
                                                     <div class="radio">
                                                         <label>
@@ -791,37 +1059,56 @@
                                                     </div>
                                                     <div class="radio">
                                                         <label>
-                                                            <input type="radio" ng-model="vm.endpBody.type" value="form-data">
+                                                            <input type="radio" ng-model="vm.endpBody.type"
+                                                                value="form-data">
                                                             form-data
                                                         </label>
                                                     </div>
                                                     <div class="radio">
                                                         <label>
-                                                            <input type="radio" ng-model="vm.endpBody.type" value="x-www-form-urlencoded">
+                                                            <input type="radio" ng-model="vm.endpBody.type"
+                                                                value="x-www-form-urlencoded">
                                                             x-www-form-urlencoded
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div ng-show="vm.endpBody.type === 'form-data'" style="margin-left: 5px">
+                                                <div ng-show="vm.endpBody.type === 'form-data'"
+                                                    style="margin-left: 5px">
                                                     <div ng-repeat="data in vm.endpBody.formData track by $index">
-                                                        <input type="text" class="form-control sm width40" placeholder="Key" ng-model="data.key" ng-focus="vm.addRow('form-data', $index)"/>
+                                                        <input type="text" class="form-control sm width40"
+                                                            placeholder="Key" ng-model="data.key"
+                                                            ng-focus="vm.addRow('form-data', $index)" />
                                                         <select class="form-control sm width40" ng-model="data.type">
                                                             <option disabled="" value="">..Type..</option>
                                                             <option value="string">String</option>
                                                             <option value="file">File</option>
                                                         </select>
-                                                        <span><input type="checkbox" class="small" ng-model="data.required">Required</span>
-                                                        <a href="" class="btn btn-link btn-round" ng-click="showDet = !showDet"><span class="glyphicon glyphicon-pencil"></span></a>
-                                                        <a href="" class="btn btn-link btn-round red" ng-click="vm.endpBody.formData.splice($index,1)"><i class="glyphicon glyphicon-remove"></i></a>
-                                                        <div ng-init="showDet = false" ng-show="showDet" class="model-det-cont">
-                                                            <textarea class="form-control" cols="100" placeholder="Description" ng-model="data.desc"></textarea>
+                                                        <span><input type="checkbox" class="small"
+                                                                ng-model="data.required">Required</span>
+                                                        <a href="" class="btn btn-link btn-round"
+                                                            ng-click="showDet = !showDet"><span
+                                                                class="glyphicon glyphicon-pencil"></span></a>
+                                                        <a href="" class="btn btn-link btn-round red"
+                                                            ng-click="vm.endpBody.formData.splice($index,1)"><i
+                                                                class="glyphicon glyphicon-remove"></i></a>
+                                                        <div ng-init="showDet = false" ng-show="showDet"
+                                                            class="model-det-cont">
+                                                            <textarea class="form-control" cols="100"
+                                                                placeholder="Description"
+                                                                ng-model="data.desc"></textarea>
                                                         </div>
                                                     </div>
-                                                    <button type="button" style="margin-top: 5px;" class="btn btn-success btn-sm" ng-click="vm.endpBody.formData.push({key:'',type:'string'})">+ Add another</button>
+                                                    <button type="button" style="margin-top: 5px;"
+                                                        class="btn btn-success btn-sm"
+                                                        ng-click="vm.endpBody.formData.push({key:'',type:'string'})">+
+                                                        Add another</button>
                                                 </div>
-                                                <div ng-show="vm.endpBody.type === 'x-www-form-urlencoded'" style="margin-left: 5px">
+                                                <div ng-show="vm.endpBody.type === 'x-www-form-urlencoded'"
+                                                    style="margin-left: 5px">
                                                     <div ng-repeat="data in vm.endpBody.xformData track by $index">
-                                                        <input type="text" class="form-control sm width40" placeholder="Key" ng-model="data.key" ng-focus="vm.addRow('form-data', $index)"/>
+                                                        <input type="text" class="form-control sm width40"
+                                                            placeholder="Key" ng-model="data.key"
+                                                            ng-focus="vm.addRow('form-data', $index)" />
                                                         <select class="form-control sm width40" ng-model="data.type">
                                                             <option disabled="" value="">..Type..</option>
                                                             <option value="string">String</option>
@@ -830,88 +1117,146 @@
                                                             <option value="number">Number</option>
                                                             <option value="array">Array</option>
                                                         </select>
-                                                        <span><input type="checkbox" class="small" ng-model="data.required">Required</span>
-                                                        <a href="" class="btn btn-link btn-round" ng-click="showDet = !showDet"><span class="glyphicon glyphicon-pencil"></span></a>
-                                                        <a href="" class="btn btn-link btn-round red" ng-click="vm.endpBody.xformData.splice($index,1)"><i class="glyphicon glyphicon-remove"></i></a>
-                                                        <div ng-init="showDet = false" ng-show="showDet" class="model-det-cont">
-                                                            <textarea class="form-control" cols="100" placeholder="Description" ng-model="data.desc"></textarea>
+                                                        <span><input type="checkbox" class="small"
+                                                                ng-model="data.required">Required</span>
+                                                        <a href="" class="btn btn-link btn-round"
+                                                            ng-click="showDet = !showDet"><span
+                                                                class="glyphicon glyphicon-pencil"></span></a>
+                                                        <a href="" class="btn btn-link btn-round red"
+                                                            ng-click="vm.endpBody.xformData.splice($index,1)"><i
+                                                                class="glyphicon glyphicon-remove"></i></a>
+                                                        <div ng-init="showDet = false" ng-show="showDet"
+                                                            class="model-det-cont">
+                                                            <textarea class="form-control" cols="100"
+                                                                placeholder="Description"
+                                                                ng-model="data.desc"></textarea>
                                                         </div>
                                                     </div>
-                                                    <button type="button" style="margin-top: 5px;" class="btn btn-success btn-sm" ng-click="vm.endpBody.xformData.push({key:'',type:'string'})">+ Add another</button>
+                                                    <button type="button" style="margin-top: 5px;"
+                                                        class="btn btn-success btn-sm"
+                                                        ng-click="vm.endpBody.xformData.push({key:'',type:'string'})">+
+                                                        Add another</button>
                                                 </div>
-                                                <div ng-show="vm.endpBody.type === 'raw'" json-schema data="vm.endpBody.rawData" models="vm.SelectedPROJ.models"></div>
+                                                <div ng-show="vm.endpBody.type === 'raw'" json-schema
+                                                    data="vm.endpBody.rawData" models="vm.SelectedPROJ.models"></div>
                                             </div>
                                         </fieldset>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.resp = !vm.endpPans.resp">
-                                                <span class="glyphicon" ng-class="vm.endpPans.resp?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.resp = !vm.endpPans.resp">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.resp?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Responses</a>
                                             </legend>
                                             <div class="form-group marg0 apic-collaps-body" ng-hide="vm.endpPans.resp">
-                                                <div style="margin-left: 160px;" ng-if="vm.endp.resp.fromTrait">This response is imported from the trait <a href="">{{vm.endp.resp.traitName}}</a> and can't be edited here. <a href="">Move to traits module</a> to edit it.</div>
+                                                <div style="margin-left: 160px;" ng-if="vm.endp.resp.fromTrait">This
+                                                    response is imported from the trait <a
+                                                        href="">{{vm.endp.resp.traitName}}</a> and can't be edited here.
+                                                    <a href="">Move to traits module</a> to edit it.</div>
                                                 <div class="endp-response">
                                                     <div class="resp-codes">
                                                         <div class="head">
                                                             Status Code
                                                         </div>
-                                                        <div class="resp-code" ng-repeat="resp in vm.endp.responses track by $index" ng-click="vm.showEndpResp($index);" ng-class="{info:resp.code.charAt(0)=='1',success:resp.code.charAt(0)=='2',warning:resp.code.charAt(0)=='3',error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4',active:resp.code == vm.endp.resp.code}">
+                                                        <div class="resp-code"
+                                                            ng-repeat="resp in vm.endp.responses track by $index"
+                                                            ng-click="vm.showEndpResp($index);"
+                                                            ng-class="{info:resp.code.charAt(0)=='1',success:resp.code.charAt(0)=='2',warning:resp.code.charAt(0)=='3',error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4',active:resp.code == vm.endp.resp.code}">
                                                             <span ng-hide="editEndpCode">
                                                                 <span ng-class="">{{resp.code}}</span>
                                                                 <span ng-show="!resp.fromTrait">
-                                                                    <a href="" class="ctrl edit" ng-click="editEndpCode = true;vm.focusRespEditInp($event,editEndpCode)">
+                                                                    <a href="" class="ctrl edit"
+                                                                        ng-click="editEndpCode = true;vm.focusRespEditInp($event,editEndpCode)">
                                                                         <span class="glyphicon glyphicon-pencil"></span>
                                                                     </a>
-                                                                    <a href="" class="ctrl remove" ng-click="vm.removeRespEndp($index)">x</a>
+                                                                    <a href="" class="ctrl remove"
+                                                                        ng-click="vm.removeRespEndp($index)">x</a>
                                                                 </span>
                                                             </span>
                                                             <span ng-show="editEndpCode">
-                                                                <input type="text" class="resp-code-inp" ng-model="resp.code" on-enter-key="editEndpCode = false"/>
-                                                                <a href="" class="ctrl ok" ng-click="editEndpCode = false">
+                                                                <input type="text" class="resp-code-inp"
+                                                                    ng-model="resp.code"
+                                                                    on-enter-key="editEndpCode = false" />
+                                                                <a href="" class="ctrl ok"
+                                                                    ng-click="editEndpCode = false">
                                                                     <span class="glyphicon glyphicon-ok"></span>
                                                                 </a>
                                                             </span>
                                                         </div>
-                                                        <div class="input-group" style="margin-top: 15px;" >
-                                                            <input type="text" class="form-control input-sm" placeholder="Add status code" ng-model="vm.newEndpResp" on-enter-key="vm.addEndpResp(vm.newEndpResp, true)" maxlength="4" />
+                                                        <div class="input-group" style="margin-top: 15px;">
+                                                            <input type="text" class="form-control input-sm"
+                                                                placeholder="Add status code" ng-model="vm.newEndpResp"
+                                                                on-enter-key="vm.addEndpResp(vm.newEndpResp, true)"
+                                                                maxlength="4" />
                                                             <span class="input-group-btn">
-                                                                <button class="btn btn-link c btn-sm" type="submit" form="traitRespAdd" ng-click="vm.addEndpResp(vm.newEndpResp, tru)"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                <button class="btn btn-link cbg btn-sm" type="submit"
+                                                                    form="traitRespAdd"
+                                                                    ng-click="vm.addEndpResp(vm.newEndpResp, tru)"><span
+                                                                        class="glyphicon glyphicon-plus"></span></button>
                                                             </span>
                                                         </div>
                                                     </div>
                                                     <div style="margin-left: 160px;">
-                                                        <div json-schema data="vm.endp.resp.data" tb="vm.tbHelper" models="vm.SelectedPROJ.models" responses="vm.responses" readonly="{{vm.endp.resp.fromTrait}}"></div>
+                                                        <div json-schema data="vm.endp.resp.data" tb="vm.tbHelper"
+                                                            models="vm.SelectedPROJ.models" responses="vm.responses"
+                                                            readonly="{{vm.endp.resp.fromTrait}}"></div>
                                                         <label>Description</label>
-                                                        <textarea ng-model="vm.endp.resp.desc" class="form-control resp-desc" ng-readonly="vm.endp.resp.fromTrait"></textarea>
+                                                        <textarea ng-model="vm.endp.resp.desc"
+                                                            class="form-control resp-desc"
+                                                            ng-readonly="vm.endp.resp.fromTrait"></textarea>
                                                     </div>
                                                 </div>
                                             </div>
                                         </fieldset>
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.scripts = !vm.endpPans.scripts">
-                                                <span class="glyphicon" ng-class="vm.endpPans.scripts?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.scripts = !vm.endpPans.scripts">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.scripts?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Test Scripts</a>
                                             </legend>
-                                            <div class="form-group marg0 apic-collaps-body form-inline" ng-hide="vm.endpPans.scripts" style="padding-top: 8px;">
-                                                
+                                            <div class="form-group marg0 apic-collaps-body form-inline"
+                                                ng-hide="vm.endpPans.scripts" style="padding-top: 8px;">
+
                                                 <div style="width:100%;display: flex;">
-                                                    <div style="display: flex!important;flex: 0 0 75%;max-width: 75%;flex-direction: column;">
+                                                    <div
+                                                        style="display: flex!important;flex: 0 0 75%;max-width: 75%;flex-direction: column;">
                                                         <div class="controls btn-group">
-                                                            <button type="button" class="btn btn-flat btn-default" ng-class="{'active':vm.flags.scriptType === 'prerun'}" ng-click="vm.flags.scriptType = 'prerun'">Pre Run Scripts</button>
-                                                            <button type="button" class="btn btn-flat btn-default" ng-class="{'active':vm.flags.scriptType === 'postrun'}" ng-click="vm.flags.scriptType = 'postrun'">Post Run Scripts</button>
+                                                            <button type="button" class="btn btn-flat btn-default"
+                                                                ng-class="{'active':vm.flags.scriptType === 'prerun'}"
+                                                                ng-click="vm.flags.scriptType = 'prerun'">Pre Run
+                                                                Scripts</button>
+                                                            <button type="button" class="btn btn-flat btn-default"
+                                                                ng-class="{'active':vm.flags.scriptType === 'postrun'}"
+                                                                ng-click="vm.flags.scriptType = 'postrun'">Post Run
+                                                                Scripts</button>
                                                         </div>
-                                                        <div ui-ace="{mode:'javascript'}" ng-if="vm.flags.scriptType=='prerun'" ng-model="vm.endp.prerun" ng-ace-resize></div>
-                                                        <div ui-ace="{mode:'javascript'}" ng-if="vm.flags.scriptType=='postrun'" ng-model="vm.endp.postrun" ng-ace-resize></div>
+                                                        <div ui-ace="{mode:'javascript'}"
+                                                            ng-if="vm.flags.scriptType=='prerun'"
+                                                            ng-model="vm.endp.prerun" ng-ace-resize></div>
+                                                        <div ui-ace="{mode:'javascript'}"
+                                                            ng-if="vm.flags.scriptType=='postrun'"
+                                                            ng-model="vm.endp.postrun" ng-ace-resize></div>
                                                     </div>
-                                                    <div style="flex: 0 0 25%;max-width: 25%;position: relative;width: 100%;">
-                                                        <div style="position: absolute!important;flex-direction: column!important;display: flex!important;top: 0;bottom: 0;left: 0;right: 0;">
+                                                    <div
+                                                        style="flex: 0 0 25%;max-width: 25%;position: relative;width: 100%;">
+                                                        <div
+                                                            style="position: absolute!important;flex-direction: column!important;display: flex!important;top: 0;bottom: 0;left: 0;right: 0;">
                                                             <div style="padding: 0 0 5px 10px;line-height: 15px;">
-                                                                Apic supports <a target="_blank" href="www.chaijs.com" class="bold t_color">chaiJs</a> to write test cases. <a target="_blank" class="t_color" href="https://apic.app/docs/tester/writing-test-cases.html">Learn more.</a>
+                                                                Apic supports <a target="_blank" href="www.chaijs.com"
+                                                                    class="bold t_color">chaiJs</a> to write test cases.
+                                                                <a target="_blank" class="t_color"
+                                                                    href="https://apic.app/docs/tester/writing-test-cases.html">Learn
+                                                                    more.</a>
                                                             </div>
                                                             <div style="display: flex;overflow: auto;">
-                                                                <ul uib-dropdown-menu role="menu" class="dropdown-menu-right snip-menu">
-                                                                    <li role="menuitem" ng-repeat="snip in testSnippets track by $index">
-                                                                        <a href="" ng-click="vm.addCodeSnip(snip)" >{{snip.text}}</a>
+                                                                <ul uib-dropdown-menu role="menu"
+                                                                    class="dropdown-menu-right snip-menu">
+                                                                    <li role="menuitem"
+                                                                        ng-repeat="snip in testSnippets track by $index">
+                                                                        <a href=""
+                                                                            ng-click="vm.addCodeSnip(snip)">{{snip.text}}</a>
                                                                     </li>
                                                                 </ul>
                                                             </div>
@@ -924,145 +1269,207 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        
-                        
-                        
+
+
+
+
                         <!-- Traits -->
                         <div class="proj-traits proj-submodule" ng-show="vm.designStage=== 'traits'">
                             <div class="submodMenu">
                                 <div class="submodMenuOptn">
                                     <span ng-if="vm.traitActnType === 'create'">
-                                        <button type="button" class="btn btn-primary btn-themed btn-sm" ng-click="vm.createTrait()" ng-disabled="traitForm.$invalid">Create</button>
-                                        <button type="button" ng-click="vm.resetTrait()" form="traitForm" name="reset" class="btn btn-link btn-sm">Reset</button>
+                                        <button type="button" class="btn btn-primary btn-themed btn-sm"
+                                            ng-click="vm.createTrait()" ng-disabled="traitForm.$invalid">Create</button>
+                                        <button type="button" ng-click="vm.resetTrait()" form="traitForm" name="reset"
+                                            class="btn btn-link btn-sm">Reset</button>
                                     </span>
                                     <span ng-if="vm.traitActnType === 'edit'">
-                                        <button type="button" class="btn btn-primary btn-sm btn-themed" ng-disabled="traitForm.$invalid" ng-click="vm.createTrait('true')" >Save</button>
-                                        <button type="button" class="btn btn-danger btn-sm" ng-click="vm.deleteTrait(vm.trait._id)" confirm="Do you want to delete this Trait?" confirm-title="Delete Confirmation" confirm-ok="Delete" confirm-cancel="Cancel">Delete</button>
+                                        <button type="button" class="btn btn-primary btn-sm btn-themed"
+                                            ng-disabled="traitForm.$invalid"
+                                            ng-click="vm.createTrait('true')">Save</button>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            ng-click="vm.deleteTrait(vm.trait._id)"
+                                            confirm="Do you want to delete this Trait?"
+                                            confirm-title="Delete Confirmation" confirm-ok="Delete"
+                                            confirm-cancel="Cancel">Delete</button>
                                         <div class="bar"></div>
-                                        <button type="button" ng-click="vm.setCreateTrait()" class="btn btn-default btn-sm addF"><span class="glyphicon glyphicon-plus gap"></span> New Trait</button>
+                                        <button type="button" ng-click="vm.setCreateTrait()"
+                                            class="btn btn-default btn-sm addF"><span
+                                                class="glyphicon glyphicon-plus gap"></span> New Trait</button>
                                     </span>
                                 </div>
                                 <div class="tip"></div>
                             </div>
-                            <h4 class="t_color head flex">Traits 
+                            <h4 class="t_color head flex">Traits
                                 <div uib-dropdown keyboard-nav class="margL10">
                                     <button uib-dropdown-toggle class="btn btn-link ellipsis run-env t_color bold">
-                                        {{vm.traitActnType === 'edit'?vm.traitCopy.name:'Create New'}} <span ng-if="traitForm.$dirty || vm.flags.traitPageDirty">(modified)</span><span class="caret right"></span>
+                                        {{vm.traitActnType === 'edit'?vm.traitCopy.name:'Create New'}} <span
+                                            ng-if="traitForm.$dirty || vm.flags.traitPageDirty">(modified)</span><span
+                                            class="caret right"></span>
                                     </button>
                                     <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
                                         <li><a href ng-click="vm.setCreateTrait()">New Trait</a></li>
                                         <li class="divider" style="margin: 5px 0"></li>
-                                        <li ng-repeat="(id, trait) in vm.SelectedPROJ.traits track by $index"><a href ng-click="vm.selectTrait(trait,'edit')">{{trait.name}}</a></li>
+                                        <li ng-repeat="(id, trait) in vm.SelectedPROJ.traits track by $index"><a href
+                                                ng-click="vm.selectTrait(trait,'edit')">{{trait.name}}</a></li>
                                     </ul>
                                 </div>
-                                <a href="https://apic.app/docs/designer/create-trait.html" target="_new" class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
+                                <a href="https://apic.app/docs/designer/create-trait.html" target="_new" electron-a
+                                    class="gap f18"><span class="glyphicon glyphicon-question-sign"></span></a>
                             </h4>
-                            
-                            
-                            
+
+
+
                             <div class="row" style="margin: 0;">
                                 <div class="col-xs-12">
-                                    <form class="form-horizontal form-compact proj-form" name="traitForm" id="traitForm" role="form">
+                                    <form class="form-horizontal form-compact proj-form" name="traitForm" id="traitForm"
+                                        role="form">
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Name: <span class="red">*</span></label>
+                                            <label class="control-label col-sm-2">Name: <span
+                                                    class="red">*</span></label>
                                             <div class="col-sm-6">
-                                                <input type="text" class="form-control sm" required="" id="newTraitName" placeholder="Trait Name" maxlength="30" ng-model="vm.trait.name">
+                                                <input type="text" class="form-control sm" required="" id="newTraitName"
+                                                    placeholder="Trait Name" maxlength="30" ng-model="vm.trait.name">
                                             </div>
                                         </div>
-                                        
-                                        
+
+
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Folder: </label>
+                                            <label class="control-label col-sm-2">Folder: </label>
                                             <div class="col-sm-6">
                                                 <div uib-dropdown keyboard-nav>
                                                     <button uib-dropdown-toggle class="btn btn-link ellipsis run-env">
-                                                        {{vm.SelectedPROJ.folders[vm.trait.folder]?vm.SelectedPROJ.folders[vm.trait.folder].name:'Un-grouped'}} <span class="caret right"></span>
+                                                        {{vm.SelectedPROJ.folders[vm.trait.folder]?vm.SelectedPROJ.folders[vm.trait.folder].name:'Un-grouped'}}
+                                                        <span class="caret right"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="env-dropdown">
-                                                        <li><a href ng-click="vm.selectFolderForTrait(undefined)">Un-grouped</a></li>
+                                                    <ul class="dropdown-menu" uib-dropdown-menu
+                                                        aria-labelledby="env-dropdown">
+                                                        <li><a href
+                                                                ng-click="vm.selectFolderForTrait(undefined)">Un-grouped</a>
+                                                        </li>
                                                         <li class="divider" style="margin: 5px 0"></li>
-                                                        <li ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index"><a href ng-click="vm.selectFolderForTrait(folder._id)">{{folder.name}}</a></li>
+                                                        <li
+                                                            ng-repeat="(name, folder) in vm.SelectedPROJ.folders track by $index">
+                                                            <a href
+                                                                ng-click="vm.selectFolderForTrait(folder._id)">{{folder.name}}</a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group marg0">
-                                            <label class="control-label col-sm-2" >Summary: </label>
+                                            <label class="control-label col-sm-2">Summary: </label>
                                             <div class="col-sm-6">
-                                                <textarea class="form-control" style="height: 50px;" ng-model="vm.trait.summary"></textarea>
+                                                <textarea class="form-control" style="height: 50px;"
+                                                    ng-model="vm.trait.summary"></textarea>
                                             </div>
                                         </div>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.endpPans.path = !vm.endpPans.path">
-                                                <span class="glyphicon" ng-class="vm.endpPans.path?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.endpPans.path = !vm.endpPans.path">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.endpPans.path?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Path Params</a>
                                             </legend>
                                             <div class="form-group marg0 apic-collaps-body" ng-hide="vm.endpPans.path">
-                                                <div json-schema data="vm.trait.pathParams" dirty="vm.flags.traitPageDirty" mode="list" msg="Define Path params here and reuse them with endpoints."></div>
+                                                <div json-schema data="vm.trait.pathParams"
+                                                    dirty="vm.flags.traitPageDirty" mode="list"
+                                                    msg="Define Path params here and reuse them with endpoints."></div>
                                             </div>
                                         </fieldset>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.traitsPans.query = !vm.traitsPans.query">
-                                                <span class="glyphicon" ng-class="vm.traitsPans.query?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.traitsPans.query = !vm.traitsPans.query">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.traitsPans.query?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Query Params</a>
                                             </legend>
-                                            <div class="form-group marg0 apic-collaps-body" ng-hide="vm.traitsPans.query">
-                                                <div json-schema data="vm.trait.queryParams" dirty="vm.flags.traitPageDirty" mode="list" msg="Define Query params here and reuse them with endpoints."></div>
+                                            <div class="form-group marg0 apic-collaps-body"
+                                                ng-hide="vm.traitsPans.query">
+                                                <div json-schema data="vm.trait.queryParams"
+                                                    dirty="vm.flags.traitPageDirty" mode="list"
+                                                    msg="Define Query params here and reuse them with endpoints."></div>
                                             </div>
                                         </fieldset>
-                                        
-                                        
+
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.traitsPans.header = !vm.traitsPans.header">
-                                                <span class="glyphicon" ng-class="vm.traitsPans.header?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.traitsPans.header = !vm.traitsPans.header">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.traitsPans.header?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Request Headers</a>
                                             </legend>
-                                            <div class="form-group marg0 apic-collaps-body" ng-hide="vm.traitsPans.header">
-                                                <div json-schema data="vm.trait.headers" dirty="vm.flags.traitPageDirty" mode="list" msg="Define Headers here and reuse them with endpoints."></div>
+                                            <div class="form-group marg0 apic-collaps-body"
+                                                ng-hide="vm.traitsPans.header">
+                                                <div json-schema data="vm.trait.headers" dirty="vm.flags.traitPageDirty"
+                                                    mode="list"
+                                                    msg="Define Headers here and reuse them with endpoints."></div>
                                             </div>
                                         </fieldset>
-                                        
+
                                         <fieldset class="paper2">
-                                            <legend class="apic-collaps-cont" ng-click="vm.traitsPans.resp = !vm.traitsPans.resp">
-                                                <span class="glyphicon" ng-class="vm.traitsPans.resp?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
+                                            <legend class="apic-collaps-cont"
+                                                ng-click="vm.traitsPans.resp = !vm.traitsPans.resp">
+                                                <span class="glyphicon"
+                                                    ng-class="vm.traitsPans.resp?'glyphicon-menu-right':'glyphicon-menu-down'"></span>
                                                 <a href="" class="apic-collaps-text">Responses</a>
                                             </legend>
-                                            <div class="form-group marg0 apic-collaps-body" ng-hide="vm.traitsPans.resp">
+                                            <div class="form-group marg0 apic-collaps-body"
+                                                ng-hide="vm.traitsPans.resp">
                                                 <div class="endp-response">
                                                     <div class="resp-codes" style="width: 200px;">
                                                         <div class="head">Name or Status Code</div>
-                                                        <div class="resp-code" ng-repeat="resp in vm.trait.responses track by $index" ng-click="vm.showTraitResp($index);" ng-class="{info:resp.code.charAt(0)=='1',success:resp.code.charAt(0)=='2',warning:resp.code.charAt(0)=='3',error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4',active:resp.code == vm.trait.resp.code}">
+                                                        <div class="resp-code"
+                                                            ng-repeat="resp in vm.trait.responses track by $index"
+                                                            ng-click="vm.showTraitResp($index);"
+                                                            ng-class="{info:resp.code.charAt(0)=='1',success:resp.code.charAt(0)=='2',warning:resp.code.charAt(0)=='3',error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4',active:resp.code == vm.trait.resp.code}">
                                                             <span ng-hide="editCode">
                                                                 <span ng-class="">{{resp.code}}</span>
-                                                                <a href="" class="ctrl edit" ng-click="editCode = true;vm.focusRespEditInp($event)">
+                                                                <a href="" class="ctrl edit"
+                                                                    ng-click="editCode = true;vm.focusRespEditInp($event)">
                                                                     <span class="glyphicon glyphicon-pencil"></span>
                                                                 </a>
-                                                                <a href="" class="ctrl remove" ng-click="vm.removeRespTrait($index)">x</a>
+                                                                <a href="" class="ctrl remove"
+                                                                    ng-click="vm.removeRespTrait($index)">x</a>
                                                             </span>
                                                             <span ng-show="editCode">
-                                                                <input type="text" class="resp-code-inp" ng-model="resp.code" on-enter-key="editCode = false" ng-change="vm.flags.traitPageDirty = true"/>
+                                                                <input type="text" class="resp-code-inp"
+                                                                    ng-model="resp.code" on-enter-key="editCode = false"
+                                                                    ng-change="vm.flags.traitPageDirty = true" />
                                                                 <a href="" class="ctrl ok" ng-click="editCode = false">
                                                                     <span class="glyphicon glyphicon-ok"></span>
                                                                 </a>
                                                             </span>
                                                         </div>
-                                                        <div class="input-group" style="margin-top: 15px;" >
-                                                            <input type="text" class="form-control input-sm" placeholder="Add response" ng-model="vm.newTraitResp" on-enter-key="vm.addTraitResp(undefined, true)" maxlength="20" />
+                                                        <div class="input-group" style="margin-top: 15px;">
+                                                            <input type="text" class="form-control input-sm"
+                                                                placeholder="Add response" ng-model="vm.newTraitResp"
+                                                                on-enter-key="vm.addTraitResp(undefined, true)"
+                                                                maxlength="20" />
                                                             <span class="input-group-btn">
-                                                                <button class="btn btn-link c btn-sm" type="submit" form="traitRespAdd" ng-click="vm.addTraitResp(undefined, true)"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                <button class="btn btn-link cbg btn-sm" type="submit"
+                                                                    form="traitRespAdd"
+                                                                    ng-click="vm.addTraitResp(undefined, true)"><span
+                                                                        class="glyphicon glyphicon-plus"></span></button>
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div style="margin-left: 210px;">
-                                                        <div json-schema dirty="vm.flags.traitPageDirty" data="vm.trait.resp.data" models="vm.SelectedPROJ.models"></div>
+                                                        <div json-schema dirty="vm.flags.traitPageDirty"
+                                                            data="vm.trait.resp.data" models="vm.SelectedPROJ.models">
+                                                        </div>
                                                         <label>Description</label>
-                                                        <textarea ng-model="vm.trait.resp.desc" class="form-control resp-desc"></textarea>
-                                                        <span ng-show="vm.trait.resp.noneStatus"><i class="icon bj-alert warning"></i>This response won't be auto imported when this trait is added to an endpoint as it is not defined against a status code.</span>
+                                                        <textarea ng-model="vm.trait.resp.desc"
+                                                            class="form-control resp-desc"></textarea>
+                                                        <span ng-show="vm.trait.resp.noneStatus"><i
+                                                                class="icon bj-alert warning"></i>This response won't be
+                                                            auto imported when this trait is added to an endpoint as it
+                                                            is not defined against a status code.</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1071,22 +1478,22 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        
-                        
+
+
+
                     </div>
                 </div>
                 <!--<uib-tab index="1" heading="Info">-->
-                    
-<!--                </uib-tab>
+
+                <!--                </uib-tab>
             </uib-tabset>-->
-        </div>
-                    
+            </div>
+
         </div>
     </div>
     <!--- right content END------------>
-    
-    
+
+
     <!--- left content ------------>
     <div class="left-nav" ng-hide="vm.flags.hideLMenu">
         <div class="nav nav-tabs">
@@ -1117,19 +1524,20 @@
             <div ng-repeat="(id,fObj) in vm.leftTree track by $index" ng-if="id!=='ungrouped'">
                 <div class="folder closed" ng-class="fObj.expand?'opened':'closed'">
                     <div class="l-sec folder-icon" ng-click="fObj.expand = !fObj.expand">
-                        <i class="icon  bj-folder" ng-class="fObj.expand?'bj-folder-open':'bj-folder'"/>
+                        <i class="icon  bj-folder" ng-class="fObj.expand?'bj-folder-open':'bj-folder'" />
                     </div>
-                    <div class="r-sec " >
-                        <a href="" class="folder-optn" id="folder-optn" ng-click="vm.loadFoldersView();vm.selectFolder(vm.SelectedPROJ.folders[id], 'edit')">
-                            <i class="glyphicon glyphicon-pencil"/>
+                    <div class="r-sec ">
+                        <a href="" class="folder-optn" id="folder-optn"
+                            ng-click="vm.loadFoldersView();vm.selectFolder(vm.SelectedPROJ.folders[id], 'edit')">
+                            <i class="glyphicon glyphicon-pencil" />
                         </a>
                     </div>
                     <div class="folder-name m-sec" ng-click="fObj.expand = !fObj.expand">
-                        <div class="f-name" >{{fObj.folder.name}}</div>
+                        <div class="f-name">{{fObj.folder.name}}</div>
                     </div>
                 </div>
-                
-                
+
+
                 <div class="sub-folder 0" ng-show="fObj.expand">
                     <div ng-repeat="(_eid, endp) in fObj.endps track by endp._id">
                         <div ng-include="'modules/designer/leftTreeEndp.html'"></div>
@@ -1142,7 +1550,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="ungrouped">Un-grouped</div>
             <div ng-repeat="(_eid, endp) in vm.leftTree.ungrouped.endps track by endp._id">
                 <div ng-include="'modules/designer/leftTreeEndp.html'"></div>
@@ -1155,8 +1563,8 @@
             </div>
         </div>
     </div>
-    
-    
+
+
     <!--- left content END------------>
 </div>
 

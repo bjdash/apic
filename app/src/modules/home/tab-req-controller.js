@@ -166,6 +166,8 @@
             tests: [{ key: 'statusCode', actn: '=', val: '200' }, { key: 'respJson', actn: '=', val: '1', inp: 'userId' }]
         };
 
+        vm.savedResp = [];
+
         //vm functions
         vm.sendRequest = sendRequest;
         vm.doSingleRun = doSingleRun;
@@ -192,6 +194,8 @@
         vm.selectTab = selectTab;
         vm.initGQL = initGQL;
         vm.initRaw = initRaw;
+        vm.saveResponse = saveResponse;
+        vm.loadResponse = loadResponse;
         //vm.changeEditorMode = changeEditorMode;
         //vm.editorLoaded = editorLoaded;
 
@@ -214,8 +218,19 @@
                     }
                 }
                 selectRespCode(0);
-                vm.REQ.headers = tab.Req.headers;
-                vm.REQ.url_params = tab.Req.url_params;
+
+                //load saved response
+                if (tab.savedResp && tab.savedResp.length > 0) {
+                    vm.savedResp = tab.savedResp;
+                } else {
+                    vm.savedResp = []
+                }
+                if (vm.RESP.show) {
+                    loadResponse()
+                }
+
+                vm.REQ.headers = angular.copy(tab.Req.headers);
+                vm.REQ.url_params = angular.copy(tab.Req.url_params);
                 if (tab.Body) {
                     vm.Body.type = tab.Body.type;
                     switch (vm.Body.type) {
@@ -228,9 +243,11 @@
                         case 'raw':
                             vm.Body.selectedRaw = tab.Body.selectedRaw;
                             vm.Editor.Req.model = tab.Body.rawData || tab.data;
-                            $timeout(function () {
-                                changeEditorMode(tab.Body.selectedRaw.name, 'Req');
-                            });
+                            if (tab.Body.selectedRaw.name) {
+                                $timeout(function () {
+                                    changeEditorMode(tab.Body.selectedRaw.name, 'Req');
+                                });
+                            }
                             break;
                         case 'graphql':
                             vm.Body.selectedRaw = tab.Body.selectedRaw;
@@ -242,12 +259,14 @@
                             });
                     }
                 }
-                if (tab.prescript) {
-                    vm.Editor.Prerun.model = tab.prescript;
-                }
+                vm.Editor.Prerun.model = tab.prescript ? tab.prescript : '';
+
                 if (tab.postscript) {
                     vm.Editor.Postrun.model = tab.postscript;
                     vm.Editor.Scripts = tab.postscript;
+                } else {
+                    vm.Editor.Postrun.model = '';
+                    vm.Editor.Scripts = '';
                 }
                 if (tab._modified) {
                     vm._modified = tab._modified;
@@ -258,6 +277,7 @@
                     vm.TAB.id = tab._id;
                     vm.TAB.title = tab.name;
                 }
+
                 $rootScope.loadRequest = null;
             }
             vm.reload = false;
@@ -415,44 +435,7 @@
                     vm.RESP.testError = reqObj.testError;
 
                     //formatting response for pretty print
-                    var type = resp.headers['Content-Type'];
-                    try {
-                        var res = JSON.parse(resp.body);
-                        $timeout(function () {
-                            vm.RESP.json = res;
-                            vm.Editor.Resp.model = JSON.stringify(res, null, '\t');
-                            changeEditorMode('json', 'Resp');
-                            vm.Editor.Resp.options.mode = 'json';
-                        });
-                    } catch (err) {
-                        vm.RESP.json = '';
-                        if (vm.ctrls.resp_body_type === 'test') {
-                            vm.ctrls.resp_body_type = 'pretty';
-                        }
-                        switch (type) {
-                            case 'application/xml':
-                            case 'application/xml-dtd':
-                            case 'text/html':
-                            case 'text/xml':
-                            case 'text/html; charset=UTF-8':
-                            case 'text/html;charset=utf-8':
-                            case 'text/html; charset=utf-8':
-                                vm.Editor.Resp.model = vkbeautify.xml(resp.body);
-                                changeEditorMode('xml', 'Resp');
-                                vm.Editor.Resp.options.mode = 'xml';
-                                break;
-                            case 'text/javascript':
-                            case 'application/javascript':
-                                vm.Editor.Resp.model = resp.body;
-                                changeEditorMode('javascript', 'Resp');
-                                vm.Editor.Resp.options.mode = 'javascript';
-                                break;
-                            default:
-                                vm.Editor.Resp.model = resp.body;
-                                changeEditorMode('text', 'Resp');
-                                vm.Editor.Resp.options.mode = 'text';
-                        }
-                    }
+                    formatResponsePretty(resp.headers['Content-Type'], resp.body)
 
                     //******* calculating headers ***************//
                     vm.RESP.headers = resp.headers;
@@ -470,15 +453,7 @@
                     /***** Save in history ******/
                     saveReqInHistory(runner.req);
 
-                    //Scroll response panel to view
-                    $timeout(function () {
-                        var topOffset = $('#reqTabs .tab-pane.active .tabResponsePanel').position().top;
-                        if (topOffset - 150 > 0) {
-                            $('#reqTabs .tab-pane.active').animate({
-                                scrollTop: topOffset + $('#reqTabs .tab-pane.active').scrollTop() - 50
-                            })
-                        }
-                    });
+                    scrollRespIntoView()
                 } else { //looped run
                     var runRes = {
                         data: resp.body,
@@ -505,6 +480,47 @@
             }
         }
 
+        function formatResponsePretty(contentType, body) {
+            //formatting response for pretty print
+            try {
+                var res = JSON.parse(body);
+                $timeout(function () {
+                    vm.RESP.json = res;
+                    vm.Editor.Resp.model = JSON.stringify(res, null, '\t');
+                    changeEditorMode('json', 'Resp');
+                    vm.Editor.Resp.options.mode = 'json';
+                });
+            } catch (err) {
+                vm.RESP.json = '';
+                if (vm.ctrls.resp_body_type === 'test') {
+                    vm.ctrls.resp_body_type = 'pretty';
+                }
+                switch (contentType) {
+                    case 'application/xml':
+                    case 'application/xml-dtd':
+                    case 'text/html':
+                    case 'text/xml':
+                    case 'text/html; charset=UTF-8':
+                    case 'text/html;charset=utf-8':
+                    case 'text/html; charset=utf-8':
+                        vm.Editor.Resp.model = vkbeautify.xml(body);
+                        changeEditorMode('xml', 'Resp');
+                        vm.Editor.Resp.options.mode = 'xml';
+                        break;
+                    case 'text/javascript':
+                    case 'application/javascript':
+                        vm.Editor.Resp.model = body;
+                        changeEditorMode('javascript', 'Resp');
+                        vm.Editor.Resp.options.mode = 'javascript';
+                        break;
+                    default:
+                        vm.Editor.Resp.model = body;
+                        changeEditorMode('text', 'Resp');
+                        vm.Editor.Resp.options.mode = 'text';
+                }
+            }
+        }
+
         function getResponseSize(resp) {
             var size = resp.response.headers['lontent-length'];
             if (size === undefined) {
@@ -513,6 +529,18 @@
                 }
             }
             return size === undefined ? 'Unknown' : size >= 1024 ? size >= 1048576 ? (size / 1048576).toFixed(1) + ' MB' : (size / 1024).toFixed(1) + ' KB' : size + ' B';
+        }
+
+        function scrollRespIntoView() {
+            //Scroll response panel to view
+            $timeout(function () {
+                var topOffset = $('#reqTabs .tab-pane.active .tabResponsePanel').position().top;
+                if (topOffset - 150 > 0) {
+                    $('#reqTabs .tab-pane.active').animate({
+                        scrollTop: topOffset + $('#reqTabs .tab-pane.active').scrollTop() - 50
+                    })
+                }
+            });
         }
 
         function startLoopRun() {
@@ -980,8 +1008,8 @@
             var saveData = {
                 url: vm.URL,
                 method: vm.METHOD,
-                Req: vm.REQ,
-                Body: vm.Body,
+                Req: angular.copy(vm.REQ),
+                Body: angular.copy(vm.Body),
                 data: vm.Editor.Req.model,
                 withBody: Const.with_body.indexOf(vm.METHOD),
                 tabId: vm.TAB.id,
@@ -989,10 +1017,11 @@
                 respCodes: [],
                 prescript: vm.Editor.Prerun.model,
                 postscript: vm.Editor.Postrun.model,
-                name: vm.name
+                name: vm.name,
+                savedResp: vm.savedResp
             };
             if (vm.Body.type === 'graphql' && vm.Editor.GqlVars.model) {
-                saveData.Body.gqlVars = vm.Editor.GqlVars.model;
+                saveData.Body.gqlVars = angular.copy(vm.Editor.GqlVars.model);
             }
             for (var i = 0; i < vm.respCodes.length; i++) {
                 if (vm.respCodes[i].data) {
@@ -1094,6 +1123,7 @@
         function addReqBodySnip(code) {
             var cursor = vm.Editor.Req.object.selection.getCursor();
             vm.Editor.Req.object.session.insert(cursor, code);
+            vm.Editor.Req.model = vm.Editor.Req.object.getValue();
             $timeout(function () {
                 vm.Editor.Req.object.focus();
             });
@@ -1152,6 +1182,33 @@
                     toastr.info('Test added to postrun scripts.')
                 }
             });
+        }
+
+        function saveResponse() {
+            var saveData = {
+                tabId: vm.TAB.id,
+                savedResp: [{
+                    status: vm.RESP.status,
+                    data: vm.RESP.data,
+                    time: vm.RESP.time,
+                    size: vm.RESP.size,
+                    headers: vm.RESP.headers
+                }]
+            };
+
+            if (!vm.testTab) {
+                $rootScope.sendSaveRequest(saveData, true);
+            } else {
+                $scope.$parent.vm.saveSuitReq(saveData, true);
+            }
+            vm.savedResp = saveData.savedResp;
+        }
+
+        function loadResponse(scroll) {
+            vm.RESP = angular.merge(vm.RESP, vm.savedResp[0], { show: true, statusText: '' });
+            formatResponsePretty(vm.RESP.headers['Content-Type'], vm.RESP.data);
+            if (scroll)
+                scrollRespIntoView()
         }
 
         function interpolate(string) {

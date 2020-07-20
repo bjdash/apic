@@ -3,7 +3,7 @@
 (function () {
     'use strict';
     angular.module('app.home')
-            .controller('HomeController', HomeController);
+        .controller('HomeController', HomeController);
 
     HomeController.$inject = ['$scope', '$timeout', '$rootScope', '$confirm'];
     function HomeController($scope, $timeout, $rootScope, $confirm) {
@@ -15,28 +15,28 @@
 
         addTab();
         function addTab(type, obj) {
-            if (!type){
-                if($rootScope.loadRequest){
-                    type = $rootScope.loadRequest.type === 'ws'?'socket':'req';
-                }else{
+            if (!type) {
+                if ($rootScope.loadRequest) {
+                    type = $rootScope.loadRequest.type === 'ws' ? 'socket' : 'req';
+                } else {
                     type = 'req';
                 }
             }
             var tab;
             switch (type) {
                 case 'req':
-                    tab = {title: 'New tab', id: new Date().getTime() + 'newtab', type: 'req', icon: 'icon bj-embed2'};
+                    tab = { title: 'New tab', id: new Date().getTime() + 'newtab', type: 'req', icon: 'icon bj-embed2' };
                     break;
                 case 'suit':
-                    tab = {title: obj.name, type: 'suit', id: 'suit-' + obj._id, icon: 'icon bj-box-filled'};
+                    tab = { title: obj.name, type: 'suit', id: 'suit-' + obj._id, icon: 'icon bj-box-filled' };
                     break;
                 case 'folder':
-                    tab = {title: obj.name, type: 'folder', id: 'folder-' + obj._id, icon: 'icon bj-folder-information2'};
+                    tab = { title: obj.name, type: 'folder', id: 'folder-' + obj._id, icon: 'icon bj-folder-information2' };
                     break;
                 case 'socket':
-                    tab = {title: 'Websocket', type: 'socket', id: 'socket-' +new Date().getTime()+'newtab', icon: 'icon bj-websocket'};
+                    tab = { title: 'Websocket', type: 'socket', id: 'socket-' + new Date().getTime() + 'newtab', icon: 'icon bj-websocket' };
                     break;
-                default :
+                default:
                     return;
             }
             tab.index = counter;
@@ -129,7 +129,7 @@
             if (opened) {
                 $scope.active = opened;
                 if (suit.reqIdToOpen) {
-                    $scope.$broadcast('openSuitReq', {suitId: suit._id, reqIdToOpen: suit.reqIdToOpen});
+                    $scope.$broadcast('openSuitReq', { suitId: suit._id, reqIdToOpen: suit.reqIdToOpen });
                 }
                 return;
             }
@@ -163,19 +163,19 @@
                     }
                 }
             }
-            if(opened.tabs.length>0){
-                $confirm({text: 'Following opened Test Suite(s) "'+opened.tabStr.join(', ')+'" is/are deleted by another user. The opened tab(s) will now close.', title: 'Suite Deleted', ok: 'Ok', type: 'alert'})
-                        .then(function () {
-                            closeTabs(opened.tabs);
-                        }, function () {
-                            closeTabs(opened.tabs);
-                        });
+            if (opened.tabs.length > 0) {
+                $confirm({ text: 'Following opened Test Suite(s) "' + opened.tabStr.join(', ') + '" is/are deleted by another user. The opened tab(s) will now close.', title: 'Suite Deleted', ok: 'Ok', type: 'alert' })
+                    .then(function () {
+                        closeTabs(opened.tabs);
+                    }, function () {
+                        closeTabs(opened.tabs);
+                    });
 
             }
         });
 
-        function closeTabs(tabs){
-            for(var i=0; i< tabs.length; i++){
+        function closeTabs(tabs) {
+            for (var i = 0; i < tabs.length; i++) {
                 removeTabWithIndex(tabs[i]);
             }
         }

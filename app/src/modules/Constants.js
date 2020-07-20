@@ -144,12 +144,14 @@
                 "ACCEPT-ENCODING",
                 "ACCESS-CONTROL-REQUEST-HEADERS",
                 "ACCESS-CONTROL-REQUEST-METHOD",
-                "CONTENT-LENGTHNECTION",
+                "CONNECTION",
                 "CONTENT-LENGTH",
                 "COOKIE",
-                "CONTENT-TRANSFER-ENCODING",
+                "COOKIE2",
                 "DATE",
+                "DNT",
                 "EXPECT",
+                "FEATURE-POLICY",
                 "HOST",
                 "KEEP-ALIVE",
                 "ORIGIN",
@@ -159,7 +161,9 @@
                 "TRANSFER-ENCODING",
                 "UPGRADE",
                 "USER-AGENT",
-                "VIA"
+                "VIA",
+                "PROXY-",
+                "SEC-"
             ]
         };
     }

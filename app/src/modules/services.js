@@ -19,8 +19,8 @@
         .factory('HistoryServ', HistoryServ);
 
 
-    Utils.$inject = ['$q', '$rootScope', '$interpolate'];
-    function Utils($q, $rootScope, $interpolate) {
+    Utils.$inject = ['$q', '$rootScope', '$interpolate', 'Const'];
+    function Utils($q, $rootScope, $interpolate, Const) {
         var service = {
             encodeUrl: encodeUrlParams,
             getUrlEncodedBody: getUrlEncodedBody,
@@ -53,7 +53,9 @@
             getGqlBody: getGqlBody,
             updateInMemEnv: updateInMemEnv,
             assertBuilder: assertBuilder,
-            interpolate: interpolate
+            interpolate: interpolate,
+            harToApicReq: harToApicReq,
+            urlToReqName: urlToReqName
         }
 
 
@@ -460,8 +462,117 @@
                 env: req.env,
                 prescript: req.prescript,
                 postscript: req.postscript,
-                respCodes: req.respCodes
+                respCodes: req.respCodes,
+                savedResp: req.savedResp
             };
+        }
+
+        function harToApicReq(harEntry) {
+            var harReq = harEntry.request;
+            var req = {
+                _id: apic.s12(),
+                disabled: undefined,
+                method: harReq.method,
+                url: harReq.url,
+                name: urlToReqName(harReq.method, harReq.url),
+                description: '',
+                postscript: '',
+                prescript: '',
+                Req: {
+                    url_params: [],
+                    headers: []
+                },
+                Body: {
+                    formData: [],
+                    xForms: [],
+                    type: 'raw',
+                    selectedRaw: {}
+                },
+                respCodes: [],
+                savedResp: []
+            }
+
+            harReq.queryString.forEach(function (query) {
+                req.Req.url_params.push({ key: query.name, val: query.value, active: true })
+            })
+            req.Req.url_params.push({ key: "", val: "", active: true });
+
+            harReq.headers.forEach(function (header) {
+                var headerName = header.name.toUpperCase();
+                if (!Const.restrictedHeaders.includes(headerName) && !headerName.startsWith('SEC-') && !headerName.startsWith('PROXY-')) {
+                    req.Req.headers.push({ key: header.name, val: header.value, active: true })
+                } else if (headerName === 'COOKIE' || headerName === 'COOKIE2') {
+                    req.Req.headers.push({ key: header.name, val: header.value, active: true })
+                }
+            })
+            req.Req.headers.push({ key: "", val: "", active: true });
+
+            //parsing request body
+            if (harReq.postData && harReq.bodySize > 0) {
+                //x-form
+                if (harReq.postData.mimeType.indexOf('application/x-www-form-urlencoded') >= 0) {
+                    req.Body.type = 'x-www-form-urlencoded';
+                    harReq.postData.params.forEach(function (param) {
+                        req.Body.xForms.push({ key: param.name, val: param.value, active: true });
+                    })
+                } else if (harReq.postData.mimeType.indexOf('multipart/form-data') >= 0) {
+                    req.Body.type = 'form-data';
+                    harReq.postData.params.forEach(function (param) {
+                        req.Body.formData.push({ key: param.name, val: param.value, active: true });
+                    })
+                } else {
+                    req.Body.type = 'raw';
+                    req.Body.rawData = harReq.postData.text;
+                    req.Body.selectedRaw = {
+                        name: harReq.postData.mimeType.toLowerCase().indexOf('json') >= 0 ? 'JSON' : harReq.postData.mimeType,
+                        val: harReq.postData.mimeType
+                    }
+                }
+            }
+            req.Body.formData.push({ key: "", val: "", active: true });
+            req.Body.xForms.push({ key: "", val: "", active: true });
+
+
+            //parsing response
+            var harResp = harEntry.response;
+            if (harResp.status != 0) {
+                //populate the respCodes/schema tab data
+                var jsonResp = null;
+                try {
+                    jsonResp = JSON.parse(harResp.content.text);
+                    req.respCodes.push({
+                        code: harResp.status + '',
+                        data: easyJsonSchema(jsonResp)
+                    })
+                } catch (e) {
+                    console.log('response is not in json', harResp.content.text);
+                    req.respCodes.push({
+                        code: '200',
+                        data: { type: 'object' }
+                    })
+                }
+
+                //save current response
+                var savedresp = {
+                    status: harResp.status,
+                    data: harResp.content.text,
+                    time: harEntry.time,
+                    size: harResp._transferSize,
+                    headers: {}
+                };
+                harResp.headers.forEach(function (header) {
+                    savedresp.headers[header.name] = header.value
+                })
+
+                req.savedResp.push(savedresp)
+            } else {
+                //request failed, so set an empty json schema with 200 status for the schema tab.
+                req.respCodes.push({
+                    code: '200',
+                    data: { type: 'object' }
+                })
+            }
+            return req;
         }
 
         function getReqBody(body, type) {
@@ -548,6 +659,38 @@
             }
         }
 
+        function urlToReqName(method, url) {
+            var urlParts = getUrlParts(url);
+            var phrase = '';
+            switch (method) {
+                case 'GET':
+                    phrase = 'Get ';
+                    break;
+                case 'POST':
+                    phrase = 'Create ';
+                    break;
+                case 'DELETE':
+                    phrase = 'Delete ';
+                    break;
+                case 'PUT':
+                case 'PATCH':
+                    phrase = 'Update ';
+                    break;
+                case 'Stomp':
+                    phrase = 'Stomp ';
+                    break;
+                case 'Websocket':
+                    phrase = 'Websocket ';
+                    break;
+                case 'Socketio':
+                    phrase = 'SocketIO ';
+                    break;
+                case 'SSE':
+                    phrase = 'SSE ';
+                    break;
+            }
+            return phrase + urlParts;
+        }
 
         return service;
     }
@@ -2022,7 +2165,7 @@
                             try {
                                 sampleData = jsf(schema);
                             } catch (e) {
-                                console.error('Failed to generate sample data');
+                                console.log('Failed to generate sample data');
                             }
                             runObj.Body.rawData = JSON.stringify(sampleData, null, '\t');
                         }
@@ -2294,6 +2437,7 @@
         var service = {};
         service.formatDate = formatDate;
         service.formatRequestForSave = formatRequestForSave;
+        service.formatRequestForPartialUpdate = formatRequestForPartialUpdate;
         service.saveReq = saveReq;
 
         function saveReq(saveData, action) {
@@ -2403,6 +2547,7 @@
             toSave.Req = saveData.Req;
             toSave.prescript = saveData.prescript;
             toSave.postscript = saveData.postscript;
+            toSave.savedResp = saveData.savedResp;
             //toSave.respSchema = saveData.respSchema;
             toSave.respCodes = saveData.respCodes;
             if (saveData.Body) {
@@ -2434,6 +2579,13 @@
             }
             return toSave;
         };
+
+        function formatRequestForPartialUpdate(saveData) {
+            var ts = new Date().getTime();
+            saveData._modified = ts;
+
+            return saveData;
+        }
 
         return service;
     }

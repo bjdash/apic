@@ -21,10 +21,11 @@
                 <i class="icon bj-box-filled"></i>
                 <span class="sname">{{vm.suit.name}}</span>
             </a>
+            <span class="sname" ng-show="vm.ctrls.editReqType === 'harReq'">/ HAR Import</span>
             <span class="sname">/ {{vm.selectedReqCopy.name}}</span>
         </span>
-        <a href="https://apic.app/docs/tester/writing-test-cases.html" target="_new" class="gap f18 pull-right"><span
-                class="glyphicon glyphicon-question-sign"></span></a>
+        <a href="https://apic.app/docs/tester/writing-test-cases.html" electron-a target="_new"
+            class="gap f18 pull-right"><span class="glyphicon glyphicon-question-sign"></span></a>
     </div>
 
     <div class="suit-detail" ng-hide="vm.ctrls.editReq">
@@ -283,11 +284,82 @@
             </div>
         </div>
 
+
+        <div class="panel panel-primary dark" ng-show="vm.ctrls.harPanel">
+            <div class="panel-heading panel-sm">
+                <h3 class="panel-title custom">Import recorded requests</h3>
+                <div class="panel-menu">
+                    <a href class="panel-item">
+                        <span class="glyphicon glyphicon-question-sign" uib-tooltip="Learn more"></span>
+                    </a>
+                    <a href class="panel-item" ng-click="vm.ctrls.harPanel = false">
+                        <span class="glyphicon glyphicon-remove red" uib-tooltip="Hide"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <form id="har-import" ng-submit="vm.processHarFile($event)">
+                    <div class="form-group row">
+                        <div class="col-sm-2" ng-show="vm.ctrls.harImportType==='file'">
+                            <label class="bold">Browse HAR File:</label>
+                        </div>
+                        <div class="col-sm-4" ng-show="vm.ctrls.harImportType==='auto'">
+                            <label class="bold">Requests imported from APIC Session Recorder:</label>
+                        </div>
+                        <div class="col-sm-4" ng-show="vm.ctrls.harImportType==='file'">
+                            <input type="file" id="harImportFile" ng-model="vm.har.file" class="btn btn-link">
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="submit" ng-show="vm.ctrls.harImportType==='file'"
+                                class="btn btn-primary btn-themed btn-sm gap">Process</button>
+                            <button type="button" ng-show="vm.har.requests.length>0"
+                                ng-click="vm.addRequestsToSuit(vm.har.requests);vm.har.requests=[];"
+                                class="btn btn-primary btn-themed btn-sm">Add requests to
+                                suit</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div ng-repeat="req in vm.har.requests track by $index" style="position: relative;">
+                            <div class="suit-req temp">
+                                <input type="checkbox" ng-change="vm.updateSuit()" ng-model="req.disabled"
+                                    ng-true-value="undefined" ng-false-value="true" />
+                                <div class="row">
+                                    <label class="bold col-sm-2" style="width:60px">Name: </label>
+                                    <div class="col-sm-6">
+                                        <input type="text" ng-model="req.name" class="form-control input-sm"
+                                            style="height: 24px;" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="meth" ng-class="req.method">{{req.method}}</span>
+                                    <span class="url">{{req.url}}</span>
+                                </div>
+                                <div class="ctrls">
+                                    <button type="button" ng-click="vm.editSuitReq(req, $index, 'harReq')"
+                                        class="btn-icon"><i class="glyphicon glyphicon-pencil"></i></button>
+                                    <!-- <button ng-click="vm.duplicateReqInSuit(req)" class="btn-icon"><i
+                                            class="icon bj-files-empty"></i></button> -->
+                                    <button type="button" ng-click="vm.har.requests.splice($index,1)"
+                                        class="btn-icon red"><i class="glyphicon glyphicon-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
         <div class="panel panel-primary dark ">
             <div class="panel-heading panel-sm">
                 <h3 class="panel-title custom">Requests</h3>
                 <div class="panel-menu">
                     <div>
+                        <button class="btn btn-default btn-sm gap"
+                            ng-click="vm.ctrls.harPanel = true; vm.ctrls.harImportType='file'">
+                            <span class="glyphicon glyphicon-plus gap"></span>Add recorded requests
+                        </button>
                         <a href class="panel-item" ng-click="vm.ctrls.showReqs = false" ng-show="vm.ctrls.showReqs">
                             <span class="glyphicon glyphicon-chevron-up" uib-tooltip="Collapse"></span>
                         </a>
@@ -316,13 +388,14 @@
                             <span class="grip" style="position: absolute;
                             left: 3px;
                             top: 13px;"></span>
-                            <div class="name"><a href="" ng-click="vm.editSuitReq(req, $index)">{{req.name}}</a></div>
+                            <div class="name"><a href=""
+                                    ng-click="vm.editSuitReq(req, $index, 'suitReq')">{{req.name}}</a></div>
                             <div>
                                 <span class="meth" ng-class="req.method">{{req.method}}</span>
                                 <span class="url">{{req.url}}</span>
                             </div>
                             <div class="ctrls">
-                                <button ng-click="vm.editSuitReq(req, $index)" class="btn-icon t_color"><i
+                                <button ng-click="vm.editSuitReq(req, $index, 'suitReq')" class="btn-icon"><i
                                         class="glyphicon glyphicon-pencil"></i></button>
                                 <button ng-click="vm.duplicateReqInSuit(req)" class="btn-icon"><i
                                         class="icon bj-files-empty"></i></button>
@@ -380,11 +453,11 @@
             </div> -->
             <div class="center suit-req-nav" ng-show="$parent.vm.selectedReqIndex!=0">
                 <button class="btn-circle btn-sm"
-                    ng-click="$parent.vm.editSuitReq($parent.vm.suit.reqs[$parent.vm.selectedReqIndex-1], $parent.vm.selectedReqIndex-1)">
+                    ng-click="$parent.vm.editSuitReq($parent.vm.getPrevReq(), $parent.vm.selectedReqIndex-1, $parent.vm.ctrls.editReqType)">
                     <i class="glyphicon glyphicon-arrow-up"></i>
                 </button>
                 <span class="sn_opt">
-                    Open: {{$parent.vm.suit.reqs[$parent.vm.selectedReqIndex-1].name}}
+                    Previous : {{$parent.vm.getPrevReq().name}}
                 </span>
             </div>
 
@@ -403,13 +476,13 @@
                         request</button>
                 </span>
             </div> -->
-            <div class="center suit-req-nav" ng-show="$parent.vm.selectedReqIndex!=($parent.vm.suit.reqs.length-1)">
+            <div class="center suit-req-nav" ng-show="$parent.vm.getNextReq()">
                 <button class="btn-circle btn-sm"
-                    ng-click="$parent.vm.editSuitReq($parent.vm.suit.reqs[$parent.vm.selectedReqIndex+1], $parent.vm.selectedReqIndex+1)">
+                    ng-click="$parent.vm.editSuitReq($parent.vm.getNextReq(), $parent.vm.selectedReqIndex+1, $parent.vm.ctrls.editReqType)">
                     <i class="glyphicon glyphicon-arrow-down"></i>
                 </button>
                 <span class="sn_opt">
-                    Open: {{$parent.vm.suit.reqs[$parent.vm.selectedReqIndex+1].name}}
+                    Next: {{$parent.vm.getNextReq().name}}
                 </span>
             </div>
         </div>

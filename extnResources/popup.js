@@ -1,35 +1,29 @@
-var id = chrome.app.getDetails().id;
+var appId = chrome.app.getDetails().id;
 var htmlPage = "/index.html";
 var createNewTab = true;
 
-chrome.windows.getCurrent(function (currentWindow) {
-    var tabWindows = chrome.extension.getViews({
-            type: "tab",
-            windowId: currentWindow.id
-        });
-    if(tabWindows){
-        tabWindows.forEach(function (tabWindow) {
-            if (tabWindow.location.hostname === id && createNewTab) {
-                createNewTab = false;
-                chrome.tabs.update(tabWindow.chromeTabId, {
-                    active: true
-                });
-                window.close();
-            }
-        });
-    }
+chrome.tabs.getAllInWindow(null, function (tabs) {
+    tabs.forEach(tab => {
+        if (tab.url.indexOf(appId) > 0) {
+            chrome.tabs.update(tab.id, {
+                active: true
+            });
+            createNewTab = false;
+            window.close();
+        }
+    })
+
     if (createNewTab) {
-        try{
+        try {
             chrome.tabs.create({
-                url: chrome.runtime.getURL(htmlPage)
+                url: chrome.runtime.getURL(htmlPage + '?id=' + appId)
             });
-        }catch(e){
+        } catch (e) {
             browser.tabs.create({
-                url: chrome.runtime.getURL(htmlPage),
-                active:true
+                url: chrome.runtime.getURL(htmlPage + '?id=' + appId),
+                active: true
             });
-            
+
         }
     }
-
 });

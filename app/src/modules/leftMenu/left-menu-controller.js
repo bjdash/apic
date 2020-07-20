@@ -509,7 +509,7 @@
         vm.initReqEdit = initReqEdit;
         vm.initFolderToSuit = initFolderToSuit;
 
-        $rootScope.sendSaveRequest = function (saveData) {
+        $rootScope.sendSaveRequest = function (saveData, partialUpdate) {
             if (saveData.withBody === -1) {
                 saveData.Body = null;
             }
@@ -521,7 +521,12 @@
                     if (saveData.type === 'ws') {
                         angular.extend(vm.toSave, saveData);
                     } else {
-                        var newSave = HistoryServ.formatRequestForSave(saveData, true);
+                        var newSave;
+                        if (partialUpdate) {
+                            newSave = HistoryServ.formatRequestForPartialUpdate(saveData);
+                        } else {
+                            newSave = HistoryServ.formatRequestForSave(saveData, true);
+                        }
                         angular.extend(vm.toSave, newSave);
                         if (saveData.withBody === -1) {
                             vm.toSave.Body = {};
@@ -533,6 +538,11 @@
             }
 
             //saving a new request
+            if (partialUpdate) {
+                //request not saved. Cant use partial update.
+                toastr.warning('Please save the request first.');
+                return;
+            }
             if (['Stomp', 'Websocket', 'Socketio', 'SSE'].indexOf(saveData.method) >= 0) {
                 vm.toSave = angular.copy(saveData);
                 vm.toSave.type = 'ws';
@@ -547,36 +557,8 @@
                 vm.toSave = HistoryServ.formatRequestForSave(saveData);
             }
             vm.saveTabId = saveData.tabId;//used to notify teh tab that it got saved
-            var urlParts = Utils.getUrlParts(vm.toSave.url);
-            var phrase = '';
-            switch (vm.toSave.method) {
-                case 'GET':
-                    phrase = 'Get ';
-                    break;
-                case 'POST':
-                    phrase = 'Create ';
-                    break;
-                case 'DELETE':
-                    phrase = 'Delete ';
-                    break;
-                case 'PUT':
-                case 'PATCH':
-                    phrase = 'Update ';
-                    break;
-                case 'Stomp':
-                    phrase = 'Stomp ';
-                    break;
-                case 'Websocket':
-                    phrase = 'Websocket ';
-                    break;
-                case 'Socketio':
-                    phrase = 'SocketIO ';
-                    break;
-                case 'SSE':
-                    phrase = 'SSE ';
-                    break;
-            }
-            vm.SaveModalModel.name = phrase + urlParts;
+
+            vm.SaveModalModel.name = Utils.urlToReqName(vm.toSave.method, vm.toSave.url);
             $scope.modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'modules/saveRequest/saveRequestModal.html',

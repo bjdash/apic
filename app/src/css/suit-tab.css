@@ -34,6 +34,10 @@
   margin-left: 15px;
   padding: 3px 8px 10px 25px;
 }
+.suit-req.temp{
+  padding: 20px 0 15px 10px;
+  border-bottom: 1px dashed var(--border-color);
+}
 .suit-req .run-status {
   position: absolute;
   top: 10px;

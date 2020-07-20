@@ -12,8 +12,8 @@
         .directive('testBuilder', ['$rootScope', testBuilder])
         .directive('gqlSchema', gqlSchema)
         .directive('gqlType', gqlType)
-        //.directive('fsInput', fsInput)
-        .directive('tbHelper', ['$rootScope', 'Tester', 'Utils', tbHelper]);
+        .directive('tbHelper', ['$rootScope', 'Tester', 'Utils', tbHelper])
+        .directive('electronA', electronA);
 
     fileModel.$inject = ['$parse'];
     function fileModel($parse) {
@@ -294,7 +294,8 @@
         var newValue = editor.text();
         if (ngModel && newValue !== ngModel.$viewValue && !scope.$$phase && !scope.$root.$$phase) {
             scope.$evalAsync(function () {
-                ngModel.$setViewValue(newValue);
+                console.log('setting new value', newValue)
+                ngModel.$setViewValue(newValue.replace(/&nbsp;/gi, ' '));
             });
         }
     }
@@ -625,26 +626,19 @@
         }
     }
 
-    // function fsInput() {
-    //     return {
-    //         scope: {
-    //             type: '=',
-    //             ngIf: '=',
-
-    //         },
-    //         require: 'ngModel',
-    //         templateUrl: 'fsInput.html',
-    //         link: function (scope, element, attrs, model) {
-    //             console.log(scope, attrs, element, model);
-    //             var text = angular.element(element).find('#fs-inp-txt')
-    //             scope.onEnter = function () {
-    //                 scope.ngIf = false;
-    //                 model.$setViewValue(text.val());
-    //                 alert(text.val());
-    //             }
-    //             text.focus();
-    //         }
-    //     }
-    // }
+    electronA.$inject = [];
+    function electronA() {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                if (APP.TYPE === 'ELECTRON') {
+                    element.on('click', function (event) {
+                        event.preventDefault();
+                        APP.electron.shell.openExternal(event.target.href);
+                    });
+                }
+            }
+        };
+    }
 
 })();

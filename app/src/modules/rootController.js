@@ -6,8 +6,8 @@
         .controller('rootController', rootController)
         .run(run);
 
-    rootController.$inject = ['$scope', '$uibModal', '$rootScope', 'iDB', '$timeout', '$interpolate', 'Utils', 'toastr', 'HttpService', 'FileSystem', 'apicURLS', 'User', 'ngSockJs', 'DataService', 'SyncIt', 'ShareIt', 'TeamService', '$state'];
-    function rootController($scope, $uibModal, $rootScope, iDB, $timeout, $interpolate, Utils, toastr, HttpService, FileSystem, apicURLS, User, ngSockJs, DataService, SyncIt, ShareIt, TeamService, $state) {
+    rootController.$inject = ['$scope', '$uibModal', '$rootScope', 'iDB', '$timeout', '$interpolate', 'Utils', 'toastr', 'HttpService', 'FileSystem', 'apicURLS', 'User', 'ngSockJs', 'DataService', 'SyncIt', 'ShareIt', 'TeamService', '$state', 'lMenuService'];
+    function rootController($scope, $uibModal, $rootScope, iDB, $timeout, $interpolate, Utils, toastr, HttpService, FileSystem, apicURLS, User, ngSockJs, DataService, SyncIt, ShareIt, TeamService, $state, lMenuService) {
         $scope.openEnvModal = openEnvModal;
         $scope.openSettingsModal = openSettingsModal;
         $rootScope.openLoginModal = openLoginModal;
@@ -100,6 +100,29 @@
                 $scope.selectedTheme.themeAccent = data.themeAccent || '#2196f3';
                 $scope.selectedTheme.themeType = data.themeType || 'light';
             });
+
+            //for receiving messages from APIC dev tools
+            //Coming soon
+            try {
+                if (window.chrome && window.chrome.runtime) {
+                    window.chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+                        console.log(message, sender, $state);
+                        if ($state.current.name !== 'apic.home') $state.go('apic.home');
+                        lMenuService.getAllSuits().then(function (suites) {
+                            var selectedSuit = suites.find(suit => suit._id === message.suite);
+                            if (!selectedSuit) {
+                                toastr.error('Selected suite not found');
+                                return
+                            }
+                            toastr.info('Importing requests');
+                            selectedSuit.harImportReqs = message.requests;
+                            $rootScope.$broadcast('OpenSuitTab', selectedSuit);
+                            sendResponse({ status: "ok" });
+                        })
+                    });
+
+                }
+            } catch (e) { }
         }
 
         function setAppInfo() {

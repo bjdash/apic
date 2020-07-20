@@ -5,6 +5,7 @@ apic.randomEmail = randomEmail;
 apic.randomInList = randomInList;
 apic.time = time;
 apic.s4 = s4;
+apic.s12 = s12;
 apic.uuid = uuid;
 apic.dataId = dataId;
 apic.removeDemoItems = removeDemoItems;
@@ -13,11 +14,11 @@ apic.basicAuth = basicAuth;
 
 
 function randomStr(minLen, maxLen) {
-    if (minLen < 1){
+    if (minLen < 1) {
         return '';
     }
-    
-    if(maxLen !== undefined){
+
+    if (maxLen !== undefined) {
         minLen = randomNum(minLen, maxLen);
     }
     return new Array(minLen).join().replace(/(.|$)/g, function () {
@@ -44,11 +45,11 @@ function randomInList(list) {
     if (!list || !list.length > 0) {
         return undefined;
     }
-    var index = randomNum(0, list.length-1);
+    var index = randomNum(0, list.length - 1);
     return list[index];
 }
 
-function time(){
+function time() {
     return new Date().getTime();
 }
 
@@ -56,12 +57,12 @@ function s4() {
     return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
 }
 
-function s8(){
-    return s4()+s4();
+function s8() {
+    return s4() + s4();
 }
 
-function s12(){
-    return s4()+s4()+s4();
+function s12() {
+    return s4() + s4() + s4();
 }
 
 function uuid() {
@@ -69,8 +70,8 @@ function uuid() {
 }
 function dataId() {
     var prefix = '',
-            possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            index = 0;
+        possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        index = 0;
 
     for (index = 0; index < 3; index++) {
         prefix += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -78,28 +79,28 @@ function dataId() {
 
     return prefix + s4() + s4();
 }
-function removeDemoItems(items){
+function removeDemoItems(items) {
     var itemsToReturn = [];
-    if(items instanceof Array){
-        for(var i=0; i< items.length; i++){
-            if(items[i]._id.indexOf('-demo')<0){
+    if (items instanceof Array) {
+        for (var i = 0; i < items.length; i++) {
+            if (items[i]._id.indexOf('-demo') < 0) {
                 itemsToReturn.push(items[i]);
             }
         }
-    }else if(items._id.indexOf('-demo')<0){
+    } else if (items._id.indexOf('-demo') < 0) {
         itemsToReturn.push(items);
     }
     return itemsToReturn;
 }
 
-function test(name, testFn){
-    try{
+function test(name, testFn) {
+    try {
         testFn();
         TESTSX.push({
             name: name,
             success: true
         });
-    }catch(e){
+    } catch (e) {
         TESTSX.push({
             name: name,
             success: false,
@@ -108,6 +109,6 @@ function test(name, testFn){
     }
 }
 
-function basicAuth(userName, password){
+function basicAuth(userName, password) {
     return "Basic " + btoa(userName + ":" + password);
 }
