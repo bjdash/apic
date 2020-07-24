@@ -238,7 +238,8 @@ var JSFiles = {
         './app/src/js/bower_components/angular-ui-ace/ui-ace.min.js',
         './app/src/js/lib/toaster/angular-toastr.tpls.min.js',
         './app/src/js/lib/vkbeautify.js',
-        './app/src/js/lib/js-schema.min.js'
+        './app/src/js/lib/js-schema.min.js',
+        './app/src/js/lib/json-data-to-schema.js'
     ],
     moduleLibs: [
         './app/src/modules/JsonSchemeEditor/jsonSchema.js',
