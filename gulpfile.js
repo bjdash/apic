@@ -94,7 +94,7 @@ const buildExtn = {
             .pipe(gulp.dest('./build/extn/devtools'))
     },
     zip: function () {
-        return gulp.src('./build/extn')
+        return gulp.src('./build/extn/**/*.*')
             .pipe(zip('extn.zip'))
             .pipe(gulp.dest("./build"));
     }

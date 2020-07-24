@@ -25,7 +25,7 @@
             <span class="sname">/ {{vm.selectedReqCopy.name}}</span>
         </span>
         <a href="https://apic.app/docs/tester/writing-test-cases.html" electron-a target="_new"
-            class="gap f18 pull-right"><span class="glyphicon glyphicon-question-sign"></span></a>
+            class="gap f18 pull-right glyphicon glyphicon-question-sign"></a>
     </div>
 
     <div class="suit-detail" ng-hide="vm.ctrls.editReq">
@@ -292,7 +292,7 @@
                     <a href class="panel-item">
                         <span class="glyphicon glyphicon-question-sign" uib-tooltip="Learn more"></span>
                     </a>
-                    <a href class="panel-item" ng-click="vm.ctrls.harPanel = false">
+                    <a href class="panel-item" ng-click="vm.ctrls.harPanel = false;vm.har.requests=[];">
                         <span class="glyphicon glyphicon-remove red" uib-tooltip="Hide"></span>
                     </a>
                 </div>

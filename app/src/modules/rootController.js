@@ -105,11 +105,17 @@
             //Coming soon
             try {
                 if (window.chrome && window.chrome.runtime) {
-                    window.chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+                    window.chrome.runtime.onMessage.addListener(function (
+                        message,
+                        sender,
+                        sendResponse
+                    ) {
                         console.log(message, sender, $state);
                         if ($state.current.name !== 'apic.home') $state.go('apic.home');
                         lMenuService.getAllSuits().then(function (suites) {
-                            var selectedSuit = suites.find(suit => suit._id === message.suite);
+                            var selectedSuit = suites.find(
+                                (suit) => suit._id === message.suite
+                            );
                             if (!selectedSuit) {
                                 toastr.error('Selected suite not found');
                                 return
@@ -118,9 +124,8 @@
                             selectedSuit.harImportReqs = message.requests;
                             $rootScope.$broadcast('OpenSuitTab', selectedSuit);
                             sendResponse({ status: "ok" });
-                        })
+                        });
                     });
-
                 }
             } catch (e) { }
         }
@@ -214,7 +219,6 @@
         }
 
         function selectEnv(env) {
-
             if (env) {
                 $scope.curEnv.name = env.name;
                 $scope.curEnv._id = env._id;
@@ -231,7 +235,7 @@
         function openEnvDD($event) {
             $event.preventDefault();
             $event.stopPropagation();
-            $scope.curEnv.open = !$scope.curEnv.open
+            $scope.curEnv.open = !$scope.curEnv.open;
         }
 
         function getSelectedEnv() {
@@ -242,13 +246,14 @@
             if ($scope.curEnv && $scope.curEnv._id && $rootScope.ENVS) {
                 for (var i = 0; i < $rootScope.ENVS.length; i++) {
                     if ($rootScope.ENVS[i]._id === $scope.curEnv._id) {
-                        $scope.curEnv.vals = Utils.processEnv($rootScope.ENVS[i].vals);
+                        $scope.curEnv.vals = Utils.processEnv(
+                            $rootScope.ENVS[i].vals
+                        );
                         break;
                     }
                 }
             }
         });
-
 
         function closeLogoutModal() {
             if ($scope.logoutModalInstance) {
@@ -258,23 +263,47 @@
 
         function logout() {
             if ($scope.logoutModal.logoutAll) {
-                User.logout().then(function (resp) {
-                    if (resp.status === 'ok') {
-                        toastr.info('Logged out from all other APIC instances.');
-                    } else {
-                        toastr.error('Failed to logout from all other instances. Please tray again later.');
+                User.logout().then(
+                    function (resp) {
+                        if (resp.status === "ok") {
+                            toastr.info(
+                                "Logged out from all other APIC instances."
+                            );
+                        } else {
+                            toastr.error(
+                                "Failed to logout from all other instances. Please tray again later."
+                            );
+                        }
+                    },
+                    function () {
+                        toastr.error(
+                            "Failed to logout from all other instances."
+                        );
                     }
-                }, function () {
-                    toastr.error('Failed to logout from all other instances.');
-                });
+                );
             }
-            Utils.storage.remove(['UID', 'authToken', 'name', 'email', 'id', 'verified', 'firstRun']).then(function () {
-                delete $rootScope.userData;
-                ngSockJs.disconnect();
-                toastr.info('Logged out from APIC.');
-            }, function () {
-                toastr.error('Failed to logged out from this instance.');
-            });
+            Utils.storage
+                .remove([
+                    "UID",
+                    "authToken",
+                    "name",
+                    "email",
+                    "id",
+                    "verified",
+                    "firstRun",
+                ])
+                .then(
+                    function () {
+                        delete $rootScope.userData;
+                        ngSockJs.disconnect();
+                        toastr.info("Logged out from APIC.");
+                    },
+                    function () {
+                        toastr.error(
+                            "Failed to logged out from this instance."
+                        );
+                    }
+                );
             closeLogoutModal();
             DataService.clearAllData();
             User.doFirstRun().then(function () {
@@ -307,16 +336,26 @@
             var themeData = $rootScope.Const.themes[themeType];
             angular.forEach(themeData, function (val, key) {
                 root.style.setProperty(key, val);
-            })
-            root.style.setProperty('--accent-color', themeAccent || $rootScope.Const.themes.accents[0]);
-            root.style.setProperty('--accent-shadow', (themeAccent || $rootScope.Const.themes.accents[0]) + '4d');
-            document.querySelector('meta[name=theme-color]').setAttribute('content', themeData['--header-bg']);
+            });
+            root.style.setProperty(
+                "--accent-color",
+                themeAccent || $rootScope.Const.themes.accents[0]
+            );
+            root.style.setProperty(
+                "--accent-shadow",
+                (themeAccent || $rootScope.Const.themes.accents[0]) + "4d"
+            );
+            document
+                .querySelector("meta[name=theme-color]")
+                .setAttribute("content", themeData["--header-bg"]);
             try {
-                Utils.storage.set({ themeType: themeType, themeAccent: themeAccent }).then(function () {
-                    console.log('Theme saved');
-                    $scope.selectedTheme.themeAccent = themeAccent;
-                    $scope.selectedTheme.themeType = themeType;
-                });
+                Utils.storage
+                    .set({ themeType: themeType, themeAccent: themeAccent })
+                    .then(function () {
+                        console.log("Theme saved");
+                        $scope.selectedTheme.themeAccent = themeAccent;
+                        $scope.selectedTheme.themeType = themeType;
+                    });
             } catch (e) {
                 localStorage.setItem('themeType', themeType);
                 localStorage.setItem('themeAccent', themeAccent);
@@ -367,7 +406,7 @@
                     });
                     intro.start();
                 }
-            })
+            });
             $timeout(function () {
                 Utils.storage.set('firstRun', true);
             })
@@ -392,27 +431,44 @@
         function requestFeature(e) {
             console.log($scope.fReqModel);
             e.preventDefault();
-            HttpService.create(apicURLS.featureRequest, $scope.fReqModel).then(function (data) {
-                if (data && data.status === 'ok') {
-                    toastr.success(data.desc);
-                    closeFeatureModal();
-                } else {
-                    toastr.error('Failed ro request feature, please try again.');
+            HttpService.create(apicURLS.featureRequest, $scope.fReqModel).then(
+                function (data) {
+                    if (data && data.status === "ok") {
+                        toastr.success(data.desc);
+                        closeFeatureModal();
+                    } else {
+                        toastr.error(
+                            "Failed ro request feature, please try again."
+                        );
+                    }
+                },
+                function () {
+                    toastr.error(
+                        "Failed ro request feature, please try again."
+                    );
                 }
-            }, function () {
-                toastr.error('Failed ro request feature, please try again.');
-            });
+            );
         }
 
         function getAllEnv() {
-            return iDB.readSorted('Environments', 'name', 'asc').then(function (envs) {
-                Utils.storage.get(['lastSelectedEnv']).then(function (data) {
-                    if (data && data.lastSelectedEnv) {
-                        selectEnv(envs.find(e => e._id === localStorage.lastSelectedEnv))
-                    }
+            return iDB
+                .readSorted("Environments", "name", "asc")
+                .then(function (envs) {
+                    Utils.storage
+                        .get(["lastSelectedEnv"])
+                        .then(function (data) {
+                            if (data && data.lastSelectedEnv) {
+                                selectEnv(
+                                    envs.find(
+                                        (e) =>
+                                            e._id ===
+                                            localStorage.lastSelectedEnv
+                                    )
+                                );
+                            }
+                        });
+                    return envs;
                 });
-                return envs;
-            });
         }
 
         function focus(selector) {
@@ -454,7 +510,7 @@
                 key: kvPair.key,
                 val: kvPair.val,
                 // type: 'apic-kv-clip'
-            }
+            };
             copyToClipboard(JSON.stringify(copyText));
         }
 
@@ -488,21 +544,28 @@
             if (manual) {
                 toastr.info('Checking for update.');
             }
-            HttpService.get(apicURLS.checkUpdate, data).then(function (data) {
-                if (data && data.desc === 'Update found.') {
-                    $scope.updateModal.newVer = data.resp.version;
-                    $scope.updateModal.changeLog = data.resp.changeLog;
-                    openUpdateFoundModal();
-                } else {
+            HttpService.get(apicURLS.checkUpdate, data).then(
+                function (data) {
+                    if (data && data.desc === "Update found.") {
+                        $scope.updateModal.newVer = data.resp.version;
+                        $scope.updateModal.changeLog = data.resp.changeLog;
+                        openUpdateFoundModal();
+                    } else {
+                        if (manual) {
+                            toastr.info(
+                                "You are already using the latest version of apic."
+                            );
+                        }
+                    }
+                },
+                function () {
                     if (manual) {
-                        toastr.info('You are already using the latest version of apic.');
+                        toastr.error(
+                            "Couldn't connect to update server. Please try again later."
+                        );
                     }
                 }
-            }, function () {
-                if (manual) {
-                    toastr.error('Couldn\'t connect to update server. Please try again later.');
-                }
-            });
+            );
         }
 
         function menuOpened(open) {
@@ -513,9 +576,12 @@
                     display: 'block'
                 });
 
-                $(child).parent().removeClass('dropup');
-                if ($(child).offset().top + $(child).outerHeight() > $(window).innerHeight() + $(window).scrollTop()) {
-                    $(child).parent().addClass('dropup');
+                $(child).parent().removeClass("dropup");
+                if (
+                    $(child).offset().top + $(child).outerHeight() >
+                    $(window).innerHeight() + $(window).scrollTop()
+                ) {
+                    $(child).parent().addClass("dropup");
                 }
 
                 $(child).removeAttr('style');
@@ -538,8 +604,11 @@
                 } else {
                     APP.electron.sendMessage('check-for-update');
                 }
-            } else if (APP.TYPE === 'CHROME') {
-                toastr.info('Chrome app updates are handled by Chrome internally.');
+            } else if (APP.TYPE === "CHROME") {
+                toastr.info(
+                    "Chrome app updates are handled by Chrome internally."
+                );
+                closeUpdateFoundModal();
             } else {
                 window.location.reload();
             }
@@ -613,11 +682,12 @@
         }
 
         function getNotifications() {
-            HttpService.get(apicURLS.notifications).then(function (data) {
-                $rootScope.notifications = data.resp;
-            }, function () {
-
-            });
+            HttpService.get(apicURLS.notifications).then(
+                function (data) {
+                    $rootScope.notifications = data.resp;
+                },
+                function () {}
+            );
         }
 
         //team sharing
@@ -637,7 +707,8 @@
                     if (data && data.resp && data.resp.length) {
                         $rootScope.Teams = {};
                         for (var i = 0; i < data.resp.length; i++) {
-                            $rootScope.Teams[data.resp[i].id] = data.resp[i].name;
+                            $rootScope.Teams[data.resp[i].id] =
+                                data.resp[i].name;
                         }
                     } else {
                         delete $rootScope.Teams;
@@ -653,7 +724,11 @@
 
         function share(teamId) {
             $scope.tmSelector.sharing = true;
-            ShareIt.share(teamId, $scope.tmSelector.objId, $scope.tmSelector.type).then(function (data) {
+            ShareIt.share(
+                teamId,
+                $scope.tmSelector.objId,
+                $scope.tmSelector.type
+            ).then(function (data) {
                 if (data) {
                     if (data.status === 'ok') {
                         toastr.success('Shared.');
@@ -709,7 +784,139 @@
             checkForUpdate();
         }, 3000);
 
-        function loadIntro() { var h, e, i, d, r, g, c, l, s, o; function n(t, i) { this.anchorX = t, this.anchorY = i, this.x = Math.random() * (t - (t - s)) + (t - s), this.y = Math.random() * (i - (i - s)) + (i - s), this.vx = 2 * Math.random() - 1, this.vy = 2 * Math.random() - 1, this.energy = 100 * Math.random(), this.radius = Math.random(), this.siblings = [], this.brightness = 0 } function y(t, i) { return Math.sqrt(Math.pow(t.x - i.x, 2) + Math.pow(t.y - i.y, 2)) } function a() { h.width = window.innerWidth, h.height = window.innerHeight } function t(t) { r.x = t.clientX, r.y = t.clientY } g = 100, c = 10, l = 0, s = 20, o = 200, i = 2 * Math.PI, d = [], h = document.querySelector("canvas"), a(), r = { x: h.width / 2, y: h.height / 2 }, (e = h.getContext("2d")) || alert("Ooops! Your browser does not support canvas :'("), n.prototype.drawNode = function () { var t = "rgba(255, 0, 0, " + this.brightness + ")"; e.beginPath(), e.arc(this.x, this.y, 2 * this.radius + 2 * this.siblings.length / c, 0, i), e.fillStyle = t, e.fill() }, n.prototype.drawConnections = function () { for (var t = 0; t < this.siblings.length; t++) { var i = "rgba(255, 0, 0, " + this.brightness + ")"; e.beginPath(), e.moveTo(this.x, this.y), e.lineTo(this.siblings[t].x, this.siblings[t].y), e.lineWidth = 1 - y(this, this.siblings[t]) / g, e.strokeStyle = i, e.stroke() } }, n.prototype.moveNode = function () { this.energy -= 2, this.energy < 1 && (this.energy = 100 * Math.random(), this.x - this.anchorX < -s ? this.vx = 2 * Math.random() : this.x - this.anchorX > s ? this.vx = -2 * Math.random() : this.vx = 4 * Math.random() - 2, this.y - this.anchorY < -s ? this.vy = 2 * Math.random() : this.y - this.anchorY > s ? this.vy = -2 * Math.random() : this.vy = 4 * Math.random() - 2), this.x += this.vx * this.energy / 100, this.y += this.vy * this.energy / 100 }, document.addEventListener("resize", a, !1), h.addEventListener("mousemove", t, !1), function () { e.clearRect(0, 0, h.width, h.height), d = []; for (var t = 50; t < h.width; t += 50)for (var i = 50; i < h.height; i += 50)d.push(new n(t, i)), l++ }(), function t() { var i, s, n; for (a(), e.clearRect(0, 0, h.width, h.height), function () { for (var t, i, s, n = 0; n < l; n++) { (t = d[n]).siblings = []; for (var h = 0; h < l; h++)if (t !== (i = d[h]) && (s = y(t, i)) < g) if (t.siblings.length < c) t.siblings.push(i); else { for (var e, r = 0, o = 0, a = 0; a < c; a++)o < (r = y(t, t.siblings[a])) && (o = r, e = a); s < o && (t.siblings.splice(e, 1), t.siblings.push(i)) } } }(), i = 0; i < l; i++)s = d[i], n = y({ x: r.x, y: r.y }, s), s.brightness = n < o ? 1 - n / o : 0; for (i = 0; i < l; i++)(s = d[i]).brightness && (s.drawNode(), s.drawConnections()), s.moveNode(); $scope.animationFrame = requestAnimationFrame(t) }() }
+        function loadIntro() {
+            var h, e, i, d, r, g, c, l, s, o;
+            function n(t, i) {
+                (this.anchorX = t),
+                    (this.anchorY = i),
+                    (this.x = Math.random() * (t - (t - s)) + (t - s)),
+                    (this.y = Math.random() * (i - (i - s)) + (i - s)),
+                    (this.vx = 2 * Math.random() - 1),
+                    (this.vy = 2 * Math.random() - 1),
+                    (this.energy = 100 * Math.random()),
+                    (this.radius = Math.random()),
+                    (this.siblings = []),
+                    (this.brightness = 0);
+            }
+            function y(t, i) {
+                return Math.sqrt(
+                    Math.pow(t.x - i.x, 2) + Math.pow(t.y - i.y, 2)
+                );
+            }
+            function a() {
+                (h.width = window.innerWidth), (h.height = window.innerHeight);
+            }
+            function t(t) {
+                (r.x = t.clientX), (r.y = t.clientY);
+            }
+            (g = 100),
+                (c = 10),
+                (l = 0),
+                (s = 20),
+                (o = 200),
+                (i = 2 * Math.PI),
+                (d = []),
+                (h = document.querySelector("canvas")),
+                a(),
+                (r = { x: h.width / 2, y: h.height / 2 }),
+                (e = h.getContext("2d")) ||
+                    alert("Ooops! Your browser does not support canvas :'("),
+                (n.prototype.drawNode = function () {
+                    var t = "rgba(255, 0, 0, " + this.brightness + ")";
+                    e.beginPath(),
+                        e.arc(
+                            this.x,
+                            this.y,
+                            2 * this.radius + (2 * this.siblings.length) / c,
+                            0,
+                            i
+                        ),
+                        (e.fillStyle = t),
+                        e.fill();
+                }),
+                (n.prototype.drawConnections = function () {
+                    for (var t = 0; t < this.siblings.length; t++) {
+                        var i = "rgba(255, 0, 0, " + this.brightness + ")";
+                        e.beginPath(),
+                            e.moveTo(this.x, this.y),
+                            e.lineTo(this.siblings[t].x, this.siblings[t].y),
+                            (e.lineWidth = 1 - y(this, this.siblings[t]) / g),
+                            (e.strokeStyle = i),
+                            e.stroke();
+                    }
+                }),
+                (n.prototype.moveNode = function () {
+                    (this.energy -= 2),
+                        this.energy < 1 &&
+                            ((this.energy = 100 * Math.random()),
+                            this.x - this.anchorX < -s
+                                ? (this.vx = 2 * Math.random())
+                                : this.x - this.anchorX > s
+                                ? (this.vx = -2 * Math.random())
+                                : (this.vx = 4 * Math.random() - 2),
+                            this.y - this.anchorY < -s
+                                ? (this.vy = 2 * Math.random())
+                                : this.y - this.anchorY > s
+                                ? (this.vy = -2 * Math.random())
+                                : (this.vy = 4 * Math.random() - 2)),
+                        (this.x += (this.vx * this.energy) / 100),
+                        (this.y += (this.vy * this.energy) / 100);
+                }),
+                document.addEventListener("resize", a, !1),
+                h.addEventListener("mousemove", t, !1),
+                (function () {
+                    e.clearRect(0, 0, h.width, h.height), (d = []);
+                    for (var t = 50; t < h.width; t += 50)
+                        for (var i = 50; i < h.height; i += 50)
+                            d.push(new n(t, i)), l++;
+                })(),
+                (function t() {
+                    var i, s, n;
+                    for (
+                        a(),
+                            e.clearRect(0, 0, h.width, h.height),
+                            (function () {
+                                for (var t, i, s, n = 0; n < l; n++) {
+                                    (t = d[n]).siblings = [];
+                                    for (var h = 0; h < l; h++)
+                                        if (
+                                            t !== (i = d[h]) &&
+                                            (s = y(t, i)) < g
+                                        )
+                                            if (t.siblings.length < c)
+                                                t.siblings.push(i);
+                                            else {
+                                                for (
+                                                    var e, r = 0, o = 0, a = 0;
+                                                    a < c;
+                                                    a++
+                                                )
+                                                    o <
+                                                        (r = y(
+                                                            t,
+                                                            t.siblings[a]
+                                                        )) &&
+                                                        ((o = r), (e = a));
+                                                s < o &&
+                                                    (t.siblings.splice(e, 1),
+                                                    t.siblings.push(i));
+                                            }
+                                }
+                            })(),
+                            i = 0;
+                        i < l;
+                        i++
+                    )
+                        (s = d[i]),
+                            (n = y({ x: r.x, y: r.y }, s)),
+                            (s.brightness = n < o ? 1 - n / o : 0);
+                    for (i = 0; i < l; i++)
+                        (s = d[i]).brightness &&
+                            (s.drawNode(), s.drawConnections()),
+                            s.moveNode();
+                    $scope.animationFrame = requestAnimationFrame(t);
+                })();
+        }
 
         function unloadIntro() {
             cancelAnimationFrame($scope.animationFrame);
@@ -724,5 +931,4 @@
     function run($rootScope, Const) {
         $rootScope.Const = Const;
     }
-
 })();

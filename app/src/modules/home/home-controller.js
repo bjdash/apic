@@ -84,7 +84,10 @@
             if ($scope.tabs.length > 1) {
                 for (var i = 0; i < $scope.tabs.length; i++) {
                     if ($scope.tabs[i].index === $scope.active) {
-                        var nextTab = i === $scope.tabs.length - 1 ? $scope.tabs[0] : $scope.tabs[i + 1];
+                        var nextTab =
+                            i === $scope.tabs.length - 1
+                                ? $scope.tabs[0]
+                                : $scope.tabs[i + 1];
                         $scope.active = nextTab.index;
                         $scope.$apply();
                         break;
@@ -96,7 +99,10 @@
             if ($scope.tabs.length > 1) {
                 for (var i = 0; i < $scope.tabs.length; i++) {
                     if ($scope.tabs[i].index === $scope.active) {
-                        var prevTab = i === 0 ? $scope.tabs[$scope.tabs.length - 1] : $scope.tabs[i - 1];
+                        var prevTab =
+                            i === 0
+                                ? $scope.tabs[$scope.tabs.length - 1]
+                                : $scope.tabs[i - 1];
                         $scope.active = prevTab.index;
                         $scope.$apply();
                         break;
@@ -129,7 +135,13 @@
             if (opened) {
                 $scope.active = opened;
                 if (suit.reqIdToOpen) {
-                    $scope.$broadcast('openSuitReq', { suitId: suit._id, reqIdToOpen: suit.reqIdToOpen });
+                    $scope.$broadcast("openSuitReq", {
+                        suitId: suit._id,
+                        reqIdToOpen: suit.reqIdToOpen,
+                    });
+                }
+                if (suit.harImportReqs) {
+                    $scope.$broadcast("importHarRequests", suit);
                 }
                 return;
             }
@@ -164,13 +176,22 @@
                 }
             }
             if (opened.tabs.length > 0) {
-                $confirm({ text: 'Following opened Test Suite(s) "' + opened.tabStr.join(', ') + '" is/are deleted by another user. The opened tab(s) will now close.', title: 'Suite Deleted', ok: 'Ok', type: 'alert' })
-                    .then(function () {
+                $confirm({
+                    text:
+                        'Following opened Test Suite(s) "' +
+                        opened.tabStr.join(", ") +
+                        '" is/are deleted by another user. The opened tab(s) will now close.',
+                    title: "Suite Deleted",
+                    ok: "Ok",
+                    type: "alert",
+                }).then(
+                    function () {
                         closeTabs(opened.tabs);
-                    }, function () {
+                    },
+                    function () {
                         closeTabs(opened.tabs);
-                    });
-
+                    }
+                );
             }
         });
 
@@ -194,6 +215,5 @@
             $scope.$apply();
         });
         //delete
-
     }
 })();

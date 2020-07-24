@@ -89,7 +89,6 @@
         vm.getPrevReq = getPrevReq;
         vm.getNextReq = getNextReq;
 
-
         init();
         function init() {
             if (!$rootScope.loadSuit) {
@@ -108,8 +107,15 @@
             if (reqIdToOpen && vm.suit.reqs && vm.suit.reqs.length) {
                 reqIdToOpen = reqIdToOpen.split('###');
                 reqIdToOpen[1] = parseInt(reqIdToOpen[1]);
-                if (vm.suit.reqs[reqIdToOpen[1]] && vm.suit.reqs[reqIdToOpen[1]]._id === reqIdToOpen[0]) {
-                    editSuitReq(vm.suit.reqs[reqIdToOpen[1]], reqIdToOpen[1], 'suitReq');
+                if (
+                    vm.suit.reqs[reqIdToOpen[1]] &&
+                    vm.suit.reqs[reqIdToOpen[1]]._id === reqIdToOpen[0]
+                ) {
+                    editSuitReq(
+                        vm.suit.reqs[reqIdToOpen[1]],
+                        reqIdToOpen[1],
+                        "suitReq"
+                    );
                 }
             }
 
@@ -124,11 +130,7 @@
             }
 
             if (vm.suit.harImportReqs) {
-                var reqsToImport = vm.suit.harImportReqs;
-                delete vm.suit.harImportReqs;
-                vm.ctrls.harPanel = true;
-                vm.ctrls.harImportType = 'auto'
-                processHarEntries(reqsToImport);
+                importHarRequests(vm.suit);
             }
         }
 
@@ -206,7 +208,12 @@
 
             vm.ctrls.running = true;
             vm.run.countCopy--;
-            runSingleReq(vm.runCounter, vm.ctrls.useGlobalEnv ? Object.assign({}, $rootScope.xtraEnv, vm.curEnv.vals) : vm.curEnv.vals);
+            runSingleReq(
+                vm.runCounter,
+                vm.ctrls.useGlobalEnv
+                    ? Object.assign({}, $rootScope.xtraEnv, vm.curEnv.vals)
+                    : vm.curEnv.vals
+            );
         }
 
         function runSingleReq(index, newEnv) {
@@ -238,8 +245,10 @@
             }
             vm.run.results[vm.runCounter].status = 'complete';
             vm.run.results[vm.runCounter].response = respObj.response;
-            vm.run.results[vm.runCounter].time = respObj.response.timeTaken >= 1000 ? (respObj.response.timeTaken / 1000) + ' s' : respObj.response.timeTaken + ' ms';
-            ;
+            vm.run.results[vm.runCounter].time =
+                respObj.response.timeTaken >= 1000
+                    ? respObj.response.timeTaken / 1000 + " s"
+                    : respObj.response.timeTaken + " ms";
             vm.run.results[vm.runCounter].url = respObj.request.url;
             vm.run.results[vm.runCounter].tests = {
                 cases: respObj.tests,
@@ -325,29 +334,6 @@
             FileSystem.download('log-' + ts + '.log', vm.run.logs);
         }
 
-        // function enableReqSorting() {
-        //     vm.suitReqCopy = angular.copy(vm.suit.reqs);
-        //     vm.ctrls.editSuit = true;
-        //     vm.ctrls.showReqs = true;
-        // }
-
-        // function discardSorting() {
-        //     vm.suit.reqs = angular.copy(vm.suitReqCopy);
-        //     vm.ctrls.editSuit = false;
-        // }
-
-        // function saveSortOrder() {
-        //     vm.ctrls.editSuit = false;
-        //     var newOrder = [];
-        //     for (var i = 0; i < vm.suit.reqs.length; i++) {
-        //         newOrder.push(vm.suit.reqs[i]);
-        //         //console.log(vm.suit.reqs[i]);
-        //     }
-        //     vm.suit.reqs = newOrder;
-        //     //console.log('save suit', vm.suit);
-        //     updateSuit(vm.suit);
-        // }
-
         function editSuitReq(req, index, type) {
             if (!req) {
                 return;
@@ -371,7 +357,6 @@
                 vm.suit.reqs[vm.selectedReqIndex] = vm.selectedReqCopy;
             }
             vm.ctrls.editReq = false;
-
         }
 
         function saveSuitReq(request, partial) {
@@ -380,14 +365,20 @@
                     vm.har.requests[vm.selectedReqIndex] = request;
                 } else {
                     delete request.tabId;
-                    vm.har.requests[vm.selectedReqIndex] = angular.merge(vm.selectedReqCopy, request);
+                    vm.har.requests[vm.selectedReqIndex] = angular.merge(
+                        vm.selectedReqCopy,
+                        request
+                    );
                 }
             } else {
                 if (!partial) {
                     vm.suit.reqs[vm.selectedReqIndex] = request;
                 } else {
                     delete request.tabId;
-                    vm.suit.reqs[vm.selectedReqIndex] = angular.merge(vm.selectedReqCopy, request);
+                    vm.suit.reqs[vm.selectedReqIndex] = angular.merge(
+                        vm.selectedReqCopy,
+                        request
+                    );
                 }
                 updateSuit(vm.suit);
             }
@@ -400,12 +391,20 @@
 
         function downloadReport() {
             console.log(vm.run);
-            Reporter.suitReport(vm.run, vm.suit.name).then(function (data) {
-                FileSystem.download(vm.suit.name + '-apic_report.html', data);
-            }, function (e) {
-                console.log(e);
-                toastr.error('Couldn\'t download report. Please try again later.');
-            });;
+            Reporter.suitReport(vm.run, vm.suit.name).then(
+                function (data) {
+                    FileSystem.download(
+                        vm.suit.name + "-apic_report.html",
+                        data
+                    );
+                },
+                function (e) {
+                    console.log(e);
+                    toastr.error(
+                        "Couldn't download report. Please try again later."
+                    );
+                }
+            );
         }
 
         function changeSuitName() {
@@ -424,7 +423,11 @@
         }
 
         function removeReqFromSuit(reqId, index) {
-            $rootScope.$emit('RemoveSuitReq', { suit: vm.suit, reqId: reqId, index: index });
+            $rootScope.$emit("RemoveSuitReq", {
+                suit: vm.suit,
+                reqId: reqId,
+                index: index,
+            });
         }
 
         function loadWAU() {
@@ -434,21 +437,24 @@
             }
             if (!$rootScope.checkLogin()) return;
             vm.ctrls.webAccess = true;
-            $http.get(apicURLS.webAccess + vm.suit._id).then(function (resp) {
-                if (resp.data) {
-                    if (resp.data.status === 'ok') {
-                        vm.WAU = resp.data.resp.url;
+            $http.get(apicURLS.webAccess + vm.suit._id).then(
+                function (resp) {
+                    if (resp.data) {
+                        if (resp.data.status === "ok") {
+                            vm.WAU = resp.data.resp.url;
+                        } else {
+                            toastr.error(resp.data.desc);
+                        }
                     } else {
-                        toastr.error(resp.data.desc);
+                        toastr.error("Failed to load web access URL.");
                     }
-                } else {
-                    toastr.error('Failed to load web access URL.');
+                    vm.ctrls.webAccess = false;
+                },
+                function () {
+                    toastr.error("Failed to load web access URL.");
+                    vm.ctrls.webAccess = false;
                 }
-                vm.ctrls.webAccess = false;
-            }, function () {
-                toastr.error('Failed to load web access URL.');
-                vm.ctrls.webAccess = false;
-            });
+            );
         }
 
         function addBlankReq(index) {
@@ -476,7 +482,10 @@
         }
 
         function addSavedReq(addAtIndex) {
-            $rootScope.$emit('AddRequestToSuit', { suitId: vm.suit._id, addAtIndex: addAtIndex });
+            $rootScope.$emit("AddRequestToSuit", {
+                suitId: vm.suit._id,
+                addAtIndex: addAtIndex,
+            });
         }
 
         function processHarFile(event) {
@@ -486,19 +495,25 @@
                 toastr.error('Please a HAR file to import');
                 return;
             }
-            FileSystem.readFile(fileChooser.files).then(function (file) {
-                try {
-                    var harData = JSON.parse(file.data);
-                    var entries = harData.log.entries;
-                    processHarEntries(entries);
-                    console.log(vm.har.requests)
-                } catch (e) {
-                    console.log('HAR import failed.', e);
-                    toastr.error('Import Failed. Please make sure you are importing a valid HAR file. ' + e.message);
+            FileSystem.readFile(fileChooser.files).then(
+                function (file) {
+                    try {
+                        var harData = JSON.parse(file.data);
+                        var entries = harData.log.entries;
+                        processHarEntries(entries);
+                        console.log(vm.har.requests);
+                    } catch (e) {
+                        console.log("HAR import failed.", e);
+                        toastr.error(
+                            "Import Failed. Please make sure you are importing a valid HAR file. " +
+                                e.message
+                        );
+                    }
+                },
+                function () {
+                    toastr.error("Import Failed. Couldn't read file");
                 }
-            }, function () {
-                toastr.error('Import Failed. Couldn\'t read file');
-            });
+            );
         }
 
         function processHarEntries(entries) {
@@ -514,11 +529,13 @@
                 if (apicReq) {
                     vm.har.requests.push(apicReq);
                 }
-            })
+            });
         }
 
         function addRequestsToSuit(requests) {
-            vm.suit.reqs = vm.suit.reqs.concat(requests);
+            requests.forEach((req) => {
+                vm.suit.reqs.push(req);
+            });
             updateSuit(vm.suit);
         }
 
@@ -538,18 +555,41 @@
             }
         }
 
-        $scope.$on('openSuitReq', function (e, args) {
-            if (args.suitId === vm.suit._id && vm.suit.reqs && !vm.ctrls.editReq) {
-                if (args.reqIdToOpen && vm.suit.reqs && vm.suit.reqs.length) {
-                    var reqIdToOpen = args.reqIdToOpen.split('###');
-                    reqIdToOpen[1] = parseInt(reqIdToOpen[1]);
-                    if (vm.suit.reqs[reqIdToOpen[1]] && vm.suit.reqs[reqIdToOpen[1]]._id === reqIdToOpen[0]) {
-                        editSuitReq(vm.suit.reqs[reqIdToOpen[1]], reqIdToOpen[1], 'suitReq');
-                    }
+        function importHarRequests(suit) {
+            var reqsToImport = suit.harImportReqs;
+            delete suit.harImportReqs;
+            vm.ctrls.harPanel = true;
+            vm.ctrls.harImportType = "auto";
+            processHarEntries(reqsToImport);
+        }
 
+        $scope.$on("openSuitReq", function (e, args) {
+            if (
+                args.suitId === vm.suit._id &&
+                vm.suit.reqs &&
+                !vm.ctrls.editReq
+            ) {
+                if (args.reqIdToOpen && vm.suit.reqs && vm.suit.reqs.length) {
+                    var reqIdToOpen = args.reqIdToOpen.split("###");
+                    reqIdToOpen[1] = parseInt(reqIdToOpen[1]);
+                    if (
+                        vm.suit.reqs[reqIdToOpen[1]] &&
+                        vm.suit.reqs[reqIdToOpen[1]]._id === reqIdToOpen[0]
+                    ) {
+                        editSuitReq(
+                            vm.suit.reqs[reqIdToOpen[1]],
+                            reqIdToOpen[1],
+                            "suitReq"
+                        );
+                    }
                 }
             }
         });
 
+        $scope.$on("importHarRequests", function (e, suit) {
+            if (suit._id === vm.suit._id) {
+                importHarRequests(suit);
+            }
+        });
     }
 })();
