@@ -2519,6 +2519,7 @@ button.t_bldr {
   height: 32px;
   padding: 0;
   box-shadow: none;
+  border: none;
 }
 .apic-editor {
   outline: none;
