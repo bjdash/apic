@@ -53,13 +53,13 @@
             },
             testSnippets: [{
                 text: 'Set an Environment variable',
-                code: 'setEnv("variable_name", "variable_value");'
+                code: 'apic.try(function(){\n\tsetEnv("variable_name", "variable_value");\n})'
             }, {
                 text: 'Read Environment vatiable value',
-                code: 'getEnv("variable_name");'
+                code: 'apic.try(function(){\n\tgetEnv("variable_name");\n})'
             }, {
                 text: 'Remove an Environment vatiable',
-                code: 'removeEnv("variable_name");'
+                code: 'apic.try(function(){\n\tremoveEnv("variable_name");\n})'
             }, {
                 text: 'Status code is 200',
                 code: 'apic.test("Check that Status code is 200", function(){\n\t<<assert>>;\n})',

@@ -294,7 +294,6 @@
         var newValue = editor.text();
         if (ngModel && newValue !== ngModel.$viewValue && !scope.$$phase && !scope.$root.$$phase) {
             scope.$evalAsync(function () {
-                console.log('setting new value', newValue)
                 ngModel.$setViewValue(newValue.replace(/&nbsp;/gi, ' '));
             });
         }

@@ -10,6 +10,7 @@ apic.uuid = uuid;
 apic.dataId = dataId;
 apic.removeDemoItems = removeDemoItems;
 apic.test = test;
+apic.try = _try;
 apic.basicAuth = basicAuth;
 
 
@@ -106,6 +107,14 @@ function test(name, testFn) {
             success: false,
             reason: e.message
         });
+    }
+}
+
+function _try(testFn) {
+    try {
+        testFn();
+    } catch (e) {
+        log(e.message)
     }
 }
 
