@@ -264,7 +264,7 @@ var APP = {
                 if (key) {
                     var headerName = key.toUpperCase();
                     if (Const.restrictedHeaders.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-')) {
-                        headerName = 'APIC-' + key;
+                        key = 'APIC-' + key;
                     }
                     try {
                         _this.setRequestHeader(key, val);

@@ -31,7 +31,7 @@
             <span ng-show="entity.refTxt" class="margL90">{{entity.refTxt}}</span>\
             <div class="model-detail" ng-hide="showDetailsPan" ng-click="showDetailsPan=true"><span class="glyphicon glyphicon-pencil""></span></div>\
             <div class="model-done" ng-show="showDetailsPan" ng-click="showDetailsPan=false"><span class="glyphicon glyphicon-ok"></span></div>\
-            <button class="model-remove" ng-if="!entity.root$$ && $mode != \'static\'" type="button" ng-click="removeEntity(entity)"><span class="bj-remove_circledo_not_disturb_on"></span></button>\
+            <button class="model-remove" ng-if="!entity.root$$ && $mode != \'static\'" type="button" ng-click="removeEntity(entity)"><span class="glyphicon glyphicon-remove"></span></button>\
             <div class="model-summary">\
                 <a href title="Expand $ref" ng-if="entity._type.indexOf(\'$ref\')>=0 || entity._items[0]._type.indexOf(\'$ref\')>=0" ng-click="expandRef(entity)"><span class="glyphicon gap" ng-class="(entity._refExp||entity._items[0]._refExp)?\'glyphicon-resize-small\':\'glyphicon-resize-full\'"></span></a>\
                 <a href title="Open test builder" ng-if="!entity.root$$ && tb.save && !entity._hideKey" ng-click="buildTest(entity, $event)"><i class="icon bj-lab gap text-top"></i></a>\

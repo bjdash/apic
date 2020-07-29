@@ -110,7 +110,7 @@ var extn = gulp.series(
     buildExtn.copyDevtoolsSrc,
     buildExtn.zip,
     buildExtn.cleanDevTools,
-    buildExtn.clean
+    // buildExtn.clean
 );
 //END: Build chrome extension
 

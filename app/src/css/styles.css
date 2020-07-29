@@ -1155,7 +1155,7 @@ li.env-cont > a {
   padding: 5px 10px;
 }
 .deep {
-  padding: 0px 15px;
+  padding: 5px 15px;
   overflow: auto;
   position: relative;
 }

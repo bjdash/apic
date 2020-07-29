@@ -26,11 +26,9 @@
         "https://*/*",
         "unlimitedStorage",
         "storage",
-        "activeTab",
         "tabs",
         "webRequest",
         "webRequestBlocking",
-        "cookies",
         "identity",
         "notifications"
     ],
