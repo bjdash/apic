@@ -68,7 +68,7 @@
     }
   },
   "dependencies": {
-    "electron": "^7.2.4",
+    "electron": "^9.4.0",
     "electron-builder": "^21.2.0",
     "electron-log": "^2.2.9",
     "electron-updater": "^4.2.0"
