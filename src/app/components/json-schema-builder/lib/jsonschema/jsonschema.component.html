@@ -1,0 +1,43 @@
+<section class="json-schema">
+    <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0">
+        <mat-tab label="Designer">
+            <div index="0" heading="Designer">
+                <div>
+                    <fieldset [disabled]="readonly" class="js-fieldset">
+                        <div class="main">
+                            <ng-jsonschema-main [mode]="mode" [msg]="msg" [refreshSchema]="refreshSchema.bind(this)"
+                                [models]="models" [addNewProp]="addNewProp.bind(this)"
+                                [removeEntity]="removeEntity.bind(this)" [openMenu]="displaySelectorModal.bind(this)"
+                                [entity]="entity" [expand$ref]="expand$ref.bind(this)"
+                                [addAdditionalProp]="addAdditionalProp.bind(this)">
+                            </ng-jsonschema-main>
+                        </div>
+                        <div *ngIf="showSelectorModal" [style.left.px]="selectorModalPosition.x"
+                            [style.bottom.px]="selectorModalPosition.y" class="model-type-selector"
+                            id="model-type-selector">
+                            <ng-jsonschema-selectschema [refreshSchema]="refreshSchema.bind(this)" [mode]="mode"
+                                [selectedEntity]="selectedEntity" [openMenu]="displaySelectorModal.bind(this)"
+                                [models]="models" [setArrayType]="setArrayType.bind(this)"
+                                [modelChangesCallback]="modelChangesCallback.bind(this)" [modelRef]="modelRef"
+                                [configs]="configs"></ng-jsonschema-selectschema>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </mat-tab>
+        <mat-tab label="Json Schema" *ngIf="mode != 'list'">
+            <ace-editor [(text)]="schemaStr.original" [mode]="'json'" [theme]="'monokai'" [readOnly]="false"
+                [autoUpdateContent]="true" #editor style="min-height: 200px; width:100%; overflow: auto;">
+            </ace-editor>
+        </mat-tab>
+    </mat-tab-group>
+
+    <div class="tab-action">
+        <button type="button" mat-icon-button aria-label="Download" (click)="downloadJSON()">
+            <mat-icon>vertical_align_bottom</mat-icon>
+        </button>
+        <button type="button" mat-icon-button aria-label="Copy" (click)="copyToClipboard()">
+            <mat-icon>file_copy</mat-icon>
+        </button>
+    </div>
+</section>

@@ -16,7 +16,8 @@
                 </a>
                 <div class="workspace-title">
                     Workspace
-                    <button mat-fab class="t_bg" aria-label="Import RAW API project or Open API spec (Swagger)"
+                    <button mat-fab class="t_bg" (click)="showProjImport()"
+                        aria-label="Import RAW API project or Open API spec (Swagger)"
                         matTooltip="Import RAW API project or Open API spec (Swagger)" matTooltipPosition="right">
                         <mat-icon>transit_enterexit</mat-icon>
                     </button>
@@ -37,7 +38,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

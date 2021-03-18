@@ -2,7 +2,7 @@ import { Toaster } from './../../services/toaster.service';
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import Utils from '../../utils';
+import Helpers from '../../utils/helpers';
 import apic from '../../utils/apic';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 
@@ -54,7 +54,7 @@ export class ProjectFolderComponent implements OnInit {
             this.selectedPROJ.folders[folder._id].desc = folder.desc;
         } else {
             folder._id = new Date().getTime() + apic.s8();
-            this.selectedPROJ.folders[folder._id] = Utils.deepCopy(folder);
+            this.selectedPROJ.folders[folder._id] = Helpers.deepCopy(folder);
         }
         this.updateApiProject(this.selectedPROJ).then((data) => {
             this.folderForm.markAsPristine();
@@ -68,7 +68,7 @@ export class ProjectFolderComponent implements OnInit {
             }
             this.selectedFolder = folder._id;
         }, (e) => {
-            console.error('Failed to create/update folder',e, folder)
+            console.error('Failed to create/update folder', e, folder)
             this.toaster.error(`Failed to create/update folder: ${e.message}`);
         });
     }
@@ -94,17 +94,14 @@ export class ProjectFolderComponent implements OnInit {
     private handleFolderSelect(folderId: string) {
         this.selectedFolder = folderId;
         if (folderId === 'NEW') {
-            this.folderForm = this.fb.group({
-                name: ['', [Validators.required, Validators.maxLength(30)]],
-                desc: ['', Validators.maxLength(400)]
+            this.folderForm.patchValue({
+                name: '',
+                desc: ''
             });
             this.selectedName = 'Create new folder';
         } else {
             const { name, desc } = this.selectedPROJ.folders[folderId];
-            this.folderForm = this.fb.group({
-                name: [name, [Validators.required, Validators.maxLength(30)]],
-                desc: [desc, Validators.maxLength(400)]
-            });
+            this.folderForm.patchValue({ name, desc });
             this.selectedName = name;
             this.folderForm.markAsPristine();
             this.folderForm.markAsUntouched();
@@ -115,7 +112,7 @@ export class ProjectFolderComponent implements OnInit {
         if (!id || !this.selectedPROJ.folders)
             return;
 
-        const project: ApiProject = Utils.deepCopy(this.selectedPROJ);
+        const project: ApiProject = Helpers.deepCopy(this.selectedPROJ);
 
         this.confirmService.confirm({
             confirmTitle: 'Delete Confirmation',

@@ -1,6 +1,6 @@
-import { ApiProjectService } from './../../services/apiProject.service';
-import { Toaster } from './../../services/toaster.service';
-import { ApiProject } from './../../models/ApiProject.model';
+import { ApiProjectService } from '../../services/apiProject.service';
+import { Toaster } from '../../services/toaster.service';
+import { ApiProject } from '../../models/ApiProject.model';
 import { Component } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';

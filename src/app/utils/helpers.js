@@ -1,9 +1,10 @@
 //@ts-check
-import { Const } from './Constants';
+import { Const } from './constants';
 import apic from './apic'
 
 
 export default {
+    entries,
     initXMLHttpRequest,
     encodeUrl,
     getUrlEncodedBody,
@@ -24,11 +25,6 @@ export default {
     parseURL,
     removeHeader,
     addHeader,
-    storage: {
-        get: storageGet,
-        set: storageSet,
-        remove: storageRemove
-    },
     notify,
     isNewVersion,
     getReqV2,
@@ -40,6 +36,10 @@ export default {
     deepCopy,
     isElectron,
     getAppType
+}
+
+function entries(obj) {
+    return obj ? Object.entries(obj) : [];
 }
 
 function initXMLHttpRequest() {
@@ -333,42 +333,6 @@ function addHeader(name, value, headerList, begining, addDuplicate) {
         headerList.push({ key: name, val: value });
     }
     return headerList;
-}
-
-//return object for list of keys, direct value for single key
-function storageGet(key) {
-    var res = {};
-    if (key instanceof Array) { //return multiple values
-        for (var i = 0; i < key.length; i++) {
-            res[key[i]] = localStorage.getItem(key[i]);
-        }
-        return res;
-    } else {
-        return localStorage.getItem(key);
-    }
-}
-
-function storageSet(key, val) {
-    if (typeof key === 'string') {
-        localStorage.setItem(key, val);
-    } else {
-        for (var k in key) { //for objects
-            if (key.hasOwnProperty(k)) {
-                localStorage.setItem(k, key[k]);
-            }
-        }
-    }
-}
-
-function storageRemove(key) {
-    if (key instanceof Array) {
-        var res = [];
-        for (var i = 0; i < key.length; i++) {
-            res.push(localStorage.removeItem(key[i]));
-        }
-    } else {
-        localStorage.removeItem(key);
-    }
 }
 
 function notify(title, content, link, image) {

@@ -1,7 +1,7 @@
 import { environment } from '../../environments/environment';
 
 function getDemoData() {
-    var data = {}, ts = '123456abcdef';
+    var data: any = {}, ts = '123456abcdef';
 
     data.demoDesignProj = { "title": "APIC Todo demo", "version": "v2", _created: ts, _modified: ts, "description": "This is a set of sample APIS to demonstrate how the Designer, Tester (running a request, Test Suites etc) & Docs work.", "contact": { "name": "APIC", "url": "https://apic.app/identity/#!/feedback", "email": "hello@apic.app" }, _id: ts + '-apiproj-demo', "folders": { "1489390890584": { "_id": 1489390890584, "name": "Models", "desc": "This folder will hold all the models" } }, "models": { "1489394735056": { "_id": 1489394735056, "name": "Todo", "folder": 1489390890584, "nameSpace": "Todo", "data": { "type": "object", "properties": { "id": { "type": "string", "description": "Todo id" }, "name": { "type": "string", "description": "Todo name" }, "completed": { "type": "boolean", "description": "Completion status of the todo", "default": false }, "created": { "type": "integer", "description": "Todo creation timestamp" } }, "required": ["id", "name"] } } }, "setting": { "host": "apic.app", "basePath": "/apic-demo", "protocol": "https", envId: ts + '-env-demo' }, "endpoints": { "1489395152484": { "_id": 1489395152484, "operationId": "", "method": "post", "schemes": [{ "key": "https", "val": "HTTPS" }], "path": "/v2/todo", "folder": "", "tags": [], "consumes": ["application/json"], "produces": ["application/json"], "traits": [], "summary": "Create Todo", "description": "The API to create a todo. Providing todo name is mandatory.", "pathParams": { "type": "object" }, "queryParams": { "type": "object" }, "headers": { "type": "object" }, "responses": [{ "data": { "type": "object", "properties": { "todo": { "$ref": "#/definitions/Todo" }, "message": { "type": "string", "enum": ["Todo created successfully"] } }, "required": ["todo", "message"] }, "code": "201", "desc": "To do successfully created. Newly created Todo details are in the response" }, { "data": { "type": "object", "properties": { "message": { "type": "string", "enum": ["Please provide a ToDo Name"] } }, "required": ["message"] }, "code": "400", "desc": "Todo creation failed because Todo name was not provided" }], "resp": { "data": { "type": "object", "properties": { "todo": { "$ref": "#/definitions/Todo" }, "message": { "type": "string", "enum": ["Todo created successfully"] } }, "required": ["todo", "message"] }, "code": "201", "desc": "To do successfully created. Newly created Todo details are in the response" }, "body": { "type": "raw", "data": { "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] } }, "postrun": "apic.test(\"Check that Status code is 201 (Created)\", function(){\n\texpect($response.status).to.be.eql(201);\n});\napic.test(\"Response data should match the schema for status 201\", function(){\n\texpect($response).to.matchSchema(201);\n});\napic.test(\"$response.data.todo.name should be equal to $request.body.name\", function(){\n\texpect($response.data.todo.name).to.be.eql($request.body.name);\n});\napic.test(\"$response.data.message should be equal to \\\"Todo created successfully\\\"\", function(){\n\texpect($response.data.message).to.be.eql(\"Todo created successfully\");\n});\napic.test(\"$response.data.todo.id should exist in response\", function(){\n\texpect($response.data.todo).to.have.property(\"id\");\n});\napic.test(\"$response.data.todo.created should be a(n) date\", function(){\nexpect($response.data.todo.created).to.be.a.date;\n});\n\n\n//save the newly created Todo id in environment\nvar newId = $response.data.todo.id;\nlog(\"new todo id is: \"+newId);\nsetEnv(\"todoId\", newId);\n" }, "1489395400717": { "_id": 1489395400717, "operationId": "", "method": "get", "schemes": [{ "key": "https", "val": "HTTPS" }], "path": "/v2/todo/{todoId}", "folder": "", "tags": [], "consumes": ["application/json"], "produces": ["application/json"], "traits": [], "summary": "Get Todo detail", "description": "The API to get the to do by providing its id in the path API path as a path parameter", "pathParams": { "type": "object", "properties": { "todoId": { "type": "string" } }, "required": ["todoId"] }, "queryParams": { "type": "object" }, "headers": { "type": "object" }, "responses": [{ "data": { "type": "object", "properties": { "todo": { "$ref": "#/definitions/Todo" }, "message": { "type": "string", "enum": ["Todo retrived successfully"] } }, "required": ["todo", "message"] }, "code": "200", "desc": "Todo retrieved successfully" }, { "data": { "type": "object", "properties": { "message": { "type": "string", "enum": ["Failed to fetch todo detail"] } } }, "code": "404", "desc": "No Todo found based on the given id" }], "resp": { "data": { "type": "object", "properties": { "todo": { "$ref": "#/definitions/Todo" }, "message": { "type": "string", "enum": ["Todo retrived successfully"] } }, "required": ["response", "message"] }, "code": "200", "desc": "Todo retrieved successfully" }, "postrun": "apic.test(\"Check that Status code is 200\", function(){\n\texpect($response.status).to.be.eql(200);\n});\napic.test(\"Response data should match the schema specified against status 200\", function(){\n\texpect($response).to.matchSchema(200);\n});\napic.test(\"$response.data.todo.id should be equal to environment variable todoId\", function(){\n\texpect( $response.data.todo.id).to.be.eql(getEnv(\"todoId\"))\n})" }, "1489395547584": { "_id": 1489395547584, "operationId": "", "method": "delete", "schemes": [{ "key": "https", "val": "HTTPS" }], "path": "/v2/todo/{todoId}", "folder": "", "tags": [], "consumes": ["application/json"], "produces": ["application/json"], "traits": [], "summary": "Delete Todo", "description": "", "pathParams": { "type": "object", "properties": { "todoId": { "type": "string" } }, "required": ["todoId"] }, "queryParams": { "type": "object" }, "headers": { "type": "object" }, "responses": [{ "data": { "type": "object", "properties": { "message": { "type": "string", "enum": ["Todo deleted"] } }, "required": ["message"] }, "code": "200" }, { "data": { "type": "object", "properties": { "message": { "type": "string", "enum": ["Couldn't find the specified todo"] } }, "required": ["message"] }, "code": "404", "desc": "Couldn't find the specified Todo" }], "resp": { "data": { "type": "object", "properties": { "message": { "type": "string", "enum": ["Todo deleted"] } }, "required": ["message"] }, "code": "200" }, "body": { "type": "raw", "data": { "type": "object" } }, "postrun": "apic.test(\"Check that Status code is 200\", function(){\n\texpect($response.status).to.be.eql(200)\n});\napic.test(\"Response data should match the schema specified against status 200\", function(){\n\texpect($response).to.matchSchema(200);\n});\napic.test(\"$response.data.message should be equal to \\\"Todo deleted\\\"\", function(){\n\texpect($response.data.message).to.be.eql(\"Todo deleted\");\n})" } } };
 
@@ -21,39 +21,37 @@ function getDemoData() {
 function getURLs() {
     var host = environment.host;
     var base = host + 'api/';
-
     var userBase = base + 'user/';
-    var apicURLS = {};
 
-    apicURLS.host = host;
-    apicURLS.base = base;
-    apicURLS.register = base + 'register';
-    apicURLS.login = base + 'login';
-    apicURLS.logout = base + 'logout';
-    apicURLS.forgotPsd = base + 'forgotPsd';
-    apicURLS.notifications = base + 'notifications';
-    apicURLS.registerDummy = base + 'addDummyUser';
-    apicURLS.checkUpdate = base + 'checkUpdate';
-    //apicURLS.registerDummy = base + 'addDummyUser';
-    apicURLS.publishDoc = userBase + 'publishedDocs';
-    apicURLS.dashboard = userBase + 'dashboard';
-    apicURLS.team = userBase + 'team';
-    apicURLS.teamMember = userBase + 'team/{%teamId%}/member/';
-    apicURLS.teamMemberOf = userBase + 'team/memberOf/';
-    apicURLS.teamExit = userBase + 'team/{%teamId%}/exit';
-    apicURLS.teamInvite = userBase + 'team/invite';
-    apicURLS.findUser = userBase + 'findUser';
-    apicURLS.share = userBase + 'share';
-    apicURLS.unshare = userBase + 'unshare';
-    apicURLS.enableMock = userBase + 'simulator/enable/';
-    apicURLS.disableMock = userBase + 'simulator/disable/';
-    apicURLS.account = userBase + 'account/';
-    apicURLS.accUpdate = userBase + 'account/update/';
-    apicURLS.changePsd = userBase + 'account/changePsd/';
-    apicURLS.featureRequest = base + 'featureRequest';
-    apicURLS.webAccess = userBase + 'webAccessUrl/APICSuite/'
-
-    return apicURLS;
+    return {
+        host,
+        base,
+        register: base + 'register',
+        login: base + 'login',
+        logout: base + 'logout',
+        forgotPsd: base + 'forgotPsd',
+        socketUrl: base + 'gs-guide-websocket',
+        notifications: base + 'notifications',
+        registerDummy: base + 'addDummyUser',
+        checkUpdate: base + 'checkUpdate',
+        publishDoc: userBase + 'publishedDocs',
+        dashboard: userBase + 'dashboard',
+        team: userBase + 'team',
+        teamMember: userBase + 'team/{%teamId%}/member/',
+        teamMemberOf: userBase + 'team/memberOf/',
+        teamExit: userBase + 'team/{%teamId%}/exit',
+        teamInvite: userBase + 'team/invite',
+        findUser: userBase + 'findUser',
+        share: userBase + 'share',
+        unshare: userBase + 'unshare',
+        enableMock: userBase + 'simulator/enable/',
+        disableMock: userBase + 'simulator/disable/',
+        account: userBase + 'account/',
+        accUpdate: userBase + 'account/update/',
+        changePsd: userBase + 'account/changePsd/',
+        featureRequest: base + 'featureRequest',
+        webAccess: userBase + 'webAccessUrl/APICSuite/',
+    };
 }
 
 function getConstants() {

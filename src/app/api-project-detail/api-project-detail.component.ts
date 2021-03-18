@@ -1,3 +1,4 @@
+import { ProjectTraitsComponent } from './project-traits/project-traits.component';
 import { ProjectFolderComponent } from './project-folder/project-folder.component';
 import { ApiProjectService } from './../services/apiProject.service';
 import { ApiProjectState } from './../state/apiProjects.state';
@@ -8,6 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { map } from 'rxjs/operators';
 import { KeyValue } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { ProjectExportModalComponent } from './project-export-modal/project-export-modal.component';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -17,15 +20,19 @@ import { KeyValue } from '@angular/common';
 export class ApiProjectDetailComponent implements OnInit {
     @ViewChild('foldersView') foldersView: ProjectFolderComponent;
     @ViewChild('modelsView') modelsView: ProjectFolderComponent;
+    @ViewChild('traitsView') traitsView: ProjectTraitsComponent;
 
     selectedPROJ: ApiProject;
     selectedPROJ$: Observable<ApiProject>;
     LeftTree: any = {};
     flags = {
-        stage: 'models'
+        stage: 'dashboard'
     }
 
-    constructor(private route: ActivatedRoute, private store: Store, private apiProjectService: ApiProjectService) {
+    constructor(private route: ActivatedRoute,
+        private store: Store,
+        private apiProjectService: ApiProjectService,
+        private dialog: MatDialog) {
         this.route.params.subscribe(params => {
             this.selectedPROJ$ = this.store.select(ApiProjectState.getById)
                 .pipe(map(filterFn => filterFn(params.projectId)));
@@ -140,12 +147,16 @@ export class ApiProjectDetailComponent implements OnInit {
         return a.value.folder.name.localeCompare(b.value);
     }
 
-    updateApiProject(proj?: any) {
+    updateApiProject(proj?: ApiProject) {
         if (!proj) proj = this.selectedPROJ;
         return this.apiProjectService.updateAPIProject(proj);
     }
 
     projectUpdated(updated) {
         this.generateLeftTree()
+    }
+
+    openExportModal(type, id) {
+        this.dialog.open(ProjectExportModalComponent, { data: { type, id }, width: '1100px' });
     }
 }

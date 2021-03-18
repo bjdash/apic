@@ -20,12 +20,12 @@
         <div class="tip"></div>
     </div>
 
-    <h4 class="t_color head flex">
+    <h4 class="t_color head vcenter">
         <span class="gap">Folders:</span>
         <div class="margL10">
             <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="foldersList">
                 <span class="gap">{{selectedName}}</span>
-                <span *ngIf="folderForm.dirty">(modified)</span>
+                <span *ngIf="folderForm.dirty">(Unsaved)</span>
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #foldersList="matMenu">

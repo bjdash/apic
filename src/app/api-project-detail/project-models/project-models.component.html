@@ -11,6 +11,8 @@
                     color="primary">Save</button>
                 <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
                     (click)="deleteModel(selectedModel)">Delete</button>
+                <button type="button" type="button" *ngIf="modelForm.dirty" class="sm gap" mat-raised-button
+                    (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
                 <button type="button" type="button" (click)="selectModel('NEW')" class="sm gap" mat-raised-button>
                     <mat-icon class="sm">add</mat-icon>New Model
@@ -20,12 +22,12 @@
         <div class="tip"></div>
     </div>
 
-    <h4 class="t_color head flex">
+    <h4 class="t_color head vcenter">
         <span class="gap">Models:</span>
         <div class="margL10">
             <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="modelsList">
                 <span class="gap">{{selectedName}}</span>
-                <span *ngIf="modelForm.dirty">(modified)</span>
+                <span *ngIf="modelForm.dirty">(Unsaved)</span>
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #modelsList="matMenu">
@@ -74,7 +76,8 @@
 
             <div>
                 <div class="control-label full">Model Schema</div>
-                <ng-jsonschema [models]="selectedPROJ.models" name="data" formControlName="data"></ng-jsonschema>
+                <ng-jsonschema [models]="selectedPROJ.models" (onSchemaChange)="setDirty()" name="data"
+                    formControlName="data"></ng-jsonschema>
             </div>
         </form>
     </div>

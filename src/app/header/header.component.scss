@@ -1,0 +1,162 @@
+.header {
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+    background-color: var(--header-bg);
+    height: 50px;
+}
+
+.header-cont {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    white-space: nowrap;
+}
+.logo {
+    position: relative;
+    width: 220px;
+    height: 50px;
+}
+.logo-img {
+    width: 47px;
+    top: -9px;
+    position: relative;
+    left: 10px;
+}
+.logo-text {
+    font-family: apic-font;
+    line-height: 40px;
+    color: var(--text-color);
+    font-size: 44px;
+    margin-left: 10px;
+    font-weight: bold;
+}
+.module-icon {
+    color: var(--text-color);
+    font-size: 26px;
+    text-decoration: none;
+    display: inline-block;
+    padding: 6px 4px;
+    line-height: 36px;
+    text-align: center;
+    width: 45px;
+    height: 45px;
+    border: 1px solid #757575;
+    background: rgba(0, 0, 0, 0.06);
+    vertical-align: text-top;
+    border-radius: 50%;
+    margin: 0 2px;
+}
+.module-icon.active {
+    border: none;
+    color: var(--accent-bg-text) !important;
+    background: var(--accent-color) !important;
+}
+.header-right {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+.env-cont {
+    background-color: var(--content-bg);
+    border-radius: 5px;
+    button:first-child {
+        border-right: 1px solid var(--border-color);
+        padding: 0 10px;
+    }
+}
+.avatar-cont {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    margin: -2px 2px 2px;
+    position: relative;
+    justify-content: center;
+    margin-left: 10px;
+
+    .avatar-bg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        transform: rotateZ(45deg);
+        border-radius: 3px;
+        background: var(--content-bg);
+        box-shadow: 1px 1px 3px rgb(0 0 0 / 40%);
+    }
+    .avatar {
+        border: 2px solid var(--text-color);
+    }
+    .avatar.connecting {
+        border: 2px dashed #00d407;
+        animation: spin 10s linear infinite;
+    }
+    .avatar.online {
+        animation-name: greenPulse;
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        border: 2px solid #00d407;
+        transform: scale(1);
+    }
+    .avatar.offline {
+        border: 2px solid #f9250f;
+        animation-name: redPulse;
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        transform: scale(1);
+    }
+    .avatar.syncing {
+        animation-name: bluePulse;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+        border: 2px solid #2196f3;
+    }
+    .initial {
+        font-size: 18px;
+    }
+}
+.greet {
+    color: var(--accent-color);
+    padding: 0px 12px 3px;
+}
+@keyframes spin {
+    100% {
+        transform: rotateZ(360deg);
+    }
+}
+@keyframes greenPulse {
+    0% {
+        box-shadow: 0 0 1px #00d407;
+    }
+    50% {
+        box-shadow: 0 0 18px #00d407;
+    }
+    100% {
+        box-shadow: 0 0 1px #00d407;
+    }
+}
+
+@keyframes bluePulse {
+    0% {
+        box-shadow: 0 0 1px #2196f3;
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 10px 3px #2196f3;
+        transform: scale(1.1);
+    }
+    100% {
+        box-shadow: 0 0 1px #2196f3;
+        transform: scale(1);
+    }
+}
+
+@keyframes redPulse {
+    0% {
+        box-shadow: 0 0 1px #f9250f;
+    }
+    50% {
+        box-shadow: 0 0 18px #f9250f;
+    }
+    100% {
+        box-shadow: 0 0 1px #f9250f;
+    }
+}

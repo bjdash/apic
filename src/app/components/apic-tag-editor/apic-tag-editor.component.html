@@ -1,0 +1,21 @@
+<mat-form-field class="apic-tag-editor full-w">
+    <mat-chip-list #chipList aria-label="Tag selection">
+        <mat-chip *ngFor="let tag of selected" [selectable]="selectable" [removable]="removable"
+            (removed)="remove(tag)">
+            {{type==='string'?tag:tag[value]}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="" *ngIf="type==='object'" [formControl]="inputCtrl" [matAutocomplete]="auto"
+            [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="add($event)">
+        <input placeholder="" *ngIf="type==='string'" [formControl]="inputCtrl" [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)"
+            autocomplete="off">
+    </mat-chip-list>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event)">
+        <mat-option *ngFor="let option of suggestions | keyvalue" [value]="option.value[key]">
+            {{option.value[value]}}
+        </mat-option>
+    </mat-autocomplete>
+    <!-- {{suggestions|json}} -->
+</mat-form-field>

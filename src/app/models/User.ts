@@ -1,7 +1,5 @@
 //@ts-check
-import Utils from '../utils';
-// import Http from '../utils/Http'
-import { ApicUrls } from '../utils/Constants';
+import Utils from '../utils/helpers';
 
 export default class User {
     static userData = {

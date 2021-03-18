@@ -1,0 +1,43 @@
+<div class="auth-dialog">
+    <button mat-icon-button class="close" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="title">apic</div>
+    <div class="auth-tabs vcenter">
+        <div [ngClass]="{active:panel=='login'}" (click)="panel='login'">Login</div>
+        <div [ngClass]="{active:panel=='register'}" (click)="panel='register'">Register</div>
+        <div [ngClass]="{active:panel=='forgot'}" (click)="panel='forgot'">Forgot password</div>
+    </div>
+    <div class="login-cont" *ngIf="panel === 'login'">
+        <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
+
+        <form class="form-horizontal" role="form" [formGroup]="loginForm" (ngSubmit)="login()">
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="email-login">
+                    <mat-icon>email</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="email" required="" id="email-login" class="form-control" placeholder="Email"
+                        pattern=".{3,255}" formControlName="email">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <label class="control-label col-sm-1" for="pwd-login">
+                    <mat-icon>password</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="password" required="" class="form-control" id="pwd-login" placeholder="Password"
+                        pattern=".{6,255}" formControlName="psd">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button type="submit" mat-fab class="btn-login t_bg">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>

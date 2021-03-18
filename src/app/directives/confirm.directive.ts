@@ -39,7 +39,7 @@ export class ConfirmService {
     constructor(public dialog: MatDialog) { }
 
     confirm(options) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             const dialogRef = this.dialog.open(ConfirmDirectiveComponent, {
                 data: {
                     confirmTitle: options.confirmTitle || 'Are you sure you want to perform this action?',

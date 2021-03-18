@@ -1,6 +1,6 @@
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { ApiProject } from './../models/ApiProject.model';
-import { AddApiProjects, RefreshApiProjects, DeleteApiProject, UpdateApiProjects } from './../actions/apiProject.actions';
+import { ApiProjectsAction } from './../actions/apiProject.actions';
 import { Injectable } from '@angular/core';
 
 // Section 2
@@ -20,7 +20,7 @@ export class ApiProjectState {
 
     @Selector()
     static getPartial(state: ApiProjectStateModel) {
-        return state.projects.map(p => { return { _id: p._id, title: p.title } })
+        return state.projects.map(p => { return ({ _id: p._id, title: p.title } as ApiProject) })
     }
 
     @Selector()
@@ -30,34 +30,45 @@ export class ApiProjectState {
 
     @Selector()
     static getById(state: ApiProjectStateModel) {
-        return (id) => { return state.projects.find(p => p._id === id); };
+        return (id) => {
+            const project = state.projects.find(p => p._id === id);
+            return project ? Object.assign({}, project) : null;
+        };
     }
 
-    @Action(AddApiProjects)
-    add({ getState, patchState }: StateContext<ApiProjectStateModel>, { payload }: AddApiProjects) {
+    @Selector()
+    static getByTitle(state: ApiProjectStateModel) {
+        return (title) => {
+            const project = state.projects.find(project => project.title === title);
+            return project ? Object.assign({}, project) : null;
+        };
+    }
+
+    @Action(ApiProjectsAction.Add)
+    add({ getState, patchState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Add) {
         const state = getState();
         patchState({
             projects: [...state.projects, ...payload]
         })
     }
 
-    @Action(RefreshApiProjects)
-    refresh({ patchState }: StateContext<ApiProjectStateModel>, { payload }: RefreshApiProjects) {
+    @Action(ApiProjectsAction.Refresh)
+    refresh({ patchState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Refresh) {
         patchState({
             projects: [...payload]
         })
     }
 
-    @Action(DeleteApiProject)
-    delete({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: DeleteApiProject) {
+    @Action(ApiProjectsAction.Delete)
+    delete({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Delete) {
         const projects = getState().projects;
         patchState({
             projects: projects.filter(p => p._id != payload)
         })
     }
 
-    @Action(UpdateApiProjects)
-    update({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: UpdateApiProjects) {
+    @Action(ApiProjectsAction.Update)
+    update({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Update) {
         const projects = getState().projects;
         payload.forEach(updated => {
             const index = projects.findIndex(e => e._id === updated._id);

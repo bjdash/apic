@@ -6,18 +6,18 @@
                 <i class="icon bj-cloud-upload gap"></i>
                 Enable mocked response
             </button>
-            <button mat-stroked-button class="sm">
+            <a href="https://docs.apic.app/simulator" mat-stroked-button class="sm" target="_new">
                 <mat-icon>help</mat-icon>
-            </button>
+            </a>
         </span>
         <span class="btn-group gap">
             <button mat-stroked-button class="sm">
                 <i class="icon bj-cloud-upload gap"></i>
                 Publish Docs
             </button>
-            <button mat-stroked-button class="sm">
+            <a href="https://docs.apic.app/dashboard/published-docs" mat-stroked-button class="sm" target="_new">
                 <mat-icon>help</mat-icon>
-            </button>
+            </a>
         </span>
         <button mat-stroked-button class="sm gap">
             <span class="icon bj-wrench gap"></span>
@@ -27,10 +27,17 @@
             <span class="icon bj-share-alt gap"></span>
             Share
         </button>
-        <button mat-stroked-button class="sm gap">
-            <span class="glyphicon glyphicon-export gap"></span>
+        <button mat-stroked-button class="sm gap" [matMenuTriggerFor]="exportMenu">
+            <mat-icon class="sm">open_in_new</mat-icon>
             Export
         </button>
+        <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item (click)="openExportModal('RAW',selectedPROJ._id)">Raw APIC
+                Project</button>
+            <button mat-menu-item (click)="openExportModal('OAS',selectedPROJ._id)">Open API
+                Specs(Swagger)</button>
+            <button mat-menu-item>RAML (Soon)</button>
+        </mat-menu>
         <button mat-stroked-button class="sm gap">
             <span class="icon bj-book gap" style="font-size: 14px;vertical-align: text-bottom;"></span>
             View Docs

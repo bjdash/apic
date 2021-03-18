@@ -8,8 +8,14 @@ import { ApiProjectDetailComponent } from './api-project-detail/api-project-deta
 
 
 const routes: Routes = [
-  { path: '', redirectTo: 'designer', pathMatch: 'full' },
-  { path: 'designer', component: DesignerComponent },
+  {
+    path: '',
+    redirectTo: 'designer', pathMatch: 'full'
+  },
+  {
+    path: 'designer',
+    component: DesignerComponent
+  },
   {
     path: 'designer/:projectId',
     component: ApiProjectDetailComponent,
@@ -18,11 +24,14 @@ const routes: Routes = [
     //   { path: "folders/:id", component: ProjectFolderComponent },
     // ]
   },
-  { path: 'docs', component: DocsComponent },
+  {
+    path: 'docs',
+    component: DocsComponent
+  },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected' })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

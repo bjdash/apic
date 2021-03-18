@@ -1,7 +1,7 @@
 export interface Env {
     _id: string,
     name: string,
-    proj: {
+    proj?: {
         id: string,
         name: string
     },

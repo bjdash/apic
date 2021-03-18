@@ -25,8 +25,7 @@
             ],
             "styles": [
               "src/custom-theme.scss",
-              "src/styles.css",
-              "src/grid.css"
+              "src/styles/index.scss"
             ],
             "scripts": []
           },
@@ -41,7 +40,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -90,7 +88,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles/index.scss"
             ],
             "scripts": []
           }

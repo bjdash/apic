@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import User from 'src/app/models/User';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import Utils from '../../utils'
+import Utils from '../../utils/helpers'
 import { map, take } from 'rxjs/operators';
 
 @Component({
@@ -21,6 +21,7 @@ import { map, take } from 'rxjs/operators';
 export class ProjectHomeComponent implements OnInit {
     @Input() selectedPROJ: ApiProject;
     @Input() updateApiProject: Function;
+    @Input() openExportModal: Function;
     @Output() changeStageEmitter = new EventEmitter<number>();
 
     projSettingsForm: FormGroup;

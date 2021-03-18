@@ -1,0 +1,140 @@
+<!-- Object-schema.html -->
+<div *ngIf="type=='Object'">
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">minProperties:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minProperties" min="0"
+            placeholder=">=0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">maxProperties:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxProperties" min="0"
+            placeholder=">=0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <div class="t_color">Additional Properties</div>
+        <div *ngIf="!entity._additionalProperties || entity._additionalProperties.length==0">
+            <button mat-stroked-button class="sm" (click)="addAdditionalProp(entity)">Define Additional
+                properties schema</button>
+            <div class="checkbox padding">
+                <label><input type="checkbox" class="small" [(ngModel)]="entity._disallowAdditional"> Disallow
+                    Additipnal
+                    Properties</label>
+            </div>
+        </div>
+        <div *ngIf="entity._additionalProperties && entity._additionalProperties.length!=0">
+            <button mat-stroked-button color="warn" class="sm" (click)="removeAdditionalProp(entity)">Remove Additional
+                properties schema</button>
+        </div>
+    </div>
+</div>
+
+<!-- modelTypeSelector.html', modelTypeSelector); -->
+<!-- <div *ngIf="type=='modelTypeSelector'">
+    <span uib-dropdownz class="dropdown">
+        <button type="button" uib-dropdown-togglez class="btn btn-link btn-href model-selector dropdown-toggle"
+            (click)="openMenu(entity,$event)">
+            <span *ngFor="let t of entity._type">
+                <span [ngClass]="t">{{t}}</span><span *ngIf="!$last" class="faint"> or </span>
+            </span>
+            <span class="caret"></span>
+        </button>
+    </span>
+</div> -->
+
+<!-- String-schema.html -->
+<div *ngIf="type=='String'">
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">minLength:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minLength" min="0"
+            placeholder=">=0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">maxLength:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxLength" min="0"
+            placeholder=">=0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">Pattern:</label>
+        <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._pattern" min="0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">Format:</label>
+        <select class="form-control sm detail-ip" [(ngModel)]="entity._format">
+            <option value="">--no-format--</option>
+            <option value="email">email</option>
+            <option value="hostname">hostname</option>
+            <option value="date-time">date-time</option>
+            <option value="ipv4">ipv4</option>
+            <option value="ipv6">ipv6</option>
+            <option value="uri">uri</option>
+        </select>
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">Enum:</label>
+        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum"
+            placeholder="'' abcd', 1 1.5,etc"></textarea>
+    </div>
+</div>
+
+
+<!-- Array-schema.html', ArraySchema); -->
+<div *ngIf="type=='Array'">
+    <div>
+        <div class="checkbox padding">
+            <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems"> Allow only unique
+                items?</label>
+        </div>
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">minItems:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minItems" min="0"
+            placeholder=">=0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">maxItems:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxItems" min="0"
+            placeholder=">=0" />
+    </div>
+</div>
+
+<!-- Integer-schema.html', IntNumSchema); -->
+<div *ngIf="type=='Integer'">
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">minimum:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minimum" min="0" />
+        <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMinimum"> Exclude minimum ?</label>
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">maximum:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maximum" min="0" />
+        <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMaximum"> Exclude maximum ?</label>
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">multipleOf:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._multipleOf" min="0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">Format:</label>
+        <select class="form-control sm detail-ip" [(ngModel)]="entity._format">
+            <option value="int32">int32</option>
+            <option value="int64">int64</option>
+        </select>
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">Enum:</label>
+        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum"
+            placeholder=" abcd, 1,1.5,etc"></textarea>
+    </div>
+</div>
+
+<div *ngIf="type=='Boolean'">
+    No validations for this type..
+</div>
+
+<div *ngIf="type=='Null'">
+    No validations for this type..
+</div>
+
+<div *ngIf="type=='refSchema'">
+    No validations for this type..
+</div>

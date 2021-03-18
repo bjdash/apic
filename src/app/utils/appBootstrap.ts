@@ -1,16 +1,17 @@
 import { AuthInterceptor } from './AuthInterceptor';
 //@ts-check
-import Utils from '.'
+import Utils from './helpers'
 import User from '../models/User'
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 // import TeamService from '../services/TeamsService';
 // import TeamsState from '../state/atoms/Teams'
-import { ApicUrls, DemoData } from './Constants';
+import { ApicUrls, DemoData } from './constants';
 import apic from './apic';
 import iDB from '../services/IndexedDB';
 import { Injectable } from '@angular/core';
 import { ApiProjectService } from '../services/apiProject.service';
 import { EnvService } from '../services/env.service';
+import LocalStore from '../services/localStore';
 
 @Injectable()
 export class AppBootstrap {
@@ -49,7 +50,7 @@ export class AppBootstrap {
 
     private async addDummyUser() {
         //check if the dummy user is registered, otherwise add a dummy user.
-        const userId = Utils.storage.get('userId');
+        const userId = LocalStore.get(LocalStore.USER_ID);
         var body = {
             id: apic.uuid(),
             platform: window['APP'].TYPE,
@@ -63,7 +64,7 @@ export class AppBootstrap {
             const respData: any = await this.httpClient.post(ApicUrls.registerDummy, body).toPromise();
             console.log(respData);
             if (respData.resp) {
-                Utils.storage.set('userId', respData.resp.id);
+                LocalStore.set(LocalStore.USER_ID, respData.resp.id);
             }
         } catch (e) {
             console.log('Failed to add dummy user', e);
@@ -71,7 +72,7 @@ export class AppBootstrap {
     }
 
     private async initLoggedinUser() {
-        const data = Utils.storage.get(['UID', 'authToken', 'name', 'email'])
+        const data = LocalStore.getMany(['UID', 'authToken', 'name', 'email']);
         if (data && data.UID && data.authToken) { //user is logged in
             User.setData(data);
             console.log('user data', data);
@@ -113,7 +114,7 @@ export class AppBootstrap {
 
     private async doFirstRun() {
         //detect for first run of APIC
-        const firstRun = Utils.storage.get('firstRun');
+        const firstRun = LocalStore.get(LocalStore.FIRST_RUN);
 
         if (!firstRun) { //first run
             // TODO: $rootScope.openIntroModal();
@@ -140,7 +141,7 @@ export class AppBootstrap {
                 // }
                 // $rootScope.ENVS.push(DemoData.demoEnv);
                 //mark first run complete
-                Utils.storage.set('firstRun', true);
+                LocalStore.set(LocalStore.FIRST_RUN, true);
                 this.apiProjectService.getApiProjs();
                 this.envService.getAllEnvs();
                 //TODO: do get all for others
@@ -150,13 +151,13 @@ export class AppBootstrap {
 
     private checkUpdate() {
 
-        const version = Utils.storage.get('version');
+        const version = LocalStore.get(LocalStore.VERSION);
         if (version) {
             if (Utils.isNewVersion(window['APP'].VERSION, version)) {
                 Utils.notify('APIC Updated', 'Apic has been updated to a new version (' + window['APP'].VERSION + ').', 'https://apic.app/changelog.html');
             }
         }
-        Utils.storage.set('version', window['APP'].VERSION);
+        LocalStore.set(LocalStore.VERSION, window['APP'].VERSION);
     }
 }
 

@@ -1,0 +1,25 @@
+.mat-snack-bar-container {
+    background: var(--content-bg);
+    color: var(--text-color);
+}
+.mat-snack-bar-container.success {
+    border: 1px solid #51bc54;
+    border-left: 10px solid #51bc54;
+}
+.mat-snack-bar-container.error {
+    border: 1px solid #f44336;
+    border-left: 10px solid #f44336;
+}
+.mat-snack-bar-container.warning {
+    border: 1px solid #ff9800;
+    border-left: 10px solid #ff9800;
+}
+.mat-snack-bar-container.info {
+    border: 1px solid #2196f3;
+    border-left: 10px solid #2196f3;
+}
+.mat-simple-snackbar-action {
+    button {
+        color: #f44336;
+    }
+}

@@ -5,18 +5,7 @@
             <span class="logo-text">apic</span>
         </div>
         <div style="width: 300px;height: 50px;">
-            <!-- <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
-                <i class="icon bj-palette"></i>
-            </button>
-            <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
-                <i class="icon bj-lab"></i>
-            </button>
-            <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
-                <i class="icon bj-book"></i>
-            </button>
-            <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
-                <i class="icon bj-dashboard"></i>
-            </button> -->
+            <!--TODO: implement saveWorkspace-->
             <a id="designer-ico" href class="module-icon" routerLink="/designer" routerLinkActive="active"
                 style="font-size: 38px;padding-top: 4px;padding-left:3px;" tooltip-placement="right"
                 uib-tooltip="Designer">
@@ -35,6 +24,79 @@
                 uib-tooltip="Dashboard">
                 <i class="icon bj-dashboard"></i>
             </a>
+        </div>
+
+        <div class="flex-right header-right vcenter">
+            ({{stompService.client.connectionChange$|async}})
+            <button (click)="send()">send</button>
+            <button (click)="connect()">connect</button>
+            <button (click)="dics()">disc</button>
+            <div class="env-cont input-group gap">
+                <button mat-button="" class="sm" (click)="openEnvModal()">
+                    <i class="icon bj-stack"></i>
+                </button>
+                <button mat-button="" class="sm" [matMenuTriggerFor]="envsList">
+                    <span class="gap" *ngIf="(selectedEnv$ | async)?._id">{{(selectedEnv$ | async)?.name}}</span>
+                    <span class="gap" *ngIf="!(selectedEnv$ | async)?._id">No Environment</span>
+                    <mat-icon>arrow_drop_down</mat-icon>
+                </button>
+                <mat-menu #envsList="matMenu">
+                    <button (click)="selectEnv('')" mat-menu-item>No Environment</button>
+                    <mat-divider></mat-divider>
+                    <button *ngFor="let env of envs$ | async" (click)="selectEnv(env._id)"
+                        mat-menu-item>{{env.name}}</button>
+                </mat-menu>
+            </div>
+
+            <button mat-icon-button [matMenuTriggerFor]="menuOpt">
+                <mat-icon>toc</mat-icon>
+            </button>
+            <mat-menu #menuOpt="matMenu">
+                <a href="https://apic.app/docs" target="_new" mat-menu-item>
+                    <mat-icon class="gap">menu_book</mat-icon> Docs/Help
+                </a>
+                <a href="https://github.com/apic-apps/apic" target="_new" mat-menu-item>
+                    <span class="icon bj-github gap"></span>Opensource
+                </a>
+                <a href="https://apic.app/identity/#!/feedback" target="_new" mat-menu-item>
+                    <mat-icon class="gap">feedback</mat-icon>Feedback
+                </a>
+                <a href="https://apic.app/identity/#!/feedback" target="_new" mat-menu-item>
+                    <mat-icon class="gap">bug_report</mat-icon>Report an issue
+                </a>
+                <button mat-menu-item>
+                    <mat-icon class="gap">dvr</mat-icon>Intro Screen
+                </button>
+            </mat-menu>
+
+            <div class="avatar-cont vcenter">
+                <div class="avatar-bg"></div>
+                <button mat-icon-button class="avatar sm" [ngClass]="{
+                        online:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.OPEN,
+                        offline:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.CLOSED,
+                        syncing:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.SYNCING,
+                        connecting:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.CONNECTING
+                    }" [matMenuTriggerFor]="accountOpt">
+                    <mat-icon *ngIf="! (loggedInUser$|async)?.UID">person</mat-icon>
+                    <span class="initial"
+                        *ngIf="(loggedInUser$|async)?.UID">{{(loggedInUser$|async).name.charAt(0).toLocaleUpperCase()}}</span>
+                </button>
+                <mat-menu #accountOpt="matMenu">
+                    <div *ngIf="! (loggedInUser$|async)?.UID">
+                        <button mat-menu-item (click)="openAuthModal('login')">Login</button>
+                        <button mat-menu-item (click)="openAuthModal('register')">Register</button>
+                        <button mat-menu-item (click)="openAuthModal('forgot-password')">Forgot Password</button>
+                    </div>
+                    <div *ngIf="(loggedInUser$|async)?.UID">
+                        <div class="greet">Hi {{(loggedInUser$|async).name}}</div>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item>Account</button>
+                        <button mat-menu-item>Dashboard</button>
+                        <button mat-menu-item>Sync</button>
+                        <button mat-menu-item>Logout</button>
+                    </div>
+                </mat-menu>
+            </div>
         </div>
     </div>
 </div>

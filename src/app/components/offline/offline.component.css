@@ -1,0 +1,20 @@
+.offline-db {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 50px;
+    bottom: 0;
+    z-index: 11;
+}
+.offline-dbtxt {
+    position: fixed;
+    background: red;
+    color: #fff;
+    left: 0;
+    right: 0;
+    padding: 45px;
+    font-size: 30px;
+    text-align: center;
+    top: 50%;
+    margin-top: -50px;
+}

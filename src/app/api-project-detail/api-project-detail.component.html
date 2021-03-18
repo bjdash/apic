@@ -21,9 +21,11 @@
                         <mat-icon>open_in_new</mat-icon>
                     </button>
                     <mat-menu #exportMenu="matMenu">
-                        <button mat-menu-item>Open API Specs(Swagger 2)</button>
+                        <button mat-menu-item (click)="openExportModal('RAW',selectedPROJ._id)">Raw APIC
+                            Project</button>
+                        <button mat-menu-item (click)="openExportModal('OAS',selectedPROJ._id)">Open API
+                            Specs(Swagger)</button>
                         <button mat-menu-item>RAML (Soon)</button>
-                        <button mat-menu-item>Raw APIC Project</button>
                     </mat-menu>
                 </div>
                 <div *ngFor="let item of LeftTree | keyvalue: sortLeftTreeFolder">
@@ -38,7 +40,7 @@
                             <div class="f-name">{{item.value.folder.name}}</div>
                         </div>
                         <div class="r-sec ">
-                            <button type="button" *ngIf="item.key != 'ungrouped'" color="primary" mat-icon-button
+                            <button type="button" *ngIf="item.key != 'ungrouped'" mat-icon-button
                                 (click)="changeStage('folders');foldersView.selectFolder(item.value.folder._id);$event.stopPropagation()">
                                 <mat-icon>edit</mat-icon>
                             </button>
@@ -58,7 +60,7 @@
                                     {{endp.value.name}}
                                 </div>
                                 <div class="r-sec">
-                                    <a color="primary" mat-icon-button [matMenuTriggerFor]="endpMenu">
+                                    <a mat-icon-button [matMenuTriggerFor]="endpMenu">
                                         <mat-icon>more_vert</mat-icon>
                                     </a>
                                     <mat-menu #endpMenu="matMenu">
@@ -91,8 +93,8 @@
                                     {{model.value.name}}
                                 </div>
                                 <div class="r-sec">
-                                    <button type="button" color="primary" (click)="$event.stopPropagation()"
-                                        mat-icon-button [matMenuTriggerFor]="modelMenu">
+                                    <button type="button" (click)="$event.stopPropagation()" mat-icon-button
+                                        [matMenuTriggerFor]="modelMenu">
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #modelMenu="matMenu">
@@ -116,29 +118,29 @@
                         <!--Traits-->
                         <div *ngFor="let trait of item.value.traits | keyvalue">
                             <div class="savedReq" matRipple
-                                ng-class="{active:vm.designStage === 'models' && vm.model._id == _mid}">
+                                (click)="changeStage('traits');traitsView.selectTrait(trait.value._id);$event.stopPropagation()"
+                                [ngClass]="{active:flags.stage === 'traits' && trait.value._id == traitsView.selectedTrait}">
                                 <div class="l-sec">
                                     <div class="method TRAIT"></div>
                                 </div>
-                                <div class="m-sec name"
-                                    ng-click="vm.loadMdelsView();vm.selectModel(vm.SelectedPROJ.models[model._id], 'edit')">
+                                <div class="m-sec name">
                                     {{trait.value.name}}
                                 </div>
-                                <div class="r-sec">
-                                    <a color="primary" mat-icon-button [matMenuTriggerFor]="traitMenu">
+                                <div class="r-sec" (click)="$event.stopPropagation()">
+                                    <a mat-icon-button [matMenuTriggerFor]="traitMenu">
                                         <mat-icon>more_vert</mat-icon>
                                     </a>
                                     <mat-menu #traitMenu="matMenu">
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="changeStage('traits');traitsView.selectTrait(trait.value._id);$event.stopPropagation()">
                                             <mat-icon>edit</mat-icon> Edit
                                         </button>
-                                        <button mat-menu-item>
-                                            <mat-icon class="green">play_arrow</mat-icon> Run
-                                        </button>
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="traitsView.duplicateTrait(trait.value._id);$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
                                         </button>
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="traitsView.deleteTrait(trait.value._id);$event.stopPropagation()">
                                             <mat-icon class="red">delete</mat-icon>Delete
                                         </button>
                                     </mat-menu>
@@ -176,7 +178,8 @@
 
             <div class="designer-cont">
                 <app-project-home [hidden]="flags.stage!=='dashboard'" [selectedPROJ]="selectedPROJ"
-                    (changeStageEmitter)="changeStage($event)" [updateApiProject]="updateApiProject">
+                    (changeStageEmitter)="changeStage($event)" [updateApiProject]="updateApiProject"
+                    [openExportModal]="openExportModal.bind(this)">
                 </app-project-home>
                 <app-project-folder #foldersView [hidden]="flags.stage!=='folders'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject" (projectUpdated)="projectUpdated($event)">
@@ -184,6 +187,12 @@
                 <app-project-models #modelsView [hidden]="flags.stage!=='models'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject" (projectUpdated)="projectUpdated($event)">
                 </app-project-models>
+                <app-project-endpoint #endpointsView [hidden]="flags.stage!=='endpoints'" [selectedPROJ]="selectedPROJ"
+                    [updateApiProject]="updateApiProject" (projectUpdated)="projectUpdated($event)">
+                </app-project-endpoint>
+                <app-project-traits #traitsView [hidden]="flags.stage!=='traits'" [selectedPROJ]="selectedPROJ"
+                    [updateApiProject]="updateApiProject" (projectUpdated)="projectUpdated($event)">
+                </app-project-traits>
             </div>
 
         </div>

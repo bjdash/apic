@@ -1,0 +1,123 @@
+<div class="content">
+    <div class="submodMenu">
+        <div class="submodMenuOptn">
+            <span *ngIf="selectedTrait === 'NEW'">
+                <button type="button" type="button" (click)="createTrait()" form="traitForm" class="sm gap"
+                    mat-raised-button color="primary">Create</button>
+                <button mat-button class="sm" type="reset" (click)="traitForm.reset()">Reset</button>
+            </span>
+            <span *ngIf="selectedTrait !== 'NEW'">
+                <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
+                    (click)="createTrait()">Save</button>
+                <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
+                    (click)="deleteTrait(selectedTrait)">Delete</button>
+                <button type="button" type="button" *ngIf="traitForm.dirty" class="sm gap" mat-raised-button
+                    (click)="discardChange()">Discard</button>
+                <div class="bar"></div>
+                <button type="button" type="button" (click)="selectTrait('NEW')" class="sm gap" mat-raised-button>
+                    <mat-icon class="sm">add</mat-icon>New Trait
+                </button>
+            </span>
+        </div>
+        <div class="tip"></div>
+    </div>
+
+    <h4 class="t_color head vcenter">
+        <span class="gap">Traits:</span>
+        <div class="margL10">
+            <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="traitsList">
+                <span class="gap">{{selectedName}}</span>
+                <span *ngIf="traitForm.dirty">(Unsaved)</span>
+                <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #traitsList="matMenu">
+                <button mat-menu-item (click)="selectTrait('NEW')">Create new Trait</button>
+                <mat-divider></mat-divider>
+                <button *ngFor="let trait of selectedPROJ.traits | keyvalue" (click)="selectTrait(trait.value._id)"
+                    mat-menu-item>{{trait.value.name}}</button>
+            </mat-menu>
+        </div>
+        <a class="f18 pull-right" mat-icon-button href="https://apic.app/docs/designer/create-trait" target="_new">
+            <mat-icon>help</mat-icon>
+        </a>
+    </h4>
+
+    <div>
+        <form class="form-horizontal form-compact " [formGroup]="traitForm" id="traitForm">
+            <div class="row">
+                <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required="" placeholder="Trait Name" maxlength="100"
+                        formControlName="name">
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="control-label col-sm-2">Folder: </label>
+                <div class="col-sm-8">
+                    <mat-select formControlName="folder">
+                        <mat-option value="">Un-grouped</mat-option>
+                        <mat-divider></mat-divider>
+                        <mat-option *ngFor="let folder of selectedPROJ.folders | keyvalue" [value]="folder.value._id">
+                            {{folder.value.name}}
+                        </mat-option>
+                    </mat-select>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Summary:</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" formControlName="summary"></textarea>
+                </div>
+            </div>
+            <fieldset class="paper2">
+                <legend class="vcenter" (click)="panels.path = !panels.path">
+                    <mat-icon *ngIf="panels.path">expand_more</mat-icon>
+                    <mat-icon *ngIf="!panels.path">chevron_right</mat-icon>
+                    Path Params
+                </legend>
+                <div [hidden]="!panels.path">
+                    <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams"></ng-jsonschema>
+                </div>
+            </fieldset>
+
+            <fieldset class="paper2">
+                <legend class="vcenter" (click)="panels.query = !panels.query">
+                    <mat-icon *ngIf="panels.query">expand_more</mat-icon>
+                    <mat-icon *ngIf="!panels.query">chevron_right</mat-icon>
+                    Query Params
+                </legend>
+                <div [hidden]="!panels.query">
+                    <ng-jsonschema mode="list" msg="Define Query params here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"></ng-jsonschema>
+                </div>
+            </fieldset>
+
+            <fieldset class="paper2">
+                <legend class="vcenter" (click)="panels.header = !panels.header">
+                    <mat-icon *ngIf="panels.header">expand_more</mat-icon>
+                    <mat-icon *ngIf="!panels.header">chevron_right</mat-icon>
+                    Headers
+                </legend>
+                <div [hidden]="!panels.header">
+                    <ng-jsonschema mode="list" msg="Define Headers here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
+                </div>
+            </fieldset>
+
+            <fieldset class="paper2">
+                <legend class="vcenter" (click)="panels.resp = !panels.resp">
+                    <mat-icon *ngIf="panels.resp">expand_more</mat-icon>
+                    <mat-icon *ngIf="!panels.resp">chevron_right</mat-icon>
+                    Responses
+                </legend>
+                <div [hidden]="!panels.resp">
+                    <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="responses">
+                    </response-schema-builder>
+
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
