@@ -44,8 +44,8 @@ export class NewApiProjectModal {
         }
         console.log(newProject);
         try {
-            const id = await this.apiProjectService.addProject(newProject);
-            if (id) {
+            const id:string[] = await this.apiProjectService.addProjects([newProject]) as string[];
+            if (id?.length>0) {
                 this.toaster.success('Project created.');
                 this.dialogRef.close();
             } else {

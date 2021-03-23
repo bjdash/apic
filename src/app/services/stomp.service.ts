@@ -87,7 +87,7 @@ export class StompService {
     private startProcessingQueue() {
         if (this.currentProcessingMessage === null && this.messageQueue.length > 0) {
             //no message is pending acknowledgement from server, pick one from the queue and process
-            this.currentProcessingMessage = this.messageQueue.slice(0, 1)[0];
+            this.currentProcessingMessage = this.messageQueue.splice(0, 1)[0];
             if (this.client?.connected()) {
                 this.messageIdsPendingAcknowledgement[this.currentProcessingMessage.opId] = this.currentProcessingMessage.command;
                 this.send(this.currentProcessingMessage);
@@ -97,7 +97,7 @@ export class StompService {
                 this.timeoutRef = setTimeout(() => {
                     this.currentProcessingMessage = null;
                     this.startProcessingQueue();
-                });
+                }, 20000);
             } else {
                 //if socket is not connected, save message in unsynced db if not already saved
                 if (this.currentProcessingMessage.opId.indexOf('unsynced-') < 0) {

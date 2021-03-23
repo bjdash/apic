@@ -11,7 +11,7 @@ export namespace ApiProjectsAction {
     }
     export class Delete {
         static readonly type = '[ApiProject] delete';
-        constructor(public payload: string) { };
+        constructor(public payload: string[]) { };
     }
     export class Update {
         static readonly type = '[ApiProject] update';

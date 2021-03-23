@@ -227,8 +227,8 @@ export class EnvsComponent implements OnInit {
     }
   }
 
-  deleteEnvById(envId, index) {
-    this.envService.deleteEnv(envId).then(() => {
+  deleteEnvById(envId:string, index:number) {
+    this.envService.deleteEnvs([envId]).then(() => {
       var envName = this.envsList[index].name;
       this.toaster.success(`Environment "${envName}" deleted.`);
       this.envsList.splice(index, 1);

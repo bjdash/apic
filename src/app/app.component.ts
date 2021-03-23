@@ -17,12 +17,10 @@ export class AppComponent {
   constructor(
     private apiProjectService: ApiProjectService,
     private envService: EnvService,
-    private authService: AuthService,
     private bootstrap: AppBootstrap) {
     console.log('Initiating App....')
     bootstrap.init();
     apiProjectService.getApiProjs();
     envService.getAllEnvs();
-    authService.getLoggedInUser();
   }
 }

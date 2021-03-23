@@ -8,10 +8,11 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
-import User from 'src/app/models/User';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import Utils from '../../utils/helpers'
 import { map, take } from 'rxjs/operators';
+import { UserState } from 'src/app/state/user.state';
+import { User } from 'src/app/models/User.model';
 
 @Component({
     selector: 'app-project-home',
@@ -26,6 +27,7 @@ export class ProjectHomeComponent implements OnInit {
 
     projSettingsForm: FormGroup;
     projDetailForm: FormGroup;
+    authUser: User;
     projEnv: Env = null; //auto generated env for this project
     flags = {
         editProj: false
@@ -39,8 +41,9 @@ export class ProjectHomeComponent implements OnInit {
         private apiProjectService: ApiProjectService,
         private envService: EnvService) {
 
-        console.log('In Project home');
-
+        this.store.select(UserState.getAuthUser).subscribe(user => {
+            this.authUser = user;
+        });
         this.projSettingsForm = fb.group({
             host: ['', Validators.required],
             basePath: [''],
@@ -87,15 +90,15 @@ export class ProjectHomeComponent implements OnInit {
     }
 
     deleteProj() {
-        if (this.selectedPROJ.owner && User.userData && User.userData.UID !== this.selectedPROJ.owner) {
+        if (this.selectedPROJ.owner && this.authUser?.UID !== this.selectedPROJ.owner) {
             this.toaster.error('You can\'t delete this Project as you are not the owner. If you have permission you can edit it though.');
             return;
         }
         var id = this.selectedPROJ._id;
-        this.apiProjectService.deleteAPIProject(id).then(() => {
+        this.apiProjectService.deleteAPIProjects([id]).then(() => {
 
-            if (this.selectedPROJ.setting && this.selectedPROJ.setting.envId) {
-                this.envService.deleteEnv(this.selectedPROJ.setting.envId)
+            if (this.selectedPROJ.setting?.envId) {
+                this.envService.deleteEnvs([this.selectedPROJ.setting.envId])
             }
 
             this.router.navigate(['/designer']);

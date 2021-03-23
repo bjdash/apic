@@ -12,8 +12,7 @@ import { EnvsComponent } from '../envs/envs.component';
 import { LoginComponent } from '../login/login.component';
 import { User } from '../models/User.model';
 import { ApicRxStompState, StompService } from '../services/stomp.service';
-// import { RxStompService } from '@stomp/ng2-stompjs';
-// import * as SockJS from 'sockjs-client/dist/sockjs.min.js'
+import iDB from '../services/IndexedDB';
 
 @Component({
   selector: 'apic-header',
@@ -30,8 +29,8 @@ export class HeaderComponent implements OnInit {
 
   }
 
-  connect() {
-    this.stompService.connect('');
+  async connect() {
+    this.stompService.connect('60537ae0226339337009f4fc||d09ed185ffebdf46f0b37e24a723b494');
   }
   send() {
     this.stompService.addtoSendQueue({});

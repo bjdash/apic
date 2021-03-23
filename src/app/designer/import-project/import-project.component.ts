@@ -86,7 +86,7 @@ export class ImportProjectComponent implements OnInit {
     // project._id = ts + '-' + apic.s12();
     if (!project.setting) project.setting = {};
 
-    const newProjId = await this.apiProjectService.addProject(project);
+    const newProjIds:string[] = await this.apiProjectService.addProjects([project]) as string[];
 
     var newEnv: Env = {
       name: project.title + '-env',
@@ -99,7 +99,7 @@ export class ImportProjectComponent implements OnInit {
       }],
       _id: null, _created: null, _modified: null,
       proj: {
-        id: (<string>newProjId),
+        id: (newProjIds[0]),
         name: project.title
       }
     };

@@ -5,21 +5,31 @@ import { Env } from './../models/Envs.model';
 import { EnvsAction } from './../actions/envs.action';
 import { Injectable } from '@angular/core';
 import iDB from './IndexedDB';
-import User from '../models/User'
 import apic from '../utils/apic';
 import LocalStore from './localStore';
 import { env } from 'process';
 import { SyncService } from './sync.service';
+import { StompMessage } from '../models/StompMessage.model';
+import { User } from '../models/User.model';
+import { UserState } from '../state/user.state';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EnvService {
-  private stateTracker = new BehaviorSubject<any>({});
+  private stateTracker = new BehaviorSubject<any>({});//TODO: is this required?
   private ajv;
+  authUser: User;
+
 
   constructor(private store: Store, private syncService: SyncService) {
-    this.ajv = new Ajv()
+    this.ajv = new Ajv();
+    this.store.select(UserState.getAuthUser).subscribe(user => {
+      this.authUser = user;
+    });
+    this.syncService.onEnvMessage$.subscribe(async message => {
+      this.onSyncMessage(message);
+    })
   }
 
   getState(): Observable<any> {
@@ -34,24 +44,26 @@ export class EnvService {
     return projects;
   }
 
-  deleteEnv(envId, fromSync?: boolean) {
-    return iDB.delete('Environments', envId).then((data) => {
+  deleteEnvs(envIds: string[], fromSync?: boolean) {
+    return iDB.deleteMany('Environments', envIds).then((data) => {
       if (!fromSync) {
-        this.syncService.prepareAndSync('deleteEnv', envId);
+        this.syncService.prepareAndSync('deleteEnv', envIds);
       }
-      this.store.dispatch(new EnvsAction.Delete(envId));
+      this.store.dispatch(new EnvsAction.Delete(envIds));
       return data;
     });
   }
 
   addEnv(newEnv: Env, fromSync?: boolean) {
-    const ts = Date.now();
-    if (!newEnv.vals) newEnv.vals = [];
-    newEnv._created = ts;
-    newEnv._modified = ts;
-    newEnv._id = ts + '-' + apic.s12();
+    if (!fromSync) {
+      const ts = Date.now();
+      if (!newEnv.vals) newEnv.vals = [];
+      newEnv._created = ts;
+      newEnv._modified = ts;
+      newEnv._id = ts + '-' + apic.s12();
+    }
     return iDB.insert('Environments', newEnv).then((data) => {
-      if (data[0] && User.userData.UID && !fromSync) {//added successfully
+      if (data[0] && this.authUser?.UID && !fromSync) {//added successfully
         this.syncService.prepareAndSync('addEnv', newEnv);
       }
       this.store.dispatch(new EnvsAction.Add([newEnv]));
@@ -61,17 +73,19 @@ export class EnvService {
   }
 
   addEnvs(envs: Env[], fromSync?: boolean) {
-    const ts = Date.now();
-    envs.forEach(newEnv => {
-      if (!newEnv.vals) newEnv.vals = [];
-      newEnv._created = ts;
-      newEnv._modified = ts;
-      newEnv._id = ts + '-' + apic.s12();
-    })
+    if (!fromSync) {
+      const ts = Date.now();
+      envs.forEach(newEnv => {
+        if (!newEnv.vals) newEnv.vals = [];
+        newEnv._created = ts;
+        newEnv._modified = ts;
+        newEnv._id = ts + '-' + apic.s12();
+      })
+    }
 
     return iDB.insertMany('Environments', envs).then((data) => {
       console.log(data);
-      if (data[0] && User.userData.UID && !fromSync) {//added successfully
+      if (data[0] && this.authUser?.UID && !fromSync) {//added successfully
         this.syncService.prepareAndSync('addEnv', envs);
       }
       this.store.dispatch(new EnvsAction.Add(envs));
@@ -116,16 +130,65 @@ export class EnvService {
   }
 
   canDelete(envId) {
-    return iDB.findByKey('Environments', '_id', envId).then(function (env) {
+    return iDB.findById(iDB.TABLES.ENVIRONMENTS, envId).then(function (env) {
       if (!env) return false;
       if (env.proj) {
-        return iDB.findByKey('ApiProjects', '_id', env.proj.id).then(function (data) {
+        return iDB.findById(iDB.TABLES.API_PROJECTS, env.proj.id).then(function (data) {
           if (data) return false;
           return true;
         });
       }
       return true;
     })
+  }
+
+  async onSyncMessage(message: StompMessage) {
+    if (!message?.action) return;
+
+    if (message.envs?.length > 0) {
+      if (message.action === 'add' || message.action === 'update') {
+        const resp = await this.updateEnvs(message.envs, true);
+        console.log('Sync: added/updated Env', resp)
+      }
+    } else if (message.idList?.length > 0 && message.action === 'delete') {
+      const resp = await this.deleteEnvs(message.idList, true);
+      console.log('Sync: deleted env', resp)
+    }
+
+    if (message.nonExistant?.envs?.length > 0) {
+      const resp = await this.deleteEnvs(message.nonExistant?.envs, true);
+      console.log('Sync: deleted env', resp)
+    }
+
+    if (message.originalComand?.includes('Fetch:Envs')) {
+      iDB.upsert(iDB.TABLES.SETTINGS, {
+        _id: 'lastSyncedEnvs',
+        time: Date.now()
+      });
+    }
+  }
+
+  //sync any envs those were created before the user even logged in
+  async syncApiProjects(hardSync: boolean = false) {
+    let envs: Env[] = await iDB.read(iDB.TABLES.ENVIRONMENTS);
+    envs = apic.removeDemoItems(envs);
+
+    //sync API envs created before login
+    const envsBeforeLogin = envs.filter(p => !p.owner);
+    if (envsBeforeLogin.length > 0) {
+      this.syncService.execute('syncPreLoginData', { envs: envsBeforeLogin })
+    }
+
+    //sync any envs we may not have in local and any which is in local and deleted in server
+    var localEnvsToSyncWithServer = envs.filter(p => p.owner);
+
+    if (hardSync) {
+      this.syncService.fetch('Fetch:Envs');
+    } else {
+      var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedEnvs')
+      this.syncService.fetch('Fetch:Envs', lastSyncedTime?.time, { envs: localEnvsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
+    }
+
   }
 
   validateImportData(importData): boolean {

@@ -62,16 +62,20 @@ export class EnvState {
     delete({ patchState, getState }: StateContext<EnvStateModel>, { payload }: EnvsAction.Delete) {
         const envs = getState().envs;
         patchState({
-            envs: envs.filter(p => p._id != payload)
+            envs: envs.filter(p => !payload.includes(p._id))
         })
     }
 
     @Action(EnvsAction.Update)
     update({ patchState, getState }: StateContext<EnvStateModel>, { payload }: EnvsAction.Update) {
-        const envs = getState().envs;
+        const envs = [...getState().envs];
         payload.forEach(updatedEnv => {
             const index = envs.findIndex(e => e._id === updatedEnv._id);
-            envs[index] = updatedEnv;
+            if (index < 0) {
+                envs.push(updatedEnv);
+            } else {
+                envs[index] = updatedEnv;
+            }
         })
         patchState({
             envs: [...envs]

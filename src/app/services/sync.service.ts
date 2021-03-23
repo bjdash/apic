@@ -3,67 +3,46 @@ import { StompMessage } from './../models/StompMessage.model';
 import { StompService } from './stomp.service';
 import { Injectable } from "@angular/core";
 import { Message } from "@stomp/stompjs";
+import { BehaviorSubject } from 'rxjs';
+import { Toaster } from './toaster.service';
 
 
 @Injectable()
 export class SyncService {
-    constructor(private stompService: StompService) {
+    onApiProjectMessage$: BehaviorSubject<StompMessage> = null;
+    onEnvMessage$: BehaviorSubject<StompMessage> = null;
+
+    constructor(private stompService: StompService, private toaster: Toaster) {
+        this.onApiProjectMessage$ = new BehaviorSubject(null)
+        this.onEnvMessage$ = new BehaviorSubject(null)
+
         this.stompService.client.onServerMessage$.subscribe((message: StompMessage) => {
             this.onServerMessage(message);
         })
     }
 
-    fetch(command, lastSyncedTime, data) {
+    fetch(command: string, lastSyncedTime?: number, data?: any) {
         var allIds: any = {};
-        if (data) {
-            if (data.apiProjects) {
-                allIds.apiProjects = [];
-                for (var i = 0; i < data.apiProjects.length; i++) {
-                    if (data.apiProjects[i]._id.indexOf('-demo') < 0) {
-                        allIds.apiProjects.push({ _id: data.apiProjects[i]._id, _modified: data.apiProjects[i]._modified });
-                    }
-                }
-            }
-            if (data.envs) {
-                allIds.envs = [];
-                for (var i = 0; i < data.envs.length; i++) {
-                    if (data.envs[i]._id.indexOf('-demo') < 0) {
-                        allIds.envs.push({ _id: data.envs[i]._id, _modified: data.envs[i]._modified });
-                    }
-                }
-            }
-            if (data.folders) {
-                allIds.folders = [];
-                for (var i = 0; i < data.folders.length; i++) {
-                    if (data.folders[i]._id.indexOf('-demo') < 0) {
-                        allIds.folders.push({ _id: data.folders[i]._id, _modified: data.folders[i]._modified });
-                    }
-                }
-            }
-            if (data.apiRequests) {
-                allIds.apiRequests = [];
-                for (var i = 0; i < data.apiRequests.length; i++) {
-                    if (data.apiRequests[i]._id.indexOf('-demo') < 0) {
-                        allIds.apiRequests.push({ _id: data.apiRequests[i]._id, _modified: data.apiRequests[i]._modified });
-                    }
-                }
-            }
-            if (data.testCaseProjects) {
-                allIds.testCaseProjects = [];
-                for (var i = 0; i < data.testCaseProjects.length; i++) {
-                    if (data.testCaseProjects[i]._id.indexOf('-demo') < 0) {
-                        allIds.testCaseProjects.push({ _id: data.testCaseProjects[i]._id, _modified: data.testCaseProjects[i]._modified });
-                    }
-                }
-            }
-            if (data.testSuits) {
-                allIds.testSuits = [];
-                for (var i = 0; i < data.testSuits.length; i++) {
-                    if (data.testSuits[i]._id.indexOf('-demo') < 0) {
-                        allIds.testSuits.push({ _id: data.testSuits[i]._id, _modified: data.testSuits[i]._modified });
-                    }
-                }
-            }
+        if (data?.apiProjects) {
+            allIds.apiProjects = data.apiProjects;
+        }
+
+        if (data?.envs) {
+            allIds.envs = data.envs;
+        }
+
+        //TODO: DO the same as above
+        if (data?.folders) {
+            allIds.folders = data.folders;
+        }
+        if (data?.apiRequests) {
+            allIds.apiRequests = data.apiRequests;
+        }
+        if (data?.testCaseProjects) {
+            allIds.testCaseProjects = data.testCaseProjects;
+        }
+        if (data?.testSuits) {
+            allIds.testSuits = data.testSuits;
         }
 
         var toSend: StompMessage = {
@@ -72,7 +51,7 @@ export class SyncService {
         };
         toSend = Object.assign(toSend, allIds);
         this.stompService.addtoSendQueue(toSend);
-        if (command === 'fetchAll') {
+        if (command.includes('fetchAll')) {
             //TODO:
             // angular.element('#avatar').removeClass('online offline').addClass('syncing');
         }
@@ -150,11 +129,13 @@ export class SyncService {
         if (!message) return;
 
         switch (message.type) {
-            //     case 'Environments':
-            //         caseEnvironments(data);
-            //         break;
+            case 'Environments':
+            case 'Fetch:Envs':
+                this.onEnvMessage$.next(message);
+                break;
             case 'APIProjects':
-                this.caseAPIProjects(message);
+            case 'Fetch:ApiProject':
+                this.onApiProjectMessage$.next(message);
                 break;
             //     case 'Folders':
             //         caseFolders(data);
@@ -171,24 +152,24 @@ export class SyncService {
             //     case 'Team':
             //         caseTeam();
             //         break;
-            //     case 'All':
-            //         caseEnvironments(data);
-            //         caseAPIProjects(data);
-            //         caseFolders(data);
-            //         caseAPIReqs(data);
-            //         caseTestCaseProjects(data);
-            //         caseTestSuits(data);
-            //         if (data.nonExistant) {
-            //             caseNonExistant(data.nonExistant);
-            //         }
-            //         break;
+            case 'All':
+                this.onEnvMessage$.next(message);
+                this.onApiProjectMessage$.next(message);
+                // caseFolders(data);
+                // caseAPIReqs(data);
+                // caseTestCaseProjects(data);
+                // caseTestSuits(data);
+                if (message.nonExistant) {
+                    //handeled in each corresponding service
+                }
+                break;
             //     case 'Account':
             //         if (data.msg === 'logout') {
             //             $rootScope.reconnect();
             //         }
             //         break;
-            //     case 'Error':
-            //         toastr.error(data.msg);
+            case 'Error':
+                this.toaster.error(message.msg);
         }
     }
 
@@ -203,25 +184,5 @@ export class SyncService {
         //         SyncIt.fetch('fetchAll', ts, data);
         //     });
         // });
-    }
-
-    private caseAPIProjects(data: StompMessage) {
-        if ((data.apiProjects && data.apiProjects.length > 0) || (data.idList && data.idList.length > 0)) {
-            if (data.action === 'update' || data.action === 'add') {
-                // this.apiProjectService.updateAPIProjects(data.apiProjects, true).then(function () {
-                //     // $rootScope.$emit('ApiProjChanged', data.opId);
-                // });
-            } else if (data.action === 'delete') {
-                // var promises = [];
-                // for (var i = 0; i < data.idList.length; i++) {
-                //     console.log('deleting', data.idList[i]);
-                //     var p = DesignerServ.deleteAPIProject(data.idList[i], true);
-                //     promises.push(p);
-                // }
-                // $q.all(promises).then(function () {
-                //     $rootScope.$emit('ApiProjRemoved', data.idList);
-                // });
-            }
-        }
     }
 }

@@ -5,7 +5,10 @@ import { throwError } from 'rxjs';
 import { catchError, map, first } from 'rxjs/operators';
 import { UserAction } from '../actions/user.action';
 import { User } from '../models/User.model';
+import { UserState } from '../state/user.state';
 import { ApicUrls } from '../utils/constants';
+import { ApiProjectService } from './apiProject.service';
+import { EnvService } from './env.service';
 import { HttpService } from './http.service';
 import { StompService } from './stomp.service';
 
@@ -13,8 +16,23 @@ import { StompService } from './stomp.service';
   providedIn: 'root'
 })
 export class AuthService {
+  user: User;
 
-  constructor(private http: HttpClient, private httpService: HttpService, private store: Store, public stompService: StompService) { }
+  constructor(private http: HttpClient,
+    private httpService: HttpService,
+    private store: Store,
+    public stompService: StompService,
+    private apiProjectService: ApiProjectService,
+    private envService: EnvService) {
+    this.store.select(UserState.getAuthUser).subscribe(user => {
+      if (user?.UID && user?.authToken) {
+        if ((user.UID != this.user?.UID || user.authToken != this.user?.authToken) && !stompService.client.connected()) {
+          this.connectToSyncServer(user.UID, user.authToken);
+        }
+        this.user = user;
+      }
+    })
+  }
 
   login(email, psd) {
     return this.http.post(ApicUrls.login, { email, psd })
@@ -34,11 +52,7 @@ export class AuthService {
 
   postLoginHandler(userData: User) {
     userData.UID = userData.id;
-    this.store.dispatch(new UserAction.Set(userData));
-    this.stompService.client.connected$.pipe(first()).subscribe(() => {
-      alert('connected');
-    })
-    this.stompService.connect(userData.UID + '||' + userData.authToken);
+    this.store.dispatch(new UserAction.Set(userData));//on set of user data we auto connect socket
     //TODO:
     // $http.defaults.headers.common['Authorization'] = userData.UID + '||' + userData.authToken;
 
@@ -54,7 +68,17 @@ export class AuthService {
     // }
   }
 
-  getLoggedInUser() {
+  connectToSyncServer(UID: string, authToken: string) {
+    this.stompService.client.connected$.pipe(first()).subscribe(() => {
+      this.apiProjectService.syncApiProjects();
+      this.envService.syncApiProjects();
+      //TODO: add for others
+
+    })
+    this.stompService.connect(UID + '||' + authToken);
+  }
+
+  initLoggedinUser() {
     this.store.dispatch(new UserAction.RefreshFromLocal());
   }
 

@@ -63,16 +63,20 @@ export class ApiProjectState {
     delete({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Delete) {
         const projects = getState().projects;
         patchState({
-            projects: projects.filter(p => p._id != payload)
+            projects: projects.filter(p => !payload.includes(p._id))
         })
     }
 
     @Action(ApiProjectsAction.Update)
     update({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Update) {
-        const projects = getState().projects;
+        const projects = [...getState().projects];
         payload.forEach(updated => {
             const index = projects.findIndex(e => e._id === updated._id);
-            projects[index] = updated;
+            if (index < 0) {
+                projects.push(updated);
+            } else {
+                projects[index] = updated;
+            }
         })
         patchState({
             projects: [...projects]

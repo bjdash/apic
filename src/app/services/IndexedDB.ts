@@ -67,6 +67,7 @@ const idbKeyval = {
     return insertedIds.filter(id => id != undefined);
   },
 
+  //TODO: Check if insert if not exist works
   async upsert(table, value) {
     return (await dbPromise).put(table, value);
   },
@@ -96,6 +97,16 @@ const idbKeyval = {
     return (await dbPromise).delete(table, id);
   },
 
+  async deleteMany(table, ids: string[]) {
+    var tx = (await dbPromise).transaction(table, 'readwrite');
+    var transactions: Promise<any>[] = [
+      ...ids.map(id => tx.store.delete(id)),
+      tx.done
+    ]
+    var insertedIds = (await Promise.all(transactions));
+    return insertedIds.filter(id => id != undefined);
+  },
+
   //TODO: check if the repeat can be avoided
   async deleteMulti(table, ids) {
     var db = await dbPromise;
@@ -106,9 +117,11 @@ const idbKeyval = {
     );
   },
 
-  //TODO: read via specified key
-  async findByKey(table, key, value) {
+  async findById(table, value) { //this is only find by _id
     return (await dbPromise).get(table, value);
+  },
+  async findByKey(table, key, value) {
+    return (await dbPromise).getFromIndex(table, key, value);
   },
 
   //TODO: Check if extra is used anywhere

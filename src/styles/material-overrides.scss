@@ -42,7 +42,7 @@ div {
 }
 .mat-raised-button {
   color: var(--text-color) !important;
-  background: var(--content-bg) !important;
+  background: var(--content-bg);
 }
 .mat-raised-button.mat-primary {
   background-color: var(--accent-color) !important;
@@ -64,9 +64,6 @@ div {
 }
 .mat-stroked-button.mat-primary {
   color: var(--accent-color);
-}
-.mat-dialog-content {
-  max-height: 90vh !important;
 }
 .mat-dialog-container {
   min-width: 800px;

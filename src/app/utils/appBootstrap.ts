@@ -1,7 +1,6 @@
 import { AuthInterceptor } from './AuthInterceptor';
 //@ts-check
 import Utils from './helpers'
-import User from '../models/User'
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 // import TeamService from '../services/TeamsService';
 // import TeamsState from '../state/atoms/Teams'
@@ -12,12 +11,13 @@ import { Injectable } from '@angular/core';
 import { ApiProjectService } from '../services/apiProject.service';
 import { EnvService } from '../services/env.service';
 import LocalStore from '../services/localStore';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class AppBootstrap {
     // static httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
 
-    constructor(private httpClient: HttpClient, private apiProjectService: ApiProjectService, private envService: EnvService) {
+    constructor(private httpClient: HttpClient, private apiProjectService: ApiProjectService, private envService: EnvService, private authService: AuthService) {
 
     }
 
@@ -72,44 +72,44 @@ export class AppBootstrap {
     }
 
     private async initLoggedinUser() {
-        const data = LocalStore.getMany(['UID', 'authToken', 'name', 'email']);
-        if (data && data.UID && data.authToken) { //user is logged in
-            User.setData(data);
-            console.log('user data', data);
-            // $rootScope.userData = data;
+        this.authService.initLoggedinUser();
+        // const data = LocalStore.getMany([LocalStore.UID, LocalStore.AUTH_TOKEN]);
+        // if (data?.UID && data?.authToken) { //user is logged in
+        //     this.authService.refreshFromLocal();
+        //     this.authService.connectToSyncServer()
 
-            AuthInterceptor.AUTH_HEADER = data.UID + '||' + data.authToken;
+        //     AuthInterceptor.AUTH_HEADER = data.UID + '||' + data.authToken;
 
-            // TeamService.getList(true).then(function (data) {
-            //     const setTeams = useSetRecoilState(TeamsState);
-            //     if (data && data.resp && data.resp.length) {
+        //     // TeamService.getList(true).then(function (data) {
+        //     //     const setTeams = useSetRecoilState(TeamsState);
+        //     //     if (data && data.resp && data.resp.length) {
 
-            //         var teams = {};
-            //         for (var i = 0; i < data.resp.length; i++) {
-            //             teams[data.resp[i].id] = data.resp[i].name;
-            //         }
-            //         setTeams(() => teams);
-            //     } else {
-            //         setTeams(() => { })
-            //     }
-            // });
+        //     //         var teams = {};
+        //     //         for (var i = 0; i < data.resp.length; i++) {
+        //     //             teams[data.resp[i].id] = data.resp[i].name;
+        //     //         }
+        //     //         setTeams(() => teams);
+        //     //     } else {
+        //     //         setTeams(() => { })
+        //     //     }
+        //     // });
 
-            //TODO: 
-            // ngSockJs.connect({ 'Auth-Token': data.UID + '||' + data.authToken }).then(function () {
-            //     //get the last synced time
-            //     //no need to do these. The are handeled once socket is connected onSocketConnected();
-            //     /*iDB.findByKey('setting', '_id', 'lastSynced').then(function (data){
-            //         console.log('lastsybced', data);
-            //         var ts = 0;//new Date().getTime();
+        //     //TODO: 
+        //     // ngSockJs.connect({ 'Auth-Token': data.UID + '||' + data.authToken }).then(function () {
+        //     //     //get the last synced time
+        //     //     //no need to do these. The are handeled once socket is connected onSocketConnected();
+        //     //     /*iDB.findByKey('setting', '_id', 'lastSynced').then(function (data){
+        //     //         console.log('lastsybced', data);
+        //     //         var ts = 0;//new Date().getTime();
 
-            //         if(data && data.time){
-            //             ts = data.time;
-            //         }
-            //         //SyncIt.fetch('fetchAll', ts);
-            //         //SyncIt.syncUnsynced();
-            //     });*/
-            // });
-        }
+        //     //         if(data && data.time){
+        //     //             ts = data.time;
+        //     //         }
+        //     //         //SyncIt.fetch('fetchAll', ts);
+        //     //         //SyncIt.syncUnsynced();
+        //     //     });*/
+        //     // });
+        // }
     }
 
     private async doFirstRun() {

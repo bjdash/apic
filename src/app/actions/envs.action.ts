@@ -11,7 +11,7 @@ export namespace EnvsAction {
     }
     export class Delete {
         static readonly type = '[Env] delete';
-        constructor(public payload: string) { };
+        constructor(public payload: string[]) { };
     }
     export class Update {
         static readonly type = '[Env] update';
