@@ -1,16 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { throwError } from 'rxjs';
 import { catchError, map, first } from 'rxjs/operators';
 import { UserAction } from '../actions/user.action';
+import { StompMessage } from '../models/StompMessage.model';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
 import { ApicUrls } from '../utils/constants';
 import { ApiProjectService } from './apiProject.service';
 import { EnvService } from './env.service';
 import { HttpService } from './http.service';
-import { StompService } from './stomp.service';
+import { ApicRxStompState, StompService } from './stomp.service';
+import { SyncService } from './sync.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,9 +22,11 @@ export class AuthService {
   constructor(private http: HttpClient,
     private httpService: HttpService,
     private store: Store,
-    public stompService: StompService,
+    private stompService: StompService,
+    private syncService: SyncService,
     private apiProjectService: ApiProjectService,
     private envService: EnvService) {
+
     this.store.select(UserState.getAuthUser).subscribe(user => {
       if (user?.UID && user?.authToken) {
         if ((user.UID != this.user?.UID || user.authToken != this.user?.authToken) && !stompService.client.connected()) {
@@ -31,6 +34,10 @@ export class AuthService {
         }
         this.user = user;
       }
+    });
+
+    this.syncService.onAccountMessage$.subscribe(async message => {
+      this.onSyncMessage(message);
     })
   }
 
@@ -80,6 +87,27 @@ export class AuthService {
 
   initLoggedinUser() {
     this.store.dispatch(new UserAction.RefreshFromLocal());
+  }
+
+  reconnect() {
+    var subscription = this.stompService.client.connectionChange$
+      // .pipe(first())
+      .subscribe(x => {
+        if (x === ApicRxStompState.CLOSED) {
+          this.stompService.connect(this.user.UID + '||' + this.user.authToken);
+          subscription.unsubscribe();
+        }
+      });
+    this.stompService.client.deactivate();
+  }
+
+  onSyncMessage(message: StompMessage) {
+    if (!message?.action) return;
+    switch (message.action) {
+      case 'reconnect'://user's password changed so trigger a reconnect so that the user is prompted a login
+        this.reconnect();
+        break;
+    }
   }
 
   logout() {

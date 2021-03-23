@@ -6,13 +6,11 @@ import { Component, OnInit } from '@angular/core';
 import { Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { EnvsAction } from '../actions/envs.action';
-import Utils from '../services/utils.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EnvsComponent } from '../envs/envs.component';
 import { LoginComponent } from '../login/login.component';
 import { User } from '../models/User.model';
 import { ApicRxStompState, StompService } from '../services/stomp.service';
-import iDB from '../services/IndexedDB';
 
 @Component({
   selector: 'apic-header',
@@ -25,19 +23,13 @@ export class HeaderComponent implements OnInit {
   @Select(UserState.getAuthUser) loggedInUser$: Observable<User>;
 
 
-  constructor(private store: Store, private dialog: MatDialog, public stompService: StompService) {
+  constructor(private store: Store,
+    private dialog: MatDialog,
+    public stompService: StompService) {
 
   }
 
-  async connect() {
-    this.stompService.connect('60537ae0226339337009f4fc||d09ed185ffebdf46f0b37e24a723b494');
-  }
-  send() {
-    this.stompService.addtoSendQueue({});
-  }
-
-  dics() {
-    this.stompService.disconnect();
+  test() {
   }
 
   ngOnInit(): void {

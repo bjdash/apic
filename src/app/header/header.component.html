@@ -27,10 +27,7 @@
         </div>
 
         <div class="flex-right header-right vcenter">
-            ({{stompService.client.connectionChange$|async}})
-            <button (click)="send()">send</button>
-            <button (click)="connect()">connect</button>
-            <button (click)="dics()">disc</button>
+            <button (click)="test()" class="gap">TEST</button>
             <div class="env-cont input-group gap">
                 <button mat-button="" class="sm" (click)="openEnvModal()">
                     <i class="icon bj-stack"></i>

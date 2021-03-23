@@ -1,4 +1,3 @@
-import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { StompMessage } from './../models/StompMessage.model';
 import { StompService } from './stomp.service';
 import { Injectable } from "@angular/core";
@@ -11,10 +10,12 @@ import { Toaster } from './toaster.service';
 export class SyncService {
     onApiProjectMessage$: BehaviorSubject<StompMessage> = null;
     onEnvMessage$: BehaviorSubject<StompMessage> = null;
+    onAccountMessage$: BehaviorSubject<StompMessage> = null;
 
     constructor(private stompService: StompService, private toaster: Toaster) {
         this.onApiProjectMessage$ = new BehaviorSubject(null)
         this.onEnvMessage$ = new BehaviorSubject(null)
+        this.onAccountMessage$ = new BehaviorSubject(null)
 
         this.stompService.client.onServerMessage$.subscribe((message: StompMessage) => {
             this.onServerMessage(message);
@@ -163,11 +164,9 @@ export class SyncService {
                     //handeled in each corresponding service
                 }
                 break;
-            //     case 'Account':
-            //         if (data.msg === 'logout') {
-            //             $rootScope.reconnect();
-            //         }
-            //         break;
+            case 'Account':
+                this.onAccountMessage$.next(message);
+                break;
             case 'Error':
                 this.toaster.error(message.msg);
         }
