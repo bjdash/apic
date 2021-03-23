@@ -66,6 +66,9 @@ import { HttpService } from './services/http.service';
 import { StompService } from './services/stomp.service';
 import { SyncService } from './services/sync.service';
 import { OfflineComponent } from './components/offline/offline.component';
+import { SettingsComponent } from './settings/settings.component';
+import { ThemesComponent } from './settings/themes/themes.component';
+import { WebClientComponent } from './settings/web-client/web-client.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +95,9 @@ import { OfflineComponent } from './components/offline/offline.component';
     ProjectExportModalComponent,
     LoginComponent,
     OfflineComponent,
+    SettingsComponent,
+    ThemesComponent,
+    WebClientComponent,
   ],
   imports: [
     BrowserModule,

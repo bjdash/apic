@@ -41,8 +41,8 @@ div {
   background-color: var(--accent-color) !important;
 }
 .mat-raised-button {
-  color: var(--text-color) !important;
-  background: var(--content-bg);
+  // color: var(--text-color) !important; changes color of themed button
+  // background: var(--content-bg);
 }
 .mat-raised-button.mat-primary {
   background-color: var(--accent-color) !important;

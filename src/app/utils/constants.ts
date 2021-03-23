@@ -69,27 +69,29 @@ function getConstants() {
             { name: 'HTML', val: 'xml/html' }
         ],
         themes: {
-            dark: {
-                '--header-bg': '#1d1d1d',
-                '--main-bg': '#1c1c1c',
-                '--text-color': '#e0e0e0',
-                '--text-color-bold': '#ffffff',
-                '--content-bg': '#252629',
-                '--accent-bg-text': '#ffffff',
-                '--border-color': '#7575757d',
-                '--content-bg-contrast': '#1d1d1d',
-                '--input-bg': '#d1ebff1f'
-            },
-            light: {
-                '--header-bg': '#e1e1e1',
-                '--main-bg': '#efefef',
-                '--text-color': '#666666',
-                '--text-color-bold': '#333333',
-                '--content-bg': '#fff',
-                '--content-bg-contrast': '#e1e1e1',
-                '--accent-bg-text': '#ffffff',
-                '--border-color': '#ccc',
-                '--input-bg': '#d1ebff'
+            types: {
+                dark: {
+                    '--header-bg': '#1d1d1d',
+                    '--main-bg': '#1c1c1c',
+                    '--text-color': '#e0e0e0',
+                    '--text-color-bold': '#ffffff',
+                    '--content-bg': '#252629',
+                    '--accent-bg-text': '#ffffff',
+                    '--border-color': '#7575757d',
+                    '--content-bg-contrast': '#1d1d1d',
+                    '--input-bg': '#d1ebff1f'
+                },
+                light: {
+                    '--header-bg': '#e1e1e1',
+                    '--main-bg': '#efefef',
+                    '--text-color': '#666666',
+                    '--text-color-bold': '#333333',
+                    '--content-bg': '#fff',
+                    '--content-bg-contrast': '#e1e1e1',
+                    '--accent-bg-text': '#ffffff',
+                    '--border-color': '#ccc',
+                    '--input-bg': '#d1ebff'
+                },
             },
             accents: ['#2196f3', '#24BAFF', '#E81123', '#F7630C', '#EA005E', '#FF8C00', '#E3008C', '#9A0089', '#FF4343', '#00CC6A', '#107C10']
         },

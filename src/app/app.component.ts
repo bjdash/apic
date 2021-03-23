@@ -6,6 +6,7 @@ import { AppBootstrap } from './utils/appBootstrap';
 //TODO: See if this can be converted to ecma script modules to supress *CommonJS or AMD dependencies can cause optimization bailouts*
 import 'brace/mode/json';
 import 'brace/mode/yaml';
+import { ThemesService } from './services/themes.service';
 
 
 @Component({
@@ -17,10 +18,12 @@ export class AppComponent {
   constructor(
     private apiProjectService: ApiProjectService,
     private envService: EnvService,
+    private themeService: ThemesService,
     private bootstrap: AppBootstrap) {
     console.log('Initiating App....')
     bootstrap.init();
     apiProjectService.getApiProjs();
     envService.getAllEnvs();
+    this.themeService.applyCurrentTheme();
   }
 }

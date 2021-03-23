@@ -10,6 +10,8 @@ export default class LocalStore {
     static EMAIL = 'email'; //logged in user's email
     static NAME = 'name'; //logged in user name
     static VERIFIED = 'verified'; //is the logged in users email verified
+    static THEME_TYPE = 'themeType';
+    static THEME_ACCENT = 'themeAccent';
 
     //return object for list of keys, direct value for single key
     static get(key: string): string {

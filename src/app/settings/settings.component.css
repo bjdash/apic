@@ -1,0 +1,15 @@
+.settings-left {
+    width: 300px;
+    border-right: 1px solid var(--border-color);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+.settings-right {
+    flex: 1;
+    padding: 0 15px 15px;
+    max-height: calc(100vh - 235px);
+    overflow-y: auto;
+}
+.modal-title {
+    margin-left: 0px !important;
+}

@@ -1,0 +1,23 @@
+<div class="settings-modal">
+    <h2 mat-dialog-title class="modal-title">Settings</h2>
+    <mat-dialog-content>
+        <div class="flex">
+            <div class="settings-left">
+                <mat-selection-list #setingsSelection [multiple]="false" [(ngModel)]="selectedSetting"
+                    (selectionChange)="onSettingSelected($event)">
+                    <mat-list-option *ngFor="let setting of settingsList;let i = index" [value]="setting">
+                        {{setting}}
+                    </mat-list-option>
+
+                </mat-selection-list>
+            </div>
+            <div class="settings-right">
+                <app-themes *ngIf="selectedSetting[0] === settingsList[0]"></app-themes>
+                <app-web-client *ngIf="selectedSetting[0] === settingsList[1]"></app-web-client>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close class="sm">Close</button>
+    </mat-dialog-actions>
+</div>

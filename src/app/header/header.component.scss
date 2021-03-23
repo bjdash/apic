@@ -56,6 +56,11 @@
     margin-top: 10px;
     margin-right: 10px;
 }
+.bj-github{
+    font-size: 20px;
+    vertical-align: middle;
+    margin-right: 14px;
+}
 .env-cont {
     background-color: var(--content-bg);
     border-radius: 5px;
@@ -115,7 +120,7 @@
 }
 .greet {
     color: var(--accent-color);
-    padding: 0px 12px 3px;
+    padding: 2px 12px 0px;
 }
 @keyframes spin {
     100% {

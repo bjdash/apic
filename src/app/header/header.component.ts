@@ -11,6 +11,7 @@ import { EnvsComponent } from '../envs/envs.component';
 import { LoginComponent } from '../login/login.component';
 import { User } from '../models/User.model';
 import { ApicRxStompState, StompService } from '../services/stomp.service';
+import { SettingsComponent } from '../settings/settings.component';
 
 @Component({
   selector: 'apic-header',
@@ -43,6 +44,10 @@ export class HeaderComponent implements OnInit {
 
   openEnvModal() {
     this.dialog.open(EnvsComponent, { disableClose: true, panelClass: 'envs-dialog' });
+  }
+
+  openSettings() {
+    this.dialog.open(SettingsComponent, { panelClass: 'settings-dialog', minWidth: '65vw' });
   }
 
   openAuthModal(action) {

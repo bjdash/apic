@@ -45,15 +45,18 @@
                 </mat-menu>
             </div>
 
+            <button mat-icon-button (click)="openSettings()">
+                <mat-icon>settings</mat-icon>
+            </button>
             <button mat-icon-button [matMenuTriggerFor]="menuOpt">
-                <mat-icon>toc</mat-icon>
+                <mat-icon>reorder</mat-icon>
             </button>
             <mat-menu #menuOpt="matMenu">
                 <a href="https://apic.app/docs" target="_new" mat-menu-item>
                     <mat-icon class="gap">menu_book</mat-icon> Docs/Help
                 </a>
                 <a href="https://github.com/apic-apps/apic" target="_new" mat-menu-item>
-                    <span class="icon bj-github gap"></span>Opensource
+                    <span class="icon bj-github"></span>Opensource
                 </a>
                 <a href="https://apic.app/identity/#!/feedback" target="_new" mat-menu-item>
                     <mat-icon class="gap">feedback</mat-icon>Feedback

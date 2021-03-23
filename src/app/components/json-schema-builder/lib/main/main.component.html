@@ -7,7 +7,7 @@
                 <mat-icon>add_box</mat-icon>
             </button>
             <span *ngIf="(mode != 'list' && mode != 'static') || !entity.root$$" class="model-type-cont vcenter">
-                <button type="button" mat-icon-button class="t_color obj-exp sx" (click)="ctrl.expanded=!ctrl.expanded"
+                <button type="button" mat-icon-button class="t_color obj-exp sm" (click)="ctrl.expanded=!ctrl.expanded"
                     *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0])">
                     <mat-icon class="" *ngIf="ctrl.expanded">expand_more</mat-icon>
                     <mat-icon *ngIf="!ctrl.expanded">chevron_right</mat-icon>

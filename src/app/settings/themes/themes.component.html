@@ -1,0 +1,16 @@
+<div class="title">Themes</div>
+<div class="themes-list">
+    <div *ngFor="let theme of themes|keyvalue" class="theme gap" (click)="switchTheme(theme.key)"
+        [ngStyle]="{background:theme.value['--header-bg']}">
+        <div class="logo">
+            <img src="../../assets/images/apic-logo.svg" class="logo-img" />
+            <span class="logo-text" [ngStyle]="{color:theme.value['--text-color']}">apic</span>
+        </div>
+        <div class="theme-name">{{theme.key}}</div>
+    </div>
+</div>
+<div class="margV10">
+    <h3>Accent colors</h3>
+    <div (click)="switchTheme('',accent)" class="accent" *ngFor="let accent of accents" [ngStyle]="{background:accent}">
+    </div>
+</div>

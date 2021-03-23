@@ -483,6 +483,9 @@ select.form-control {
 select.sm {
   padding: 0;
 }
+input, select, textarea {
+  color: var(--text-color-bold) !important;
+}
 .form-control {
   color: var(--text-color-bold) !important;
   display: block;
@@ -526,7 +529,6 @@ input.input-xs {
   height: 24px;
 }
 .btn-group {
-  box-shadow: 1px 1px 4px rgb(0 0 0 / 40%);
   button {
     border-radius: 0;
     background: var(--content-bg-contrast);
@@ -601,7 +603,7 @@ input.input-xs {
   right: -37px;
   border-top: 37px solid var(--accent-color);
 }
-.envs-dialog .mat-dialog-container {
+.envs-dialog .mat-dialog-container, .settings-dialog .mat-dialog-container {
   padding-left: 0px;
 }
 /******** Modal end**********/
