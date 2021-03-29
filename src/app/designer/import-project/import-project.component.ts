@@ -11,6 +11,7 @@ import { SwaggerService } from 'src/app/services/swagger.service';
 import { Store } from '@ngxs/store';
 import { map, take } from 'rxjs/operators';
 import helpers from 'src/app/utils/helpers';
+import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 
 @Component({
   selector: 'app-import-project',
@@ -86,7 +87,7 @@ export class ImportProjectComponent implements OnInit {
     // project._id = ts + '-' + apic.s12();
     if (!project.setting) project.setting = {};
 
-    const newProjIds:string[] = await this.apiProjectService.addProjects([project]) as string[];
+    const newProjIds: string[] = await this.apiProjectService.addProjects([project]) as string[];
 
     var newEnv: Env = {
       name: project.title + '-env',
@@ -120,7 +121,7 @@ export class ImportProjectComponent implements OnInit {
         delete project.setting.envId
       }
 
-      this.store.select(ApiProjectState.getByTitle)
+      this.store.select(ApiProjectStateSelector.getByTitle)
         .pipe(map(filterFn => filterFn(project.title)))
         .pipe(take(1))
         .subscribe(existingProj => {

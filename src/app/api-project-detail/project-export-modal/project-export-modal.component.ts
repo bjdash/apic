@@ -9,6 +9,7 @@ import { map } from 'rxjs/operators';
 import { SwaggerService } from 'src/app/services/swagger.service';
 import jsyaml from 'js-yaml';
 import Utils from 'src/app/services/utils.service';
+import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 
 @Component({
   selector: 'project-export-modal',
@@ -27,7 +28,7 @@ export class ProjectExportModalComponent implements OnInit {
     private fileSystem: FileSystem,
     private utils: Utils,
     private toaster: Toaster) {
-    this.store.select(ApiProjectState.getById)
+    this.store.select(ApiProjectStateSelector.getById)
       .pipe(map(filterFn => filterFn(this.data.id)))
       .subscribe(p => {
         if (p) {

@@ -1,0 +1,14 @@
+.secDef {
+    position: relative;
+    overflow: auto;
+    border-bottom: 1px dashed var(--border-color);
+    padding: 10px;
+}
+.secDef:nth-last-child(2) {
+    border-bottom: none;
+}
+.topLeft {
+    position: absolute;
+    left: 0;
+    top: 10px;
+}

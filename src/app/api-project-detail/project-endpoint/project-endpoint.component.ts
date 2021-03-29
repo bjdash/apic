@@ -13,7 +13,7 @@ import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 export class ProjectEndpointComponent implements OnInit {
   @Input() selectedPROJ: ApiProject;
   @Input() updateApiProject: Function;
-  @Output() projectUpdated = new EventEmitter<any>();
+
 
   selectedEndp: string = 'NEW';
   selectedName: string;
@@ -35,7 +35,7 @@ export class ProjectEndpointComponent implements OnInit {
     this.selectedName = 'Create new Endpoint';
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   selectEndp(endpId: string) {
     console.log('selecting endpoint: ', endpId);
@@ -89,7 +89,7 @@ export class ProjectEndpointComponent implements OnInit {
     console.log(this.endpForm);
   }
 
-  checkForPathParams() {}
+  checkForPathParams() { }
 
   importTraitData(arg) {
     console.log(arg);

@@ -8,7 +8,7 @@ export default class Utils {
 
     }
 
-    copyToClipboard(text) {
+    copyToClipboard(text: string) {
         var input = document.createElement('textarea');
         input.style.position = 'fixed';
         input.style.opacity = '0';

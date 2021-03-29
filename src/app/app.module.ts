@@ -69,6 +69,9 @@ import { OfflineComponent } from './components/offline/offline.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ThemesComponent } from './settings/themes/themes.component';
 import { WebClientComponent } from './settings/web-client/web-client.component';
+import { SecurityDefComponent } from './api-project-detail/project-home/security-def/security-def.component';
+import { environment } from 'src/environments/environment';
+import { KeyValueEditorComponent } from './components/key-value-editor/key-value-editor.component';
 
 @NgModule({
   declarations: [
@@ -98,6 +101,8 @@ import { WebClientComponent } from './settings/web-client/web-client.component';
     SettingsComponent,
     ThemesComponent,
     WebClientComponent,
+    SecurityDefComponent,
+    KeyValueEditorComponent,
   ],
   imports: [
     BrowserModule,
@@ -105,7 +110,13 @@ import { WebClientComponent } from './settings/web-client/web-client.component';
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxsModule.forRoot([ApiProjectState, EnvState, UserState]),
+    NgxsModule.forRoot([ApiProjectState, EnvState, UserState], {
+      developmentMode: !environment.production,
+      selectorOptions: {
+        suppressErrors: false,
+        injectContainerState: false
+      }
+    }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     BrowserAnimationsModule,
     NgJsonSchemaBuilder,

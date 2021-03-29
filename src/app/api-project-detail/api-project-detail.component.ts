@@ -1,51 +1,93 @@
 import { ProjectTraitsComponent } from './project-traits/project-traits.component';
 import { ProjectFolderComponent } from './project-folder/project-folder.component';
 import { ApiProjectService } from './../services/apiProject.service';
-import { ApiProjectState } from './../state/apiProjects.state';
-import { Observable } from 'rxjs';
+import { from, Observable, Subject, Subscription } from 'rxjs';
 import { ApiProject } from './../models/ApiProject.model';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngxs/store';
-import { map } from 'rxjs/operators';
-import { KeyValue } from '@angular/common';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { createSelector, Store } from '@ngxs/store';
+import { delay, delayWhen, map, takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectExportModalComponent } from './project-export-modal/project-export-modal.component';
+import { ConfirmService } from '../directives/confirm.directive';
+import { ApiProjectStateSelector } from '../state/apiProjects.selector';
 
 @Component({
     selector: 'app-api-project-detail',
     templateUrl: './api-project-detail.component.html',
     styleUrls: ['../designer/designer.component.css', './api-project-detail.component.css']
 })
-export class ApiProjectDetailComponent implements OnInit {
+export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     @ViewChild('foldersView') foldersView: ProjectFolderComponent;
     @ViewChild('modelsView') modelsView: ProjectFolderComponent;
     @ViewChild('traitsView') traitsView: ProjectTraitsComponent;
 
+    private destroy: Subject<boolean> = new Subject<boolean>();
+    private pendingUpdate: Promise<ApiProject> = Promise.resolve(null);
+
     selectedPROJ: ApiProject;
     selectedPROJ$: Observable<ApiProject>;
-    LeftTree: any = {};
+    leftPanel = {
+        expanded: { ungrouped: true }, //list of expanded folders
+        tree: null
+    };
     flags = {
         stage: 'dashboard'
     }
+    subscriptions: Subscription[] = [];
+    test: Subscription;
 
     constructor(private route: ActivatedRoute,
         private store: Store,
+        private router: Router,
+        private confirmService: ConfirmService,
         private apiProjectService: ApiProjectService,
         private dialog: MatDialog) {
         this.route.params.subscribe(params => {
-            this.selectedPROJ$ = this.store.select(ApiProjectState.getById)
-                .pipe(map(filterFn => filterFn(params.projectId)));
+            this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getByIdDynamic(params.projectId));
 
-            this.selectedPROJ$.subscribe(p => {
-                if (p) {
-                    this.selectedPROJ = p;
-                    this.generateLeftTree()
-                }
-            })
+            this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).subscribe(leftTree => {
+                this.leftPanel.tree = leftTree;
+            });
+            // this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getById)
+            //     .pipe(map(filterFn => filterFn(params.projectId)));
+
+            this.test = this.selectedPROJ$
+                .pipe(takeUntil(this.destroy))
+                .pipe(delayWhen(() => from(this.pendingUpdate)))
+                // .pipe(delay(0))
+                .subscribe(p => {
+                    if (p && p._modified !== this.selectedPROJ?._modified) {
+                        if (this.selectedPROJ) {
+                            this.confirmService.alert({
+                                id: 'Sync:Project Updated',
+                                confirmTitle: 'Project modified',
+                                confirm: 'The selected API project has been modified by another user. Contents of this screen will refresh to reflect changes.',
+                                confirmOk: 'Ok'
+                            }).then(() => {
+                                this.selectedPROJ = p;
+                            }).catch(() => { })
+                        } else {
+                            this.selectedPROJ = p;
+                        }
+                    } else if (p == undefined && this.selectedPROJ) {
+                        this.confirmService.alert({
+                            id: 'Sync:Project Deleted',
+                            confirmTitle: 'Project deleted',
+                            confirm: 'The selected API project has been deleted by its owner.',
+                            confirmOk: 'Ok'
+                        }).then(() => {
+                            this.router.navigate(['designer'])
+                        }).catch(() => { })
+                    }
+                })
         });
 
         this.updateApiProject = this.updateApiProject.bind(this)
+    }
+    ngOnDestroy(): void {
+        this.destroy.next(true);
+        this.destroy.complete();
     }
     ngOnInit(): void {
 
@@ -55,105 +97,21 @@ export class ApiProjectDetailComponent implements OnInit {
         this.flags.stage = name;
     }
 
-    generateLeftTree() {
-        this.LeftTree = {
-            ungrouped: {
-                models: {},
-                traits: {},
-                endps: {},
-                folder: {
-                    _id: 'ungrouped',
-                    name: "Ungrouped",
-                    expand: true
-                }
-            }
-        };
-        this.selectedPROJ.folders && Object.keys(this.selectedPROJ.folders).forEach(fId => {
-            this.LeftTree[fId] = {
-                folder: this.selectedPROJ.folders[fId],
-                models: {},
-                traits: {},
-                endps: {}
-            };
-        })
-
-        this.selectedPROJ.models && Object.keys(this.selectedPROJ.models).forEach(mId => {
-            this.addModelToLeftTree(this.selectedPROJ.models[mId]);
-        });
-
-        this.selectedPROJ.traits && Object.keys(this.selectedPROJ.traits).forEach(tId => {
-            this.addTraitsToLeftTree(this.selectedPROJ.traits[tId]);
-        });
-
-        this.selectedPROJ.endpoints && Object.keys(this.selectedPROJ.endpoints).forEach(eId => {
-            this.addEndpToLeftTree(this.selectedPROJ.endpoints[eId]);
-        });
-    }
-
-    private addModelToLeftTree(model, prevFolder?: any) {
-        if (prevFolder && this.LeftTree[prevFolder]) {
-            delete this.LeftTree[prevFolder].models[model._id];
-        } else if (prevFolder) { //if only prev folder id exists but teh folder is not in the left tree (folder was deleted recently)
-            delete this.LeftTree.ungrouped.models[model._id];
-        }
-        var modelX = {
-            _id: model._id,
-            name: model.name
-        };
-        if (this.LeftTree[model.folder]) {
-            this.LeftTree[model.folder].models[model._id] = modelX;
-        } else {
-            this.LeftTree.ungrouped.models[model._id] = modelX;
-        }
-    }
-
-    private addTraitsToLeftTree(trait, prevFolder?: any) {
-        if (prevFolder && this.LeftTree[prevFolder]) {
-            delete this.LeftTree[prevFolder].traits[trait._id];
-        } else if (prevFolder) { //if only prev folder id exists but the folder is not in the left tree (folder was deleted recently)
-            delete this.LeftTree.ungrouped.traits[trait._id];
-        }
-        var traitX = {
-            _id: trait._id,
-            name: trait.name
-        };
-        if (this.LeftTree[trait.folder]) {
-            this.LeftTree[trait.folder].traits[trait._id] = traitX;
-        } else {
-            this.LeftTree.ungrouped.traits[trait._id] = traitX;
-        }
-    }
-
-    private addEndpToLeftTree(endp, prevFolder?: any) {
-        if (prevFolder && this.LeftTree[prevFolder]) {
-            delete this.LeftTree[prevFolder].endps[endp._id];
-        } else if (prevFolder) { //if only prev folder id exists but teh folder is not in the left tree (folder was deleted recently)
-            delete this.LeftTree.ungrouped.endps[endp._id];
-        }
-        var endpX = {
-            _id: endp._id,
-            name: endp.summary,
-            method: endp.method
-        };
-        if (this.LeftTree[endp.folder]) {
-            this.LeftTree[endp.folder].endps[endp._id] = endpX;
-        } else {
-            this.LeftTree.ungrouped.endps[endp._id] = endpX;
-        }
-    }
-
     sortLeftTreeFolder = (a, b): number => {
         if (b && b.value.folder._id === 'ungrouped') return -1;
         return a.value.folder.name.localeCompare(b.value);
     }
 
-    updateApiProject(proj?: ApiProject) {
+    async updateApiProject(proj?: ApiProject): Promise<ApiProject> {
         if (!proj) proj = this.selectedPROJ;
-        return this.apiProjectService.updateAPIProject(proj);
+        this.pendingUpdate = this.apiProjectService.updateAPIProject(proj);
+        this.selectedPROJ = await this.pendingUpdate;
+        console.log('updated proj', this.selectedPROJ._modified);
+        return this.selectedPROJ;
     }
 
-    projectUpdated(updated) {
-        this.generateLeftTree()
+    toggleExpand(id: string) {
+        this.leftPanel.expanded[id] = !this.leftPanel.expanded[id];
     }
 
     openExportModal(type, id) {

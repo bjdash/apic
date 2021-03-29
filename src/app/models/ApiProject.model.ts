@@ -1,9 +1,18 @@
+import { KeyVal } from "./KeyVal.model";
+
 export interface SecurityDef {
-    name: string,
     type: string,
+    name: string,
     description?: string,
-    apiKey?: any,
-    oauth2?: any
+    apiKey?: {
+        in?: string,
+        name: string
+    },
+    oauth2?: {
+        authorizationUrl?: string,
+        flow?: string,
+        scopes?: KeyVal[]
+    }
 }
 
 export interface ApiProject {

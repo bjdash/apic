@@ -95,7 +95,7 @@ h4.head {
   margin: 0;
   font-size: 26px;
   font-family: apic-font;
-  padding-bottom: 10px;
+  padding-bottom: 15px;
   min-width: 400px;
 }
 .title {
@@ -444,6 +444,10 @@ fieldset legend {
 .form-horizontal .control-label {
   text-align: right;
   align-self: center;
+}
+.form-horizontal .control-label.top {
+  text-align: right;
+  align-self: flex-start;
 }
 .form-horizontal .control-label.full {
   text-align: left;

@@ -18,32 +18,6 @@ export class ApiProjectStateModel {
 @Injectable()
 export class ApiProjectState {
 
-    @Selector()
-    static getPartial(state: ApiProjectStateModel) {
-        return state.projects.map(p => { return ({ _id: p._id, title: p.title } as ApiProject) })
-    }
-
-    @Selector()
-    static getAll(state: ApiProjectStateModel) {
-        return state.projects;
-    }
-
-    @Selector()
-    static getById(state: ApiProjectStateModel) {
-        return (id) => {
-            const project = state.projects.find(p => p._id === id);
-            return project ? Object.assign({}, project) : null;
-        };
-    }
-
-    @Selector()
-    static getByTitle(state: ApiProjectStateModel) {
-        return (title) => {
-            const project = state.projects.find(project => project.title === title);
-            return project ? Object.assign({}, project) : null;
-        };
-    }
-
     @Action(ApiProjectsAction.Add)
     add({ getState, patchState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Add) {
         const state = getState();
@@ -70,17 +44,22 @@ export class ApiProjectState {
     @Action(ApiProjectsAction.Update)
     update({ patchState, getState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Update) {
         const projects = [...getState().projects];
+        var updateRequired = false;
         payload.forEach(updated => {
             const index = projects.findIndex(e => e._id === updated._id);
             if (index < 0) {
+                updateRequired = true;
                 projects.push(updated);
-            } else {
+            } else if (projects[index]._modified != updated._modified) { //if the project being updated hasn't changed then dont update state
+                updateRequired = true;
                 projects[index] = updated;
             }
         })
-        patchState({
-            projects: [...projects]
-        })
+        if (updateRequired) {
+            patchState({
+                projects: [...projects]
+            })
+        }
     }
 
 }

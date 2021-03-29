@@ -85,7 +85,7 @@
 
 <div class="content">
     <div class="content paper">
-        <mat-tab-group>
+        <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="2">
             <!----Settings tab------>
             <mat-tab label="Settings">
                 <div class="content">
@@ -135,7 +135,11 @@
                     </div>
                 </div>
             </mat-tab>
-            <mat-tab label="Security"> Content 2 </mat-tab>
+            <mat-tab [label]="'Security' + (flags.secDefChanged?' (modified)':'')" ac>
+                <!--One time lazy loading of tab content-->
+                <app-security-def *ngIf="flags.loadSecDefTab" [updateApiProject]="updateApiProject"
+                    [SelectedPROJ]="selectedPROJ" (onChange)="secDefChanged($event)"></app-security-def>
+            </mat-tab>
             <mat-tab label="Project Info">
                 <div class="content">
                     <form class="form-horizontal" [formGroup]="projDetailForm" (ngSubmit)="saveProjEdit()">
@@ -228,7 +232,8 @@
                             <div class="col-md-offset-2">
                                 <span *ngIf="flags.editProj">
                                     <button type="submit" class="sm gap" mat-raised-button color="primary">Save</button>
-                                    <button mat-button class="sm" (click)="resetProjInfoEdit()">Cancel</button>
+                                    <button type="button" mat-button class="sm"
+                                        (click)="flags.editProj = false;resetProjInfoEdit()">Cancel</button>
                                 </span>
                                 <button *ngIf="!flags.editProj" type="button" class="sm" mat-raised-button
                                     color="primary" (click)="flags.editProj=true">Edit</button>

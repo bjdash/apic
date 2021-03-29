@@ -126,7 +126,7 @@ export class SyncService {
     }
 
     onServerMessage(message: StompMessage) {
-        console.log('Received', message);
+        console.log('Received sync message', message);
         if (!message) return;
 
         switch (message.type) {

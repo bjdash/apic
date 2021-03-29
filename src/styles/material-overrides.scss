@@ -221,7 +221,10 @@ div.mat-menu-content {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
 .mat-raised-button[disabled][disabled] {
-  background-color: rgba(0, 0, 0, 0.12) !important;
+  background-color: rgb(150 150 150 / 12%) !important;
+    cursor: not-allowed;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 .mat-fab.mat-primary[disabled] {
   background-color: rgba(0, 0, 0, 0.12) !important;

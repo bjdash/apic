@@ -14,14 +14,13 @@ import { ConfirmService } from 'src/app/directives/confirm.directive';
 export class ProjectFolderComponent implements OnInit {
     @Input() selectedPROJ: ApiProject;
     @Input() updateApiProject: Function;
-    @Output() projectUpdated = new EventEmitter<any>();
+    @Output() projectUpdated = new EventEmitter<any>();//TODO:remove this
 
     folderForm: FormGroup;
     selectedFolder: string = 'NEW';
     selectedName: string
 
     constructor(private fb: FormBuilder, private toaster: Toaster, private confirmService: ConfirmService) {
-        console.log('In Project folder view');
         this.folderForm = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(30)]],
             desc: ['', Validators.maxLength(400)]
@@ -64,7 +63,7 @@ export class ProjectFolderComponent implements OnInit {
                 this.toaster.success('Folder updated');
             } else {
                 this.toaster.success('Folder created');
-                this.projectUpdated.next({ folder: folder._id });
+                // this.projectUpdated.next({ folder: folder._id });
             }
             this.selectedFolder = folder._id;
         }, (e) => {
@@ -137,7 +136,7 @@ export class ProjectFolderComponent implements OnInit {
                 this.toaster.success('Folder deleted.');
                 this.folderForm.markAsPristine();
                 this.selectFolder('NEW');
-                this.projectUpdated.next({ folder: id });
+                // this.projectUpdated.next({ folder: id });
             }, (e) => {
                 console.log('Failed to delete folder', e);
                 this.toaster.error(`Failed to delete folder: ${e.message}`);

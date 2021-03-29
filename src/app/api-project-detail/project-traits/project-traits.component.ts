@@ -13,7 +13,7 @@ import apic from '../../utils/apic';
 export class ProjectTraitsComponent implements OnInit {
     @Input() selectedPROJ: ApiProject;
     @Input() updateApiProject: Function;
-    @Output() projectUpdated = new EventEmitter<any>();
+    // @Output() projectUpdated = new EventEmitter<any>();
 
     traitForm: FormGroup;
     selectedTrait: string = 'NEW';
@@ -110,7 +110,7 @@ export class ProjectTraitsComponent implements OnInit {
                         this.toaster.success('Trait deleted.');
                         this.traitForm.markAsPristine();
                         this.selectTrait('NEW');
-                        this.projectUpdated.next({ trait: traitId });
+                        // this.projectUpdated.next({ trait: traitId });
                     },
                     (e) => {
                         console.error('Failed to delete trait', e);
@@ -151,7 +151,7 @@ export class ProjectTraitsComponent implements OnInit {
                 } else {
                     this.toaster.success('Trait created');
                     // addTraitToLeftTree(trait, undefined);
-                    this.projectUpdated.next({ folder: trait._id });
+                    // this.projectUpdated.next({ folder: trait._id });
                 }
                 this.selectedTrait = trait._id;
             },

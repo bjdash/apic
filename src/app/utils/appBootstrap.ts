@@ -62,7 +62,6 @@ export class AppBootstrap {
         }
         try {
             const respData: any = await this.httpClient.post(ApicUrls.registerDummy, body).toPromise();
-            console.log(respData);
             if (respData.resp) {
                 LocalStore.set(LocalStore.USER_ID, respData.resp.id);
             }

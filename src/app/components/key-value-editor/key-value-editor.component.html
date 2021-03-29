@@ -1,0 +1,23 @@
+<fieldset class="kvCont"
+    *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
+    <div class="vcenter">
+        <input class="form-control input-sm" [formControl]="kv.controls.key" placeholder="{{options.placeholderKey}}" />
+        <input class="form-control input-sm" [formControl]="kv.controls.val" placeholder="{{options.placeholderVal}}" />
+        <div class="kvCtrls vcenter">
+            <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
+                *ngIf="count!==1 && options.allowRemove">
+                <mat-icon>close</mat-icon>
+            </button>
+            <button type="button" (click)="copyKV(i)" mat-icon-button class="sm copy" *ngIf="options.allowCopy">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+            <button type="button" (click)="pasteKV(i)" mat-icon-button class="sm paste" *ngIf="options.allowPaste">
+                <mat-icon>content_paste</mat-icon>
+            </button>
+            <button type="button" (click)="addKv()" mat-icon-button class="sm green" *ngIf="last && options.allowAdd">
+                <mat-icon>add</mat-icon>
+            </button>
+            <div class="placeholder" *ngIf="!last && options.allowAdd"></div>
+        </div>
+    </div>
+</fieldset>

@@ -1,0 +1,85 @@
+<form class="form-horizontal" [formGroup]="secDefForm">
+    <div class="secDef" formArrayName="secDefs"
+        *ngFor="let item of secDefForm.get('secDefs')['controls']; let i = index;">
+        <div [formGroupName]="i">
+            <div class="row">
+                <label class="control-label col-sm-2">Type: <span class="red">*</span></label>
+                <div class="control-label col-xs-6">
+                    <select formControlName="type" ng-change="vm.secDefTypeChange(def)" class="form-control input-sm">
+                        <option value="basic">Basic</option>
+                        <option value="apiKey">Api Key</option>
+                        <option value="oauth2">OAuth2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
+                <div class="control-label col-xs-6">
+                    <input formControlName="name" class="form-control input-sm">
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Description: </label>
+                <div class="control-label col-xs-6">
+                    <textarea formControlName="description" class="form-control input-sm"></textarea>
+                </div>
+            </div>
+
+            <div *ngIf="item.value.type === 'apiKey'" formGroupName="apiKey">
+                <div class="row">
+                    <label class="control-label col-xs-2">In</label>
+                    <div class="col-xs-6">
+                        <select formControlName="in" class="form-control input-sm">
+                            <option value="header">Header</option>
+                            <option value="query">Query</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="control-label col-xs-2">Header/Query Name <span class="red">*</span></label>
+                    <div class="col-xs-6">
+                        <input class="form-control input-sm" required formControlName="name" />
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="item.value.type === 'oauth2'" formGroupName="oauth2">
+                <div class="row">
+                    <label class="control-label col-xs-2">Authorization Url <span class="red">*</span></label>
+                    <div class="col-xs-6">
+                        <input class="form-control input-sm" required formControlName="authorizationUrl" />
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="control-label col-xs-2">Flow <span class="red">*</span></label>
+                    <div class="col-xs-6">
+                        <select formControlName="flow" class="form-control input-sm">
+                            <option value="implicit">implicit</option>
+                            <option value="password">password</option>
+                            <option value="application">application</option>
+                            <option value="accessCode">accessCode</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="control-label top col-xs-2">Scopes</label>
+                    <div class="col-xs-7">
+                        <app-key-value-editor formControlName="scopes" [options]="kvEditorOption">
+                        </app-key-value-editor>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button mat-icon-button type="button" class="red topLeft" (click)="removeSecDef(i)">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </div>
+    <div class="row margV10">
+        <div class="col-xs-offset-2 ">
+            <button mat-raised-button color="primary" class="sm gap" (click)="saveSecDef()"
+                [disabled]="!secDefForm.dirty">Save</button>
+            <button mat-flat-button (click)="addDef()" type="button" class="sm gap">Add another</button>
+            <button mat-button type="button" class="sm" (click)="discard()">Discard</button>
+        </div>
+    </div>
+</form>

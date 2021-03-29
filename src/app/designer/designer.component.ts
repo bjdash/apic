@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { Select } from '@ngxs/store';
 import { MatDialog } from '@angular/material/dialog';
 import { ImportProjectComponent } from './import-project/import-project.component';
+import { ApiProjectStateSelector } from '../state/apiProjects.selector';
 
 
 @Component({
@@ -16,7 +17,7 @@ import { ImportProjectComponent } from './import-project/import-project.componen
   styleUrls: ['./designer.component.css']
 })
 export class DesignerComponent implements OnInit {
-  @Select(ApiProjectState.getPartial) projects$: Observable<ApiProject[]>;
+  @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
 
   constructor(private apiProjectService: ApiProjectService, private toaster: Toaster, private dialog: MatDialog) { }
 

@@ -386,7 +386,6 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   }
 
   convertEditorSchema2Obj() {
-    console.log('convertSchema2Obj', this.editor);
     if (this.editor && this.schemaStr.original != this.schemaStr.dup) {
       this.entity = this.JsonSchema.schema2obj(
         JSON.parse(this.schemaStr.original),

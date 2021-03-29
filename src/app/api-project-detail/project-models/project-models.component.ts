@@ -14,7 +14,7 @@ import Utils from '../../utils/helpers';
 export class ProjectModelsComponent implements OnInit {
   @Input() selectedPROJ: ApiProject;
   @Input() updateApiProject: Function;
-  @Output() projectUpdated = new EventEmitter<any>();
+  // @Output() projectUpdated = new EventEmitter<any>();
 
   modelForm: FormGroup;
   selectedModel: string = 'NEW';
@@ -25,7 +25,6 @@ export class ProjectModelsComponent implements OnInit {
     private toaster: Toaster,
     private confirmService: ConfirmService
   ) {
-    console.log('In Project folder view');
     this.modelForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       nameSpace: ['', Validators.maxLength(100)],
@@ -38,7 +37,6 @@ export class ProjectModelsComponent implements OnInit {
   ngOnInit(): void { }
 
   selectModel(modelId: string) {
-    console.log('selecting model: ', modelId);
     if (this.modelForm.dirty) {
       this.confirmService
         .confirm({
@@ -94,7 +92,7 @@ export class ProjectModelsComponent implements OnInit {
             this.toaster.success('Model deleted.');
             this.modelForm.markAsPristine();
             this.selectModel('NEW');
-            this.projectUpdated.next({ model: modelId });
+            // this.projectUpdated.next({ model: modelId });
           },
           (e) => {
             console.error('Failed to delete model', e);
@@ -136,7 +134,7 @@ export class ProjectModelsComponent implements OnInit {
         } else {
           this.toaster.success('Model created');
           // addModelToLeftTree(model, undefined);
-          this.projectUpdated.next({ folder: model._id });
+          // this.projectUpdated.next({ folder: model._id });
         }
         this.selectedModel = model._id;
       },

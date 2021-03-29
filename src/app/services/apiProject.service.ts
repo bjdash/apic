@@ -68,7 +68,7 @@ export class ApiProjectService {
         });
     }
 
-    updateAPIProject(project: ApiProject, fromSync?: boolean, preventLeftmenuUpdate?: boolean) {
+    updateAPIProject(project: ApiProject, fromSync?: boolean, preventLeftmenuUpdate?: boolean): Promise<ApiProject> {
         if (!fromSync) {
             project._modified = Date.now();
         }
@@ -78,8 +78,8 @@ export class ApiProjectService {
                 if (projsToSync.length > 0) {
                     this.syncService.prepareAndSync('updateAPIProject', projsToSync);
                 }
-                this.store.dispatch(new ApiProjectsAction.Update([project]));
             }
+            this.store.dispatch(new ApiProjectsAction.Update([project]));
             //TODO
             // if (!preventLeftmenuUpdate) {
             //     if (projects._id) {
@@ -90,16 +90,16 @@ export class ApiProjectService {
             // } else {
             //     $rootScope.$emit('ApiProjChanged');
             // }
-            return data;
+            return project;
         });
     }
 
-    updateAPIProjects(projects: ApiProject[], fromSync?: boolean, preventLeftmenuUpdate?: boolean) {
-        if (!fromSync) {
+    updateAPIProjects(projects: ApiProject[], syncRequired?: boolean, preventLeftmenuUpdate?: boolean) {
+        if (!syncRequired) {
             projects.forEach(project => project._modified = Date.now());
         }
         return iDB.upsertMany(iDB.TABLES.API_PROJECTS, projects).then((updatedIds) => {
-            if (updatedIds && !fromSync) {
+            if (updatedIds && !syncRequired) {
                 var projsToSync = apic.removeDemoItems(projects); //returns a list
                 if (projsToSync.length > 0) {
                     this.syncService.prepareAndSync('updateAPIProject', projsToSync);
@@ -156,7 +156,7 @@ export class ApiProjectService {
         if (hardSync) {
             this.syncService.fetch('Fetch:ApiProject');
         } else {
-            var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedApiProjects')
+            var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedApiProjects');
             this.syncService.fetch('Fetch:ApiProject', lastSyncedTime?.time, { apiProjects: localProjectsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
         }
 

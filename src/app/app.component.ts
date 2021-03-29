@@ -20,7 +20,7 @@ export class AppComponent {
     private envService: EnvService,
     private themeService: ThemesService,
     private bootstrap: AppBootstrap) {
-    console.log('Initiating App....')
+
     bootstrap.init();
     apiProjectService.getApiProjs();
     envService.getAllEnvs();
