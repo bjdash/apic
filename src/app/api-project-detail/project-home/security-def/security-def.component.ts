@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { KVEditorOptn } from 'src/app/components/key-value-editor/key-value-editor.component';
 import { ApiProject, SecurityDef } from 'src/app/models/ApiProject.model';
@@ -9,12 +9,11 @@ import { Toaster } from 'src/app/services/toaster.service';
   templateUrl: './security-def.component.html',
   styleUrls: ['./security-def.component.css']
 })
-export class SecurityDefComponent implements OnInit {
+export class SecurityDefComponent implements OnInit, OnChanges {
   @Input() SelectedPROJ: ApiProject;
   @Input() updateApiProject: Function;
   @Output() onChange = new EventEmitter<any>();
 
-  currentSecDefs: SecurityDef[] = [];
   secDefForm: FormGroup;
   secDefs: FormArray;
   kvEditorOption: KVEditorOptn = {
@@ -23,23 +22,36 @@ export class SecurityDefComponent implements OnInit {
   }
 
   constructor(private formBuilder: FormBuilder, private toaster: Toaster) {
-
-  }
-
-  ngOnInit(): void {
-    this.currentSecDefs = this.SelectedPROJ.securityDefinitions || [];
-
     this.secDefForm = this.formBuilder.group({
-      secDefs: this.formBuilder.array(this.buildForm())
+      secDefs: this.formBuilder.array([])
     });
-
     this.secDefForm.valueChanges.subscribe(data => {
       this.onChange.next({ dirty: true });
     })
   }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.SelectedPROJ) {
+      this.refreshForm();
+    }
+  }
 
-  buildForm() {
-    return this.currentSecDefs.map(secDef => {
+  ngOnInit(): void {
+    this.refreshForm();
+  }
+
+  refreshForm() {
+    var secDefs = this.secDefForm.get('secDefs') as FormArray;
+    while (secDefs.length) { secDefs.removeAt(0) };
+    this.buildSecDefFormItems().forEach(formItem => {
+      secDefs.push(formItem)
+    })
+    this.secDefForm.patchValue({ secDefs: (this.SelectedPROJ.securityDefinitions || []) });
+    this.secDefForm.markAsPristine();
+    this.onChange.next({ dirty: false });
+  }
+
+  buildSecDefFormItems() {
+    return (this.SelectedPROJ.securityDefinitions || []).map(secDef => {
       return this.buildSecDefFormItem(secDef)
     });
   }
@@ -61,23 +73,23 @@ export class SecurityDefComponent implements OnInit {
     })
   }
 
-  saveSecDef() {
+  async saveSecDef() {
     if (this.secDefForm.invalid) {
       this.toaster.error('Please fill in all required fields');
       return;
     }
     //TODO: Handle already selected secdefs in endpoint, remove them too
     var prevSecDef = this.SelectedPROJ.securityDefinitions;
-    this.SelectedPROJ.securityDefinitions = this.secDefForm.controls.secDefs.value;
-    this.updateApiProject(this.SelectedPROJ).then(() => {
+    var updatedProj = { ...this.SelectedPROJ, securityDefinitions: this.secDefForm.controls.secDefs.value }
+    try {
+      await this.updateApiProject(updatedProj);
       this.toaster.success('Security definitions Saved');
-      this.currentSecDefs = this.SelectedPROJ.securityDefinitions;
       this.onChange.next({ dirty: false });
       this.secDefForm.markAsPristine();
-    }, () => {
+    } catch (e) {
       this.toaster.error('Failed to save Security definitions.');
       this.SelectedPROJ.securityDefinitions = prevSecDef;
-    });
+    }
   }
 
   addDef(): void {
@@ -89,17 +101,6 @@ export class SecurityDefComponent implements OnInit {
   removeSecDef(index: number) {
     (this.secDefForm.get('secDefs') as FormArray).removeAt(index);
     this.secDefForm.markAsDirty();
-  }
-
-  discard() {
-    var secDefs = this.secDefForm.get('secDefs') as FormArray;
-    while (secDefs.length) { secDefs.removeAt(0) };
-    this.buildForm().forEach(formItem => {
-      secDefs.push(formItem)
-    })
-    this.secDefForm.patchValue({ secDefs: this.currentSecDefs });
-    this.secDefForm.markAsPristine();
-    this.onChange.next({ dirty: false });
   }
 
   requiredValidator(type: string) {

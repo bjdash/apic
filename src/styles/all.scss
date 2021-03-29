@@ -480,9 +480,11 @@ input[type="number"],
   border: 1px solid var(--border-color);
   font-size: 16px;
 }
-select,
+select{
+padding: 5px;
+}
 select.form-control {
-  padding: 5px;
+  padding: 5px 0;
 }
 select.sm {
   padding: 0;
