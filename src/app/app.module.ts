@@ -72,10 +72,11 @@ import { WebClientComponent } from './settings/web-client/web-client.component';
 import { SecurityDefComponent } from './api-project-detail/project-home/security-def/security-def.component';
 import { environment } from 'src/environments/environment';
 import { KeyValueEditorComponent } from './components/key-value-editor/key-value-editor.component';
+import { ProjSettingsComponent } from './api-project-detail/project-home/proj-settings/proj-settings.component';
 
 @NgModule({
   declarations: [
-    FormValidatorDirective, //TODO: Check if its required
+    FormValidatorDirective,
     ConfirmDirective,
     ConfirmDirectiveComponent,
     AppComponent,
@@ -103,6 +104,7 @@ import { KeyValueEditorComponent } from './components/key-value-editor/key-value
     WebClientComponent,
     SecurityDefComponent,
     KeyValueEditorComponent,
+    ProjSettingsComponent,
   ],
   imports: [
     BrowserModule,

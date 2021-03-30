@@ -1,13 +1,15 @@
+import { KeyVal } from "./KeyVal.model";
+
 export interface Env {
-    _id: string,
+    _id?: string,
+    _created?: number,
+    _modified?: number,
     name: string,
+    vals: KeyVal[],
     proj?: {
         id: string,
         name: string
     },
-    _created: number,
-    _modified: number
-    vals: any,
     owner?: string,
     team?: string
 }

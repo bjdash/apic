@@ -9,7 +9,6 @@ import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import Utils from '../../utils/helpers'
 import { map, take } from 'rxjs/operators';
 import { UserState } from 'src/app/state/user.state';
 import { User } from 'src/app/models/User.model';
@@ -27,14 +26,14 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
     @Output() changeStageEmitter = new EventEmitter<number>();
     @Output() onExport: EventEmitter<any> = new EventEmitter();
 
-    projSettingsForm: FormGroup;
     projDetailForm: FormGroup;
     authUser: User;
     projEnv: Env = null; //auto generated env for this project
     flags = {
         editProj: false,
         loadSecDefTab: false,
-        secDefChanged: false
+        secDefChanged: false,
+        settingsChanged: false
     }
 
     constructor(
@@ -47,11 +46,6 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
 
         this.store.select(UserState.getAuthUser).subscribe(user => {
             this.authUser = user;
-        });
-        this.projSettingsForm = fb.group({
-            host: ['', Validators.required],
-            basePath: [''],
-            protocol: ['http']
         });
 
         this.projDetailForm = fb.group({
@@ -81,11 +75,6 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
         // vm.leftTree = {};
         // vm.responses = [];
         this.resetProjInfoEdit();
-        if (this.selectedPROJ.setting) {
-            this.projSettingsForm.patchValue({ ...this.selectedPROJ.setting });
-            this.store.select(EnvState.getById).pipe(map(filterFn => filterFn(this.selectedPROJ.setting.envId)))
-                .subscribe(env => { this.projEnv = env });
-        }
         // this.selectedPROJEndps = getEndpoints(this.selectedPROJ);
         // vm.responses = DesignerServ.getTraitNamedResponses(this.selectedPROJ);
         // //set security definitions
@@ -114,103 +103,6 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
             this.toaster.success('Project deleted');
         }, () => {
             this.toaster.error('Failed to delete project');
-        });
-    }
-
-    saveProjSetting() {
-        if (!this.projSettingsForm.valid) {
-            this.toaster.error('Please enter host name');
-            return;
-        };
-        const settings = this.projSettingsForm.value;
-        console.log(this.projSettingsForm)
-        //if host has /at the end remove it
-        if (settings.host.charAt(settings.host.length - 1) === '/') {
-            settings.host = settings.host.substring(0, settings.host.length - 1);
-        }
-
-        var ts = new Date().getTime();
-        //find existing env for this project if any, based on find add or update
-        var action = this.selectedPROJ.setting && this.selectedPROJ.setting.envId ? 'update' : 'add';
-        var newEnv: Env = {
-            name: this.selectedPROJ.title + '-env',
-            vals: [],
-            _created: ts,
-            _modified: ts,
-            _id: this.selectedPROJ.setting && this.selectedPROJ.setting.envId ? this.selectedPROJ.setting.envId : ts + '-' + Math.random().toString(16).substring(2),
-            proj: {
-                id: this.selectedPROJ._id,
-                name: this.selectedPROJ.title
-            },
-            owner: this.selectedPROJ.owner
-        };
-        if (this.selectedPROJ.team) {
-            newEnv.team = this.selectedPROJ.team;
-        }
-
-        (async () => {
-            var settingEnvVals = [{
-                key: 'host',
-                val: settings.host,
-                readOnly: true
-            }, {
-                key: 'basePath',
-                val: settings.basePath,
-                readOnly: true
-            }, {
-                key: 'scheme',
-                val: settings.protocol + '://',
-                readOnly: true
-            }];
-
-            if (action === 'add') {
-                newEnv.vals = settingEnvVals;
-                return this.envService.addEnv(newEnv);
-            } else {
-                //TODO: probably handled via state update 
-                //if update get existing values and update
-
-                // console.log(fn)
-                // var envToUpdate: Env = fn(this.selectedPROJ.setting.envId)
-                var vals = this.projEnv.vals;
-                var rest = vals.filter(function (val) {
-                    return ['host', 'basePath', 'scheme'].indexOf(val.key) < 0
-                });
-                newEnv.vals = [...settingEnvVals, ...rest];
-
-                // for (var i = 0; i < $rootScope.ENVS.length; i++) {
-                //     if ($rootScope.ENVS[i]._id === this.selectedPROJ.setting.envId) {
-                //         var vals = $rootScope.ENVS[i].vals;
-                //         var rest = vals.filter(function (val) {
-                //             return ['host', 'basePath', 'scheme'].indexOf(val.key) < 0
-                //         });
-                //         newEnv.vals = settingEnvVals.concat(rest);
-                //         break;
-                //     }
-                // }
-                return this.envService.updateEnv(newEnv);
-            }
-
-        })().then(() => {
-            var prevSetting = Utils.deepCopy(this.selectedPROJ.setting);
-            this.selectedPROJ.setting = {
-                host: settings.host,
-                basePath: settings.basePath,
-                protocol: settings.protocol,
-                envId: newEnv._id
-            };
-            this.updateApiProject(this.selectedPROJ).then(() => {
-                this.store.select(EnvState.getById).pipe(map(filterFn => filterFn(this.selectedPROJ.setting.envId)))
-                    .subscribe(env => { this.projEnv = env });
-                this.toaster.success('Settings Saved');
-            }, (e) => {
-                console.log(e);
-                this.toaster.error(`Failed to save setting: ${e.message}`);
-                this.selectedPROJ.setting = prevSetting;
-            });
-        }, (e) => {
-            console.log(e);
-            this.toaster.error(`Failed to save setting: ${e.message}`);
         });
     }
 
@@ -273,5 +165,12 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
 
     secDefChanged(status) {
         this.flags.secDefChanged = status?.dirty;
+    }
+    settingsChanged(status) {
+        this.flags.settingsChanged = status?.dirty;
+    }
+
+    tabContentModified(status, tab) {
+        this.flags[tab] = status?.dirty;
     }
 }

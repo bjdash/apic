@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <div *ngIf="item.value.type === 'apiKey'" formGroupName="apiKey">
+            <div [hidden]="item.value.type !== 'apiKey'" formGroupName="apiKey">
                 <div class="row">
                     <label class="control-label col-xs-2">In</label>
                     <div class="col-xs-6">
@@ -38,16 +38,16 @@
                 <div class="row">
                     <label class="control-label col-xs-2">Header/Query Name <span class="red">*</span></label>
                     <div class="col-xs-6">
-                        <input class="form-control input-sm" required formControlName="name" />
+                        <input class="form-control input-sm" formControlName="name" />
                     </div>
                 </div>
             </div>
 
-            <div *ngIf="item.value.type === 'oauth2'" formGroupName="oauth2">
+            <div [hidden]="item.value.type !== 'oauth2'" formGroupName="oauth2">
                 <div class="row">
                     <label class="control-label col-xs-2">Authorization Url <span class="red">*</span></label>
                     <div class="col-xs-6">
-                        <input class="form-control input-sm" required formControlName="authorizationUrl" />
+                        <input class="form-control input-sm" formControlName="authorizationUrl" />
                     </div>
                 </div>
                 <div class="row">

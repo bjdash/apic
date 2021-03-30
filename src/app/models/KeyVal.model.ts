@@ -1,4 +1,5 @@
 export interface KeyVal {
     key: string,
-    val: string
+    val: string,
+    readOnly?: boolean
 };

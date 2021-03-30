@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { KVEditorOptn } from 'src/app/components/key-value-editor/key-value-editor.component';
 import { ApiProject, SecurityDef } from 'src/app/models/ApiProject.model';
 import { Toaster } from 'src/app/services/toaster.service';
@@ -31,7 +31,9 @@ export class SecurityDefComponent implements OnInit, OnChanges {
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.SelectedPROJ) {
-      this.refreshForm();
+      setTimeout(() => {
+        this.refreshForm();
+      }, 0);
     }
   }
 
@@ -58,24 +60,29 @@ export class SecurityDefComponent implements OnInit, OnChanges {
 
   buildSecDefFormItem(secDef?: SecurityDef): FormGroup {
     return this.formBuilder.group({
-      type: [secDef?.type || 'basic', Validators.required],
+      type: [secDef?.type || 'basic', [Validators.required]],
       name: [secDef?.name || '', [Validators.required]],
       description: [secDef?.description || ''],
       apiKey: this.formBuilder.group({
-        name: [secDef?.apiKey?.name || '', [this.requiredValidator('apiKey')]],
+        name: [secDef?.apiKey?.name || ''],
         in: [secDef?.apiKey?.in || 'header']
       }),
       oauth2: this.formBuilder.group({
-        authorizationUrl: [secDef?.oauth2?.authorizationUrl || '', [this.requiredValidator('oauth2')]],
+        authorizationUrl: [secDef?.oauth2?.authorizationUrl || ''],
         scopes: [secDef?.oauth2?.scopes || [{ key: '', val: '' }]],
-        flow: [secDef?.oauth2?.flow || '', [this.requiredValidator('oauth2')]],
+        flow: [secDef?.oauth2?.flow || ''],
       })
     })
   }
 
   async saveSecDef() {
+    this.validateForm(this.secDefForm)
     if (this.secDefForm.invalid) {
-      this.toaster.error('Please fill in all required fields');
+      if (this.secDefForm.errors?.msg) {
+        this.toaster.error(this.secDefForm.errors.msg);
+      } else {
+        this.toaster.error('Please fill in all required fields');
+      }
       return;
     }
     //TODO: Handle already selected secdefs in endpoint, remove them too
@@ -85,7 +92,6 @@ export class SecurityDefComponent implements OnInit, OnChanges {
       await this.updateApiProject(updatedProj);
       this.toaster.success('Security definitions Saved');
       this.onChange.next({ dirty: false });
-      this.secDefForm.markAsPristine();
     } catch (e) {
       this.toaster.error('Failed to save Security definitions.');
       this.SelectedPROJ.securityDefinitions = prevSecDef;
@@ -103,10 +109,14 @@ export class SecurityDefComponent implements OnInit, OnChanges {
     this.secDefForm.markAsDirty();
   }
 
-  requiredValidator(type: string) {
-    return (control: AbstractControl) => {
-      if (control.parent?.parent.value.type == type && !control.value) return { required: true }
-      return null;
-    }
+  validateForm(form: FormGroup) {
+    (form.get('secDefs') as FormArray).controls.forEach((fg: FormGroup, index: number) => {
+      if (
+        (fg.value.type === 'oauth2' && (!fg.value.oauth2.authorizationUrl || !fg.value.oauth2.authorizationUrl)) ||
+        (fg.value.type === 'apiKey' && !fg.value.apiKey.name)
+      ) {
+        form.setErrors({ msg: `Missing required parameter for security definition at position ${index + 1}` })
+      }
+    })
   }
 }

@@ -1,0 +1,46 @@
+<div class="form-horizontal form-compact" name="projInfoForm" role="form">
+    <form name="projSetng" [formGroup]="projSettingsForm" (ngSubmit)="saveProjSetting()">
+        <div class="row">
+            <label class="control-label col-xs-2">API host :<span class="red">*</span></label>
+            <div class="control-label col-xs-10">
+                <input type="text" class="form-control input-sm" formControlName="host"
+                    placeholder="The host name where your API is located, with protocol. Eg: http://localhost:8080"
+                    required />
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-xs-2">
+                API base path <i
+                    *ngIf="projSettingsForm.value.basePath && projSettingsForm.value.basePath.indexOf('/')!==0"
+                    class="icon bj-alert red"
+                    matTooltip="Consider using a '/' at the begining of base path, otherwise url may be malformed."
+                    aria-label="API base path warning" matTooltipPosition="right"></i> :
+            </label>
+            <div class="control-label col-xs-3">
+                <input type="text" class="form-control input-sm" formControlName="basePath"
+                    placeholder="Base path of your api. Eg: '/API' or '/v1'" />
+            </div>
+            <label class="control-label col-xs-3">Allowed protocols :</label>
+            <div class="control-label col-xs-4">
+                <select class="form-control input-sm" formControlName="protocol">
+                    <option value="http">http</option>
+                    <option value="https">https</option>
+                    <option value="ws">ws</option>
+                    <option value="wss">wss</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-2" style="margin-top: 10px;text-align: right">
+                <button mat-button *ngIf="projSettingsForm.dirty" type="button" class="sm"
+                    (click)="refreshForm()">Discard</button>
+                <button type="submit" class="sm gap" mat-raised-button color="primary">Save</button>
+            </div>
+            <div class="col-xs-10 control-label align-left" style="margin-top: 10px;color: #9E9E9E"
+                *ngIf="projSettingsForm.valid">
+                Your API urls will look like
+                {{projSettingsForm.value.protocol}}://{{projSettingsForm.value.host}}{{projSettingsForm.value.basePath}}/example
+            </div>
+        </div>
+    </form>
+</div>

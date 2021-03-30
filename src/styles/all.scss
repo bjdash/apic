@@ -243,6 +243,11 @@ fieldset legend {
   line-height: 30px;
   height: 30px;
 }
+.mat-icon.tab-badge{
+  font-size: 12px;
+  height: 10px;
+  color: var(--accent-color);
+}
 /****** folders ********/
 .folder {
   display: flex;
