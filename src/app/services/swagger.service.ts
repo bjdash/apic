@@ -1,7 +1,7 @@
 import { ApiProject, SecurityDef } from './../models/ApiProject.model';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
-import { JsonSchemaService } from '../components/json-schema-builder/lib/jsonschema.service';
+import { JsonSchemaService } from '../components/json-schema-builder/jsonschema.service';
 import helper from '../utils/helpers';
 
 @Injectable()

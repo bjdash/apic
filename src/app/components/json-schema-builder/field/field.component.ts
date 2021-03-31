@@ -1,4 +1,4 @@
-import { Entity } from './../entity.interface';
+import { Entity } from '../entity.interface';
 import { Component, Input } from '@angular/core';
 
 @Component({

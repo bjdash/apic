@@ -1,4 +1,4 @@
-import { Entity } from './../entity.interface';
+import { Entity } from './entity.interface';
 import {
   Component,
   OnInit,
@@ -9,9 +9,9 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { JsonSchemaService } from '../jsonschema.service';
-import { StateService } from '../state.service';
-import Utils from '../../../../services/utils.service'
+import { JsonSchemaService } from './jsonschema.service';
+import { JsonSchemaStateService } from './schemaState.service';
+import Utils from '../../services/utils.service'
 // import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Component({
@@ -77,7 +77,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   singleChild = ['OneOf', 'AllOf', 'AnyOf'];
   schemaStr = { original: '', dup: '' };
 
-  constructor(private state: StateService, private utils: Utils) {
+  constructor(private state: JsonSchemaStateService, private utils: Utils) {
     // this.editorOptions = new JsonEditorOptions() // this.options.mode = 'code'; //set only one mode
     // this.editorOptions.modes = ['code', 'text', 'tree', 'view']; // set all allowed modes
     // this.state.getState().subscribe(

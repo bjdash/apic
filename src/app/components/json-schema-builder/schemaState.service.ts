@@ -3,7 +3,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 
 //TODO: This state service is not required as we dont want to share data between multiple schema builders in the same page
 @Injectable()
-export class StateService {
+export class JsonSchemaStateService {
 
     private initialState = { showSelectorModal: false };
     private stateTracker = new BehaviorSubject<any>(this.initialState);

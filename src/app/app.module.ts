@@ -10,7 +10,7 @@ import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 // import { NgJsonSchemaBuilder } from 'ng-json-schema-builder';
-import { NgJsonSchemaBuilder } from './components/json-schema-builder/public-api';
+// import { NgJsonSchemaBuilder } from './components/json-schema-builder/public-api';
 import { AceEditorModule } from 'ng2-ace-editor';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -73,6 +73,11 @@ import { SecurityDefComponent } from './api-project-detail/project-home/security
 import { environment } from 'src/environments/environment';
 import { KeyValueEditorComponent } from './components/key-value-editor/key-value-editor.component';
 import { ProjSettingsComponent } from './api-project-detail/project-home/proj-settings/proj-settings.component';
+import { JsonSchemaComponent } from './components/json-schema-builder/jsonschema.component';
+import { MainJsonSchemaComponent } from './components/json-schema-builder/main/main.component';
+import { SelectSchemaJsonSchemaComponent } from './components/json-schema-builder/field/selectschema.component';
+import { FieldJsonSchemaComponent } from './components/json-schema-builder/field/field.component';
+import { JsonSchemaStateService } from './components/json-schema-builder/schemaState.service';
 
 @NgModule({
   declarations: [
@@ -105,6 +110,10 @@ import { ProjSettingsComponent } from './api-project-detail/project-home/proj-se
     SecurityDefComponent,
     KeyValueEditorComponent,
     ProjSettingsComponent,
+    JsonSchemaComponent,
+    MainJsonSchemaComponent,
+    SelectSchemaJsonSchemaComponent,
+    FieldJsonSchemaComponent
   ],
   imports: [
     BrowserModule,
@@ -121,7 +130,7 @@ import { ProjSettingsComponent } from './api-project-detail/project-home/proj-se
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     BrowserAnimationsModule,
-    NgJsonSchemaBuilder,
+    // NgJsonSchemaBuilder,
     AceEditorModule,//TODO: Add option to resize ace editors
     MatButtonModule,
     MatIconModule,
@@ -144,6 +153,7 @@ import { ProjSettingsComponent } from './api-project-detail/project-home/proj-se
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { ...new MatDialogConfig(), position: { top: '50px' } } },
     AppBootstrap,
     ApiProjectService,
+    JsonSchemaStateService,
     EnvService,
     Toaster,
     Utils,
