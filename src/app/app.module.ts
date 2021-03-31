@@ -9,8 +9,6 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-// import { NgJsonSchemaBuilder } from 'ng-json-schema-builder';
-// import { NgJsonSchemaBuilder } from './components/json-schema-builder/public-api';
 import { AceEditorModule } from 'ng2-ace-editor';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -130,7 +128,6 @@ import { JsonSchemaStateService } from './components/json-schema-builder/schemaS
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     BrowserAnimationsModule,
-    // NgJsonSchemaBuilder,
     AceEditorModule,//TODO: Add option to resize ace editors
     MatButtonModule,
     MatIconModule,

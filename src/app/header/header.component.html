@@ -1,27 +1,27 @@
 <div class="header">
     <div class="header-cont">
         <div class="logo">
-            <img src="../../assets/images/apic-logo.svg" class="logo-img" />
+            <img src="../../assets/images/apic-logo.svg" class="logo-img" alt="Logo" />
             <span class="logo-text">apic</span>
         </div>
         <div style="width: 300px;height: 50px;">
             <!--TODO: implement saveWorkspace-->
             <a id="designer-ico" href class="module-icon" routerLink="/designer" routerLinkActive="active"
-                style="font-size: 38px;padding-top: 4px;padding-left:3px;" tooltip-placement="right"
-                uib-tooltip="Designer">
+                aria-label="Designer" style="font-size: 38px;padding-top: 4px;padding-left:3px;"
+                tooltip-placement="right" uib-tooltip="Designer">
                 <i class="icon bj-palette"></i>
             </a>
             <a id="tester-ico" href class="module-icon" routerLink="/tester" routerLinkActive="active"
-                ng-click="saveWorkspace('Tester')" tooltip-placement="right" uib-tooltip="Tester">
+                aria-label="Tester" ng-click="saveWorkspace('Tester')" tooltip-placement="right" uib-tooltip="Tester">
                 <i class="icon bj-lab"></i>
             </a>
-            <a id="docs-ico" href class="module-icon" routerLink="/docs" routerLinkActive="active"
+            <a id="docs-ico" href class="module-icon" routerLink="/docs" routerLinkActive="active" aria-label="Docs"
                 ng-click="saveWorkspace('Docs')" tooltip-placement="right" uib-tooltip="Docs">
                 <i class="icon bj-book"></i>
             </a>
             <a id="dash-ico" href class="module-icon" routerLink="/dashboard" routerLinkActive="active"
-                ng-click="checkLogin($event);saveWorkspace('Dashboard')" tooltip-placement="right"
-                uib-tooltip="Dashboard">
+                aria-label="Daashboard" ng-click="checkLogin($event);saveWorkspace('Dashboard')"
+                tooltip-placement="right" uib-tooltip="Dashboard">
                 <i class="icon bj-dashboard"></i>
             </a>
         </div>
@@ -29,7 +29,7 @@
         <div class="flex-right header-right vcenter">
             <button (click)="test()" class="gap">TEST</button>
             <div class="env-cont input-group gap">
-                <button mat-button="" class="sm" (click)="openEnvModal()">
+                <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments">
                     <i class="icon bj-stack"></i>
                 </button>
                 <button mat-button="" class="sm" [matMenuTriggerFor]="envsList">
@@ -45,10 +45,10 @@
                 </mat-menu>
             </div>
 
-            <button mat-icon-button (click)="openSettings()">
+            <button mat-icon-button (click)="openSettings()" aria-label="Settings">
                 <mat-icon>settings</mat-icon>
             </button>
-            <button mat-icon-button [matMenuTriggerFor]="menuOpt">
+            <button mat-icon-button [matMenuTriggerFor]="menuOpt" aria-label="Options Menu">
                 <mat-icon>reorder</mat-icon>
             </button>
             <mat-menu #menuOpt="matMenu">
