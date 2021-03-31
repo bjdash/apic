@@ -38,7 +38,6 @@ export class ProjectEndpointComponent implements OnInit {
   ngOnInit(): void { }
 
   selectEndp(endpId: string) {
-    console.log('selecting endpoint: ', endpId);
     if (this.endpForm.dirty) {
       this.confirmService
         .confirm({
@@ -52,7 +51,7 @@ export class ProjectEndpointComponent implements OnInit {
           this.handleEndpSelect(endpId);
         })
         .catch(() => {
-          console.log('Selected to keep the changes');
+          console.info('Selected to keep the changes');
         });
     } else {
       this.handleEndpSelect(endpId);
@@ -70,14 +69,14 @@ export class ProjectEndpointComponent implements OnInit {
       });
       this.selectedName = 'Create new Endpoint';
     } else {
-      const { name, nameSpace, folder, data } = this.selectedPROJ.endpoints[
+      const { name, folder } = this.selectedPROJ.endpoints[
         endpId
       ];
       this.endpForm = this.fb.group({
         name: [name, [Validators.required, Validators.maxLength(100)]],
-        nameSpace: [nameSpace, Validators.maxLength(100)],
+        // nameSpace: [nameSpace, Validators.maxLength(100)],
         folder: [folder],
-        data: [data],
+        // data: [data],
       });
       this.selectedName = name;
       this.endpForm.markAsPristine();
@@ -86,16 +85,13 @@ export class ProjectEndpointComponent implements OnInit {
   }
 
   createEndp() {
-    console.log(this.endpForm);
   }
 
   checkForPathParams() { }
 
   importTraitData(arg) {
-    console.log(arg);
   }
 
   removeTraitData(arg) {
-    console.log(arg);
   }
 }

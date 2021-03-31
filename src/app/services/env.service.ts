@@ -84,7 +84,6 @@ export class EnvService {
     }
 
     return iDB.insertMany('Environments', envs).then((data) => {
-      console.log(data);
       if (data[0] && this.authUser?.UID && !fromSync) {//added successfully
         this.syncService.prepareAndSync('addEnv', envs);
       }
@@ -148,16 +147,16 @@ export class EnvService {
     if (message.envs?.length > 0) {
       if (message.action === 'add' || message.action === 'update') {
         const resp = await this.updateEnvs(message.envs, true);
-        console.log('Sync: added/updated Env', resp)
+        console.info('Sync: added/updated Env', resp)
       }
     } else if (message.idList?.length > 0 && message.action === 'delete') {
       const resp = await this.deleteEnvs(message.idList, true);
-      console.log('Sync: deleted env', resp)
+      console.info('Sync: deleted env', resp)
     }
 
     if (message.nonExistant?.envs?.length > 0) {
       const resp = await this.deleteEnvs(message.nonExistant?.envs, true);
-      console.log('Sync: deleted env', resp)
+      console.info('Sync: deleted env', resp)
     }
 
     if (message.originalComand?.includes('Fetch:Envs')) {
@@ -240,7 +239,7 @@ export class EnvService {
     }
     const validate = this.ajv.compile(schema);
     const valid = validate(importData);
-    if (!valid) console.log(validate.errors);
+    if (!valid) console.error(validate.errors);
     return valid;
   }
   //TODO

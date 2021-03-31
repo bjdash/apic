@@ -41,16 +41,14 @@ export class LoginComponent implements OnInit {
     this.setMesssage('info', 'Logging in...');
     this.loginForm.disable();
     var { email, psd } = this.loginForm.value;
-    console.log(email, psd);
     this.authService.login(email, psd)
       .pipe(first())
       .subscribe(data => {
-        console.log('login success', data);
         this.toaster.success('Login successful.');
         this.dialogRef.close();
       },
         error => {
-          console.log('login error', error)
+          console.error('login error', error)
           this.setMesssage('error', error, true);
           this.loginForm.enable();
         })

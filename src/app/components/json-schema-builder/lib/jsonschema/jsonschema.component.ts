@@ -318,7 +318,6 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   // setModelFor$Ref() {
   //     if (this.configs.extraArrayOptn) {
   //         this.selectedEntity._items[0]._value = this.modelRef.model;
-  //         console.log(this.selectedEntity);
   //     } else {
   //         this.selectedEntity._value = this.modelRef.model;
   //     }

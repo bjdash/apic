@@ -62,7 +62,6 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   }
 
   onSchemaUpdate() {
-    console.log('onSchemaUpdate');
     if (this.onChange) this.onChange();
   }
 

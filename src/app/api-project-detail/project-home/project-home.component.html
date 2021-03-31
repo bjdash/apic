@@ -97,7 +97,8 @@
                 </ng-template>
                 <div class="content">
                     <app-proj-settings [updateApiProject]="updateApiProject" [SelectedPROJ]="selectedPROJ"
-                        (onChange)="tabContentModified($event,'settingsChanged')"></app-proj-settings>
+                        [projEnv]="projEnv" (onChange)="tabContentModified($event,'settingsChanged')">
+                    </app-proj-settings>
                 </div>
             </mat-tab>
             <mat-tab>

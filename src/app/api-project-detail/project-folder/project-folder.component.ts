@@ -88,7 +88,7 @@ export class ProjectFolderComponent implements OnInit, OnChanges {
             }).then(() => {
                 this.handleFolderSelect(folderToOpen);
             }).catch(() => {
-                console.log('Selected to keep the changes');
+                console.info('Selected to keep the changes');
             })
         } else {
             this.handleFolderSelect(folderToOpen);
@@ -144,7 +144,7 @@ export class ProjectFolderComponent implements OnInit, OnChanges {
                 this.folderForm.markAsPristine();
                 this.openFolder(NewApiFolder);
             }, (e) => {
-                console.log('Failed to delete folder', e);
+                console.error('Failed to delete folder', e);
                 this.toaster.error(`Failed to delete folder: ${e.message}`);
             });
         })

@@ -55,7 +55,6 @@ export class EnvsComponent implements OnInit {
   constructor(private store: Store, private toaster: Toaster, private envService: EnvService, private fileSystem: FileSystem) { }
 
   ngOnInit(): void {
-    console.log('init');
     this.envs$.pipe(first()).subscribe(envs => {
       this.envsList = envs.map(env => Object.assign({}, env))
     });
@@ -197,7 +196,6 @@ export class EnvsComponent implements OnInit {
   }
 
   async saveEnvs() {
-    console.log(this.pendingSave, this.envsList);
     const updatedIds = await this.envService.updateEnvs(this.envsList.filter(env => this.pendingSave.indexOf(env._id) >= 0));
     this.toaster.success('Environments updated.');
     this.pendingSave = [];
@@ -227,7 +225,7 @@ export class EnvsComponent implements OnInit {
     }
   }
 
-  deleteEnvById(envId:string, index:number) {
+  deleteEnvById(envId: string, index: number) {
     this.envService.deleteEnvs([envId]).then(() => {
       var envName = this.envsList[index].name;
       this.toaster.success(`Environment "${envName}" deleted.`);

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngxs/store';
-import { pipe, Subject } from 'rxjs';
+import { pipe, Subject, Subscription } from 'rxjs';
 import { map, take, takeUntil, timeout } from 'rxjs/operators';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { Env } from 'src/app/models/Envs.model';
@@ -16,13 +16,11 @@ import Utils from '../../../utils/helpers'
   templateUrl: './proj-settings.component.html',
   styleUrls: ['./proj-settings.component.css']
 })
-export class ProjSettingsComponent implements OnInit, OnChanges, OnDestroy {
+export class ProjSettingsComponent implements OnInit, OnChanges {
   @Input() SelectedPROJ: ApiProject;
   @Input() updateApiProject: Function;
+  @Input() projEnv: Env = null; //auto generated env for this project
   @Output() onChange = new EventEmitter<any>();
-
-  private destroy: Subject<boolean> = new Subject<boolean>();
-  projEnv: Env = null; //auto generated env for this project
 
   projSettingsForm: FormGroup;
 
@@ -36,10 +34,6 @@ export class ProjSettingsComponent implements OnInit, OnChanges, OnDestroy {
     this.projSettingsForm.valueChanges.subscribe(data => {
       this.onChange.next({ dirty: true });
     })
-  }
-  ngOnDestroy(): void {
-    this.destroy.next(true);
-    this.destroy.complete();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -65,7 +59,6 @@ export class ProjSettingsComponent implements OnInit, OnChanges, OnDestroy {
       this.toaster.error('Please enter a valid host name');
       return;
     };
-    console.log(this.projSettingsForm, this);
     //find existing env for this project if any, based on find add or update
     var action = this.SelectedPROJ.setting && this.SelectedPROJ.setting.envId ? 'update' : 'add';
     var settingEnvVals = [{
@@ -102,7 +95,7 @@ export class ProjSettingsComponent implements OnInit, OnChanges, OnDestroy {
       await this.updateApiProject(projToUpdate);
       this.toaster.success('Settings Saved');
     } catch (e) {
-      console.log(e);
+      console.error('Failed to save setting', e);
       this.toaster.error(`Failed to save setting: ${e.message}`);
     }
   }
@@ -137,11 +130,6 @@ export class ProjSettingsComponent implements OnInit, OnChanges, OnDestroy {
     if (this.SelectedPROJ.setting) {
       this.projSettingsForm.patchValue({ ...this.SelectedPROJ.setting });
       this.projSettingsForm.markAsPristine();
-      this.store.select(EnvState.getById)
-        .pipe(map(filterFn => filterFn(this.SelectedPROJ.setting.envId)))
-        // .pipe(take(1))
-        .pipe(takeUntil(this.destroy))
-        .subscribe(env => { this.projEnv = env });
     }
     this.onChange.next({ dirty: false });
   }

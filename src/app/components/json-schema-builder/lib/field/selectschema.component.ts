@@ -83,7 +83,6 @@ export class SelectSchemaJsonSchemaComponent {
             const val = fieldsObj[key];
             if (action === 'remove') {
                 if (entity.hasOwnProperty(key) && key !== '_type') {
-                    console.log('removing: ', key);
                     delete entity[key];
                 }
             } else if (action === 'add') {

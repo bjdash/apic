@@ -66,7 +66,7 @@ export class AppBootstrap {
                 LocalStore.set(LocalStore.USER_ID, respData.resp.id);
             }
         } catch (e) {
-            console.log('Failed to add dummy user', e);
+            console.error('Failed to add dummy user', e);
         }
     }
 

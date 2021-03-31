@@ -19,6 +19,10 @@ export class SyncService {
 
         this.stompService.client.onServerMessage$.subscribe((message: StompMessage) => {
             this.onServerMessage(message);
+        });
+
+        this.stompService.client.connected$.subscribe(() => {
+            this.syncUnsynced();
         })
     }
 
@@ -126,7 +130,6 @@ export class SyncService {
     }
 
     onServerMessage(message: StompMessage) {
-        console.log('Received sync message', message);
         if (!message) return;
 
         switch (message.type) {
@@ -174,14 +177,5 @@ export class SyncService {
 
     onSocketConnected() {
         this.syncUnsynced();
-        // iDB.findByKey('setting', '_id', 'lastSynced').then(function (data) {
-        //     var ts = 0;//new Date().getTime();
-        //     if (data && data.time) {
-        //         ts = data.time;
-        //     }
-        //     DataService.getAllData().then(function (data) {
-        //         SyncIt.fetch('fetchAll', ts, data);
-        //     });
-        // });
     }
 }

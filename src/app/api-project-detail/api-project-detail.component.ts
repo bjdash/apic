@@ -67,7 +67,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                 .pipe(takeUntil(this.destroy))
                 // .pipe(delay(0))
                 .subscribe(p => {
-                    if (p && p._modified !== this.selectedPROJ?._modified) {
+                    if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
                         if (this.selectedPROJ) {
                             this.confirmService.alert({
                                 id: 'Sync:Project Updated',
@@ -117,7 +117,6 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         if (!proj) proj = this.selectedPROJ;
         this.pendingAction = this.apiProjectService.updateAPIProject(proj);
         this.selectedPROJ = await this.pendingAction;
-        console.log('updated proj', this.selectedPROJ._modified);
         return this.selectedPROJ;
     }
 

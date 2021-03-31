@@ -118,15 +118,15 @@ export class ApiProjectService {
         if (message.apiProjects?.length > 0) {
             if (message.action === 'add' || message.action === 'update') {
                 const resp = await this.updateAPIProjects(message.apiProjects, true);
-                console.log('Sync: added/updated API project', resp)
+                console.info('Sync: added/updated API project', resp)
             }
         } else if (message.idList?.length > 0 && message.action === 'delete') {
             const resp = await this.deleteAPIProjects(message.idList, true);
-            console.log('Sync: deleted API project', resp)
+            console.info('Sync: deleted API project', resp)
         }
         if (message.nonExistant?.apiProjects?.length > 0) {
             const resp = await this.deleteAPIProjects(message.nonExistant?.apiProjects, true);
-            console.log('Sync: deleted API project', resp)
+            console.info('Sync: deleted API project', resp)
         }
 
         if (message.originalComand?.includes('Fetch:ApiProject')) {
@@ -195,7 +195,7 @@ export class ApiProjectService {
         }
         const validate = this.ajv.compile(schema);
         const valid = validate(importData);
-        if (!valid) console.log(validate.errors);
+        if (!valid) console.error(validate.errors);
         return valid;
     }
     //TODO

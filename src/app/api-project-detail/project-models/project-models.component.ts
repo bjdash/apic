@@ -67,7 +67,7 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
           this.handleModelSelect(modelToOpen);
         })
         .catch(() => {
-          console.log('Selected to keep the changes');
+          console.info('Selected to keep the changes');
         });
     } else {
       this.handleModelSelect(modelToOpen);

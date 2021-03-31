@@ -18,7 +18,7 @@ export class HttpService {
     constructor(private toaster: Toaster) { }
 
     handleHttpError(error, options?: ErrorhandlerOption) {
-        console.log('error', error);
+        console.error('error', error);
         options = { ...this.defaultErrorHandlerOption, ...options };
         let errorMessage = options.messagePrefix ? `${options.messagePrefix} ` : '';
         if (error.error instanceof ErrorEvent) {

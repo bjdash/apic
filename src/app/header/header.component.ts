@@ -39,7 +39,6 @@ export class HeaderComponent implements OnInit {
 
   selectEnv(_id: String) {
     this.store.dispatch(new EnvsAction.Select(_id));
-    console.log('Select', _id);
   }
 
   openEnvModal() {

@@ -79,7 +79,7 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
                     this.handleTraitSelect(traitToOpen);
                 })
                 .catch(() => {
-                    console.log('Selected to keep the changes');
+                    console.info('Selected to keep the changes');
                 });
         } else {
             this.handleTraitSelect(traitToOpen);

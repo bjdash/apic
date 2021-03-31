@@ -148,7 +148,6 @@ export class StompService {
                     //         angular.element('#avatar').removeClass('syncing').addClass('online');
                     //     }
                     //     if (body.since) { //if operation was fetch all, update last synced time
-                    //         console.log('setting last synced', new Date(body.since).toLocaleString());
                     //         iDB.upsert('setting', {
                     //             _id: 'lastSynced',
                     //             time: body.since
@@ -162,11 +161,10 @@ export class StompService {
                 //check if its a reply for unsynced, then delete it from unsynced table
                 if (message.opId.indexOf('unsynced-') >= 0) {
                     iDB.delete(iDB.TABLES.UNSYNCED, message.opId);
-                    console.log('removing unsynced', message.opId);
                 }
             }
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
 
@@ -180,7 +178,7 @@ export class StompService {
             });
 
             for (var i = 0; i < unsyncedEntries.length; i++) {
-                var entry = unsyncedEntries[i].data;
+                var entry: StompMessage = { ...unsyncedEntries[i].data, opId: unsyncedEntries[i]._id };
                 this.addtoSendQueue(entry);
             }
         });

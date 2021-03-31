@@ -44,7 +44,6 @@ export class AuthService {
   login(email, psd) {
     return this.http.post(ApicUrls.login, { email, psd })
       .pipe(map((response: any) => {
-        console.log(response);
         if (response?.status === 'ok') {
           this.postLoginHandler(response.resp)
           return response;
@@ -76,12 +75,14 @@ export class AuthService {
   }
 
   connectToSyncServer(UID: string, authToken: string) {
-    this.stompService.client.connected$.pipe(first()).subscribe(() => {
-      this.apiProjectService.syncApiProjects();
-      this.envService.syncApiProjects();
-      //TODO: add for others
+    this.stompService.client.connected$
+      .pipe(first())
+      .subscribe(() => {
+        this.apiProjectService.syncApiProjects();
+        this.envService.syncApiProjects();
+        //TODO: add for others
 
-    })
+      })
     this.stompService.connect(UID + '||' + authToken);
   }
 
