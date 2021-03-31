@@ -1,20 +1,20 @@
 <div class="content">
     <div class="submodMenu">
         <div class="submodMenuOptn">
-            <span *ngIf="selectedModel === 'NEW'">
+            <span *ngIf="selectedModel._id === 'NEW'">
                 <button type="button" type="submit" form="modelForm" class="sm gap" mat-raised-button
                     color="primary">Create</button>
                 <button mat-button class="sm" type="reset" (click)="modelForm.reset()">Reset</button>
             </span>
-            <span *ngIf="selectedModel !== 'NEW'">
+            <span *ngIf="selectedModel._id !== 'NEW'">
                 <button type="button" type="submit" form="modelForm" class="sm gap" mat-raised-button
                     color="primary">Save</button>
                 <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
-                    (click)="deleteModel(selectedModel)">Delete</button>
+                    (click)="deleteModel(selectedModel._id)">Delete</button>
                 <button type="button" type="button" *ngIf="modelForm.dirty" class="sm gap" mat-raised-button
                     (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
-                <button type="button" type="button" (click)="selectModel('NEW')" class="sm gap" mat-raised-button>
+                <button type="button" type="button" (click)="openNewModel()" class="sm gap" mat-raised-button>
                     <mat-icon class="sm">add</mat-icon>New Model
                 </button>
             </span>
@@ -31,9 +31,9 @@
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #modelsList="matMenu">
-                <button mat-menu-item (click)="selectModel('NEW')">Create new Model</button>
+                <button mat-menu-item (click)="openNewModel()">Create new Model</button>
                 <mat-divider></mat-divider>
-                <button *ngFor="let model of selectedPROJ.models | keyvalue" (click)="selectModel(model.value._id)"
+                <button *ngFor="let model of selectedPROJ.models | keyvalue" (click)="openModelById(model.value._id)"
                     mat-menu-item>{{model.value.name}}</button>
             </mat-menu>
         </div>

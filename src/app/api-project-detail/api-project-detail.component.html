@@ -84,8 +84,8 @@
                         <!--models-->
                         <div *ngFor="let model of item.value.models | keyvalue">
                             <div class="savedReq" matRipple
-                                (click)="changeStage('models');modelsView.selectModel(model.value._id);$event.stopPropagation()"
-                                [ngClass]="{active:flags.stage === 'models' && model.value._id == modelsView.selectedModel}">
+                                (click)="changeStage('models');modelsView.openModelById(model.value._id);$event.stopPropagation()"
+                                [ngClass]="{active:flags.stage === 'models' && model.value._id == modelsView.selectedModel._id}">
                                 <div class="l-sec">
                                     <div class="method MODEL"></div>
                                 </div>
@@ -99,7 +99,7 @@
                                     </button>
                                     <mat-menu #modelMenu="matMenu">
                                         <button mat-menu-item
-                                            (click)="changeStage('models');modelsView.selectModel(model.value._id);$event.stopPropagation()">
+                                            (click)="changeStage('models');modelsView.openModelById(model.value._id);$event.stopPropagation()">
                                             <mat-icon>edit</mat-icon> Edit
                                         </button>
                                         <button mat-menu-item

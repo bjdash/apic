@@ -76,3 +76,10 @@ export const NewApiFolder: ApiFolder = {
     name: '',
     desc: ''
 }
+export const NewApiModel: ApiModel = {
+    _id: 'NEW',
+    name: '',
+    nameSpace: '',
+    folder: '',
+    data: { type: "object" }
+}
