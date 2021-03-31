@@ -1,20 +1,20 @@
 <div class="content">
     <div class="submodMenu">
         <div class="submodMenuOptn">
-            <span *ngIf="selectedTrait === 'NEW'">
+            <span *ngIf="selectedTrait._id === 'NEW'">
                 <button type="button" type="button" (click)="createTrait()" form="traitForm" class="sm gap"
                     mat-raised-button color="primary">Create</button>
                 <button mat-button class="sm" type="reset" (click)="traitForm.reset()">Reset</button>
             </span>
-            <span *ngIf="selectedTrait !== 'NEW'">
+            <span *ngIf="selectedTrait._id !== 'NEW'">
                 <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
                     (click)="createTrait()">Save</button>
                 <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
-                    (click)="deleteTrait(selectedTrait)">Delete</button>
+                    (click)="deleteTrait(selectedTrait._id)">Delete</button>
                 <button type="button" type="button" *ngIf="traitForm.dirty" class="sm gap" mat-raised-button
                     (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
-                <button type="button" type="button" (click)="selectTrait('NEW')" class="sm gap" mat-raised-button>
+                <button type="button" type="button" (click)="openNewTrait()" class="sm gap" mat-raised-button>
                     <mat-icon class="sm">add</mat-icon>New Trait
                 </button>
             </span>
@@ -31,9 +31,9 @@
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #traitsList="matMenu">
-                <button mat-menu-item (click)="selectTrait('NEW')">Create new Trait</button>
+                <button mat-menu-item (click)="openNewTrait()">Create new Trait</button>
                 <mat-divider></mat-divider>
-                <button *ngFor="let trait of selectedPROJ.traits | keyvalue" (click)="selectTrait(trait.value._id)"
+                <button *ngFor="let trait of selectedPROJ.traits | keyvalue" (click)="openTraitById(trait.value._id)"
                     mat-menu-item>{{trait.value.name}}</button>
             </mat-menu>
         </div>

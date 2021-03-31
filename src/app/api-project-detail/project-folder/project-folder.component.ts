@@ -1,6 +1,6 @@
 import { Toaster } from './../../services/toaster.service';
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { ApiProject, ApiFolder, NewApiFolder, ApiModel, ApiEndp, APiTraits } from 'src/app/models/ApiProject.model';
+import { ApiProject, ApiFolder, NewApiFolder, ApiModel, ApiEndp, ApiTrait } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import Helpers from '../../utils/helpers';
 import apic from '../../utils/apic';
@@ -133,7 +133,7 @@ export class ProjectFolderComponent implements OnInit, OnChanges {
             }
 
             if (project.traits) {
-                let updatedTraits: APiTraits[] = Object.values(project.traits).map((trait: APiTraits) => {
+                let updatedTraits: ApiTrait[] = Object.values(project.traits).map((trait: ApiTrait) => {
                     return { ...trait, folder: trait.folder === id ? '' : trait.folder }
                 })
                 project = { ...project, traits: Utils.arrayToObj(updatedTraits, '_id') };

@@ -116,7 +116,9 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
           () => {
             this.toaster.success('Model deleted.');
             this.modelForm.markAsPristine();
-            this.openNewModel();
+            if (modelId === this.selectedModel._id) {
+              this.openNewModel();
+            }
           },
           (e) => {
             console.error('Failed to delete model', e);

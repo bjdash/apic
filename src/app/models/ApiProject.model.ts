@@ -37,7 +37,7 @@ export interface ApiEndp {
     summary?: string
 }
 
-export interface APiTraits {
+export interface ApiTrait {
     _id: string,
     name: string,
     summary?: string,
@@ -60,7 +60,7 @@ export interface ApiProject {
     contact?: any,
     folders?: { [key: string]: ApiFolder },
     models?: { [key: string]: ApiModel },
-    traits?: { [key: string]: APiTraits },
+    traits?: { [key: string]: ApiTrait },
     setting?: any,
     endpoints?: { [key: string]: ApiEndp },
     termsOfService?: string,
@@ -82,4 +82,19 @@ export const NewApiModel: ApiModel = {
     nameSpace: '',
     folder: '',
     data: { type: "object" }
+}
+
+export const NewApiTrait: ApiTrait = {
+    _id: 'NEW',
+    name: '',
+    summary: '',
+    folder: '',
+    headers: { type: "object" },
+    pathParams: { type: "object" },
+    queryParams: { type: "object" },
+    responses: [{
+        code: "200",
+        data: { type: "object" },
+        noneStatus: false
+    }]
 }

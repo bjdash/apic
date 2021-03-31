@@ -48,7 +48,7 @@
                     </div>
 
                     <div class="sub-folder" [hidden]="!leftPanel.expanded[item.value.folder._id]">
-                        <!--Endpoints-->
+                        <!--Endpoints TODO: sort by name-->
                         <div *ngFor="let endp of item.value.endps | keyvalue">
                             <div class="savedReq" matRipple
                                 ng-class="{active:vm.designStage === 'models' && vm.model._id == _mid}">
@@ -81,7 +81,7 @@
                             </div>
                         </div>
 
-                        <!--models-->
+                        <!--models TODO: sort by name-->
                         <div *ngFor="let model of item.value.models | keyvalue">
                             <div class="savedReq" matRipple
                                 (click)="changeStage('models');modelsView.openModelById(model.value._id);$event.stopPropagation()"
@@ -115,11 +115,11 @@
                             </div>
                         </div>
 
-                        <!--Traits-->
+                        <!--Traits TODO: sort by name-->
                         <div *ngFor="let trait of item.value.traits | keyvalue">
                             <div class="savedReq" matRipple
-                                (click)="changeStage('traits');traitsView.selectTrait(trait.value._id);$event.stopPropagation()"
-                                [ngClass]="{active:flags.stage === 'traits' && trait.value._id == traitsView.selectedTrait}">
+                                (click)="changeStage('traits');traitsView.openTraitById(trait.value._id);$event.stopPropagation()"
+                                [ngClass]="{active:flags.stage === 'traits' && trait.value._id == traitsView.selectedTrait._id}">
                                 <div class="l-sec">
                                     <div class="method TRAIT"></div>
                                 </div>
@@ -132,7 +132,7 @@
                                     </a>
                                     <mat-menu #traitMenu="matMenu">
                                         <button mat-menu-item
-                                            (click)="changeStage('traits');traitsView.selectTrait(trait.value._id);$event.stopPropagation()">
+                                            (click)="changeStage('traits');traitsView.openTraitById(trait.value._id);$event.stopPropagation()">
                                             <mat-icon>edit</mat-icon> Edit
                                         </button>
                                         <button mat-menu-item
