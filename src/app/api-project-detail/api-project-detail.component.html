@@ -41,7 +41,7 @@
                         </div>
                         <div class="r-sec ">
                             <button type="button" *ngIf="item.key != 'ungrouped'" mat-icon-button
-                                (click)="changeStage('folders');foldersView.selectFolder(item.value.folder._id);$event.stopPropagation()">
+                                (click)="changeStage('folders');foldersView.openFolderById(item.value.folder._id);$event.stopPropagation()">
                                 <mat-icon>edit</mat-icon>
                             </button>
                         </div>
@@ -179,7 +179,7 @@
             <div class="designer-cont">
                 <app-project-home [hidden]="flags.stage!=='dashboard'" [selectedPROJ]="selectedPROJ"
                     (changeStageEmitter)="changeStage($event)" [updateApiProject]="updateApiProject"
-                    (onExport)="openExportModal($event[0], $event[1])">
+                    [deleteApiProject]="deleteApiProject" (onExport)="openExportModal($event[0], $event[1])">
                 </app-project-home>
                 <app-project-folder #foldersView [hidden]="flags.stage!=='folders'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">

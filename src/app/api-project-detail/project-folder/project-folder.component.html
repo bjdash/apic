@@ -1,18 +1,18 @@
 <div class="content" *ngIf="folderForm">
     <div class="submodMenu">
         <div class="submodMenuOptn">
-            <span *ngIf="selectedFolder === 'NEW'">
+            <span *ngIf="selectedFolder?._id === 'NEW'">
                 <button type="button" type="submit" form="folderForm" class="sm gap" mat-raised-button
                     color="primary">Create</button>
                 <button mat-button class="sm" type="reset" (click)="folderForm.reset()">Reset</button>
             </span>
-            <span *ngIf="selectedFolder !== 'NEW'">
+            <span *ngIf="selectedFolder?._id !== 'NEW'">
                 <button type="button" type="submit" form="folderForm" class="sm gap" mat-raised-button
                     color="primary">Save</button>
                 <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
-                    (click)="deleteFolder(selectedFolder)">Delete</button>
+                    (click)="deleteFolder(selectedFolder._id)">Delete</button>
                 <div class="bar"></div>
-                <button type="button" type="button" (click)="selectFolder('NEW')" class="sm gap" mat-raised-button>
+                <button type="button" type="button" (click)="openNewFolder()" class="sm gap" mat-raised-button>
                     <mat-icon class="sm">add</mat-icon>New folder
                 </button>
             </span>
@@ -24,15 +24,15 @@
         <span class="gap">Folders:</span>
         <div class="margL10">
             <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="foldersList">
-                <span class="gap">{{selectedName}}</span>
+                <span class="gap">{{selectedName||'Create new folder'}}</span>
                 <span *ngIf="folderForm.dirty">(Unsaved)</span>
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #foldersList="matMenu">
-                <button mat-menu-item (click)="selectFolder('NEW')">Create new folder</button>
+                <button mat-menu-item (click)="openNewFolder()">Create new folder</button>
                 <mat-divider></mat-divider>
-                <button *ngFor="let folder of selectedPROJ.folders | keyvalue" (click)="selectFolder(folder.value._id)"
-                    mat-menu-item>{{folder.value.name}}</button>
+                <button *ngFor="let folder of selectedPROJ.folders | keyvalue"
+                    (click)="openFolderById(folder.value._id)" mat-menu-item>{{folder.value.name}}</button>
             </mat-menu>
         </div>
         <a class="f18 pull-right" mat-icon-button href="https://docs.apic.app/designer/create-folder" target="_new">

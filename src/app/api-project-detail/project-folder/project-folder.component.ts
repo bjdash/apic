@@ -1,23 +1,23 @@
 import { Toaster } from './../../services/toaster.service';
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { ApiProject } from 'src/app/models/ApiProject.model';
+import { ApiProject, ApiFolder, NewApiFolder, ApiModel, ApiEndp, APiTraits } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import Helpers from '../../utils/helpers';
 import apic from '../../utils/apic';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
+import Utils from 'src/app/services/utils.service';
 
 @Component({
     selector: 'app-project-folder',
     templateUrl: './project-folder.component.html',
     styleUrls: ['../api-project-detail.component.css']
 })
-export class ProjectFolderComponent implements OnInit {
+export class ProjectFolderComponent implements OnInit, OnChanges {
     @Input() selectedPROJ: ApiProject;
     @Input() updateApiProject: Function;
-    @Output() projectUpdated = new EventEmitter<any>();//TODO:remove this
 
     folderForm: FormGroup;
-    selectedFolder: string = 'NEW';
+    selectedFolder: ApiFolder = null;
     selectedName: string
 
     constructor(private fb: FormBuilder, private toaster: Toaster, private confirmService: ConfirmService) {
@@ -25,55 +25,60 @@ export class ProjectFolderComponent implements OnInit {
             name: ['', [Validators.required, Validators.maxLength(30)]],
             desc: ['', Validators.maxLength(400)]
         });
-        this.selectedName = 'Create new folder';
+        this.openNewFolder()
+    }
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.selectedPROJ?.currentValue && this.selectedFolder) {
+            setTimeout(() => {
+                this.openFolderById(this.selectedFolder._id)
+            }, 0);
+        }
     }
 
     ngOnInit(): void {
     }
 
     isEditing() {
-        return !(this.selectedFolder === 'NEW');
+        return !(this.selectedFolder._id === 'NEW');
     }
 
     createFolder() {
         if (!this.folderForm.valid) return;
 
-        const folder = this.folderForm.value;
+        const folder: ApiFolder = { _id: this.isEditing() ? this.selectedFolder._id : new Date().getTime() + apic.s8(), ...this.folderForm.value };
 
         if (this.checkExistingFolder(folder.name) && !this.isEditing()) {
             this.toaster.error(`Folder ${folder.name} already exists`);
             return;
         }
-        if (!this.selectedPROJ.folders) {
-            this.selectedPROJ.folders = {};
-        }
-        if (this.isEditing()) { //editing folder
-            folder._id = this.selectedFolder;
-            this.selectedPROJ.folders[folder._id].name = folder.name;
-            this.selectedPROJ.folders[folder._id].desc = folder.desc;
-        } else {
-            folder._id = new Date().getTime() + apic.s8();
-            this.selectedPROJ.folders[folder._id] = Helpers.deepCopy(folder);
-        }
-        this.updateApiProject(this.selectedPROJ).then((data) => {
-            this.folderForm.markAsPristine();
-            this.folderForm.markAsUntouched();
+
+        var projToUpdate: ApiProject = { ...this.selectedPROJ, folders: { ...this.selectedPROJ.folders, [folder._id]: folder } };
+        this.updateApiProject(projToUpdate).then((data) => {
             this.selectedName = folder.name;
             if (this.isEditing()) {
                 this.toaster.success('Folder updated');
             } else {
                 this.toaster.success('Folder created');
-                // this.projectUpdated.next({ folder: folder._id });
             }
-            this.selectedFolder = folder._id;
+            this.folderForm.markAsPristine();
+            this.folderForm.markAsUntouched();
+            this.selectedFolder._id = folder._id;
         }, (e) => {
             console.error('Failed to create/update folder', e, folder)
             this.toaster.error(`Failed to create/update folder: ${e.message}`);
         });
     }
 
-    selectFolder(folderId: string) {
-        console.log('selecting folder: ', folderId);
+    openNewFolder() {
+        this.openFolder(NewApiFolder);
+    }
+
+    openFolderById(folderIdToOpen: string) {
+        const folderToOpen: ApiFolder = this.selectedPROJ?.folders?.[folderIdToOpen] || NewApiFolder;
+        this.openFolder(folderToOpen)
+    }
+
+    private openFolder(folderToOpen: ApiFolder) {
         if (this.folderForm.dirty) {
             this.confirmService.confirm({
                 confirmTitle: 'Unsaved data !',
@@ -81,62 +86,63 @@ export class ProjectFolderComponent implements OnInit {
                 confirmOk: 'Replace',
                 confirmCancel: 'No, let me save'
             }).then(() => {
-                this.handleFolderSelect(folderId);
+                this.handleFolderSelect(folderToOpen);
             }).catch(() => {
                 console.log('Selected to keep the changes');
             })
         } else {
-            this.handleFolderSelect(folderId);
+            this.handleFolderSelect(folderToOpen);
         }
     }
 
-    private handleFolderSelect(folderId: string) {
-        this.selectedFolder = folderId;
-        if (folderId === 'NEW') {
-            this.folderForm.patchValue({
-                name: '',
-                desc: ''
-            });
-            this.selectedName = 'Create new folder';
-        } else {
-            const { name, desc } = this.selectedPROJ.folders[folderId];
-            this.folderForm.patchValue({ name, desc });
-            this.selectedName = name;
-            this.folderForm.markAsPristine();
-            this.folderForm.markAsUntouched();
-        }
+    private handleFolderSelect(folderToOpen: ApiFolder) {
+        this.selectedFolder = { ...folderToOpen };
+        const { name, desc } = folderToOpen;
+        this.folderForm.patchValue({ name, desc });
+        this.selectedName = name || 'Create new folder';
+        this.folderForm.markAsPristine();
+        this.folderForm.markAsUntouched();
     }
 
-    deleteFolder(id) {
+    deleteFolder(id: string) {
         if (!id || !this.selectedPROJ.folders)
             return;
 
-        const project: ApiProject = Helpers.deepCopy(this.selectedPROJ);
+        const { [id]: folderToRemove, ...remainingFolders } = this.selectedPROJ.folders;
+        let project: ApiProject = { ...this.selectedPROJ, folders: remainingFolders }
 
         this.confirmService.confirm({
             confirmTitle: 'Delete Confirmation',
-            confirm: `Do you want to delete the folder '${project.folders[id].name}'?`,
+            confirm: `Do you want to delete the folder '${this.selectedPROJ.folders[id].name}'?`,
             confirmOk: 'Delete',
             confirmCancel: 'Cancel'
         }).then(() => {
 
             delete project.folders[id];
-            //TODO: test this
-            project.endpoints && Object.values(project.endpoints).forEach((endp: any) => {
-                if (endp.folder === id) endp.folder = '';
-            })
-            project.models && Object.values(project.models).forEach((model: any) => {
-                if (model.folder === id) model.folder = '';
-            })
-            project.traits && Object.values(project.traits).forEach((trait: any) => {
-                if (trait.folder === id) trait.folder = '';
-            })
+            if (project.endpoints) {
+                let updatedEndps: ApiEndp[] = Object.values(project.endpoints).map((endp: ApiEndp) => {
+                    return { ...endp, folder: endp.folder === id ? '' : endp.folder }
+                })
+                project = { ...project, endpoints: Utils.arrayToObj(updatedEndps, '_id') };
+            }
+            if (project.models) {
+                let updatedModels: ApiModel[] = Object.values(project.models).map((model: ApiModel) => {
+                    return { ...model, folder: model.folder === id ? '' : model.folder }
+                })
+                project = { ...project, models: Utils.arrayToObj(updatedModels, '_id') };
+            }
+
+            if (project.traits) {
+                let updatedTraits: APiTraits[] = Object.values(project.traits).map((trait: APiTraits) => {
+                    return { ...trait, folder: trait.folder === id ? '' : trait.folder }
+                })
+                project = { ...project, traits: Utils.arrayToObj(updatedTraits, '_id') };
+            }
 
             this.updateApiProject(project).then(() => {
                 this.toaster.success('Folder deleted.');
                 this.folderForm.markAsPristine();
-                this.selectFolder('NEW');
-                // this.projectUpdated.next({ folder: id });
+                this.openFolder(NewApiFolder);
             }, (e) => {
                 console.log('Failed to delete folder', e);
                 this.toaster.error(`Failed to delete folder: ${e.message}`);
@@ -145,10 +151,10 @@ export class ProjectFolderComponent implements OnInit {
 
     }
 
-    private checkExistingFolder(name) {
+    private checkExistingFolder(name: string) {
         if (!name)
             return undefined;
-        var foundId;
+        var foundId: string;
         if (this.selectedPROJ.folders) {
             this.selectedPROJ.folders && Object.keys(this.selectedPROJ.folders).forEach(id => {
                 if (this.selectedPROJ.folders[id].name.toLowerCase() === name.toLowerCase())

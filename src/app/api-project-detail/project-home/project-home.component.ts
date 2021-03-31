@@ -22,12 +22,11 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 export class ProjectHomeComponent implements OnInit, OnChanges {
     @Input() selectedPROJ: ApiProject;
     @Input() updateApiProject: Function;
-    // @Input() openExportModal: Function;
+    @Input() deleteApiProject: Function;
     @Output() changeStageEmitter = new EventEmitter<number>();
     @Output() onExport: EventEmitter<any> = new EventEmitter();
 
     projDetailForm: FormGroup;
-    authUser: User;
     projEnv: Env = null; //auto generated env for this project
     flags = {
         editProj: false,
@@ -37,16 +36,9 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
     }
 
     constructor(
-        private store: Store,
         private toaster: Toaster,
-        private router: Router,
         fb: FormBuilder,
-        private apiProjectService: ApiProjectService,
         private envService: EnvService) {
-
-        this.store.select(UserState.getAuthUser).subscribe(user => {
-            this.authUser = user;
-        });
 
         this.projDetailForm = fb.group({
             title: ['', Validators.required],
@@ -87,25 +79,6 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
 
     }
 
-    deleteProj() {
-        if (this.selectedPROJ.owner && this.authUser?.UID !== this.selectedPROJ.owner) {
-            this.toaster.error('You can\'t delete this Project as you are not the owner. If you have permission you can edit it though.');
-            return;
-        }
-        var id = this.selectedPROJ._id;
-        this.apiProjectService.deleteAPIProjects([id]).then(() => {
-
-            if (this.selectedPROJ.setting?.envId) {
-                this.envService.deleteEnvs([this.selectedPROJ.setting.envId])
-            }
-
-            this.router.navigate(['/designer']);
-            this.toaster.success('Project deleted');
-        }, () => {
-            this.toaster.error('Failed to delete project');
-        });
-    }
-
     saveProjEdit() {
         if (!this.projDetailForm.valid) return;
         const formValue = this.projDetailForm.value;
@@ -125,9 +98,6 @@ export class ProjectHomeComponent implements OnInit, OnChanges {
             }
         });
     }
-
-
-
 
     changeStage(name) {
         this.changeStageEmitter.emit(name);

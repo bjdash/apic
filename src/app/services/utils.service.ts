@@ -19,4 +19,8 @@ export default class Utils {
         document.body.removeChild(input);
         this.toaster.success('Copied');
     }
+
+    static arrayToObj<T>(array: T[], key: string): { [key: string]: T } {
+        return array.reduce((obj, item: T) => Object.assign(obj, { [item[key]]: item }), {});
+    }
 }

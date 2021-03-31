@@ -2,7 +2,7 @@
 import { Const } from './constants';
 import apic from './apic'
 
-
+//TODO: Move all these to Utils.service, use static wherever required
 export default {
     entries,
     initXMLHttpRequest,

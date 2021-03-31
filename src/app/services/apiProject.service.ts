@@ -57,13 +57,11 @@ export class ApiProjectService {
     }
 
     async deleteAPIProjects(ids: string[], fromSync?: boolean) {
-        return iDB.deleteMany(iDB.TABLES.API_PROJECTS, ids).then((data) => {
+        return iDB.deleteMany(iDB.TABLES.API_PROJECTS, ids).then((data) => { //data doesnt contain deleted ids
             if (!fromSync) {
                 this.syncService.prepareAndSync('deleteAPIProject', ids);
             }
             this.store.dispatch(new ApiProjectsAction.Delete(ids));
-            //TODO:
-            //$rootScope.$emit('refreshProjectReqs', { type: 'delete', projId: id });
             return data;
         });
     }

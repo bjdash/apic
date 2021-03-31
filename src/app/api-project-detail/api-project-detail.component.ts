@@ -11,6 +11,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProjectExportModalComponent } from './project-export-modal/project-export-modal.component';
 import { ConfirmService } from '../directives/confirm.directive';
 import { ApiProjectStateSelector } from '../state/apiProjects.selector';
+import { EnvService } from '../services/env.service';
+import { Toaster } from '../services/toaster.service';
+import { UserState } from '../state/user.state';
+import { User } from '../models/User.model';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -23,10 +27,12 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     @ViewChild('traitsView') traitsView: ProjectTraitsComponent;
 
     private destroy: Subject<boolean> = new Subject<boolean>();
-    private pendingUpdate: Promise<ApiProject> = Promise.resolve(null);
+    private pendingAction: Promise<any> = Promise.resolve(null);
 
     selectedPROJ: ApiProject;
     selectedPROJ$: Observable<ApiProject>;
+    authUser: User;
+
     leftPanel = {
         expanded: { ungrouped: true }, //list of expanded folders
         tree: null
@@ -35,26 +41,30 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         stage: 'dashboard'
     }
     subscriptions: Subscription[] = [];
-    test: Subscription;
 
     constructor(private route: ActivatedRoute,
         private store: Store,
         private router: Router,
         private confirmService: ConfirmService,
+        private envService: EnvService,
+        private toaster: Toaster,
         private apiProjectService: ApiProjectService,
         private dialog: MatDialog) {
         this.route.params.subscribe(params => {
             this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getByIdDynamic(params.projectId));
 
-            this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).subscribe(leftTree => {
+            this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).pipe(takeUntil(this.destroy)).subscribe(leftTree => {
                 this.leftPanel.tree = leftTree;
             });
             // this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getById)
             //     .pipe(map(filterFn => filterFn(params.projectId)));
+            this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
+                this.authUser = user;
+            });
 
-            this.test = this.selectedPROJ$
+            this.selectedPROJ$
+                .pipe(delayWhen(() => from(this.pendingAction)))
                 .pipe(takeUntil(this.destroy))
-                .pipe(delayWhen(() => from(this.pendingUpdate)))
                 // .pipe(delay(0))
                 .subscribe(p => {
                     if (p && p._modified !== this.selectedPROJ?._modified) {
@@ -84,9 +94,10 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         });
 
         this.updateApiProject = this.updateApiProject.bind(this)
+        this.deleteApiProject = this.deleteApiProject.bind(this)
     }
     ngOnDestroy(): void {
-        this.destroy.next(true);
+        this.destroy.next();
         this.destroy.complete();
     }
     ngOnInit(): void {
@@ -104,10 +115,32 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
 
     async updateApiProject(proj?: ApiProject): Promise<ApiProject> {
         if (!proj) proj = this.selectedPROJ;
-        this.pendingUpdate = this.apiProjectService.updateAPIProject(proj);
-        this.selectedPROJ = await this.pendingUpdate;
+        this.pendingAction = this.apiProjectService.updateAPIProject(proj);
+        this.selectedPROJ = await this.pendingAction;
         console.log('updated proj', this.selectedPROJ._modified);
         return this.selectedPROJ;
+    }
+
+    async deleteApiProject() {
+        if (this.selectedPROJ.owner && this.authUser?.UID !== this.selectedPROJ.owner) {
+            this.toaster.error('You can\'t delete this Project as you are not the owner. If you have permission you can edit it though.');
+            return;
+        }
+        var id = this.selectedPROJ._id;
+        try {
+            this.pendingAction = this.apiProjectService.deleteAPIProjects([id]);
+            await this.pendingAction;
+            if (this.selectedPROJ.setting?.envId) {
+                this.envService.deleteEnvs([this.selectedPROJ.setting.envId])
+            }
+
+            this.router.navigate(['/designer']);
+            this.toaster.success('Project deleted');
+            this.destroy.next();
+            this.destroy.complete();
+        } catch (e) {
+            this.toaster.error('Failed to delete project');
+        }
     }
 
     toggleExpand(id: string) {

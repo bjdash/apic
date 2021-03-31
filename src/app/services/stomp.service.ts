@@ -102,6 +102,7 @@ export class StompService {
                 //if socket is not connected, save message in unsynced db if not already saved
                 if (this.currentProcessingMessage.opId.indexOf('unsynced-') < 0) {
                     this.saveUnsynced(this.currentProcessingMessage);
+                    this.currentProcessingMessage = null;
                 }
             }
 
