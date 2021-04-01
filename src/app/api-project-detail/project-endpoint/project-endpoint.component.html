@@ -10,9 +10,9 @@
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #endpsList="matMenu">
-                <button mat-menu-item (click)="selectEndp('NEW')">Create new Endpoint</button>
+                <button mat-menu-item (click)="openNewEndp()">Create new Endpoint</button>
                 <mat-divider></mat-divider>
-                <button *ngFor="let endp of selectedPROJ.endpoints | keyvalue" (click)="selectEndp(endp.value._id)"
+                <button *ngFor="let endp of selectedPROJ.endpoints | keyvalue" (click)="openEndpById(endp.value._id)"
                     mat-menu-item>{{endp.value.summary}}</button>
             </mat-menu>
         </div>
@@ -73,8 +73,8 @@
                 </label>
                 <div class="col-sm-8">
                     <apic-tag-editor (onAdd)="importTraitData($event)" (onRemove)="removeTraitData($event)"
-                        formControlName="traits" [suggestions]="selectedPROJ.traits" key="_id" value="name"
-                        type="object">
+                        formControlName="traits" [suggestions]="selectedPROJ.traits" key="_id" dispValue="name"
+                        type="strict">
                     </apic-tag-editor>
                 </div>
             </div>
@@ -82,7 +82,48 @@
             <div class="row">
                 <label class="control-label col-sm-2">Tags:</label>
                 <div class="col-sm-8">
-                    <apic-tag-editor formControlName="tags" type="string"></apic-tag-editor>
+                    <apic-tag-editor formControlName="tags" type="freeForm"></apic-tag-editor>
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="control-label col-sm-2">
+                    <a class="f18 icon-sm" mat-icon-button
+                        href="https://docs.apic.app/designer/api-security-definitions" target="_new">
+                        <mat-icon class="sm">help</mat-icon>
+                    </a>
+                    Security:
+                </label>
+                <div class="col-sm-8">
+                    <apic-tag-editor formControlName="security" [suggestions]="selectedPROJ.securityDefinitions"
+                        key="name" dispValue="name" type="strict">
+                    </apic-tag-editor>
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="control-label col-sm-2">Schemes: </label>
+                <div class="col-sm-4">
+                    <apic-tag-editor formControlName="schemes" [suggestions]="schemesSugg" placeholder="Schemes"
+                        key="key" dispValue="val" type="strict">
+                    </apic-tag-editor>
+                </div>
+                <label class="control-label col-sm-2">Operation Id:</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control sm" maxlength="30" formControlName="operationId">
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="control-label col-sm-2">Consumes: </label>
+                <div class="col-sm-4">
+                    <apic-tag-editor formControlName="consumes" type="strict" placeholder="Consumes"
+                        [suggestions]="MIMEs"></apic-tag-editor>
+                </div>
+                <label class="control-label col-sm-2">Produces: </label>
+                <div class="col-sm-4">
+                    <apic-tag-editor formControlName="produces" type="strict" placeholder="Produces"
+                        [suggestions]="MIMEs"></apic-tag-editor>
                 </div>
             </div>
             {{endpForm.value|json}}

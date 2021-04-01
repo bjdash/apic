@@ -12,6 +12,7 @@ import { Store } from '@ngxs/store';
 import { map, take } from 'rxjs/operators';
 import helpers from 'src/app/utils/helpers';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
+import { ApiProject } from 'src/app/models/ApiProject.model';
 
 @Component({
   selector: 'app-import-project',
@@ -67,7 +68,7 @@ export class ImportProjectComponent implements OnInit {
 
     if (!importData) return;
 
-    var project;
+    var project: ApiProject;
     if (importData.TYPE === 'APIC Api Project') {
       if (this.apiProjectService.validateImportData(importData)) {
         project = await this.sanitizeProjImport(importData.value);
@@ -105,13 +106,13 @@ export class ImportProjectComponent implements OnInit {
       }
     };
     const newEnvId = await this.envService.addEnv(newEnv);
-    project.setting.envId = newEnvId;
+    project = { ...project, setting: { ...project.setting, envId: newEnvId } }
     await this.apiProjectService.updateAPIProject(project);
     this.toaster.success(`Project "${project.title}" imported`);
     this.dialogRef.close();
   }
 
-  sanitizeProjImport(project) {
+  sanitizeProjImport(project: ApiProject): Promise<ApiProject> {
     return new Promise(resolve => {
       delete project.owner;
       delete project.team;

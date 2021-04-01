@@ -16,7 +16,12 @@ div.mat-chip-list-wrapper {
     padding: 0;
   }
   .mat-form-field-ripple {
-    background-color: var(--accent-color) !important;
+    background-color: transparent !important;
+    pointer-events: none;
+    height: 10px !important;
+    border-radius: 5px;
+    border-bottom: 2px solid var(--accent-color);
+    top: -8px !important;
   }
   .mat-form-field-wrapper {
     padding-bottom: 0;
@@ -340,4 +345,8 @@ div.mat-menu-content {
 .mat-menu-item.cdk-keyboard-focused:not([disabled]),
 .mat-menu-item-highlighted:not([disabled]) {
   background: var(--header-bg) !important;
+}
+.mat-option{
+  line-height: 40px !important;
+  height: 36px !important;
 }

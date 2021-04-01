@@ -31,10 +31,24 @@ export interface ApiModel {
 
 export interface ApiEndp {
     _id: string,
-    name: string,
+    summary?: string,
+    path: string,
     method: string,
     folder: string | undefined,
-    summary?: string
+    traits?: any[],
+    tags?: string[],
+    security?: any[],
+    operationId?: string,
+    schemes?: KeyVal[],
+    consumes?: string[],
+    produces?: string[],
+    description?: string,
+    pathParams?: any,
+    queryParams?: any,
+    headers?: any,
+    responses?: any[],
+    postrun?: string,
+    prerun?: string,
 }
 
 export interface ApiTrait {
@@ -68,7 +82,9 @@ export interface ApiProject {
         name?: string,
         url?: string
     },
-    securityDefinitions?: SecurityDef[]
+    securityDefinitions?: SecurityDef[],
+    simKey?: string,
+    publishedId?: string
 }
 
 export const NewApiFolder: ApiFolder = {
@@ -97,4 +113,26 @@ export const NewApiTrait: ApiTrait = {
         data: { type: "object" },
         noneStatus: false
     }]
+}
+
+export const NewApiEndp: ApiEndp = {
+    _id: 'NEW',
+    summary: '',
+    path: '',
+    method: '',
+    folder: '',
+    traits: [],
+    tags: [],
+    security: [],
+    operationId: '',
+    schemes: [],
+    consumes: [],
+    produces: [],
+    description: '',
+    pathParams: { type: 'object' },
+    queryParams: { type: 'object' },
+    headers: { type: 'object' },
+    responses: [],
+    postrun: '',
+    prerun: '',
 }

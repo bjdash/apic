@@ -8,6 +8,8 @@ import {
   forwardRef,
   EventEmitter,
   Output,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import {
   FormControl,
@@ -19,7 +21,19 @@ import {
   MatAutocomplete,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
+import { Observable, Subscription } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 
+
+/*
+APIC tag editor
+supports free range tag (strings) entries; type = freeForm
+or selecting value from a suggested list; type = strict
+autocomplete suggestions provided via suggestions, cab be object, array of objects or array of strings
+key: for type = strict, the key to be used to identify selected value in suggestion list, not required if suggestion is array of strings
+dispValue: for type = strict, the key to be used to display the suggestion list, not required if suggestion is array of strings
+
+*/
 @Component({
   selector: 'apic-tag-editor',
   templateUrl: './apic-tag-editor.component.html',
@@ -32,15 +46,15 @@ import {
   ],
   styleUrls: ['./apic-tag-editor.component.css'],
 })
-export class ApicTagEditorComponent implements OnInit, ControlValueAccessor {
+export class ApicTagEditorComponent implements OnInit, OnChanges, ControlValueAccessor {
   @Input()
   suggestions: any[];
   @Input()
   key: string;
   @Input()
-  value: string;
+  dispValue: string;
   @Input()
-  type: string;
+  type: 'strict' | 'freeForm';
 
   @Output() onAdd = new EventEmitter<any>();
   @Output() onRemove = new EventEmitter<any>();
@@ -48,15 +62,22 @@ export class ApicTagEditorComponent implements OnInit, ControlValueAccessor {
   propagateChange: any = () => { };
   propagateTouch: any = () => { };
 
+  suggestionsList: any[] = [];
   selectable = true;
   removable = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
   inputCtrl = new FormControl();
+  filteredSuggestions$: Observable<any>;
   selected: any[] = [];
 
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
 
   constructor() { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.suggestions) {
+      this.suggestionsList = this.formatSuggestions();
+    }
+  }
   writeValue(value: any): void {
     if (value !== undefined) {
       this.selected = value;
@@ -95,19 +116,18 @@ export class ApicTagEditorComponent implements OnInit, ControlValueAccessor {
   }
 
   addItem(selectedValue) {
-    if (this.type === 'string') {
-      if (!this.selected.includes(selectedValue))
+    if (this.type === 'freeForm') {
+      if (!this.selected.includes(selectedValue)) {
         this.selected.push(selectedValue);
-      this.onAdd.next(selectedValue);
+        this.onAdd.next(selectedValue);
+      }
     } else {
-      const selectedItem = this.suggestions[selectedValue];
+      const selectedItem = this.getSelectedItem(selectedValue);
       if (
         selectedItem &&
-        !this.selected.find((s) => s[this.key] === selectedValue)
+        !this.selected.find((s) => this._find(s, selectedValue))
       ) {
-        const itemToAdd = {};
-        itemToAdd[this.key] = selectedItem[this.key];
-        itemToAdd[this.value] = selectedItem[this.value];
+        const itemToAdd = typeof selectedItem === 'string' ? selectedItem : { [this.key]: selectedItem[this.key], [this.dispValue]: selectedItem[this.dispValue] };
         this.selected.push(itemToAdd);
         this.onAdd.next(itemToAdd);
       }
@@ -116,5 +136,45 @@ export class ApicTagEditorComponent implements OnInit, ControlValueAccessor {
     this.propagateChange(this.selected);
   }
 
-  ngOnInit(): void { }
+  getSelectedItem(selectedValue) {
+    if (this.suggestions instanceof Array) {
+      return this.suggestions.find(s => this._find(s, selectedValue))
+    } else {
+      return this.suggestions[selectedValue];
+    }
+  }
+
+  ngOnInit(): void {
+    if (this.suggestions) {
+      this.suggestionsList = this.formatSuggestions();
+      this.filteredSuggestions$ = this.inputCtrl.valueChanges
+        .pipe(startWith(''),
+          map(value => this._filter(value))
+        );
+    }
+
+  }
+
+  private _filter(value: string): string[] {
+    if (!value) value = '';
+    const filterValue = value.toLowerCase();
+    return this.suggestionsList.filter(option => {
+      if (typeof option === 'string') return option.toLowerCase().includes(filterValue);
+      else return option[this.dispValue]?.toLowerCase().includes(filterValue);
+    });
+  }
+
+  private _find(obj, find) {
+    if (typeof obj === 'string') {
+      return obj === find
+    }
+    return obj[this.key] === find
+  }
+
+  formatSuggestions() {
+    if (!(this.suggestions instanceof Array)) {
+      return Object.values(this.suggestions);
+    }
+    return this.suggestions;
+  }
 }

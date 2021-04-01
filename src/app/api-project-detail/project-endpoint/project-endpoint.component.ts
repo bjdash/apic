@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ApiProject } from 'src/app/models/ApiProject.model';
+import { ApiEndp, ApiProject, NewApiEndp } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Toaster } from 'src/app/services/toaster.service';
-import { pairwise, distinctUntilChanged } from 'rxjs/operators';
+import { MIMEs } from 'src/app/utils/constants';
 
 @Component({
   selector: 'app-project-endpoint',
@@ -14,10 +14,14 @@ export class ProjectEndpointComponent implements OnInit {
   @Input() selectedPROJ: ApiProject;
   @Input() updateApiProject: Function;
 
-
-  selectedEndp: string = 'NEW';
+  schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
+  MIMEs = MIMEs;
+  selectedEndp: ApiEndp;
   selectedName: string;
   endpForm: FormGroup;
+  flags = {
+    allOptn: true
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -31,13 +35,34 @@ export class ProjectEndpointComponent implements OnInit {
       folder: [''],
       traits: [[]],
       tags: [[]],
+      security: [[]],
+      operationId: ['', [Validators.maxLength(30)]],
+      schemes: [[]],
+      consumes: [[]],
+      produces: [[]],
+      description: [''],
+      pathParams: [{ type: 'object' }],
+      queryParams: [{ type: 'object' }],
+      headers: [{ type: 'object' }],
+      responses: [[]],
+      postrun: [''],
+      prerun: [''],
     });
     this.selectedName = 'Create new Endpoint';
   }
 
   ngOnInit(): void { }
 
-  selectEndp(endpId: string) {
+  openNewEndp() {
+    this.openEndp(NewApiEndp);
+  }
+
+  openEndpById(endpIdToOpen: string) {
+    const endp: ApiEndp = this.selectedPROJ?.endpoints?.[endpIdToOpen] || NewApiEndp;
+    this.openEndp(endp)
+  }
+
+  openEndp(endpToOpen: ApiEndp) {
     if (this.endpForm.dirty) {
       this.confirmService
         .confirm({
@@ -48,40 +73,26 @@ export class ProjectEndpointComponent implements OnInit {
           confirmCancel: 'No, let me save',
         })
         .then(() => {
-          this.handleEndpSelect(endpId);
+          this.handleEndpSelect(endpToOpen);
         })
         .catch(() => {
           console.info('Selected to keep the changes');
         });
     } else {
-      this.handleEndpSelect(endpId);
+      this.handleEndpSelect(endpToOpen);
     }
   }
 
-  private handleEndpSelect(endpId: string) {
-    this.selectedEndp = endpId;
-    if (endpId === 'NEW') {
-      this.endpForm = this.fb.group({
-        name: ['', [Validators.required, Validators.maxLength(100)]],
-        nameSpace: ['', [Validators.required, Validators.maxLength(100)]],
-        folder: [''],
-        data: [{ type: 'object' }],
-      });
-      this.selectedName = 'Create new Endpoint';
-    } else {
-      const { name, folder } = this.selectedPROJ.endpoints[
-        endpId
-      ];
-      this.endpForm = this.fb.group({
-        name: [name, [Validators.required, Validators.maxLength(100)]],
-        // nameSpace: [nameSpace, Validators.maxLength(100)],
-        folder: [folder],
-        // data: [data],
-      });
-      this.selectedName = name;
-      this.endpForm.markAsPristine();
-      this.endpForm.markAsUntouched();
-    }
+  private handleEndpSelect(endpToOpen: ApiEndp) {
+    this.selectedEndp = { ...endpToOpen };
+    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, responses, postrun, prerun } = endpToOpen;
+    if (!folder) folder = '';
+    this.endpForm.patchValue({ summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, responses, postrun, prerun });
+    this.selectedName = summary || 'Create new trait';
+    this.endpForm.markAsPristine();
+    this.endpForm.markAsUntouched();
+    // this.addDefaultResponse();
+
   }
 
   createEndp() {
