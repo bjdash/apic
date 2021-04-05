@@ -76,6 +76,7 @@ export class ApicTagEditorComponent implements OnInit, OnChanges, ControlValueAc
   ngOnChanges(changes: SimpleChanges): void {
     if (this.suggestions) {
       this.suggestionsList = this.formatSuggestions();
+      this.inputCtrl.setValue('');
     }
   }
   writeValue(value: any): void {

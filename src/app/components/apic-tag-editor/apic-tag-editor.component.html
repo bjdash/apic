@@ -12,7 +12,7 @@
             [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)"
             autocomplete="off">
     </mat-chip-list>
-    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event)">
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event)" autoActiveFirstOption>
         <mat-option *ngFor="let option of filteredSuggestions$| async" [value]="option[key] || option">
             {{option[dispValue] || option}}
         </mat-option>

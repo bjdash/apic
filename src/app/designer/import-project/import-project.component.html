@@ -34,9 +34,8 @@
                     (click)="flags.impType='json'">JSON</button>
             </div>
             <div class="col-sm-12">
-                <ace-editor [(text)]="form.value.text" [mode]="flags.impType" [theme]="'monokai'" [readOnly]="false"
-                    [autoUpdateContent]="true" #editor style="min-height: 200px; width:100%; overflow: auto;">
-                </ace-editor>
+                <apic-ace id="import-ace" apicAceResize [(text)]="form.value.text" [mode]="flags.impType">
+                </apic-ace>
             </div>
         </div>
         <div class="vcenter">

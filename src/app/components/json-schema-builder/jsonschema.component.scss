@@ -134,10 +134,12 @@ input.model-key:active {
   outline: none;
 }
 
-input.model-key[readonly] {
-  background: #eee;
+input.model-key[readonly], fieldset[disabled] input{
+ cursor: not-allowed;
 }
-
+button[disabled]{
+  cursor: not-allowed;
+}
 .btn.model-selector .caret {
   display: none;
 }

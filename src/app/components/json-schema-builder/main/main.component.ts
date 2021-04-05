@@ -39,6 +39,9 @@ export class MainJsonSchemaComponent implements OnInit {
     @Input()
     addAdditionalProp: Function;
 
+    @Input()
+    disabledKeys: string[] = []
+
     showDetailsPan = false;
     ctrl = {
         expanded: true

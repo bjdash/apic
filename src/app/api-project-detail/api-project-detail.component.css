@@ -1,6 +1,7 @@
 .designer .left-nav .nav-tabs {
     height: 38px;
 }
+
 .projHead {
     font-size: 20px;
     color: var(--text-color);
@@ -11,9 +12,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .proj-banner {
     min-height: 80px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
     background-color: var(--header-bg);
     background-size: 100%;
     background-position: center center;
@@ -21,6 +23,7 @@
     position: relative;
     overflow: visible;
 }
+
 .proj-banner .proj-head {
     width: 700px;
     /* position: absolute; */
@@ -33,16 +36,18 @@
     margin-bottom: 0;
     float: left;
 }
-.proj-banner .mat-raised-button.sm, .proj-banner .mat-button.sm, .proj-banner .mat-icon-button.sm, .proj-banner .mat-stroked-button.sm, .proj-banner .mat-flat-button.sm{
+
+.proj-banner .mat-raised-button.sm, .proj-banner .mat-button.sm, .proj-banner .mat-icon-button.sm, .proj-banner .mat-stroked-button.sm, .proj-banner .mat-flat-button.sm {
     line-height: 30px !important;
     padding: 0 5px;
 }
+
 .landing-action {
     width: 350px;
     height: 125px;
     background: var(--content-bg);
     border-radius: 10px;
-    box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
     padding: 15px;
     cursor: pointer;
     position: relative;
@@ -51,10 +56,12 @@
     float: left;
     margin: 10px;
 }
+
 .landing-action .ac-text {
     font-size: 14px;
     line-height: 18px;
 }
+
 .landing-action .ac-head {
     font-size: 27px;
     position: absolute;
@@ -66,6 +73,7 @@
     color: var(--accent-bg-text);
     bottom: -45px;
 }
+
 h4.head {
     margin-top: 0;
     font-size: 26px;

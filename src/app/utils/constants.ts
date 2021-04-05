@@ -95,78 +95,6 @@ function getConstants() {
             },
             accents: ['#2196f3', '#24BAFF', '#E81123', '#F7630C', '#EA005E', '#FF8C00', '#E3008C', '#9A0089', '#FF4343', '#00CC6A', '#107C10']
         },
-        testSnippets: [{
-            text: 'Set an Environment variable',
-            code: 'setEnv("variable_name", "variable_value");'
-        }, {
-            text: 'Read Environment vatiable value',
-            code: 'getEnv("variable_name");'
-        }, {
-            text: 'Remove an Environment vatiable',
-            code: 'removeEnv("variable_name");'
-        }, {
-            text: 'Status code is 200',
-            code: 'apic.test("Check that Status code is 200", function(){\n\t<<assert>>;\n})',
-            params: ['$response.status', 200, 'eql']
-        }, {
-            text: 'Status code is not 404',
-            code: 'apic.test("Status code should not be 404", function(){\n\t<<assert>>;\n})',
-            params: ['$response.status', 404, 'eql', true]
-        }, {
-            text: 'Status Text is OK',
-            code: 'apic.test("Status Text is OK", function(){\n\t<<assert>>;\n})',
-            params: ['$response.statusText', '"OK"', 'eql']
-        }, {
-            text: 'Time taken is less than 2 sec',
-            code: 'apic.test("Time taken is less than or equals to 2 sec", function(){\n\t<<assert>>;\n})',
-            params: ['$response.timeTaken', 2000, 'lte']
-        }, {
-            text: 'String Response body contains specific string',
-            code: 'apic.test("Response raw body contains string \'your_string\'", function(){\n\t<<assert>>;\n})',
-            params: ['$response.body', '"your_string"', 'include']
-        }, {
-            text: 'String Response body is equals to',
-            code: 'apic.test("Response raw body is equals to \'your_string\'", function(){\n\t<<assert>>;\n})',
-            params: ['$response.body', '"your_string"', 'eql']
-        }, {
-            text: 'JSON Response property and value check',
-            code: 'apic.test("JSON Response should have a property \'id\' with value as 12345", function(){\n\texpect($response.data).to.have.property("id").and.to.be.eql(\'12345\');\n})'
-        }, {
-            text: 'Response has the header Content-Type',
-            code: 'apic.test("Response has the header Content-Type", function(){\n\t$response.headers.has("Content-Type");\n})'
-        }, {
-            text: 'Response header value check',
-            code: 'apic.test("The value of response header Content-Type is application/json", function(){\n\t<<assert>>;\n})',
-            params: ['$response.headers.getValue("content-Type")', '"application/json"', 'eql']
-        }, {
-            text: 'Add log (response body)',
-            code: '//logs the entire response body in logs tab;\nlog($response.body);'
-        }, {
-            text: 'Add log (time taken)',
-            code: 'log("Time taken for request to complete is :"+ $response.timeTaken+" milisecond");'
-        }, {
-            text: 'Validate response with schema against status code 200',
-            code: 'apic.test("Response data should match the schema specified against status 200", function(){\n\texpect($response).to.matchSchema(200);\n})'
-        }, {
-            text: 'Validate response with current schema',
-            code: 'apic.test("Response data should match the specified schema for current status code", function(){\n\texpect($response).to.matchSchema();\n})'
-        }, {
-            text: 'Generate random string (length)',
-            code: 'var randStr = apic.randomStr(30);'
-        }, {
-            text: 'Generate random number (min, max, isDecimal)',
-            code: 'var randNum = apic.randomNum(1,999);'
-        }, {
-            text: 'Generate random email',
-            code: 'var randomEmail = apic.randomEmail();'
-        }, {
-            text: 'Generate random from a list',
-            code: 'var randomList = apic.randomInList([1, \'foo\', \'bar@xyz.com\', 2.396]);'
-        }, {
-            text: 'Generate random from UUID',
-            code: 'var randomUUID = apic.uuid();'
-        }
-        ],
         reqBodySnippets: [{
             text: 'Generate random string (length)',
             code: '"{{apic.randomStr(30)}}"'
@@ -213,3 +141,75 @@ export const ApicUrls = getURLs();
 export const DemoData = getDemoData();
 export const HTTP_HEADERS = ['Accept', 'Accept-Charset', 'Accept-Encoding', 'Accept-Language', 'Accept-Datetime', 'Authorization', 'Cache-Control', 'Connection', 'Cookie', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'Expect', 'Forwarded', 'From', 'Host', 'If-Match', 'If-Modified-Since', 'If-None-Match', 'If-Range', 'If-Unmodified-Since', 'Max-Forwards', 'Origin', 'Pragma', 'Proxy-Authorization', 'Range', 'Referer', 'Referer [sic]', 'TE', 'User-Agent', 'Upgrade', 'Via', 'Warning', 'X-Requested-With', 'DNT', 'X-Forwarded-For', 'X-Forwarded-Host', 'X-Forwarded-Proto', 'Front-End-Https', 'X-Http-Method-Override', 'X-ATT-DeviceId', 'X-Wap-Profile', 'Proxy-Connection', 'X-UIDH', 'X-Csrf-Token'];
 export const MIMEs = ['application/json', 'application/javascript', 'application/x-www-form-urlencoded', 'application/xml', 'multipart/form-data', 'text/html', 'text/plain', 'application/zip', 'application/EDI-X12', 'application/EDIFACT', 'application/atom+xml', 'application/font-woff', 'application/gzip', 'application/octet-stream', 'application/ogg', 'application/pdf', 'application/postscript', 'application/soap+xml', 'application/x-bittorrent', 'application/x-tex', 'application/xhtml+xml', 'application/xml-dtd', 'application/xop+xml'];
+export const TestSnips = [{
+    text: 'Set an Environment variable',
+    code: 'setEnv("variable_name", "variable_value");'
+}, {
+    text: 'Read Environment vatiable value',
+    code: 'getEnv("variable_name");'
+}, {
+    text: 'Remove an Environment vatiable',
+    code: 'removeEnv("variable_name");'
+}, {
+    text: 'Status code is 200',
+    code: 'apic.test("Check that Status code is 200", function(){\n\t<<assert>>;\n});',
+    params: ['$response.status', 200, 'eql']
+}, {
+    text: 'Status code is not 404',
+    code: 'apic.test("Status code should not be 404", function(){\n\t<<assert>>;\n});',
+    params: ['$response.status', 404, 'eql', true]
+}, {
+    text: 'Status Text is OK',
+    code: 'apic.test("Status Text is OK", function(){\n\t<<assert>>;\n});',
+    params: ['$response.statusText', '"OK"', 'eql']
+}, {
+    text: 'Time taken is less than 2 sec',
+    code: 'apic.test("Time taken is less than or equals to 2 sec", function(){\n\t<<assert>>;\n});',
+    params: ['$response.timeTaken', 2000, 'lte']
+}, {
+    text: 'String Response body contains specific string',
+    code: 'apic.test("Response raw body contains string \'your_string\'", function(){\n\t<<assert>>;\n});',
+    params: ['$response.body', '"your_string"', 'include']
+}, {
+    text: 'String Response body is equals to',
+    code: 'apic.test("Response raw body is equals to \'your_string\'", function(){\n\t<<assert>>;\n});',
+    params: ['$response.body', '"your_string"', 'eql']
+}, {
+    text: 'JSON Response property and value check',
+    code: 'apic.test("JSON Response should have a property \'id\' with value as 12345", function(){\n\texpect($response.data).to.have.property("id").and.to.be.eql(\'12345\');\n});'
+}, {
+    text: 'Response has the header Content-Type',
+    code: 'apic.test("Response has the header Content-Type", function(){\n\t$response.headers.has("Content-Type");\n});'
+}, {
+    text: 'Response header value check',
+    code: 'apic.test("The value of response header Content-Type is application/json", function(){\n\t<<assert>>;\n});',
+    params: ['$response.headers.getValue("content-Type")', '"application/json"', 'eql']
+}, {
+    text: 'Add log (response body)',
+    code: '//logs the entire response body in logs tab;\nlog($response.body);'
+}, {
+    text: 'Add log (time taken)',
+    code: 'log("Time taken for request to complete is :"+ $response.timeTaken+" milisecond");'
+}, {
+    text: 'Validate response with schema against status code 200',
+    code: 'apic.test("Response data should match the schema specified against status 200", function(){\n\texpect($response).to.matchSchema(200);\n});'
+}, {
+    text: 'Validate response with current schema',
+    code: 'apic.test("Response data should match the specified schema for current status code", function(){\n\texpect($response).to.matchSchema();\n});'
+}, {
+    text: 'Generate random string (length)',
+    code: 'var randStr = apic.randomStr(30);'
+}, {
+    text: 'Generate random number (min, max, isDecimal)',
+    code: 'var randNum = apic.randomNum(1,999);'
+}, {
+    text: 'Generate random email',
+    code: 'var randomEmail = apic.randomEmail();'
+}, {
+    text: 'Generate random from a list',
+    code: 'var randomList = apic.randomInList([1, \'foo\', \'bar@xyz.com\', 2.396]);'
+}, {
+    text: 'Generate random from UUID',
+    code: 'var randomUUID = apic.uuid();'
+}
+]

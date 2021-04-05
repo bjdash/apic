@@ -1,5 +1,5 @@
 <div class="objCont" *ngIf="entity && entity._type">
-    <fieldset [disabled]="entity.disabled" class="js-fieldset">
+    <fieldset [disabled]="entity.disabled || disabledKeys?.includes(entity._key)" class="js-fieldset">
         <div class="js-row" [ngClass]="showDetailsPan?'t_glow':''">
             <button type="button" mat-icon-button aria-label="Add new prop" class="obj-add sm"
                 (click)="addNewProp(entity,$event)" [disabled]="mode == 'static'"
@@ -62,17 +62,21 @@
                 <mat-icon class="sm" *ngIf="entity._description" matTooltip="{{entity._description}}">description
                 </mat-icon>
                 <span *ngIf="!entity.root$$" class="vcenter gap">
-                    <input type="checkbox" [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)" />
-                    <span>Required</span>
+                    <mat-checkbox [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)">Required
+                    </mat-checkbox>
+                    <!-- <input type="checkbox" [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)" />
+                    <span>Required</span> -->
                 </span>
-                <button type="button" mat-icon-button *ngIf="showDetailsPan" class="model-done sm"
-                    (click)="showDetailsPan=false; refreshSchema()">
+                <!--Needs to be an anchor to make sure its enable even if the fieldset is disabled-->
+                <a href="" mat-icon-button *ngIf="showDetailsPan" class="model-done sm"
+                    (click)="showDetailsPan=false; refreshSchema();$event.preventDefault()">
                     <mat-icon>done</mat-icon>
-                </button>
-                <button type="button" mat-icon-button *ngIf="!showDetailsPan" class="model-detail sm"
-                    (click)="showDetailsPan=true">
+                </a>
+                <a href="" mat-icon-button [hidden]="entity.root$$ && (mode == 'list' || mode == 'static')"
+                    *ngIf="!showDetailsPan" class="model-detail sm"
+                    (click)="showDetailsPan=true;$event.preventDefault()">
                     <mat-icon>edit</mat-icon>
-                </button>
+                </a>
                 <button class="model-remove sm" mat-icon-button *ngIf="!entity.root$$ && mode != 'static'" type="button"
                     (click)="removeEntity(entity)">
                     <mat-icon>remove_circle</mat-icon>
@@ -132,13 +136,15 @@
         <div *ngIf="ctrl.expanded" class="objProps">
             <div *ngFor="let prop of entity._properties" class="propCont">
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
-                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"
-                    [addAdditionalProp]="addAdditionalProp" [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
+                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
             </div>
             <div *ngFor="let prop of entity._additionalProperties" class="propCont">
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
-                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"
-                    [addAdditionalProp]="addAdditionalProp" [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
+                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
             </div>
 
         </div>
@@ -147,19 +153,22 @@
             *ngIf="entity._items && entity._items[0] && entity._type.indexOf('Object')<0 && hasChild.indexOf(entity._items[0]._type[0])>=0">
             <div *ngFor="let prop of entity._items[0]._properties" class="propCont">
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
-                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"
-                    [addAdditionalProp]="addAdditionalProp" [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
+                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
             </div>
         </div>
         <div *ngIf="entity._refExp" class="expanded-ref">
             <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
-                [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._refExp"
-                [addAdditionalProp]="addAdditionalProp" [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._refExp" [mode]="mode"
+                [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
         </div>
         <div *ngIf="entity._items && entity._items[0] && entity._items[0]._refExp" class="expanded-ref">
             <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
-                [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._items[0]._refExp"
-                [addAdditionalProp]="addAdditionalProp" [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                [disabledKeys]="disabledKeys" [removeEntity]="removeEntity" [openMenu]="openMenu"
+                [entity]="entity._items[0]._refExp" [mode]="mode" [addAdditionalProp]="addAdditionalProp"
+                [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
         </div>
 
     </fieldset>

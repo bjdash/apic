@@ -4,7 +4,6 @@ import apic from './apic'
 
 //TODO: Move all these to Utils.service, use static wherever required
 export default {
-    entries,
     initXMLHttpRequest,
     encodeUrl,
     getUrlEncodedBody,
@@ -31,16 +30,13 @@ export default {
     getReqBody,
     getGqlBody,
     updateInMemEnv,
-    assertBuilder,
     interpolate,
     deepCopy,
     isElectron,
     getAppType
 }
 
-function entries(obj) {
-    return obj ? Object.entries(obj) : [];
-}
+
 
 function initXMLHttpRequest() {
     XMLHttpRequest.prototype.addHeadersFromObj = function (headers) {
@@ -454,13 +450,6 @@ function updateInMemEnv(newEnvs) {
         // }
         // $rootScope.xtraEnv = angular.merge($rootScope.xtraEnv, newEnvs);
     }
-}
-
-function assertBuilder(a, b, type, not) {
-    //type = eql, gt, gte, lt, lte, a (to.be.a('string')),include
-    var be = ['eql', 'gt', 'gte', 'lt', 'lte', 'a', 'an'];
-    if (!type) type = 'eql';
-    return 'expect(' + a + ')' + (not ? '.not' : '') + '.to' + (be.indexOf(type) > -1 ? '.be' : '') + '.' + type + '(' + b + ')';
 }
 
 //TODO: replace rootscope

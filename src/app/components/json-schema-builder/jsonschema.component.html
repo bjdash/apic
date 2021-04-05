@@ -8,7 +8,7 @@
                             <ng-jsonschema-main [mode]="mode" [msg]="msg" [refreshSchema]="refreshSchema.bind(this)"
                                 [models]="models" [addNewProp]="addNewProp.bind(this)"
                                 [removeEntity]="removeEntity.bind(this)" [openMenu]="displaySelectorModal.bind(this)"
-                                [entity]="entity" [expand$ref]="expand$ref.bind(this)"
+                                [entity]="entity" [expand$ref]="expand$ref.bind(this)" [disabledKeys]="disabledKeys"
                                 [addAdditionalProp]="addAdditionalProp.bind(this)">
                             </ng-jsonschema-main>
                         </div>
@@ -25,19 +25,18 @@
                 </div>
             </div>
         </mat-tab>
-        <mat-tab label="Json Schema" *ngIf="mode != 'list'">
-            <ace-editor [(text)]="schemaStr.original" [mode]="'json'" [theme]="'monokai'" [readOnly]="false"
-                [autoUpdateContent]="true" #editor style="min-height: 200px; width:100%; overflow: auto;">
-            </ace-editor>
+        <mat-tab label="Json Schema" *ngIf="mode != 'list' && mode != 'static'">
+            <apic-ace id="json-schema" [(text)]="schemaStr.original" [mode]="'json'" #editor>
+            </apic-ace>
         </mat-tab>
     </mat-tab-group>
 
     <div class="tab-action">
-        <button type="button" mat-icon-button aria-label="Download" (click)="downloadJSON()">
+        <a href="" mat-icon-button aria-label="Download" (click)="downloadJSON();$event.preventDefault()">
             <mat-icon>vertical_align_bottom</mat-icon>
-        </button>
-        <button type="button" mat-icon-button aria-label="Copy" (click)="copyToClipboard()">
+        </a>
+        <a href="" mat-icon-button aria-label="Copy" (click)="copyToClipboard();$event.preventDefault()">
             <mat-icon>file_copy</mat-icon>
-        </button>
+        </a>
     </div>
 </section>

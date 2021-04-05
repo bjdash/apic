@@ -26,6 +26,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatListModule } from '@angular/material/list';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -76,6 +77,10 @@ import { MainJsonSchemaComponent } from './components/json-schema-builder/main/m
 import { SelectSchemaJsonSchemaComponent } from './components/json-schema-builder/field/selectschema.component';
 import { FieldJsonSchemaComponent } from './components/json-schema-builder/field/field.component';
 import { JsonSchemaStateService } from './components/json-schema-builder/schemaState.service';
+import { EndpBodyParamsComponent } from './api-project-detail/project-endpoint/endp-body-params/endp-body-params.component';
+import { ApicAceComponent } from './components/apic-ace/apic-ace.component';
+import { AceResizeDirective } from './directives/ace-resize.directive';
+import { PrePostRunScriptComponent } from './components/pre-post-run-script/pre-post-run-script.component';
 
 @NgModule({
   declarations: [
@@ -111,7 +116,11 @@ import { JsonSchemaStateService } from './components/json-schema-builder/schemaS
     JsonSchemaComponent,
     MainJsonSchemaComponent,
     SelectSchemaJsonSchemaComponent,
-    FieldJsonSchemaComponent
+    FieldJsonSchemaComponent,
+    EndpBodyParamsComponent,
+    ApicAceComponent,
+    AceResizeDirective,
+    PrePostRunScriptComponent
   ],
   imports: [
     BrowserModule,
@@ -128,7 +137,7 @@ import { JsonSchemaStateService } from './components/json-schema-builder/schemaS
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     BrowserAnimationsModule,
-    AceEditorModule,//TODO: Add option to resize ace editors
+    AceEditorModule,
     MatButtonModule,
     MatIconModule,
     MatRippleModule,
@@ -142,6 +151,7 @@ import { JsonSchemaStateService } from './components/json-schema-builder/schemaS
     MatChipsModule,
     MatListModule,
     MatRadioModule,
+    MatCheckboxModule,
     MatAutocompleteModule,
     ScrollingModule,
   ],

@@ -23,11 +23,12 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   propagateChange: any = () => { };
   propagateTouch: any = () => { };
   disabled: boolean = false;
-  selectedResp: FormGroup;
+  selectedRespForm: FormGroup;
+  selectedResp;
   newResponseInput: string = '';
 
   constructor(private toaster: Toaster, private fb: FormBuilder) {
-    this.selectedResp = this.fb.group({
+    this.selectedRespForm = this.fb.group({
       code: ['', [Validators.required, Validators.maxLength(100)]],
       data: [''],
       desc: ['', [Validators.maxLength(500)]],
@@ -35,11 +36,16 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
     })
   }
   writeValue(value: any): void {
-    this.responses = value;
+    this.responses = [...value];
     this.selectResp(0);
   }
   registerOnChange(fn: any): void {
-    this.propagateChange = fn;
+    // this.propagateChange = fn;
+    this.propagateChange = (newVal) => {
+      console.log('new', newVal);
+      fn(newVal)
+
+    };
   }
   registerOnTouched(fn: any): void {
     this.propagateTouch = fn;
@@ -49,15 +55,16 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   }
 
   ngOnInit(): void {
-    this.selectedResp.valueChanges.subscribe(value => {
-      this.responses[this.selectedIndex] = value;
+    this.selectedRespForm.valueChanges.subscribe(value => {
+      this.responses[this.selectedIndex] = { ...this.responses[this.selectedIndex], ...value };
     });
   }
 
   selectResp(index) {
     if (this.responses[index]) {
       this.selectedIndex = index;
-      this.selectedResp.patchValue(this.responses[index]);
+      this.selectedResp = { ...this.responses[index] }
+      this.selectedRespForm.patchValue({ ...this.responses[index] });
     }
   }
 

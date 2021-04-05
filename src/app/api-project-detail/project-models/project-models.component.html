@@ -11,10 +11,10 @@
                     color="primary">Save</button>
                 <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
                     (click)="deleteModel(selectedModel._id)">Delete</button>
-                <button type="button" type="button" *ngIf="modelForm.dirty" class="sm gap" mat-raised-button
+                <button type="button" type="button" *ngIf="modelForm.dirty" class="sm gap" mat-button
                     (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
-                <button type="button" type="button" (click)="openNewModel()" class="sm gap" mat-raised-button>
+                <button type="button" type="button" (click)="openNewModel()" class="sm gap" mat-flat-button>
                     <mat-icon class="sm">add</mat-icon>New Model
                 </button>
             </span>

@@ -98,7 +98,7 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
     }
 
     deleteTrait(traitId: string) {
-        if (!traitId || !this.selectedPROJ.folders) return;
+        if (!traitId || !this.selectedPROJ.traits) return;
 
         const { [traitId]: traitToRemove, ...remainingTraits } = this.selectedPROJ.traits;
         let project: ApiProject = { ...this.selectedPROJ, traits: remainingTraits }
@@ -160,7 +160,7 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
     checkExistingTrait(name: string) {
         if (!name) return false;
 
-        return this.selectedPROJ?.models && Object.values(this.selectedPROJ.traits).find((trait: ApiTrait) => trait.name.toLowerCase() ===
+        return this.selectedPROJ?.traits && Object.values(this.selectedPROJ.traits).find((trait: ApiTrait) => trait.name.toLowerCase() ===
             name.toLowerCase()) !== undefined;
     }
 

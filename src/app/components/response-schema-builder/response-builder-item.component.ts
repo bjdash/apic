@@ -1,14 +1,19 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 @Component({
     selector: 'response-builder-item',
     template: `
     <div *ngIf="!edit" class="vcenter full-height">
-        <span [ngClass]="{info:resp.code.charAt(0)=='1',success:resp.code.charAt(0)=='2',warning:resp.code.charAt(0)=='3',error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4'}">{{resp.code}}</span>
-        <button type="button" mat-icon-button class="xs left-auto" (click)="enableEdit()">
+        <span [ngClass]="{
+            info:resp.code.charAt(0)=='1',
+            success:resp.code.charAt(0)=='2',
+            warning:resp.code.charAt(0)=='3',
+            error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4'
+        }">{{resp.code}}</span>
+        <button type="button" mat-icon-button class="xs left-auto" *ngIf="!resp.fromTrait" (click)="enableEdit()">
             <mat-icon>edit</mat-icon>
         </button>
-        <button type="button" mat-icon-button class="xs" color="warn" (click)="remove(index)">
+        <button type="button" mat-icon-button class="xs" color="warn" *ngIf="!resp.fromTrait" (click)="remove(index)">
             <mat-icon>close</mat-icon>
         </button>
     </div>
@@ -23,9 +28,9 @@ import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 })
 export class ResponseBuilderItem {
     @Input() resp: any;
-    @Input() remove: Function;
     @Input() index: number;
-    @Input() onChange: Function;
+    @Output() onRemove = new EventEmitter<number>();
+    @Output() onChange = new EventEmitter<number>();
 
     @ViewChild('input') input: ElementRef;
 
@@ -34,6 +39,10 @@ export class ResponseBuilderItem {
 
     constructor() {
 
+    }
+
+    remove(index: number) {
+        this.onRemove.emit(index)
     }
 
     enableEdit() {
@@ -47,7 +56,7 @@ export class ResponseBuilderItem {
     finishEdit() {
         if (this.resp.code !== this.inputModel) {
             this.resp.code = this.inputModel;
-            this.onChange();
+            this.onChange.emit()
         }
         this.edit = false;
     }

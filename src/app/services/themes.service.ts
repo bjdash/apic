@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import LocalStore from './localStore';
 import { Const } from '../utils/constants';
-import helper from '../utils/helpers';
+import Utils from './utils.service';
 
 
 @Injectable({
@@ -22,7 +22,7 @@ export class ThemesService {
     if (!themeAccent) themeAccent = this.currentAccent;
     var root = document.documentElement;
     var themeData = Const.themes.types[themeType];
-    for (const [key, val] of (helper.entries(themeData) as [string, any][])) {
+    for (const [key, val] of Utils.objectEntries(themeData)) {
       root.style.setProperty(key, val);
     }
     root.style.setProperty("--accent-color", themeAccent);

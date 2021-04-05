@@ -50,6 +50,9 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   @Input()
   responses: any = []; //TODO: responses
 
+  @Input()
+  disabledKeys: string[] = []
+
   @Output()
   onSchemaChange = new EventEmitter<number>()
 

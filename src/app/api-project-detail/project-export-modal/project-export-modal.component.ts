@@ -5,7 +5,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngxs/store';
 import { ApiProjectState } from 'src/app/state/apiProjects.state';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { SwaggerService } from 'src/app/services/swagger.service';
 import jsyaml from 'js-yaml';
 import Utils from 'src/app/services/utils.service';
@@ -30,6 +30,7 @@ export class ProjectExportModalComponent implements OnInit {
     private toaster: Toaster) {
     this.store.select(ApiProjectStateSelector.getById)
       .pipe(map(filterFn => filterFn(this.data.id)))
+      .pipe(take(1))
       .subscribe(p => {
         if (p) {
           this.projToExport = p;
@@ -46,10 +47,10 @@ export class ProjectExportModalComponent implements OnInit {
   prepareForExport() {
     switch (this.data.type) {
       case 'OAS':
-        this.exportObj = this.swaggerService.exportOAS(this.projToExport, '');
+        this.exportObj = this.swaggerService.exportOAS({ ...this.projToExport }, '');
         break;
       case 'RAW':
-        this.exportObj = this.swaggerService.exportRAW(this.projToExport, '');
+        this.exportObj = this.swaggerService.exportRAW({ ...this.projToExport }, '');
         break;
     }
     this.jsonToString(this.exportObj);

@@ -1,0 +1,29 @@
+<div class="run-scripts">
+    <mat-tab-group animationDuration="0ms" class="s-tabs" (selectedTabChange)="tabChange($event)">
+        <mat-tab label="Pre run scripts">
+            <apic-ace #preRunAce [(text)]="prerun" (textChange)="prerunUpdated()" mode="javascript"></apic-ace>
+        </mat-tab>
+        <mat-tab label="Post run scripts">
+            <apic-ace #postRunAce [(text)]="postrun" (textChange)="postrunUpdated()" mode="javascript">
+            </apic-ace>
+        </mat-tab>
+    </mat-tab-group>
+
+    <div class="s-snip">
+        <div class="snip-cont">
+            <div class="s-help">
+                Apic supports <a target="_blank" href="www.chaijs.com" class="bold t_color">chaiJs</a> to write test
+                cases.
+                <a target="_blank" class="t_color" href="https://apic.app/docs/tester/writing-test-cases.html">Learn
+                    more.</a>
+            </div>
+            <div class="snips">
+                <ul class="snip-menu">
+                    <li *ngFor="let snip of testSnips; trackBy: trackByFn ">
+                        <a href="" (click)="addCodeSnip(snip, $event)">{{snip.text}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

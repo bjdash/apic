@@ -4,7 +4,7 @@
             <span *ngIf="selectedTrait._id === 'NEW'">
                 <button type="button" type="button" (click)="createTrait()" form="traitForm" class="sm gap"
                     mat-raised-button color="primary">Create</button>
-                <button mat-button class="sm" type="reset" (click)="traitForm.reset()">Reset</button>
+                <button mat-button class="sm" type="reset" (click)="openNewTrait()">Reset</button>
             </span>
             <span *ngIf="selectedTrait._id !== 'NEW'">
                 <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"

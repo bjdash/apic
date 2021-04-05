@@ -6,6 +6,7 @@ import { AppBootstrap } from './utils/appBootstrap';
 //TODO: See if this can be converted to ecma script modules to supress *CommonJS or AMD dependencies can cause optimization bailouts*
 import 'brace/mode/json';
 import 'brace/mode/yaml';
+import 'brace/mode/javascript';
 import { ThemesService } from './services/themes.service';
 
 

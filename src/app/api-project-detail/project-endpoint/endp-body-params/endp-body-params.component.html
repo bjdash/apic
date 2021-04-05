@@ -1,0 +1,23 @@
+<fieldset class="kvCont">
+    <div class="kvItem"
+        *ngFor="let kv of form?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
+        <div class="vcenter">
+            <input class="form-control input-sm gap" [formControl]="kv.controls.key" placeholder="Key" />
+            <select class="form-control gap" [formControl]="kv.controls.type">
+                <option disabled="" value="">..Type..</option>
+                <option *ngFor="let opt of options; trackBy: trackByFn" [value]="opt">{{opt}}</option>
+            </select>
+            <input class="form-control input-sm gap" [formControl]="kv.controls.desc" placeholder="Description" />
+            <mat-checkbox class="req" [formControl]="kv.controls.required">Required</mat-checkbox>
+            <div class="kvCtrls vcenter">
+                <button type="button" (click)="remove(i)" mat-icon-button class="sm red">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <button type="button" (click)="add()" mat-flat-button class="sm">
+        <mat-icon>add</mat-icon> Add
+    </button>
+</fieldset>

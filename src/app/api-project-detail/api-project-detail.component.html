@@ -51,7 +51,8 @@
                         <!--Endpoints TODO: sort by name-->
                         <div *ngFor="let endp of item.value.endps | keyvalue">
                             <div class="savedReq" matRipple
-                                ng-class="{active:vm.designStage === 'models' && vm.model._id == _mid}">
+                                (click)="changeStage('endpoints');endpointsView.openEndpById(endp.value._id);$event.stopPropagation()"
+                                [ngClass]="{active:flags.stage === 'endpoints' && endp.value._id == endpointsView.selectedEndp._id}">
                                 <div class="l-sec">
                                     <div class="method" [ngClass]="endp.value.method.toUpperCase()"></div>
                                 </div>
@@ -64,16 +65,20 @@
                                         <mat-icon>more_vert</mat-icon>
                                     </a>
                                     <mat-menu #endpMenu="matMenu">
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="changeStage('endpoints');endpointsView.openEndpById(endp.value._id);$event.stopPropagation()">
                                             <mat-icon>edit</mat-icon> Edit
                                         </button>
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="endpointsView.run(endp.value._id);$event.stopPropagation()">
                                             <mat-icon class="green">play_arrow</mat-icon> Run
                                         </button>
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="endpointsView.duplicateEndp(endp.value._id);$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
                                         </button>
-                                        <button mat-menu-item>
+                                        <button mat-menu-item
+                                            (click)="endpointsView.deleteEndp(endp.value._id);$event.stopPropagation()">
                                             <mat-icon class="red">delete</mat-icon>Delete
                                         </button>
                                     </mat-menu>

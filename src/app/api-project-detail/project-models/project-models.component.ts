@@ -81,19 +81,6 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
     this.selectedName = name || 'Create new folder';
     this.modelForm.markAsPristine();
     this.modelForm.markAsUntouched();
-
-
-    // if (modelId === 'NEW') {
-    //   this.modelForm.patchValue({ name: '', nameSpace: '', folder: '', data: { type: 'object' } });
-    //   this.selectedName = 'Create new Model';
-    // } else {
-    //   let { name, nameSpace, folder, data } = this.selectedPROJ.models[modelId];
-    //   if (!folder) folder = '';
-    //   this.modelForm.patchValue({ name, nameSpace, folder, data });
-    //   this.selectedName = name;
-    //   this.modelForm.markAsPristine();
-    //   this.modelForm.markAsUntouched();
-    // }
   }
 
   deleteModel(modelId: string) {

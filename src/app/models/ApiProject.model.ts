@@ -46,6 +46,10 @@ export interface ApiEndp {
     pathParams?: any,
     queryParams?: any,
     headers?: any,
+    body?: {
+        type: string,
+        data: any
+    },
     responses?: any[],
     postrun?: string,
     prerun?: string,
@@ -119,7 +123,7 @@ export const NewApiEndp: ApiEndp = {
     _id: 'NEW',
     summary: '',
     path: '',
-    method: '',
+    method: 'get',
     folder: '',
     traits: [],
     tags: [],
@@ -132,6 +136,10 @@ export const NewApiEndp: ApiEndp = {
     pathParams: { type: 'object' },
     queryParams: { type: 'object' },
     headers: { type: 'object' },
+    body: {
+        type: 'raw',
+        data: { type: 'object' }
+    },
     responses: [],
     postrun: '',
     prerun: '',

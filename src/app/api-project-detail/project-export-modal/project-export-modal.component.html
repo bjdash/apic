@@ -14,8 +14,9 @@
     </button>
 </div>
 <mat-dialog-content>
-    <ace-editor [(text)]="exportStr" [mode]="format" [theme]="'monokai'" [readOnly]="true" [autoUpdateContent]="true"
-        #editor class="editor"></ace-editor>
+    <!-- <apic-ace [(text)]="exportStr" [mode]="format" [readOnly]="true"></apic-ace> -->
+    <apic-ace id="export-ace" apicAceResize [(text)]="exportStr" [mode]="format" [readOnly]="true">
+    </apic-ace>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close class="sm">Close</button>

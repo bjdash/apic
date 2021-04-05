@@ -22,6 +22,9 @@
 a:not(.t_color) {
   color: var(--text-color);
 }
+a:hover, a:focus {
+  text-decoration: underline;
+}
 .fixed {
   position: fixed;
 }
@@ -205,6 +208,11 @@ input.ng-invalid:not(.ng-pristine):focus {
 .btn-link:hover {
   text-decoration: underline;
 }
+fieldset{
+  border: none;
+  padding: 0;
+  margin: 0;
+}
 fieldset.paper2 {
   border: 1px solid var(--border-color);
   padding: 5px 10px;
@@ -214,7 +222,9 @@ fieldset.paper2 {
 .apic-collaps-cont {
   cursor: pointer;
 }
-
+fieldset[disabled] textarea{
+  cursor: not-allowed;
+}
 fieldset legend {
   color: var(--text-color);
   border: none;

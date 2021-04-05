@@ -2,7 +2,7 @@ import { ApiProject, SecurityDef } from './../models/ApiProject.model';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
 import { JsonSchemaService } from '../components/json-schema-builder/jsonschema.service';
-import helper from '../utils/helpers';
+import Utils from './utils.service';
 
 @Injectable()
 export class SwaggerService {
@@ -57,7 +57,7 @@ export class SwaggerService {
         //importing securityDefinitions
         proj.securityDefinitions = [];
         if (spec.securityDefinitions) {
-            for (const [name, def] of (helper.entries(spec.securityDefinitions) as [string, any][])) {
+            for (const [name, def] of Utils.objectEntries(spec.securityDefinitions)) {
                 var secdef: SecurityDef = {
                     name: name,
                     type: def.type,
@@ -76,7 +76,7 @@ export class SwaggerService {
                             authorizationUrl: def.authorizationUrl,
                             scopes: []
                         }
-                        for (const [scope, desc] of (helper.entries(def.scopes) as [string, any][])) {
+                        for (const [scope, desc] of Utils.objectEntries(def.scopes)) {
                             secdef.oauth2.scopes.push({ key: scope, val: desc });
                         }
                         if (secdef.oauth2.scopes.length === 0) {
@@ -98,7 +98,7 @@ export class SwaggerService {
             };
             proj.folders[modelFolder._id] = modelFolder;
 
-            for (const [name, model] of (helper.entries(spec.definitions) as [string, any][])) {
+            for (const [name, model] of Utils.objectEntries(spec.definitions)) {
                 var id = apic.s12(), newModel: any = {};
                 newModel._id = id;
                 newModel.name = name;
@@ -119,7 +119,7 @@ export class SwaggerService {
 
         //reading parameters (add in trait)
         if (spec.parameters) {
-            for (const [name, param] of (helper.entries(spec.parameters) as [string, any][])) {
+            for (const [name, param] of Utils.objectEntries(spec.parameters)) {
                 let traitName = '';
                 if (name.indexOf('trait') === 0 && (name.match(/:/g) || []).length === 2) {
                     traitName = name.split(':')[1];
@@ -128,7 +128,7 @@ export class SwaggerService {
                 }
                 //check if trait is already there
                 var tmpTrait;
-                for (const [id, trait] of (helper.entries(proj.traits) as [string, any][])) {
+                for (const [id, trait] of Utils.objectEntries(proj.traits)) {
                     if (trait.name === traitName) {
                         tmpTrait = trait;
                     }
@@ -194,7 +194,7 @@ export class SwaggerService {
 
 
         if (spec.responses) {
-            for (const [name, resp] of (helper.entries(spec.responses) as [string, any][])) {
+            for (const [name, resp] of Utils.objectEntries(spec.responses)) {
                 let traitName = '', code = name, noneStatus;
                 if (name.indexOf('trait') === 0 && name.indexOf(':') > 0) {
                     traitName = name.split(':')[1];
@@ -208,7 +208,7 @@ export class SwaggerService {
                 }
                 //check if trait is already there
                 var tmpTrait;
-                for (const [id, trait] of (helper.entries(proj.traits) as [string, any][])) {
+                for (const [id, trait] of Utils.objectEntries(proj.traits)) {
                     if (trait.name === traitName) {
                         tmpTrait = trait;
                     }
@@ -254,7 +254,7 @@ export class SwaggerService {
         //parsing endpoints
         if (spec.paths) {
             var folders = {};
-            for (const [pathName, apis] of (helper.entries(spec.paths) as [string, any][])) {
+            for (const [pathName, apis] of Utils.objectEntries(spec.paths)) {
                 var fname = '';
                 if (optn.groupby === 'path') {
                     fname = pathName.substring(1, pathName.length);
@@ -275,7 +275,7 @@ export class SwaggerService {
                     }
                 }
 
-                for (const [method, path] of (helper.entries(apis) as [string, any][])) {
+                for (const [method, path] of Utils.objectEntries(apis)) {
                     if (optn.groupby === 'tag') {
                         let fname = 'Untagged';
                         if (path.tags && path.tags[0]) {
@@ -413,7 +413,7 @@ export class SwaggerService {
                         }
 
                         if (path.responses) {
-                            for (const [statusCode, resp] of (helper.entries(path.responses) as [string, any][])) {
+                            for (const [statusCode, resp] of Utils.objectEntries(path.responses)) {
                                 var moveRespToTrait = false, refName;
                                 if (resp.$ref) {
                                     var ref = resp.$ref;
@@ -540,7 +540,7 @@ export class SwaggerService {
 
         obj.definitions = {};
         //add definitions/models
-        for (const [id, model] of (helper.entries(proj.models) as [string, any][])) {
+        for (const [id, model] of Utils.objectEntries(proj.models)) {
             // angular.forEach(proj.models, function (model) {
             model.data = JsonSchemaService.sanitizeModel(model.data);
             obj.definitions[model.nameSpace] = model.data;
@@ -549,7 +549,7 @@ export class SwaggerService {
         obj.responses = {};
         obj.parameters = {};
         //adding responses and parameters from traits
-        for (const [id, trait] of (helper.entries(proj.traits) as [string, any][])) {
+        for (const [id, trait] of Utils.objectEntries(proj.traits)) {
             // angular.forEach(proj.traits, function (trait) {
             var responses = trait.responses;
             var tName = trait.name.replace(/\s/g, ' ');
@@ -565,7 +565,7 @@ export class SwaggerService {
             }
 
             if (trait.pathParams) {
-                for (const [key, schema] of (helper.entries(trait.pathParams.properties) as [string, any][])) {
+                for (const [key, schema] of Utils.objectEntries(trait.pathParams.properties)) {
                     // angular.forEach(trait.pathParams.properties, function (schema, key) {
                     let param = {
                         name: key,
@@ -580,7 +580,7 @@ export class SwaggerService {
                 };
             }
 
-            for (const [key, schema] of (helper.entries(trait.queryParams.properties) as [string, any][])) {
+            for (const [key, schema] of Utils.objectEntries(trait.queryParams.properties)) {
                 // angular.forEach(trait.queryParams.properties, function (schema, key) {
                 let param = {
                     name: key,
@@ -594,7 +594,7 @@ export class SwaggerService {
                 obj.parameters[name] = param;
             };
 
-            for (const [key, schema] of (helper.entries(trait.headers.properties) as [string, any][])) {
+            for (const [key, schema] of Utils.objectEntries(trait.headers.properties)) {
                 // angular.forEach(trait.headers.properties, function (schema, key) {
                 let param = {
                     name: key,
@@ -611,7 +611,7 @@ export class SwaggerService {
 
         obj.paths = {};
         //add paths
-        for (const [id, endp] of (helper.entries(proj.endpoints) as [string, any][])) {
+        for (const [id, endp] of Utils.objectEntries(proj.endpoints)) {
             // angular.forEach(proj.endpoints, function (endp) {
             if (obj.paths[endp.path] === undefined) {
                 obj.paths[endp.path] = {};
@@ -655,7 +655,7 @@ export class SwaggerService {
 
             reqObj.parameters = [];
             //add query parameters
-            for (const [key, schema] of (helper.entries(endp.queryParams.properties) as [string, any][])) {
+            for (const [key, schema] of Utils.objectEntries(endp.queryParams.properties)) {
                 // angular.forEach(endp.queryParams.properties, function (schema, key) {
                 let param = {
                     name: key,
@@ -668,7 +668,7 @@ export class SwaggerService {
                 reqObj.parameters.push(param);
             };
 
-            for (const [key, schema] of (helper.entries(endp.headers.properties) as [string, any][])) {
+            for (const [key, schema] of Utils.objectEntries(endp.headers.properties)) {
                 // angular.forEach(endp.headers.properties, function (schema, key) {
                 let param = {
                     name: key,
@@ -681,7 +681,7 @@ export class SwaggerService {
                 reqObj.parameters.push(param);
             };
 
-            for (const [key, schema] of (helper.entries(endp.pathParams.properties) as [string, any][])) {
+            for (const [key, schema] of Utils.objectEntries(endp.pathParams.properties)) {
                 // angular.forEach(endp.pathParams.properties, function (schema, key) {
                 let param = {
                     name: key,
@@ -743,7 +743,7 @@ export class SwaggerService {
                 }
 
                 if (traitObj.pathParams) {
-                    for (const [key, schema] of (helper.entries(traitObj.pathParams.properties) as [string, any][])) {
+                    for (const [key, schema] of Utils.objectEntries(traitObj.pathParams.properties)) {
                         // angular.forEach(traitObj.pathParams.properties, function (schema, key) {
                         var xPath = 'trait:' + tName + ':' + key;
                         if (obj.parameters[xPath]) {
@@ -756,7 +756,7 @@ export class SwaggerService {
                     };
                 }
 
-                for (const [key, schema] of (helper.entries(traitObj.queryParams.properties) as [string, any][])) {
+                for (const [key, schema] of Utils.objectEntries(traitObj.queryParams.properties)) {
                     // angular.forEach(traitObj.queryParams.properties, function (schema, key) {
                     var xPath = 'trait:' + tName + ':' + key;
                     if (obj.parameters[xPath]) {
@@ -769,7 +769,7 @@ export class SwaggerService {
                 };
 
                 //query params
-                for (const [key, schema] of (helper.entries(traitObj.headers.properties) as [string, any][])) {
+                for (const [key, schema] of Utils.objectEntries(traitObj.headers.properties)) {
                     // angular.forEach(traitObj.headers.properties, function (schema, key) {
                     var xPath = 'trait:' + tName + ':' + key;
                     if (obj.parameters[xPath]) {
@@ -818,7 +818,7 @@ export class SwaggerService {
             return;
         }
         var match;
-        for (const [id, trait] of (helper.entries(proj.traits) as [string, any][])) {
+        for (const [id, trait] of Utils.objectEntries(proj.traits)) {
             if (trait.name === tName) {
                 match = {
                     _id: trait._id,
