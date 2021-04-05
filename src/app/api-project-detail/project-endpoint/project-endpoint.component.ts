@@ -29,6 +29,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     header: true,
     resp: true,
     test: true,
+    more: true,
     traitQP: [], //query params from trait
     traitHP: [] //header params from trait
   }

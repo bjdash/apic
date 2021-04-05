@@ -81,3 +81,11 @@ h4.head {
     padding-bottom: 20px;
     width: 400px;
 }
+
+.endp_more {
+    width: 100px;
+}
+
+.endp_more.open {
+    margin-bottom: -35px;
+}

@@ -38,7 +38,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         tree: null
     };
     flags = {
-        stage: 'endpoints'
+        stage: 'dashboard'
     }
     subscriptions: Subscription[] = [];
 
