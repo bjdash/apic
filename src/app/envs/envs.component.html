@@ -4,10 +4,10 @@
         <mat-icon [ngClass]="{rotateZ:showAddEnv}">add</mat-icon>
     </button>
     <div class="env-ctrls">
-        <button mat-icon-button class="gap stroked" (click)="importFromFile()">
+        <button mat-icon-button class="gap stroked" (click)="importFromFile()" matTooltip="Import">
             <mat-icon>vertical_align_top</mat-icon>
         </button>
-        <button mat-icon-button [matMenuTriggerFor]="exportEnvsList" class="stroked">
+        <button mat-icon-button [matMenuTriggerFor]="exportEnvsList" class="stroked" matTooltip="Export">
             <mat-icon>vertical_align_bottom</mat-icon>
         </button>
         <mat-menu #exportEnvsList="matMenu" xPosition="before">
@@ -78,7 +78,7 @@
                 <div class="vcenter">
                     <span class="title" *ngIf="!flags.editName">{{selectedEnv.name}}</span>
                     <button mat-icon-button (click)="startEnvEdit()"
-                        *ngIf="selectedEnv.owner === userData.UID && !selectedEnv.proj && !flags.editName">
+                        *ngIf="selectedEnv.owner === authUser.UID && !selectedEnv.proj && !flags.editName">
                         <mat-icon>edit</mat-icon>
                     </button>
                     <mat-icon *ngIf="selectedEnv.proj" class="warning" matTooltipPosition="below"

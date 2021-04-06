@@ -12,12 +12,17 @@ import { ApiProjectService } from '../services/apiProject.service';
 import { EnvService } from '../services/env.service';
 import LocalStore from '../services/localStore';
 import { AuthService } from '../services/auth.service';
+import { RequestsService } from '../services/requests.service';
 
 @Injectable()
 export class AppBootstrap {
     // static httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
 
-    constructor(private httpClient: HttpClient, private apiProjectService: ApiProjectService, private envService: EnvService, private authService: AuthService) {
+    constructor(private httpClient: HttpClient,
+        private apiProjectService: ApiProjectService,
+        private envService: EnvService,
+        private reqService: RequestsService,
+        private authService: AuthService) {
 
     }
 
@@ -143,6 +148,8 @@ export class AppBootstrap {
                 LocalStore.set(LocalStore.FIRST_RUN, true);
                 this.apiProjectService.getApiProjs();
                 this.envService.getAllEnvs();
+                this.reqService.getFolders();
+                this.reqService.getRequests();
                 //TODO: do get all for others
             });
         }

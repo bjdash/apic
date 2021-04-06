@@ -61,6 +61,9 @@ export class EnvService {
       newEnv._created = ts;
       newEnv._modified = ts;
       newEnv._id = ts + '-' + apic.s12();
+      if (this.authUser?.UID) {
+        newEnv.owner = this.authUser.UID;
+      }
     }
     return iDB.insert('Environments', newEnv).then((data) => {
       if (data[0] && this.authUser?.UID && !fromSync) {//added successfully
@@ -168,7 +171,7 @@ export class EnvService {
   }
 
   //sync any envs those were created before the user even logged in
-  async syncApiProjects(hardSync: boolean = false) {
+  async syncEnvs(hardSync: boolean = false) {
     let envs: Env[] = await iDB.read(iDB.TABLES.ENVIRONMENTS);
     envs = apic.removeDemoItems(envs);
 

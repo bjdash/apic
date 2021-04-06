@@ -1,27 +1,31 @@
 import { EnvService } from './../services/env.service';
 import { Toaster } from './../services/toaster.service';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSelectionListChange } from '@angular/material/list';
 import { Select, Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
-import { first, map, take } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { first, map, take, takeUntil } from 'rxjs/operators';
 import { Env } from '../models/Envs.model';
 import { EnvState } from './../state/envs.state';
 import { AceEditorDirective } from 'ng2-ace-editor';
 import { FileSystem } from '../services/fileSystem.service';
 import { env } from 'process';
+import { User } from '../models/User.model';
+import { UserState } from '../state/user.state';
 
 @Component({
   selector: 'app-envs',
   templateUrl: './envs.component.html',
   styleUrls: ['./envs.component.scss']
 })
-export class EnvsComponent implements OnInit {
+export class EnvsComponent implements OnInit, OnDestroy {
   @Select(EnvState.getAll) envs$: Observable<Env[]>;
   envsList: Env[] = [];
 
   @ViewChild('addEnvInput') addEnvInput: ElementRef;
   @ViewChild('editEnvInput') editEnvInput: ElementRef;
+  authUser: User;
+  private destroy: Subject<boolean> = new Subject<boolean>();
 
   private inMemEnvId = 'in-mem'
   selectedEnvId: string[] = [this.inMemEnvId];
@@ -46,18 +50,21 @@ export class EnvsComponent implements OnInit {
     pendingSave: false
   }
 
-
-  //TODO: User data
-  userData = {
-    UID: undefined
+  constructor(private store: Store, private toaster: Toaster, private envService: EnvService, private fileSystem: FileSystem) {
+    this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
+      this.authUser = user;
+    });
   }
 
-  constructor(private store: Store, private toaster: Toaster, private envService: EnvService, private fileSystem: FileSystem) { }
-
   ngOnInit(): void {
-    this.envs$.pipe(first()).subscribe(envs => {
-      this.envsList = envs.map(env => Object.assign({}, env))
+    this.envs$.pipe(take(1)).subscribe(envs => {
+      // this.envsList = envs.map(env => JSON.parse(JSON.stringify(env)))
+      this.envsList = JSON.parse(JSON.stringify(envs))
     });
+  }
+  ngOnDestroy(): void {
+    this.destroy.next();
+    this.destroy.complete();
   }
 
   showAddEnvBox() {
@@ -85,15 +92,11 @@ export class EnvsComponent implements OnInit {
       if (this.envService.validateImportData(data) === true) {
         var ts = new Date().getTime();
         if (data.value.length > 0) {//collectn of envs
-          data.value.forEach(env => {
+          data.value.forEach((env: Env) => {
             delete env.owner;
             delete env.team;
             delete env.proj;
-            //TODO: 
-            // if ($rootScope.userData && $rootScope.userData.UID) {
-            //   env.owner = $rootScope.userData.UID;
-            // }
-
+            env.vals?.forEach(v => delete v.readOnly);
           });
           const ids = await this.envService.addEnvs(data.value);
           ids.forEach(id => this.refreshEnvFromStore(id));
@@ -152,7 +155,7 @@ export class EnvsComponent implements OnInit {
       .pipe(map(filterFn => filterFn(id)))
       .pipe(take(1))
       .subscribe(newEnv => {
-        this.envsList.unshift(newEnv);
+        this.envsList.unshift({ ...newEnv, vals: [...newEnv.vals] });
         if (select) {
           this.selectedEnvId = [newEnv._id];
           this.onEnvSelected(null);
@@ -179,7 +182,6 @@ export class EnvsComponent implements OnInit {
       this.selectedEnv.name = this.editEnvNameModel;
     }
     this.flags.editName = false;
-
   }
 
   onEnvSelected(event: MatSelectionListChange) {

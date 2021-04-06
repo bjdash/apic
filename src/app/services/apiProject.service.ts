@@ -32,7 +32,6 @@ export class ApiProjectService {
                 proj._id = ts + '-' + apic.s12();
                 proj._created = ts;
                 proj._modified = ts;
-                //TODO:
                 if (this.authUser?.UID) {
                     proj.owner = this.authUser.UID;
                 }

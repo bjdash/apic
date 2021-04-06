@@ -1,0 +1,12 @@
+.tester{
+    .left-nav{
+        .mat-tab-header{
+            background: var(--header-bg);
+            border-bottom:none;
+        }
+        .mat-tab-label {
+            padding: 0 23px !important;
+        }
+        
+    }
+}

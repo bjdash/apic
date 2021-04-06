@@ -1,0 +1,15 @@
+.ctrls {
+    text-align: right;
+}
+
+.new-folder {
+    padding: 0 10px;
+}
+
+.reqSection {
+    font-size: 20px;
+    font-family: apic-font;
+    cursor: pointer;
+    padding: 0 6px;
+    margin-bottom: 7px;
+}

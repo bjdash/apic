@@ -1,0 +1,13 @@
+<div class="treeSelector" *ngIf="type === 'array'">
+    <button mat-button type="button" class="ts-item" (click)="select({_id:'root'})" *ngIf="options.addRoot"
+        [ngClass]="selectedId === 'root'?'active':''">./ROOT</button>
+    <div *ngFor="let item of items;trackBy:trackByFn">
+        <button mat-button type="button" class="ts-item" (click)="select(item)" [disabled]="options.disableParent"
+            [ngClass]="selectedId === item._id?'active':''">{{item[options.displayName]}}</button>
+        <div class="ts-childCont" *ngIf="!options.disableChild">
+            <button *ngFor="let child of item[options.childrenKey]" mat-button type="button" class="ts-item"
+                (click)="select(child)"
+                [ngClass]="selectedId === child._id?'active':''">{{child[options.displayName]}}</button>
+        </div>
+    </div>
+</div>

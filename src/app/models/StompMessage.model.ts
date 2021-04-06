@@ -1,5 +1,7 @@
 import { ApiProject } from "./ApiProject.model";
 import { Env } from "./Envs.model";
+import { ReqFolder } from "./ReqFolder.model";
+import { ApiRequest } from "./Request.model";
 
 export interface StompMessage {
     opId?: string,
@@ -10,6 +12,8 @@ export interface StompMessage {
     type?: string
     apiProjects?: ApiProject[],
     envs?: Env[],
+    folders?: ReqFolder[],
+    apiRequests?: ApiRequest[],
     idList?: string[],
     action?: string,
     msg?: string,

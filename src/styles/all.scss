@@ -72,6 +72,13 @@ a:hover, a:focus {
   bottom: 0px;
   background: var(--content-bg);
 }
+.left-nav .mat-tab-body-wrapper {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  top: 35px;
+  right: 0;
+}
 .left-nav .nav-tabs {
   box-shadow: none;
   background: var(--header-bg);
@@ -80,7 +87,7 @@ a:hover, a:focus {
   position: absolute;
   overflow: auto;
   bottom: 0;
-  top: 38px;
+  top: 0;
   right: 0px;
   left: 0;
   box-sizing: border-box;

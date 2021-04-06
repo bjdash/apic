@@ -81,6 +81,11 @@ import { EndpBodyParamsComponent } from './api-project-detail/project-endpoint/e
 import { ApicAceComponent } from './components/apic-ace/apic-ace.component';
 import { AceResizeDirective } from './directives/ace-resize.directive';
 import { PrePostRunScriptComponent } from './components/pre-post-run-script/pre-post-run-script.component';
+import { TesterMainComponent } from './tester-main/tester-main.component';
+import { TesterNavComponent } from './tester-main/tester-nav/tester-nav.component';
+import { NavRequestsComponent } from './tester-main/tester-nav/nav-requests/nav-requests.component';
+import { RequestsState } from './state/requests.state';
+import { TreeSelectorComponent } from './components/tree-selector/tree-selector.component';
 
 @NgModule({
   declarations: [
@@ -120,7 +125,11 @@ import { PrePostRunScriptComponent } from './components/pre-post-run-script/pre-
     EndpBodyParamsComponent,
     ApicAceComponent,
     AceResizeDirective,
-    PrePostRunScriptComponent
+    PrePostRunScriptComponent,
+    TesterMainComponent,
+    TesterNavComponent,
+    NavRequestsComponent,
+    TreeSelectorComponent
   ],
   imports: [
     BrowserModule,
@@ -128,7 +137,7 @@ import { PrePostRunScriptComponent } from './components/pre-post-run-script/pre-
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxsModule.forRoot([ApiProjectState, EnvState, UserState], {
+    NgxsModule.forRoot([ApiProjectState, EnvState, UserState, RequestsState], {
       developmentMode: !environment.production,
       selectorOptions: {
         suppressErrors: false,

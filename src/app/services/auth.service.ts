@@ -10,6 +10,7 @@ import { ApicUrls } from '../utils/constants';
 import { ApiProjectService } from './apiProject.service';
 import { EnvService } from './env.service';
 import { HttpService } from './http.service';
+import { RequestsService } from './requests.service';
 import { ApicRxStompState, StompService } from './stomp.service';
 import { SyncService } from './sync.service';
 
@@ -25,6 +26,7 @@ export class AuthService {
     private stompService: StompService,
     private syncService: SyncService,
     private apiProjectService: ApiProjectService,
+    private reqService: RequestsService,
     private envService: EnvService) {
 
     this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -79,7 +81,10 @@ export class AuthService {
       .pipe(first())
       .subscribe(() => {
         this.apiProjectService.syncApiProjects();
-        this.envService.syncApiProjects();
+        this.envService.syncEnvs();
+        this.envService.syncEnvs();
+        this.reqService.syncFolders();
+        this.reqService.syncReqs();
         //TODO: add for others
 
       })

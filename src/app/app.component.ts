@@ -8,6 +8,7 @@ import 'brace/mode/json';
 import 'brace/mode/yaml';
 import 'brace/mode/javascript';
 import { ThemesService } from './services/themes.service';
+import { RequestsService } from './services/requests.service';
 
 
 @Component({
@@ -19,12 +20,15 @@ export class AppComponent {
   constructor(
     private apiProjectService: ApiProjectService,
     private envService: EnvService,
+    private reqService: RequestsService,
     private themeService: ThemesService,
     private bootstrap: AppBootstrap) {
 
     bootstrap.init();
     apiProjectService.getApiProjs();
     envService.getAllEnvs();
+    reqService.getFolders();
+    reqService.getRequests();
     this.themeService.applyCurrentTheme();
   }
 }

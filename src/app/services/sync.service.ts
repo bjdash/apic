@@ -10,12 +10,14 @@ import { Toaster } from './toaster.service';
 export class SyncService {
     onApiProjectMessage$: BehaviorSubject<StompMessage> = null;
     onEnvMessage$: BehaviorSubject<StompMessage> = null;
+    onRequestsMessage$: BehaviorSubject<StompMessage> = null;
     onAccountMessage$: BehaviorSubject<StompMessage> = null;
 
     constructor(private stompService: StompService, private toaster: Toaster) {
         this.onApiProjectMessage$ = new BehaviorSubject(null)
         this.onEnvMessage$ = new BehaviorSubject(null)
         this.onAccountMessage$ = new BehaviorSubject(null)
+        this.onRequestsMessage$ = new BehaviorSubject(null);
 
         this.stompService.client.onServerMessage$.subscribe((message: StompMessage) => {
             this.onServerMessage(message);
@@ -131,6 +133,7 @@ export class SyncService {
 
     onServerMessage(message: StompMessage) {
         if (!message) return;
+        console.log('message', message);
 
         switch (message.type) {
             case 'Environments':
@@ -141,12 +144,12 @@ export class SyncService {
             case 'Fetch:ApiProject':
                 this.onApiProjectMessage$.next(message);
                 break;
-            //     case 'Folders':
-            //         caseFolders(data);
-            //         break;
-            //     case 'APIRequests':
-            //         caseAPIReqs(data);
-            //         break;
+            case 'Folders':
+            case 'APIRequests':
+            case 'Fetch:ApiRequests':
+            case 'Fetch:Folders':
+                this.onRequestsMessage$.next(message);
+                break;
             //     case 'TestCaseProjects':
             //         caseTestCaseProjects(data);
             //         break;
@@ -159,6 +162,7 @@ export class SyncService {
             case 'All':
                 this.onEnvMessage$.next(message);
                 this.onApiProjectMessage$.next(message);
+                this.onRequestsMessage$.next(message);
                 // caseFolders(data);
                 // caseAPIReqs(data);
                 // caseTestCaseProjects(data);

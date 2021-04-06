@@ -5,16 +5,21 @@ import { Routes, RouterModule } from '@angular/router';
 import { DesignerComponent } from './designer/designer.component';
 import { DocsComponent } from './docs/docs.component';
 import { ApiProjectDetailComponent } from './api-project-detail/api-project-detail.component';
+import { TesterMainComponent } from './tester-main/tester-main.component';
 
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'designer', pathMatch: 'full'
+    redirectTo: 'home', pathMatch: 'full'
   },
   {
     path: 'designer',
     component: DesignerComponent
+  },
+  {
+    path: 'home',
+    component: TesterMainComponent
   },
   {
     path: 'designer/:projectId',
