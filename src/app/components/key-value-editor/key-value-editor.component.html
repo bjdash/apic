@@ -1,8 +1,11 @@
 <fieldset class="kvCont"
     *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
     <div class="vcenter">
-        <input class="form-control input-sm" [formControl]="kv.controls.key" placeholder="{{options.placeholderKey}}" />
-        <input class="form-control input-sm" [formControl]="kv.controls.val" placeholder="{{options.placeholderVal}}" />
+        <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
+        <input class="form-control input-sm" (focus)="addRowOnFocus(last)" [formControl]="kv.controls.key"
+            placeholder="{{options.placeholderKey}}" />
+        <input class="form-control input-sm" (focus)="addRowOnFocus(last)" [formControl]="kv.controls.val"
+            placeholder="{{options.placeholderVal}}" />
         <div class="kvCtrls vcenter">
             <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
                 *ngIf="count!==1 && options.allowRemove">

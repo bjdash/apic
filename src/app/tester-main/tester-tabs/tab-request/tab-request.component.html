@@ -1,0 +1,875 @@
+<div class="test-tab-cont tab-req">
+    <form [formGroup]="form" style="overflow: auto;">
+        <div class="url-cont">
+            <div class="progress-holder">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="vcenter">
+                <apic-rich-input class="URL"></apic-rich-input>
+                <span>
+                    <!-- TODO: view compiled URL -->
+                    <!-- <a href="" class="icon bj-files-empty copy-url" title="Copy compiled URL"
+                    ng-click="copyToClipboard(interpolate(vm.URL,curEnv.vals))"></a> -->
+
+                    <mat-select formControlName="method">
+                        <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
+                    </mat-select>
+                </span>
+                <button mat-button class="run" ng-disabled="vm.progress" ng-click="vm.doSingleRun()">Run</button>
+                <button mat-button class="run-more sm" ng-disabled="vm.progress" ng-click="vm.doSingleRun()">
+                    <mat-icon class="sm">arrow_drop_down</mat-icon>
+                </button>
+                <!-- <span class="dropdown" uib-dropdown="" auto-close="outsideClick" style="z-index: 1">
+                <button type="button" ng-disabled="vm.progress" class="btn btn-link run-extra dropdown-toggle" uib-dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                </button>
+                <ul uib-dropdown-menu="" role="menu" class="dropdown-menu-right dropdown-menu">
+                    <li role="menuitem" style="padding: 5px; width: 200px">
+                        <span>Run in loop</span>
+                        <span class="input-group">
+                            <input type="number" placeholder="Run count" class="form-control input-sm req-run-count ng-pristine ng-untouched ng-valid ng-not-empty" ng-model="vm.runCount">
+                            <button class="btn btn-primary btn-themed btn-sm" ng-click="vm.startLoopRun()">Run</button>
+                        </span>
+                    </li>
+                </ul>
+            </span> -->
+            </div>
+        </div>
+        <div class="content" style="margin-top: 28px;">
+            {{form.value|json}}
+            <div class="paper">
+                <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">Request</h3>
+                <div class="reqControls vcenter" ng-if="!vm.testTab">
+                    <a class="f18 pull-right" mat-icon-button aria-label="Make an API call"
+                        href="https://docs.apic.app/tester/make-an-api-call" target="_new">
+                        <mat-icon>help</mat-icon>
+                    </a>
+                    <!--TODO: Add env button-->
+                    <!--reload if req has changed-->
+                    <span class="btn-group gap">
+                        <button class="sm t_border" mat-stroked-button>
+                            <mat-icon>save</mat-icon> Save
+                        </button>
+                        <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
+                            <mat-icon>arrow_drop_down</mat-icon>
+                        </button>
+                    </span>
+                    <mat-menu #savemenu="matMenu">
+                        <button mat-menu-item>
+                            <mat-icon>save</mat-icon> Save as
+                        </button>
+                    </mat-menu>
+                </div>
+                <div class="panel-body" [hidden]="!flags.showReq">
+                    <div class="controls btn-group toggle-group">
+                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'ReqParam'}"
+                            (click)="selectTab('reqTab','ReqParam')">URL Params <span
+                                class="badge">{{dummy}}</span></button>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Headers'}"
+                            (click)="selectTab('reqTab','Headers')">Headers <span
+                                class="badge">{{dummy}}</span></button>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab =='Body'}"
+                            [disabled]="form.value.method == 'GET'" (click)="selectTab('reqTab','Body')">Body</button>
+                        <button mat-button class="sm" [matMenuTriggerFor]="authOpts"
+                            [ngClass]="{'active':flags.reqTab == 'Auth-Basic'}" type="button">
+                            Authorization <mat-icon class="sm">arrow_drop_down</mat-icon>
+                        </button>
+                        <mat-menu #authOpts="matMenu">
+                            <button mat-menu-item (click)="removeAuthHeader()">No Auth</button>
+                            <button mat-menu-item>Basic Auth</button>
+                            <button mat-menu-item>Bearer Token</button>
+                            <button mat-menu-item>Digest Auth</button>
+                            <button mat-menu-item>OAuth 1.0</button>
+                            <button mat-menu-item>OAuth 2.0</button>
+                            <button mat-menu-item>Hawk Auth</button>
+                        </mat-menu>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Scripts'}"
+                            (click)="selectTab('reqTab','Scripts')">Tests & Scripts</button>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Schema'}"
+                            (click)="selectTab('reqTab','Schema')">Schema</button>
+                    </div>
+
+                    <div class="control-content" [hidden]="flags.reqTab != 'ReqParam'">
+                        <app-key-value-editor formControlName="urlParams"
+                            [options]="{addOnFocus:true,allowToggle:true}">
+                        </app-key-value-editor>
+                    </div>
+
+                    <div class="control-content" [hidden]="flags.reqTab != 'Headers'">
+                        <app-key-value-editor formControlName="headers" [options]="{addOnFocus:true,allowToggle:true}">
+                        </app-key-value-editor>
+                    </div>
+                    <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="Body">
+                        <mat-radio-group aria-label="Select body type" formControlName="type" class="vcenter margB10">
+                            <mat-radio-button value="form-data">form-data</mat-radio-button>
+                            <mat-radio-button value="x-www-form-urlencoded">x-www-form-urlencoded</mat-radio-button>
+                            <mat-radio-button value="raw" (click)="initRawBody()">raw</mat-radio-button>
+                            <mat-select formControlName="selectedRaw" class="raw-type"
+                                [placeholder]="form.value.Body.selectedRaw.name+'('+form.value.Body.selectedRaw.val+')'"
+                                auto *ngIf="form.value.Body.type=='raw'">
+                                <mat-option *ngFor="let type of RAW_BODY_TYPES" [value]="type">
+                                    {{type.name+'('+type.val+')'}}</mat-option>
+                            </mat-select>
+                            <mat-radio-button value="graphql" (click)="initGQLBody()">Graphql</mat-radio-button>
+                        </mat-radio-group>
+
+                        <div *ngIf="form.value.Body.type==='x-www-form-urlencoded'">
+                            <app-key-value-editor formControlName="xForms"
+                                [options]="{addOnFocus:true,allowToggle:true}">
+                            </app-key-value-editor>
+                        </div>
+                        <div *ngIf="form.value.Body.type==='form-data'">
+                            <app-key-value-editor formControlName="formData"
+                                [options]="{addOnFocus:true,allowToggle:true}">
+                            </app-key-value-editor>
+                        </div>
+                        <apic-ace [hidden]="form.value.Body.type!=='raw'" formControlName="rawData"
+                            [mode]="form.value.Body.selectedRaw.name.toLowerCase()">
+                        </apic-ace>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        -------------------------------------------------------------
+
+        <div class="form-group panel panel-primary dark">
+            <div class="panel-heading panel-sm">
+                <h3 class="panel-title custom pointer" ng-click="vm.ctrls.showReq = !vm.ctrls.showReq">Request</h3>
+                <div class="reqControls" ng-if="!vm.testTab">
+                    <a href="https://apic.app/docs/tester/make-an-api-call.html" target="_new" electron-a
+                        class="gap f18 glyphicon glyphicon-question-sign"></a>
+                    <a href="" ng-if="vm.reload" ng-click="vm.reloadReq()" class="gap f18"><span class="icon bj-loop22"
+                            uib-tooltip="This request is updated by another user. Reload?"
+                            tooltip-placement="left"></span></a>
+                    <span class="holder">
+                        <a href id="env-dropdown" ng-click="openEnvDD($event)"
+                            class="btn btn-link c btn-sm ellipsis w250 t_color">
+                            <span class="icon bj-stack gap"></span>curEnv.name
+                        </a>
+                    </span>
+                    <span class="holder">
+                        <div class="btn-group" style="width:120px;">
+                            <!-- <span class="input-group-btn" ng-if="vm.TAB.fromProject">
+                                <button type="button" class="btn btn-sm btn-link" style="padding: 4px 6px 4px 4px;"><i class="icon bj-alert" style="color: #ff9800;font-size: 14px;" uib-popover-html="'This is an autogenerated request from one of your saved API project\'s endpoint. In this tab you can only save the modifications you make to <span class=\'bold\'>Scripts/Test</span> for now.'" popover-placement="left" popover-trigger="'mouseenter'"></i></button>
+                            </span> -->
+                            <a href class="btn btn-sm btn-link c t_color" ng-click="vm.initReqSave()"
+                                ng-attr-uib-popover-html="vm.TAB.fromProject?'This is an autogenerated request from one of your saved API project\'s endpoint. In this tab you can only save the modifications you make to <span class=\'bold\'>Scripts/Test</span> for now. To moidify other details navigate to Designer screen.':undefined"
+                                popover-trigger="'mouseenter'"><i ng-if="vm.TAB.fromProject" class="icon bj-alert"
+                                    style="color: #ff9800;margin-right: 10px;"></i><i
+                                    class="glyphicon glyphicon-floppy-save"></i> Save </a>
+                            <span class="input-group-btn" uib-dropdown>
+                                <button type="button" class="btn btn-sm btn-link c" uib-dropdown-toggle
+                                    aria-haspopup="true" aria-expanded="false" style="padding: 6px 6px 7px 0px;"><span
+                                        class="caret"></span></button>
+                                <ul uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
+                                    <li>
+                                        <a href ng-click="vm.initReqSave(true)"> <i
+                                                class="glyphicon glyphicon-floppy-save"></i>Save as</a>
+                                    </li>
+                                </ul>
+                            </span>
+                        </div>
+                    </span>
+                </div>
+            </div>
+            <div class="panel-body" style="padding-top: 0px;" ng-show=vm.ctrls.showReq>
+
+                <div class="controls btn-group">
+                    <!--<div class="">-->
+                    <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'ReqParam'"
+                        ng-click="vm.selectTab('reqTab','ReqParam')">URL Params <span
+                            class="badge">vm.urlparam_count</span></button>
+                    <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'Headers'"
+                        ng-click="vm.selectTab('reqTab','Headers')">Headers <span class="badge">vm.headers_count
+                        </span></button>
+                    <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'Body'"
+                        ng-disabled="Const.with_body.indexOf(vm.METHOD)<0"
+                        ng-click="vm.selectTab('reqTab','Body')">Body</button>
+                    <div class="btn-group" uib-dropdown keyboard-nav>
+                        <button ng-class="'active':vm.ctrls.reqTab == 'Auth-Basic'" type="button"
+                            class="btn btn-flat btn-default" uib-dropdown-toggle>
+                            Authorization <span class="caret"></span>
+                        </button>
+
+                    </div>
+                    <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'Scripts'"
+                        ng-click="vm.selectTab('reqTab','Scripts')">Tests & Scripts</button>
+                    <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'Schema'"
+                        ng-click="vm.selectTab('reqTab','Schema')">Schema</button>
+                </div>
+
+
+                <div class="deep url-params form-inline visibleFlow" role="form" ng-show="vm.ctrls.reqTab == 'ReqParam'"
+                    style="padding-bottom:20px;">
+                    <div class="form-group" style="width: 100%;margin-bottom: 5px;"
+                        ng-repeat="param in vm.REQ.url_params track by $index">
+                        <input type="checkbox" ng-model="param.active"
+                            ng-init="param.hasOwnProperty('active')?'':(param.active=true)" />
+                        <div apic-wysiwyg class="form-control sm width40" placeholder="Key" ng-model="param.key"
+                            ng-focus="vm.addRow('params', $index)" env="curEnv"></div>
+                        <div apic-wysiwyg class="form-control sm width40" placeholder="Value" ng-model="param.val"
+                            ng-focus="vm.addRow('params', $index)" env="curEnv"></div>
+                        <a href="" class="btn btn-link btn-round txt" title="Copy pair" ng-click="copyKV(param)">
+                            <i class="icon bj-files-empty"></i>
+                        </a>
+                        <a href="" class="btn btn-link btn-round txt" title="Paste" ng-click="pasteKV(param)">
+                            <i class="glyphicon glyphicon-paste"></i>
+                        </a>
+                        <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                            ng-click="vm.REQ.url_params.splice($index,1)"><i class="glyphicon glyphicon-remove"></i></a>
+                        <a ng-if="$last" href="" class="btn btn-link btn-round txt"
+                            ng-click="vm.addRow('params', $index)"><i class="glyphicon glyphicon-plus"></i></a>
+                    </div>
+                </div>
+
+
+                <div class="deep headers form-inline visibleFlow" role="form" ng-show="vm.ctrls.reqTab == 'Headers'"
+                    style="padding-bottom:20px;">
+                    <div class="form-group" style="width: 100%;margin-bottom: 5px;"
+                        ng-repeat="param in vm.REQ.headers track by $index">
+                        <input type="checkbox" ng-model="param.active"
+                            ng-init="param.hasOwnProperty('active')?'':(param.active=true)" />
+                        <div apic-wysiwyg placeholder="Header Name" ng-model="param.key"
+                            uib-typeahead="state for state in vm.Headers | filter:$viewValue"
+                            class="form-control sm width40" ng-focus="vm.addRow('headers', $index)" env="curEnv"></div>
+                        <div apic-wysiwyg placeholder="Value" ng-model="param.val" class="form-control sm width40"
+                            ng-focus="vm.addRow('headers', $index)" env="curEnv"></div>
+                        <a href="" class="btn btn-link btn-round txt" title="Copy pair" ng-click="copyKV(param)">
+                            <i class="icon bj-files-empty"></i>
+                        </a>
+                        <a href="" class="btn btn-link btn-round txt" title="Paste" ng-click="pasteKV(param)">
+                            <i class="glyphicon glyphicon-paste"></i>
+                        </a>
+                        <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                            ng-click="vm.REQ.headers.splice($index,1)"><i class="glyphicon glyphicon-remove"></i></a>
+                        <a ng-if="$last" href="" class="btn btn-link btn-round txt"
+                            ng-click="vm.addRow('headers', $index)"><i class="glyphicon glyphicon-plus"></i></a>
+                    </div>
+                </div>
+
+
+                <div class="deep auth-basic panel-body" role="form" ng-show="vm.ctrls.reqTab == 'Auth-Basic'">
+                    <h6>Basic Authorization
+                        <i class="glyphicon glyphicon-info-sign info-icon"
+                            uib-tooltip="This will generate the Authorization header and add it to the request."
+                            tooltip-is-open="tooltipIsOpen" tooltip-placement="bottom"></i>
+                    </h6>
+                    <form class="form-horizontal form-compact" role="form">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="basic-auth-uname">User Name:</label>
+                            <div class="col-sm-5">
+                                <input type="text" value="" id="basic-auth-uname" style="background: none"
+                                    ng-model="vm.BasicAuth.uname" class="form-control sm" id="b-auth-user"
+                                    placeholder="User Name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="b-auth-pwd">Password:</label>
+                            <div class="col-sm-5">
+                                <input type="vm.BasicAuth.PsdType" style="background: none" ng-model="vm.BasicAuth.psd"
+                                    value="" class="form-control sm" id="b-auth-pwd" placeholder="Password">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 5px;">
+                            <div class="col-sm-offset-2 col-sm-5">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    ng-click="vm.updateAuthHeader('Basic')">Update Auth header</button>
+                                <label><input type="checkbox" ng-model="vm.BasicAuth.showPsd"
+                                        ng-change="vm.togglePassword('Basic')"> Show Password</label>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="deep auth-basic panel-body" role="form" ng-show="vm.ctrls.reqTab == 'Auth-Bearer'">
+                    <h6>Bearer Token Authentication
+                        <i class="glyphicon glyphicon-info-sign info-icon"
+                            uib-tooltip="This will generate the Authorization header and add it to the request."
+                            tooltip-is-open="tooltipIsOpen" tooltip-placement="bottom"></i>
+                    </h6>
+                    <form class="form-horizontal form-compact" role="form">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="bearer-auth-token">Bearer Token:</label>
+                            <div class="col-sm-5">
+                                <textarea id="bearer-auth-token" style="background: none" ng-model="vm.BearerAuth.token"
+                                    class="form-control sm"></textarea>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group" style="margin-top: 5px;">
+                            <div class="col-sm-offset-2 col-sm-5">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    ng-click="vm.updateAuthHeader('Bearer')">Update Auth header</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="deep auth-digest panel-body" role="form" ng-show="vm.ctrls.reqTab == 'Auth-Digest'">
+                    <h6>Digest Authentication
+                        <i class="glyphicon glyphicon-info-sign info-icon"
+                            uib-tooltip="This will generate the Authorization header and add it to the request."
+                            tooltip-is-open="tooltipIsOpen" tooltip-placement="bottom"></i>
+                    </h6>
+                    <form class="form-horizontal form-compact" role="form">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">User Name:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.userName" class="form-control sm"
+                                    id="d-auth-user">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="d-auth-pwd">Password:</label>
+                            <div class="col-sm-5">
+                                <input type="vm.DigestAuth.PsdType" ng-model="vm.DigestAuth.password" id="d-auth-pwd"
+                                    class="form-control sm">
+                            </div>
+                            <div class="col-sm-4">
+                                <label style="margin: 5px 0 0 0;"><input type="checkbox"
+                                        ng-model="vm.DigestAuth.showPsd" ng-change="vm.togglePassword('Digest')"> Show
+                                    Password</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Realm:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.realm" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Algorithm:</label>
+                            <div class="col-sm-5">
+                                <select ng-model="vm.DigestAuth.algorithm" class="form-control sm">
+                                    <option value="MD5">MD5</option>
+                                    <option value="MD5-sess">MD5-sess</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Nonce:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.nonce" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Nonce count:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.nonceCount" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Client Nonce:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.clientNonce" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">qop:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.qop" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Opaque:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.DigestAuth.opaque" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-5" style="padding: 5px 15px">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    ng-click="vm.updateAuthHeader('Digest')">Update Auth header</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="deep auth-digest panel-body" role="form" ng-show="vm.ctrls.reqTab == 'OAuth1'">
+                    <h6>OAuth 1.0</h6>
+                    <form class="form-horizontal form-compact" role="form">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Consumer Key:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.consumer_key" class="form-control sm"
+                                    id="o1-auth-user">
+                            </div>
+                            <div class="col-sm-4">
+                                <label style="margin: 5px 0 0 0;"><input type="checkbox" name="oauth1"
+                                        ng-model="vm.OAuth1.add_to_header"> Add auth params to header</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Consumer Secret:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.consumer_secret" class="form-control sm">
+                            </div>
+                            <div class="col-sm-4">
+                                <label style="margin: 5px 0 0 0;"><input type="checkbox" ng-model="vm.OAuth1.encode">
+                                    Encode OAuth signature</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Token:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.token" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Token Secret:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.token_secret" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Signature Method:</label>
+                            <div class="col-sm-5">
+                                <select ng-model="vm.OAuth1.signature" class="form-control sm">
+                                    <option value="HMAC-SHA1">HMAC-SHA1</option>
+                                    <option value="HMAC-SHA256">HMAC-SHA256</option>
+                                    <option value="PLAINTEXT">PLAIN TEXT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Timestamp:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.timestamp" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Nonce:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.nonce" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Version:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.version" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Relm:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.OAuth1.relm" placeholder="Optional"
+                                    class="form-control sm">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-5" style="padding: 5px 15px">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    ng-click="vm.updateAuthHeader('OAuth1')"
+                                    ng-disabled="!vm.OAuth1.consumer_key || !vm.OAuth1.consumer_secret">Update Auth
+                                    header</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="deep auth-digest panel-body" role="form" ng-show="vm.ctrls.reqTab == 'OAuth2'">
+                    <h6>OAuth 2.0</h6>
+                    <form class="form-horizontal form-compact" role="form">
+                        <h3>Coming Soon</h3>
+
+                    </form>
+                </div>
+
+                <div class="deep auth-digest panel-body" role="form" ng-show="vm.ctrls.reqTab == 'HawkAuth'">
+                    <h6>Hawk Authentication
+                        <i class="glyphicon glyphicon-info-sign info-icon"
+                            uib-tooltip="This will generate the Authorization header and add it to the request."
+                            tooltip-is-open="tooltipIsOpen" tooltip-placement="bottom"></i>
+                    </h6>
+                    <form class="form-horizontal form-compact" role="form">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Hawk Auth ID: <span class="red">*</span></label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.id" class="form-control sm"
+                                    id="hwak-auth-user">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Hawk Auth Key: <span class="red">*</span></label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.key" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Algorithm: <span class="red">*</span></label>
+                            <div class="col-sm-5">
+                                <select class="form-control sm" ng-model="vm.HawkAuth.algorithm">
+                                    <option value="sha1">SHA1</option>
+                                    <option value="sha256">SHA256</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Nonce:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.nonce" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Timestamp:</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.timestamp" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Extra Data (ext):</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.ext" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">App id (app):</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.app" class="form-control sm">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2">Delegation (dlg):</label>
+                            <div class="col-sm-5">
+                                <input type="text" ng-model="vm.HawkAuth.dlg" class="form-control sm">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-5" style="padding: 5px 15px">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    ng-click="vm.updateAuthHeader('HawkAuth')"
+                                    ng-disabled="!vm.HawkAuth.id || !vm.HawkAuth.key">Update Auth header</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="deep" role="form"
+                    ng-if="vm.ctrls.reqTab == 'Body' && Const.with_body.indexOf(vm.METHOD)>=0">
+                    <div class="form-inline">
+                        <div class="form-group" style="margin-bottom: 5px;">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" ng-model="vm.Body.type" value="form-data">
+                                    form-data
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" ng-model="vm.Body.type" value="x-www-form-urlencoded">
+                                    x-www-form-urlencoded
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" ng-model="vm.Body.type" value="raw" ng-click="vm.initRaw()">
+                                    raw
+                                </label>
+                            </div>
+                            <span uib-dropdown keyboard-nav style="display: inline" ng-if="vm.Body.type==='raw'">
+                                <button type="button" class="btn btn-link btn-sm" uib-dropdown-toggle>
+                                    vm.Body.selectedRaw.name (vm.Body.selectedRaw.val) <span class="caret"></span>
+                                </button>
+                                <ul uib-dropdown-menu role="menu" class="dropdown-menu-right">
+                                    <li role="menuitem" ng-repeat="types in Const.rawTypes track by $index">
+                                        <a href="" ng-click="vm.selectDropdown($event,'RawType',types)">types.name
+                                            (types.val)</a>
+                                    </li>
+                                </ul>
+                            </span>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" ng-model="vm.Body.type" value="graphql" ng-click="vm.initGQL()">
+                                    Graphql
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="body-data">
+                        <div class="form-data form-inline" ng-show="vm.Body.type === 'form-data'">
+                            <div class="form-group" style="width: 100%;margin-bottom: 5px;"
+                                ng-repeat="data in vm.Body.formData track by $index">
+                                <input type="checkbox" ng-model="data.active"
+                                    ng-init="data.hasOwnProperty('active')?'':(data.active=true)" />
+                                <div apic-wysiwyg class="form-control sm width40" placeholder="Key" ng-model="data.key"
+                                    ng-focus="vm.addRow('form-data', $index)" env="curEnv"></div>
+                                <!-- <input type="text" class="form-control sm width40" placeholder="Key" ng-model="data.key"
+                                    ng-focus="vm.addRow('form-data', $index)" /> -->
+                                <input type="file" ng-if="data.type === 'File'" class="form-control sm width40"
+                                    file-model="data.file" file-name="data.val" />
+                                <div apic-wysiwyg class="form-control sm width40" placeholder="Key" ng-model="data.val"
+                                    ng-focus="vm.addRow('form-data', $index)" ng-if="data.type === 'Text'" env="curEnv">
+                                </div>
+                                <!-- <input type="text" ng-if="data.type === 'Text'" class="form-control sm width40"
+                                    placeholder="Value" ng-model="data.val" ng-focus="vm.addRow('form-data', $index)" /> -->
+                                <span uib-dropdown keyboard-nav style="display: inline">
+                                    <button style="width: 55px;" type="button" class="btn btn-link btn-sm"
+                                        uib-dropdown-toggle>
+                                        data.type <span class="caret"></span>
+                                    </button>
+                                    <ul uib-dropdown-menu role="menu" class="dropdown-menu-right"
+                                        aria-labelledby="simple-btn-keyboard-nav">
+                                        <li role="menuitem">
+                                            <a href="" ng-click="data.type = 'Text'">Text</a>
+                                        </li>
+                                        <li role="menuitem">
+                                            <a href="" ng-click="data.type = 'File'">File</a>
+                                        </li>
+                                    </ul>
+                                </span>
+                                <a href="" class="btn btn-link btn-round txt" title="Copy pair" ng-click="copyKV(data)">
+                                    <i class="icon bj-files-empty"></i>
+                                </a>
+                                <a href="" class="btn btn-link btn-round txt" title="Paste" ng-click="pasteKV(data)">
+                                    <i class="glyphicon glyphicon-paste"></i>
+                                </a>
+                                <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                                    ng-click="vm.Body.formData.splice($index,1)"><i
+                                        class="glyphicon glyphicon-remove"></i></a>
+                                <a ng-if="$last" href="" class="btn btn-link btn-round txt"
+                                    ng-click="vm.addRow('form-data', $index)"><i
+                                        class="glyphicon glyphicon-plus"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="x-form-cont form-inline" ng-show="vm.Body.type === 'x-www-form-urlencoded'">
+                            <div class="form-group" style="width: 100%;margin-bottom: 5px;"
+                                ng-repeat="data in vm.Body.xForms track by $index">
+                                <input type="checkbox" ng-model="data.active"
+                                    ng-init="data.hasOwnProperty('active')?'':(data.active=true)" />
+                                <div apic-wysiwyg class="form-control sm width40" placeholder="Key" ng-model="data.key"
+                                    ng-focus="vm.addRow('x-form', $index)" env="curEnv"></div>
+                                <div apic-wysiwyg class="form-control sm width40" placeholder="Value"
+                                    ng-model="data.val" ng-focus="vm.addRow('x-form', $index)" env="curEnv"></div>
+                                <a href="" class="btn btn-link btn-round txt" title="Copy pair" ng-click="copyKV(data)">
+                                    <i class="icon bj-files-empty"></i>
+                                </a>
+                                <a href="" class="btn btn-link btn-round txt" title="Paste" ng-click="pasteKV(data)">
+                                    <i class="glyphicon glyphicon-paste"></i>
+                                </a>
+                                <a ng-if="!$last" href="" class="btn btn-link btn-round red"
+                                    ng-click="vm.Body.xForms.splice($index,1)"><i
+                                        class="glyphicon glyphicon-remove"></i></a>
+                                <a ng-if="$last" href="" class="btn btn-link btn-round txt"
+                                    ng-click="vm.addRow('x-form', $index)"><i class="glyphicon glyphicon-plus"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="raw-data" ng-if="vm.Body.type ==='raw'">
+                            <div style="text-align: right;margin-top:-40px;">
+                                <a href="" class="t_color margL10" tooltip-placement="left" uib-tooltip="Format payload"
+                                    ng-click="vm.Editor.Req.model=formatJSON(vm.Editor.Req.model)"><span
+                                        class="icon bj-embed2"></span></a>
+                                <span uib-dropdown keyboard-nav>
+                                    <a href="" uib-dropdown-toggle class="t_color">Code Snippets</a>
+                                    <ul uib-dropdown-menu role="menu" class="dropdown-menu-right snip-menu">
+                                        <li role="menuitem" ng-repeat="snip in reqBodySnippets track by $index">
+                                            <a href="" class="t_color"
+                                                ng-click="vm.addReqBodySnip(snip.code)">snip.text</a>
+                                        </li>
+                                    </ul>
+                                </span>
+                            </div>
+                            <div class="test_editor" ui-ace="vm.Editor.Req.options" ng-model="vm.Editor.Req.model"
+                                ng-ace-resize></div>
+                        </div>
+
+                        <table class="relative" style="width: 100%" ng-if="vm.Body.type ==='graphql'">
+                            <td style="width:55%">
+                                <div class="test_editor" ui-ace="vm.Editor.Req.options" ng-model="vm.Editor.Req.model"
+                                    ng-ace-resize></div>
+                            </td>
+                            <td style="width:45%; position: relative">
+                                <div class="btn-group gap gql-opt" role="group">
+                                    <button type="button" ng-class="vm.ctrls.gqlTab == 'var'?'active':''"
+                                        class="btn btn-default btn-sm btn-secondary"
+                                        ng-click="vm.ctrls.gqlTab='var'">Variables</button>
+                                    <button type="button" ng-class="vm.ctrls.gqlTab == 'schema'?'active':''"
+                                        class="btn btn-default btn-sm btn-secondary"
+                                        ng-click="vm.ctrls.gqlTab='schema'">Schema</button>
+                                </div>
+                                <div
+                                    style="height: 100%;overflow: auto;position: absolute;top: 0; width:100%;padding-left: 10px;">
+                                    <div ng-if="vm.ctrls.gqlTab=='schema'">
+                                        <!-- <gql-schema ng-if="vm.GQLTypes" schema="vm.GQLSchema" path="vm.GQLpath"
+                                            types="vm.GQLTypes"></gql-schema> -->
+                                        <span class="text16" ng-if="vm.GQLTypes === null">Could not load Graphql schema
+                                            with current URL</span>
+                                        <a href="" class="btn btn-link round-btn t_color gqlReload"
+                                            ng-click="vm.initGQL()">
+                                            <i class="icon bj-loop22"></i>
+                                        </a>
+                                    </div>
+                                    <div ng-if="vm.ctrls.gqlTab=='var'">
+                                        <div class="test_editor" ui-ace="vm.Editor.GqlVars.options"
+                                            ng-model="vm.Editor.GqlVars.model" ng-ace-resize></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </table>
+                    </div>
+                </div>
+
+
+                <!------Scripts panel ---->
+                <div class="deep headers form-inline scripts-cont" role="form" ng-if="vm.ctrls.reqTab == 'Scripts'">
+                    <div class="margV5">
+                        <div class="tBuilder" ng-show="vm.ctrls.tBuilder">
+                            <h6 class="bold">Test Builder</h6>
+                            <div class="tests">
+                                <div class="test" ng-repeat="test in vm.tBuilder.tests track by $index">
+                                    <a href="" ng-click="vm.tBuilder.tests.splice($index,1)"
+                                        class="btn btn-link btn-round red"><span
+                                            class="glyphicon glyphicon-remove"></span></a>
+                                    <div class="ctrl">
+                                        <select class="form-control input-sm" ng-model="test.key">
+                                            <option value="">..Select..</option>
+                                            <option ng-repeat="(key,optn) in vm.tBuilder.options" value="key">
+                                                optn.value</option>
+                                        </select>
+                                    </div>
+                                    <div class="ctrl" ng-if="vm.tBuilder.options[test.key]['input']">
+                                        <input class="form-control input-sm" ng-model="test.inp"
+                                            placeholder="vm.tBuilder.options[test.key]['input']" />
+                                    </div>
+                                    <div class="ctrl">
+                                        <select class="form-control input-sm" ng-model="test.actn">
+                                            <option
+                                                ng-repeat="actn in vm.tBuilder.actn[vm.tBuilder.options[test.key]['type']]"
+                                                value="vm.tBuilder.ops[actn].key">vm.tBuilder.ops[actn].val
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="ctrl" ng-hide="vm.tBuilder.hideval.indexOf(test.actn)>=0">
+                                        <input class="form-control input-sm" ng-model="test.val"
+                                            placeholder="Enter value" />
+                                    </div>
+                                </div>
+                                <div class="test">
+                                    <div class="ctrl">
+                                        <button class="btn btn-default btn-sm"
+                                            ng-click="vm.tBuilder.tests.push(key:null, actn:null, val:null)">Add
+                                            another</button>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 20px;margin-left:10px;">
+                                    <button class="btn btn-primary btn-themed btn-sm" ng-click="vm.buildTests()">Add
+                                        Tests</button>
+                                    <button class="btn btn-link btn-sm f" ng-click="vm.resetBuildTest()">Reset</button>
+                                    <button class="btn btn-link btn-sm f"
+                                        ng-click="vm.ctrls.tBuilder = false">Cancel</button>
+                                </div>
+                                <!--vm.tBuilder.tests-->
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div style="width:100%;display: flex;">
+                                <div
+                                    style="display: flex!important;flex: 0 0 75%;max-width: 75%;flex-direction: column;">
+                                    <div class="bgOverlay" ng-show="vm.ctrls.tBuilder">
+                                        Test Builder is in Use. Please save your changes
+                                    </div>
+                                    <div>
+                                        <div class="controls btn-group">
+                                            <button class="btn btn-flat btn-default btn-sm"
+                                                ng-class="'active':vm.scriptType === 'PreRun'"
+                                                ng-click="vm.scriptType = 'PreRun'">Pre Run Scripts</button>
+                                            <button class="btn btn-flat btn-default btn-sm"
+                                                ng-class="'active':vm.scriptType === 'PostRun'"
+                                                ng-click="vm.scriptType = 'PostRun'">Post Run Scripts</button>
+                                        </div>
+                                        <div class="pull-right" style="position: relative;margin-top: -8px;">
+                                            <button class="btn btn-link cbg btn-sm margL10"
+                                                ng-click="vm.ctrls.tBuilder = true">Build Tests</button>
+                                        </div>
+                                    </div>
+                                    <div ui-ace="mode: 'javascript'" ng-model="vm.Editor.Scripts" class="test_editor"
+                                        style="border-top-left-radius: 0;" ng-ace-resize></div>
+                                </div>
+                                <div style="flex: 0 0 25%;max-width: 25%;position: relative;width: 100%;">
+                                    <div
+                                        style="position: absolute!important;flex-direction: column!important;display: flex!important;top: 0;bottom: 0;left: 0;right: 0;">
+                                        <div style="padding: 0 0 5px 10px;line-height: 15px;">
+                                            Apic supports <a target="_blank" href="www.chaijs.com"
+                                                class="bold t_color">chaiJs</a> to write test cases. <a target="_blank"
+                                                class="t_color"
+                                                href="https://apic.app/docs/tester/writing-test-cases.html">Learn
+                                                more.</a>
+                                        </div>
+                                        <div style="display: flex;overflow: auto;">
+                                            <ul class="snip-menu">
+                                                <li ng-repeat="snip in testSnippets track by $index">
+                                                    <a href="" ng-click="vm.addCodeSnip(snip)">snip.text</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!------Scripts panel End---->
+
+
+                <!------Schema panel ---->
+                <div class="deep headers schema-cont" ng-if="vm.ctrls.reqTab == 'Schema'">
+                    <span>Response Schema Validation</span>
+                    <div class="margV5" style="position: relative">
+                        <!--<div json-schema data="vm.schema"></div>-->
+                        <div class="endp-response">
+                            <div class="resp-codes">
+                                <div class="head">
+                                    Status Code
+                                </div>
+                                <div class="resp-code" ng-repeat="resp in vm.respCodes track by $index"
+                                    ng-click="vm.selectRespCode($index);"
+                                    ng-class="info:resp.code.charAt(0)=='1',success:resp.code.charAt(0)=='2',warning:resp.code.charAt(0)=='3',error:resp.code.charAt(0)=='5'||resp.code.charAt(0)=='4',active:resp.code == vm.selectedResp.code">
+                                    <span ng-hide="editCode">
+                                        <span ng-class="">resp.code</span>
+                                        <a href="" class="ctrl edit"
+                                            ng-click="editCode = true;vm.focusRespEditInp($event)">
+                                            <span class="glyphicon glyphicon-pencil"></span>
+                                        </a>
+                                        <a href="" class="ctrl remove" ng-click="vm.removeRespCode($index)">x</a>
+                                    </span>
+                                    <span ng-show="editCode">
+                                        <input type="text" class="resp-code-inp" ng-model="resp.code"
+                                            enter-key="editCode = false" />
+                                        <a href="" class="ctrl ok" ng-click="editCode = false">
+                                            <span class="glyphicon glyphicon-ok"></span>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="input-group" style="margin-top: 15px">
+                                    <input type="text" class="form-control input-sm" placeholder="Add status code"
+                                        ng-model="vm.newReqRespCode" enter-key="vm.addReqResp()" maxlength="4" />
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-link cbg btn-sm" type="submit" form="reqRespAdd"
+                                            ng-click="vm.addReqResp()"><span
+                                                class="glyphicon glyphicon-plus"></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="margin-left: 160px;" tb="vm.tbHelper" json-schema data="vm.selectedResp.data">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!------Schema panel End---->
+            </div>
+        </div>
+
+    </form>
+</div>

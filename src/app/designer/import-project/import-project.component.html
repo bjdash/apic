@@ -34,7 +34,7 @@
                     (click)="flags.impType='json'">JSON</button>
             </div>
             <div class="col-sm-12">
-                <apic-ace id="import-ace" apicAceResize [(text)]="form.value.text" [mode]="flags.impType">
+                <apic-ace id="import-ace" [(text)]="form.value.text" [mode]="flags.impType">
                 </apic-ace>
             </div>
         </div>

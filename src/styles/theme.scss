@@ -32,6 +32,9 @@ select option {
 .t_color {
     color: var(--accent-color) !important;
 }
+.t_border {
+    border-color: var(--accent-color) !important;
+}
 .c_color {
     color: var(--text-color-bold) !important;
 }

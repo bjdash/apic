@@ -1,0 +1,87 @@
+.add-btns {
+    position: absolute;
+    top: 5px;
+    z-index: 11;
+    /* left: calc(170px * var(--data-count)); */
+}
+
+.add-btns button {
+    background: var(--accent-color);
+    color: #fff;
+    padding: 0;
+    height: 20px;
+    line-height: 20px;
+    margin: 0 2px;
+    min-width: 15px;
+    font-size: 12px;
+}
+
+.add-btns button.ws {
+    padding: 0 3px;
+}
+
+:host ::ng-deep .test-tabs{ 
+    background: var(--header-bg);
+
+    .mat-tab-header {
+        border-bottom: none;
+    }
+    .mat-tab-label:after {
+        content: "";
+        position: absolute;
+        /* z-index: 10; */
+        height: 20px;
+        width: 0;
+        border-right: 1px solid #bdbdbd;
+        top: 5px;
+        right: 0px;
+    }
+        
+    .mat-tab-label {
+        padding: 0 10px !important;
+    }
+    .mat-tab-label-active {
+        border-bottom: transparent;
+        border-top: 2px solid var(--accent-color);
+    }
+    .tab-label{
+        min-width: 150px;
+        text-align: left;
+    }
+    .mat-ink-bar{
+        top: 0px;
+        bottom: auto;
+    }
+    .tab-close{
+        position: absolute;
+        right: 5px;
+        font-size: 15px;
+        top: 8px;
+        float: right;
+        cursor: pointer;
+        display: none;
+        color: #fff;
+        width: 15px;
+        height: 15px;
+    }
+    .tab-close:hover{
+        background: red;
+    }
+    .mat-tab-label:hover, .mat-tab-label-active{
+        .tab-close{
+            display: block;
+        }
+    }
+    .mat-tab-header.mat-tab-header-pagination-controls-enabled{
+        margin-right: 72px;
+    }
+    .mat-elevation-z4 {
+        box-shadow: 0px 2px 22px -1px var(--accent-color), 0px 22px 5px 0px var(--accent-color), 0px 1px 30px 0px var(--accent-color);
+    }
+    .mat-tab-header-pagination-chevron{
+        border-color: var(--text-color);
+    }
+    .mat-tab-header-pagination-disabled{
+        box-shadow: none;
+    }
+}

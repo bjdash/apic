@@ -10,8 +10,10 @@ export interface KVEditorOptn {
   allowPaste?: boolean,
   allowAdd?: boolean,
   allowRemove?: boolean,
+  addOnFocus?: boolean,
+  allowToggle?: boolean,
   placeholderKey?: string,
-  placeholderVal?: string
+  placeholderVal?: string,
 }
 
 @Component({
@@ -30,7 +32,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   @Input()
   options: KVEditorOptn;
   private defaultOptions: KVEditorOptn = {
-    allowAdd: true, allowRemove: true, allowCopy: true, allowPaste: true, placeholderKey: 'Key', placeholderVal: 'Value'
+    allowAdd: true, allowRemove: true, allowCopy: true, allowPaste: true, allowToggle: false, addOnFocus: false, placeholderKey: 'Key', placeholderVal: 'Value'
   }
   keyValueForm: FormArray;
   subscription: Subscription;
@@ -47,7 +49,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
 
   writeValue(initialValue: KeyVal[]): void {
     if (!initialValue || initialValue.length === 0) {
-      initialValue = [{ key: '', val: '' }]
+      initialValue = [{ key: '', val: '', ...(this.options.allowToggle && { active: true }) }]
     }
 
     this.keyValueForm = this.fb.array(this.buildForm(initialValue));
@@ -76,7 +78,9 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     return initialValue.map(kv => {
       return this.fb.group({
         key: [kv.key || ''],
-        val: [kv.val || '']
+        val: [kv.val || ''],
+        //if checkbox is enabled and kv pair doesnt have an active property then set it to true by default
+        ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] })
       })
     });
   }
@@ -84,8 +88,15 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   addKv() {
     this.keyValueForm.push(this.fb.group({
       key: [''],
-      val: ['']
+      val: [''],
+      ...(this.options.allowToggle && { active: true })
     }))
+  }
+
+  addRowOnFocus(isLast: boolean) {
+    if (this.options.addOnFocus && isLast) {
+      this.addKv();
+    }
   }
 
   removeKv(index: number) {
@@ -96,7 +107,8 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     var kvPair = this.keyValueForm.at(index).value;
     var copyText = {
       key: kvPair.key,
-      val: kvPair.val
+      val: kvPair.val,
+      ...(this.options.allowToggle && { active: kvPair.active })
     };
     this.utils.copyToClipboard(JSON.stringify(copyText));
   }

@@ -1,0 +1,98 @@
+.url-cont {
+    position: fixed;
+    margin-left: -15px;
+    padding: 0 5px 4px 5px;
+    z-index: 10;
+    background: var(--header-bg);
+    box-shadow: 0 7px 9px rgb(0 0 0 / 10%);
+    left: 365px;
+    right: 0;
+
+    .progress-holder {
+        position: absolute;
+        top: 0px;
+        left: 5px;
+        right: 5px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--content-bg);
+        z-index: -1;
+
+        .progress-bar {
+            height: 35px;
+            width: 100px;
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.15) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.15) 50%,
+                rgba(255, 255, 255, 0.15) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 40px 40px;
+            background-color: var(--accent-shadow);
+            animation: progress-bar-stripes 2s linear infinite;
+        }
+    }
+    .URL {
+        flex: 1;
+        height: 35px;
+    }
+    .mat-select {
+        width: 95px;
+        height: 36px;
+        border-radius: 0;
+        padding-top: 10px;
+    }
+    .run {
+        background: var(--accent-color);
+        border-radius: 0;
+        color: #fff;
+    }
+    .run-more {
+        padding: 0 4px 0 0;
+        color: #fff;
+        width: 35px;
+        height: 36px;
+        background-color: var(--accent-color);
+        border-radius: 0 20px 20px 0;
+        border-left: 1px solid #fff;
+    }
+}
+.saveas {
+    padding: 0;
+}
+.reqControls {
+    float: right;
+    margin-top: 2px;
+}
+.panel-body {
+    margin-top: 10px;
+}
+.control-content {
+    padding: 10px 0;
+}
+.raw-type {
+    display: inline-block;
+    width: 178px;
+    margin-left: -20px;
+    margin-right: 20px;
+    border: 2px solid transparent;
+}
+:host ::ng-deep .URL {
+    .apic-editor {
+        height: 35px;
+        border: none;
+        padding: 8px;
+    }
+}
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 40px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}

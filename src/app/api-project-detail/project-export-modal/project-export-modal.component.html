@@ -1,6 +1,6 @@
 <h2 mat-dialog-title class="modal-title">Export Project: {{data.type}}</h2>
 <div class="modal-top-ctrl vcenter">
-    <div role="group" class="pull-right btn-group gap">
+    <div role="group" class="pull-right btn-group toggle-group gap">
         <button type="button" mat-button [ngClass]="format == 'yaml'?'t_bg':''" class="xs"
             (click)="format='yaml'; jsonToYaml(exportObj)">YAML</button>
         <button type="button" mat-button [ngClass]="format == 'json'?'t_bg':''" class="xs"

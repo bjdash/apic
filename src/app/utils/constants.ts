@@ -56,18 +56,7 @@ function getURLs() {
 
 function getConstants() {
     return {
-        http_methodes: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-        with_body: ['POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         default_method: 'GET',
-        rawTypes: [
-            { name: 'Text', val: 'text/plain;charset=UTF-8' },
-            { name: 'Text', val: 'text/plain' },
-            { name: 'JSON', val: 'application/json' },
-            { name: 'Javascript', val: 'application/javascript' },
-            { name: 'XML', val: 'application/xml' },
-            { name: 'XML', val: 'text/xml' },
-            { name: 'HTML', val: 'xml/html' }
-        ],
         themes: {
             types: {
                 dark: {
@@ -140,7 +129,18 @@ export const Const = getConstants();
 export const ApicUrls = getURLs();
 export const DemoData = getDemoData();
 export const HTTP_HEADERS = ['Accept', 'Accept-Charset', 'Accept-Encoding', 'Accept-Language', 'Accept-Datetime', 'Authorization', 'Cache-Control', 'Connection', 'Cookie', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'Expect', 'Forwarded', 'From', 'Host', 'If-Match', 'If-Modified-Since', 'If-None-Match', 'If-Range', 'If-Unmodified-Since', 'Max-Forwards', 'Origin', 'Pragma', 'Proxy-Authorization', 'Range', 'Referer', 'Referer [sic]', 'TE', 'User-Agent', 'Upgrade', 'Via', 'Warning', 'X-Requested-With', 'DNT', 'X-Forwarded-For', 'X-Forwarded-Host', 'X-Forwarded-Proto', 'Front-End-Https', 'X-Http-Method-Override', 'X-ATT-DeviceId', 'X-Wap-Profile', 'Proxy-Connection', 'X-UIDH', 'X-Csrf-Token'];
+export const HTTP_METHODES = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 export const MIMEs = ['application/json', 'application/javascript', 'application/x-www-form-urlencoded', 'application/xml', 'multipart/form-data', 'text/html', 'text/plain', 'application/zip', 'application/EDI-X12', 'application/EDIFACT', 'application/atom+xml', 'application/font-woff', 'application/gzip', 'application/octet-stream', 'application/ogg', 'application/pdf', 'application/postscript', 'application/soap+xml', 'application/x-bittorrent', 'application/x-tex', 'application/xhtml+xml', 'application/xml-dtd', 'application/xop+xml'];
+export const METHOD_WITH_BODY = ['POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+export const RAW_BODY_TYPES = [
+    { name: 'Text', val: 'text/plain;charset=UTF-8' },
+    { name: 'Text', val: 'text/plain' },
+    { name: 'JSON', val: 'application/json' },
+    { name: 'Javascript', val: 'application/javascript' },
+    { name: 'XML', val: 'application/xml' },
+    { name: 'XML', val: 'text/xml' },
+    { name: 'HTML', val: 'xml/html' }
+];
 export const TestSnips = [{
     text: 'Set an Environment variable',
     code: 'setEnv("variable_name", "variable_value");'

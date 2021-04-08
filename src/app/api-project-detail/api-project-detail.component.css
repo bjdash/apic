@@ -1,6 +1,9 @@
 .designer .left-nav .nav-tabs {
     height: 38px;
 }
+.left-nav .tab-content{
+    top:38px
+}
 
 .projHead {
     font-size: 20px;

@@ -8,6 +8,9 @@
 .left-auto {
   margin-left: auto !important;
 }
+.visibleFlow {
+  overflow: visible !important;
+}
 .content {
   padding: 10px;
   overflow: auto;
@@ -22,7 +25,8 @@
 a:not(.t_color) {
   color: var(--text-color);
 }
-a:hover, a:focus {
+a:hover,
+a:focus {
   text-decoration: underline;
 }
 .fixed {
@@ -215,7 +219,7 @@ input.ng-invalid:not(.ng-pristine):focus {
 .btn-link:hover {
   text-decoration: underline;
 }
-fieldset{
+fieldset {
   border: none;
   padding: 0;
   margin: 0;
@@ -229,7 +233,7 @@ fieldset.paper2 {
 .apic-collaps-cont {
   cursor: pointer;
 }
-fieldset[disabled] textarea{
+fieldset[disabled] textarea {
   cursor: not-allowed;
 }
 fieldset legend {
@@ -260,7 +264,7 @@ fieldset legend {
   line-height: 30px;
   height: 30px;
 }
-.mat-icon.tab-badge{
+.mat-icon.tab-badge {
   font-size: 12px;
   height: 10px;
   color: var(--accent-color);
@@ -502,8 +506,8 @@ input[type="number"],
   border: 1px solid var(--border-color);
   font-size: 16px;
 }
-select{
-padding: 5px;
+select {
+  padding: 5px;
 }
 select.form-control {
   padding: 5px 0;
@@ -511,7 +515,9 @@ select.form-control {
 select.sm {
   padding: 0;
 }
-input, select, textarea {
+input,
+select,
+textarea {
   color: var(--text-color-bold) !important;
 }
 .form-control {
@@ -569,7 +575,29 @@ input.input-xs {
   button:last-child {
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
+  }
+}
+.btn-group.toggle-group {
+  button {
+    border-right: 1px solid var(--border-color);
+  }
+  button:last-child {
     border-right: none;
+  }
+}
+.controls.btn-group.toggle-group {
+  &.sm {
+    button {
+      height: 28px;
+      line-height: 28px !important;
+    }
+  }
+  button {
+    border-radius: 0;
+  }
+  button.active {
+    background: transparent;
+    border-top: 2px solid var(--accent-color);
   }
 }
 .input-group {
@@ -631,7 +659,8 @@ input.input-xs {
   right: -37px;
   border-top: 37px solid var(--accent-color);
 }
-.envs-dialog .mat-dialog-container, .settings-dialog .mat-dialog-container {
+.envs-dialog .mat-dialog-container,
+.settings-dialog .mat-dialog-container {
   padding-left: 0px;
 }
 /******** Modal end**********/

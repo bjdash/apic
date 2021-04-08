@@ -1,0 +1,45 @@
+.left-nav {
+    position: absolute;
+    width: 350px;
+    z-index: 11;
+    left: 0;
+    top: 0;
+    bottom: 0px;
+}
+
+:host ::ng-deep .tester {
+    .left-nav {
+        .mat-tab-header {
+            background: var(--header-bg);
+            border-bottom: none;
+        }
+        .mat-tab-label {
+            padding: 0 23px !important;
+        }
+    }
+    .mat-tab-body-wrapper {
+        height: calc(100vh - 87px);
+        // border: 1px solid;
+    }
+    .panel-title {
+        background: var(--accent-color);
+        box-shadow: 2px 2px 4px var(--accent-shadow);
+        margin: -5px 0 3px -15px;
+        font-size: 15px;
+        padding: 6px 15px;
+        min-width: 130px;
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .panel-title:after {
+        content: "";
+        width: 0;
+        position: absolute;
+        height: 0;
+        border-right: 27px solid transparent;
+        right: -27px;
+        top: 0;
+        border-top: 28px solid var(--accent-color);
+    }
+}

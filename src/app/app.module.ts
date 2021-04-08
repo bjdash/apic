@@ -86,6 +86,10 @@ import { TesterNavComponent } from './tester-main/tester-nav/tester-nav.componen
 import { NavRequestsComponent } from './tester-main/tester-nav/nav-requests/nav-requests.component';
 import { RequestsState } from './state/requests.state';
 import { TreeSelectorComponent } from './components/tree-selector/tree-selector.component';
+import { TesterTabsComponent } from './tester-main/tester-tabs/tester-tabs.component';
+import { TabRequestComponent } from './tester-main/tester-tabs/tab-request/tab-request.component';
+import { TabSocketComponent } from './tester-main/tester-tabs/tab-socket/tab-socket.component';
+import { ApicRichInputComponent } from './components/apic-rich-input/apic-rich-input.component';
 
 @NgModule({
   declarations: [
@@ -129,7 +133,11 @@ import { TreeSelectorComponent } from './components/tree-selector/tree-selector.
     TesterMainComponent,
     TesterNavComponent,
     NavRequestsComponent,
-    TreeSelectorComponent
+    TreeSelectorComponent,
+    TesterTabsComponent,
+    TabRequestComponent,
+    TabSocketComponent,
+    ApicRichInputComponent
   ],
   imports: [
     BrowserModule,

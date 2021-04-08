@@ -1,13 +1,19 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, Inject, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AceEditorComponent } from 'ng2-ace-editor';
 
 @Component({
   selector: 'apic-ace',
   templateUrl: './apic-ace.component.html',
-  styleUrls: ['./apic-ace.component.css']
+  styleUrls: ['./apic-ace.component.css'],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => ApicAceComponent),
+    multi: true
+  }]
 })
-export class ApicAceComponent implements OnInit {
+export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy {
   @Input() readOnly: boolean;
   @Input() mode: string;
   @Input() text: string;
@@ -15,16 +21,32 @@ export class ApicAceComponent implements OnInit {
   @ViewChild('editor', { read: ElementRef }) editor: ElementRef;
   @ViewChild('editor') ace: AceEditorComponent;
 
+  private _onChange = (_: any) => { };
+  private _onTouched = () => { };
 
   originalHeight: 0;
   Y = 0;
 
   constructor(private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) { }
+  ngOnDestroy(): void {
+
+  }
+  writeValue(value: any): void {
+    this.text = value;
+  }
+  registerOnChange(fn: any): void {
+    this._onChange = fn;
+  }
+  registerOnTouched(fn: any): void {
+    this._onTouched = fn;
+  }
+
   ngOnInit(): void {
   }
 
   textChanged() {
     this.textChange.emit(this.text);
+    this._onChange(this.text)
   }
 
   startResize(e) {

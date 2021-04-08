@@ -1,0 +1,21 @@
+.apic-editor-cont {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+}
+[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    pointer-events: none;
+    color: #969696;
+}
+.apic-editor {
+    border-radius: 3px !important;
+    box-shadow: none;
+    background-color: transparent;
+    padding-left: 4px;
+    border: 1px solid var(--border-color);
+    outline: none;
+    padding: 4px;
+    height: 30px;
+}

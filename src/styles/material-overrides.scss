@@ -227,9 +227,9 @@ div.mat-menu-content {
 }
 .mat-raised-button[disabled][disabled] {
   background-color: rgb(150 150 150 / 12%) !important;
-    cursor: not-allowed;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+  cursor: not-allowed;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 .mat-fab.mat-primary[disabled] {
   background-color: rgba(0, 0, 0, 0.12) !important;
@@ -289,7 +289,7 @@ div.mat-menu-content {
   opacity: 1 !important;
 }
 .mat-menu-panel {
-  min-height: 40px !important;
+  min-height: 45px !important;
 }
 .mat-menu-trigger {
   .mat-icon {
@@ -346,20 +346,42 @@ div.mat-menu-content {
 .mat-menu-item-highlighted:not([disabled]) {
   background: var(--header-bg) !important;
 }
-.mat-option{
+.mat-option {
   line-height: 40px !important;
   height: 36px !important;
 }
 span.mat-checkbox-frame {
   border-color: var(--text-color);
 }
-.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+.mat-checkbox-checked.mat-accent .mat-checkbox-background {
   background-color: var(--accent-color) !important;
 }
-.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element, .mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
+.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element,
+.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
   background: var(--accent-color) !important;
 }
-.mat-button.mat-primary.mat-button-disabled, .mat-button.mat-accent.mat-button-disabled, .mat-button.mat-warn.mat-button-disabled, .mat-button.mat-button-disabled.mat-button-disabled, .mat-icon-button.mat-primary.mat-button-disabled, .mat-icon-button.mat-accent.mat-button-disabled, .mat-icon-button.mat-warn.mat-button-disabled, .mat-icon-button.mat-button-disabled.mat-button-disabled, .mat-stroked-button.mat-primary.mat-button-disabled, .mat-stroked-button.mat-accent.mat-button-disabled, .mat-stroked-button.mat-warn.mat-button-disabled, .mat-stroked-button.mat-button-disabled.mat-button-disabled {
+.mat-button.mat-primary.mat-button-disabled,
+.mat-button.mat-accent.mat-button-disabled,
+.mat-button.mat-warn.mat-button-disabled,
+.mat-button.mat-button-disabled.mat-button-disabled,
+.mat-icon-button.mat-primary.mat-button-disabled,
+.mat-icon-button.mat-accent.mat-button-disabled,
+.mat-icon-button.mat-warn.mat-button-disabled,
+.mat-icon-button.mat-button-disabled.mat-button-disabled,
+.mat-stroked-button.mat-primary.mat-button-disabled,
+.mat-stroked-button.mat-accent.mat-button-disabled,
+.mat-stroked-button.mat-warn.mat-button-disabled,
+.mat-stroked-button.mat-button-disabled.mat-button-disabled {
   color: var(--text-color) !important;
   opacity: 0.6;
+}
+div.mat-select-panel {
+  background: var(--content-bg);
+}
+.mat-select-placeholder {
+  color: var(--text-color) !important;
+}
+.mat-option {
+  color: var(--text-color) !important;
 }

@@ -44,7 +44,9 @@
             <mat-icon *ngIf="flags.projReqs" class="pull-right">expand_more</mat-icon>
             <mat-icon *ngIf="!flags.projReqs" class="pull-right">chevron_right</mat-icon>
         </div>
-        <div *ngIf="flags.projReqs">Proj requests</div>
+        <div *ngIf="flags.projReqs">
+            <!--TODO-->
+        </div>
         <div class="c_color reqSection" (click)="flags.savedReqs = !flags.savedReqs">
             Saved Requests
             <mat-icon *ngIf="flags.savedReqs" class="pull-right">expand_more</mat-icon>
