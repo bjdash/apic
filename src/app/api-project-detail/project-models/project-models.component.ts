@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Toaster } from 'src/app/services/toaster.service';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import apic from '../../utils/apic';
-import Utils from '../../utils/helpers';
+import { Utils } from '../../utils/helpers';
 
 @Component({
   selector: 'app-project-models',

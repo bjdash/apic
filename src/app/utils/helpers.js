@@ -4,7 +4,6 @@ import apic from './apic'
 
 //TODO: Move all these to Utils.service, use static wherever required
 export default {
-    initXMLHttpRequest,
     encodeUrl,
     getUrlEncodedBody,
     getFormDataBody,
@@ -24,42 +23,14 @@ export default {
     parseURL,
     removeHeader,
     addHeader,
-    notify,
-    isNewVersion,
     getReqV2,
     getReqBody,
     getGqlBody,
     updateInMemEnv,
     interpolate,
-    deepCopy,
-    isElectron,
-    getAppType
+    deepCopy
 }
 
-
-
-function initXMLHttpRequest() {
-    XMLHttpRequest.prototype.addHeadersFromObj = function (headers) {
-        var _this = this;
-
-        for (var key in headers) {
-            if (key && headers.hasOwnProperty(key)) {
-                var val = headers[key];
-                var header = key.toUpperCase();
-                if (Const.restrictedHeaders.indexOf(header) > -1) {
-                    header = 'APIC-' + header;
-                }
-                try {
-                    _this.setRequestHeader(header, val);
-                } catch (e) {
-                    var m = e.message;
-                    console.warn(m.slice(m.indexOf(':') + 1).trim());
-                }
-            }
-        }
-        return _this;
-    };
-}
 
 function encodeUrl(url) {
     return encodeURIComponent(url);
@@ -331,60 +302,6 @@ function addHeader(name, value, headerList, begining, addDuplicate) {
     return headerList;
 }
 
-function notify(title, content, link, image) {
-    if (!image)
-        image = '/img/logo-tmp.png';
-    if (typeof window.chrome !== "undefined" && window.chrome.notifications && window.chrome.notifications.create) {
-        var optn = {
-            type: "basic",
-            title: title,
-            message: content,
-            iconUrl: image,
-            buttons: [{
-                title: "View"
-            }]
-        };
-        window.chrome.notifications.create(apic.s8(), optn);
-        window.chrome.notifications.onButtonClicked.addListener(function (notifId, btnIdx) {
-            if (btnIdx === 0) {
-                window.open(link);
-            }
-        });
-    } else {
-        content += ' Click for more';
-        Notification.requestPermission(function (permission) {
-            // If the user accepts, let's create a notification
-            if (permission === "granted") {
-                var notification = new Notification(content);
-                notification.onclick = function (event) {
-                    event.preventDefault(); // prevent the browser from focusing the Notification's tab
-                    window.open(link, '_blank');
-                };
-
-            }
-        });
-    }
-}
-
-function isNewVersion(newVersion, oldVersion) {
-    var newVParts = newVersion.split("."),
-        oldVParts = oldVersion.split(".");
-
-    if (parseInt(newVParts[0]) > parseInt(oldVParts[0])) {
-        return true;
-    } else if (parseInt(newVParts[0]) === parseInt(oldVParts[0])) {
-        if (parseInt(newVParts[1]) > parseInt(oldVParts[1])) {
-            return true;
-        } else if (parseInt(newVParts[1]) === parseInt(oldVParts[1])) {
-            if (parseInt(newVParts[2]) > parseInt(oldVParts[2])) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 function getReqV2(req) {
     return {
         request: {
@@ -497,18 +414,4 @@ function deepCopy(inObject) {
         outObject[key] = deepCopy(value)
     }
     return outObject
-}
-
-function isElectron() {
-    return window.navigator.userAgent.toLowerCase().indexOf('electron') >= 0 ? true : false;
-}
-
-function getAppType() {
-    if (isElectron()) {
-        return 'ELECTRON';
-    } else if (window.location && window.location.protocol === 'chrome-extension:') {
-        return 'CHROME';
-    } else {
-        return 'WEB';
-    }
 }

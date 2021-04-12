@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import LocalStore from './localStore';
 import { Const } from '../utils/constants';
-import Utils from './utils.service';
+import { Utils } from './utils.service';
 
 
 @Injectable({

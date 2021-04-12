@@ -27,6 +27,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatBadgeModule } from '@angular/material/badge';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -51,7 +52,7 @@ import {
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AppBootstrap } from './utils/appBootstrap';
 import { ApicTagEditorComponent } from './components/apic-tag-editor/apic-tag-editor.component';
-import Utils from './services/utils.service';
+import { Utils } from './services/utils.service';
 import { ResponseBuilderItem } from './components/response-schema-builder/response-builder-item.component';
 import { ResponseSchemaBuilderComponent } from './components/response-schema-builder/response-schema-builder.component';
 import { EnvsComponent } from './envs/envs.component';
@@ -90,6 +91,11 @@ import { TesterTabsComponent } from './tester-main/tester-tabs/tester-tabs.compo
 import { TabRequestComponent } from './tester-main/tester-tabs/tab-request/tab-request.component';
 import { TabSocketComponent } from './tester-main/tester-tabs/tab-socket/tab-socket.component';
 import { ApicRichInputComponent } from './components/apic-rich-input/apic-rich-input.component';
+import { BasicAuthComponent } from './tester-main/tester-tabs/tab-request/basic-auth/basic-auth.component';
+import { RememberService } from './services/remember.service';
+import { RouteReuseStrategy } from '@angular/router';
+import { ApicRouteReuseStrategy } from './ApicRouteReuseStrategy';
+import { SaveReqDialogComponent } from './tester-main/save-req-dialog/save-req-dialog.component';
 
 @NgModule({
   declarations: [
@@ -137,7 +143,9 @@ import { ApicRichInputComponent } from './components/apic-rich-input/apic-rich-i
     TesterTabsComponent,
     TabRequestComponent,
     TabSocketComponent,
-    ApicRichInputComponent
+    ApicRichInputComponent,
+    BasicAuthComponent,
+    SaveReqDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -170,6 +178,7 @@ import { ApicRichInputComponent } from './components/apic-rich-input/apic-rich-i
     MatRadioModule,
     MatCheckboxModule,
     MatAutocompleteModule,
+    MatBadgeModule,
     ScrollingModule,
   ],
   providers: [
@@ -186,7 +195,8 @@ import { ApicRichInputComponent } from './components/apic-rich-input/apic-rich-i
     SwaggerService,
     HttpService,
     StompService,
-    SyncService
+    SyncService,
+    RememberService
   ],
   bootstrap: [AppComponent],
 })

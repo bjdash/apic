@@ -1,0 +1,43 @@
+<h2 mat-dialog-title class="modal-title">Save Request</h2>
+<form [formGroup]="form" class="form-horizontal" name="new-api-project" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+        <div class="row">
+            <label class="col-sm-12">Request Name: <span class="red">*</span></label>
+            <div class="col-sm-8">
+                <input type="text" autoFocus class="form-control sm" required formControlName="name"
+                    placeholder="Request Name" maxLength="70" />
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-sm-12">Description:</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" formControlName="description"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-sm-12">Select a folder to save:</label>
+            <div class="col-sm-8">
+                <div *ngFor="let folder of folders$ | async ">
+                    <button mat-button type="button" class="sm folder-select" (click)="selectFolder(folder._id)"
+                        [ngClass]="{t_bg:form.value.parent==folder._id}">
+                        <mat-icon gap>folder</mat-icon>{{folder.name}}
+                    </button>
+                    <div class="subfolder">
+                        <button mat-button type="button" class="sm folder-select"
+                            *ngFor="let subfolder of folder.children" (click)="selectFolder(subfolder._id)"
+                            [ngClass]="{t_bg:form.value.parent==subfolder._id}">
+                            <mat-icon>folder</mat-icon>
+                            {{subfolder.name}}
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="(folders$ |async)?.length == 0">No folders to select. Please create a folder first in the
+                    left menu.</div>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button class="sm gap" mat-raised-button color="primary">Save</button>
+        <button mat-button type="button" mat-dialog-close class="sm">Close</button>
+    </mat-dialog-actions>
+</form>

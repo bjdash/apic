@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Toaster } from 'src/app/services/toaster.service';
 import { MIMEs } from 'src/app/utils/constants';
-import Utils from 'src/app/services/utils.service';
+import { Utils } from 'src/app/services/utils.service';
 import apic from 'src/app/utils/apic';
 
 @Component({

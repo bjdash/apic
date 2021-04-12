@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { ApiProject, ApiTrait, NewApiTrait } from 'src/app/models/ApiProject.model';
 import { Toaster } from 'src/app/services/toaster.service';
-import Utils from '../../utils/helpers';
+import { Utils } from '../../utils/helpers';
 import apic from '../../utils/apic';
 
 @Component({

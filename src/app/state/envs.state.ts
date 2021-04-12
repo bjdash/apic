@@ -1,13 +1,15 @@
 import { EnvsAction } from './../actions/envs.action';
-import { Env } from './../models/Envs.model';
+import { Env, ParsedEnv } from './../models/Envs.model';
 import { State, Action, StateContext, Selector, createSelector } from '@ngxs/store';
 import { Injectable } from '@angular/core';
 import LocalStore from '../services/localStore';
+import { KeyVal } from '../models/KeyVal.model';
 
 // Section 2
 export class EnvStateModel {
     envs: Env[];
-    selectedEnv: Env
+    selectedEnv: Env;
+    inMem: {}
 }
 
 // Section 3
@@ -15,7 +17,8 @@ export class EnvStateModel {
     name: 'Envs',
     defaults: {
         envs: [],
-        selectedEnv: null
+        selectedEnv: null,
+        inMem: {}
     }
 })
 @Injectable()
@@ -39,8 +42,19 @@ export class EnvState {
     }
 
     @Selector()
-    static getSelected(state: EnvStateModel) {
-        return state.selectedEnv;
+    static getSelected(state: EnvStateModel): ParsedEnv {
+        if (state.selectedEnv)
+            return {
+                _id: state.selectedEnv._id,
+                name: state.selectedEnv.name,
+                vals: state.selectedEnv?.vals.reduce((accumulator, currentValue) => { accumulator[currentValue.key] = currentValue.val; return accumulator }, {}) || {}
+            }
+        else return null;
+    }
+
+    @Selector()
+    static getInMemEnv(state: EnvStateModel) {
+        return state.inMem;
     }
 
     @Action(EnvsAction.Add)
@@ -69,17 +83,31 @@ export class EnvState {
     @Action(EnvsAction.Update)
     update({ patchState, getState }: StateContext<EnvStateModel>, { payload }: EnvsAction.Update) {
         const envs = [...getState().envs];
+        let selectedEnv = getState().selectedEnv;
+        let shouldUpdateSelected: boolean = false;
         payload.forEach(updatedEnv => {
             const index = envs.findIndex(e => e._id === updatedEnv._id);
             if (index < 0) {
                 envs.push(updatedEnv);
             } else {
+                if (updatedEnv._id === selectedEnv._id) {
+                    shouldUpdateSelected = true;
+                    selectedEnv = updatedEnv;
+                }
                 envs[index] = updatedEnv;
             }
         })
-        patchState({
-            envs: [...envs]
-        })
+        if (shouldUpdateSelected) {
+            patchState({
+                envs: [...envs],
+                selectedEnv
+            })
+        } else {
+            patchState({
+                envs: [...envs]
+            })
+        }
+
     }
 
     @Action(EnvsAction.Select)

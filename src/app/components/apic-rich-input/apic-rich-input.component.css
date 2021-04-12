@@ -1,7 +1,7 @@
 .apic-editor-cont {
     position: relative;
     flex: 1;
-    overflow: hidden;
+/*     overflow: hidden; */
     white-space: nowrap;
 }
 [contenteditable="true"]:empty:before {
@@ -19,3 +19,41 @@
     padding: 4px;
     height: 30px;
 }
+:host ::ng-deep .env {
+    color: var(--accent-color);
+    cursor: pointer;
+}
+.wysiwug-tooltip {
+    display: none;
+    position: absolute;
+    z-index: 11;
+    background: var(--content-bg);
+    border: 1px solid var(--border-color);
+    min-width: 300px;
+    max-width: 700px;
+    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
+    top: 32px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .wysiwug-tooltip.show {
+    display: block;
+  }
+  .wysiwug-tooltip-head {
+    padding: 2px 8px;
+    font-weight: bold;
+    min-height: 44px;
+    font-size: 14px;
+    word-break: break-all;
+  }
+  .wysiwug-tooltip-tail {
+    padding: 0 8px;
+    text-align: right;
+    font-size: 12px;
+    background-color: var(--main-bg);
+  }
+  [contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    pointer-events: none;
+    color: #969696;
+  }

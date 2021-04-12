@@ -1,6 +1,6 @@
 import { UserState } from './../state/user.state';
 import { Store } from '@ngxs/store';
-import { Env } from './../models/Envs.model';
+import { Env, ParsedEnv } from './../models/Envs.model';
 import { EnvState } from './../state/envs.state';
 import { Component, OnInit } from '@angular/core';
 import { Select } from '@ngxs/store';
@@ -20,7 +20,7 @@ import { SettingsComponent } from '../settings/settings.component';
 })
 export class HeaderComponent implements OnInit {
   @Select(EnvState.getAll) envs$: Observable<Env[]>;
-  @Select(EnvState.getSelected) selectedEnv$: Observable<Env>;
+  @Select(EnvState.getSelected) selectedEnv$: Observable<ParsedEnv>;
   @Select(UserState.getAuthUser) loggedInUser$: Observable<User>;
 
 

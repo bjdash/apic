@@ -13,3 +13,9 @@ export interface Env {
     owner?: string,
     team?: string
 }
+
+export interface ParsedEnv {
+    _id: string,
+    name: string,
+    vals: any
+}

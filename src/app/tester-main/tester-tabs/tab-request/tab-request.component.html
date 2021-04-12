@@ -1,11 +1,11 @@
 <div class="test-tab-cont tab-req">
-    <form [formGroup]="form" style="overflow: auto;">
+    <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
         <div class="url-cont">
             <div class="progress-holder">
                 <div class="progress-bar"></div>
             </div>
             <div class="vcenter">
-                <apic-rich-input class="URL"></apic-rich-input>
+                <apic-rich-input class="URL" formControlName="url"></apic-rich-input>
                 <span>
                     <!-- TODO: view compiled URL -->
                     <!-- <a href="" class="icon bj-files-empty copy-url" title="Copy compiled URL"
@@ -47,7 +47,7 @@
                     <!--TODO: Add env button-->
                     <!--reload if req has changed-->
                     <span class="btn-group gap">
-                        <button class="sm t_border" mat-stroked-button>
+                        <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
                             <mat-icon>save</mat-icon> Save
                         </button>
                         <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
@@ -62,26 +62,26 @@
                 </div>
                 <div class="panel-body" [hidden]="!flags.showReq">
                     <div class="controls btn-group toggle-group">
-                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'ReqParam'}"
-                            (click)="selectTab('reqTab','ReqParam')">URL Params <span
-                                class="badge">{{dummy}}</span></button>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Headers'}"
-                            (click)="selectTab('reqTab','Headers')">Headers <span
-                                class="badge">{{dummy}}</span></button>
+                        <button mat-button class="sm" [matBadge]="flags.urlParamsCount"
+                            [ngClass]="{'active':flags.reqTab == 'ReqParam'}"
+                            (click)="selectTab('reqTab','ReqParam')">URL Params</button>
+                        <button mat-button class="sm" [matBadge]="flags.headersCount"
+                            [ngClass]="{'active':flags.reqTab == 'Headers'}"
+                            (click)="selectTab('reqTab','Headers')">Headers</button>
                         <button mat-button class="sm" [ngClass]="{'active':flags.reqTab =='Body'}"
                             [disabled]="form.value.method == 'GET'" (click)="selectTab('reqTab','Body')">Body</button>
                         <button mat-button class="sm" [matMenuTriggerFor]="authOpts"
-                            [ngClass]="{'active':flags.reqTab == 'Auth-Basic'}" type="button">
+                            [ngClass]="{'active':flags.reqTab.includes('auth')}" type="button">
                             Authorization <mat-icon class="sm">arrow_drop_down</mat-icon>
                         </button>
                         <mat-menu #authOpts="matMenu">
                             <button mat-menu-item (click)="removeAuthHeader()">No Auth</button>
-                            <button mat-menu-item>Basic Auth</button>
-                            <button mat-menu-item>Bearer Token</button>
-                            <button mat-menu-item>Digest Auth</button>
-                            <button mat-menu-item>OAuth 1.0</button>
-                            <button mat-menu-item>OAuth 2.0</button>
-                            <button mat-menu-item>Hawk Auth</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','auth_basic')">Basic Auth</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','auth_bearer')">Bearer Token</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','auth_digest')">Digest Auth</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','auth_o1')">OAuth 1.0</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','auth_o2')">OAuth 2.0</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','auth_hawk')">Hawk Auth</button>
                         </mat-menu>
                         <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Scripts'}"
                             (click)="selectTab('reqTab','Scripts')">Tests & Scripts</button>
@@ -96,36 +96,61 @@
                     </div>
 
                     <div class="control-content" [hidden]="flags.reqTab != 'Headers'">
-                        <app-key-value-editor formControlName="headers" [options]="{addOnFocus:true,allowToggle:true}">
+                        <app-key-value-editor formControlName="headers"
+                            [options]="{enableAutocomplete:true,autocompletes:HTTP_HEADERS,addOnFocus:true,allowToggle:true}">
                         </app-key-value-editor>
                     </div>
-                    <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="Body">
+                    <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="body">
                         <mat-radio-group aria-label="Select body type" formControlName="type" class="vcenter margB10">
                             <mat-radio-button value="form-data">form-data</mat-radio-button>
                             <mat-radio-button value="x-www-form-urlencoded">x-www-form-urlencoded</mat-radio-button>
                             <mat-radio-button value="raw" (click)="initRawBody()">raw</mat-radio-button>
                             <mat-select formControlName="selectedRaw" class="raw-type"
-                                [placeholder]="form.value.Body.selectedRaw.name+'('+form.value.Body.selectedRaw.val+')'"
-                                auto *ngIf="form.value.Body.type=='raw'">
+                                [placeholder]="form.value.body.selectedRaw.name+'('+form.value.body.selectedRaw.val+')'"
+                                auto *ngIf="form.value.body.type=='raw'">
                                 <mat-option *ngFor="let type of RAW_BODY_TYPES" [value]="type">
                                     {{type.name+'('+type.val+')'}}</mat-option>
                             </mat-select>
                             <mat-radio-button value="graphql" (click)="initGQLBody()">Graphql</mat-radio-button>
                         </mat-radio-group>
 
-                        <div *ngIf="form.value.Body.type==='x-www-form-urlencoded'">
-                            <app-key-value-editor formControlName="xForms"
-                                [options]="{addOnFocus:true,allowToggle:true}">
-                            </app-key-value-editor>
-                        </div>
-                        <div *ngIf="form.value.Body.type==='form-data'">
+                        <div *ngIf="form.value.body.type==='form-data'">
+                            <!--TODO: Add input type file-->
                             <app-key-value-editor formControlName="formData"
                                 [options]="{addOnFocus:true,allowToggle:true}">
                             </app-key-value-editor>
                         </div>
-                        <apic-ace [hidden]="form.value.Body.type!=='raw'" formControlName="rawData"
-                            [mode]="form.value.Body.selectedRaw.name.toLowerCase()">
+                        <div *ngIf="form.value.body.type==='x-www-form-urlencoded'">
+                            <app-key-value-editor formControlName="xForms"
+                                [options]="{addOnFocus:true,allowToggle:true}">
+                            </app-key-value-editor>
+                        </div>
+                        <apic-ace [hidden]="form.value.body.type!=='raw'" formControlName="rawData"
+                            [mode]="form.value.body.selectedRaw.name.toLowerCase()">
                         </apic-ace>
+                        <div *ngIf="form.value.body.type ==='graphql'">
+                            TODO: Graphql
+                        </div>
+                    </div>
+
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_basic'">
+                        <app-basic-auth [headers]="form.value.headers"
+                            (onChange)="updateHeader('Authorization', $event)"></app-basic-auth>
+                    </div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_o1'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'"></div>
+
+                    <div class="control-content" *ngIf="flags.reqTab == 'Scripts'">
+                        <pre-post-run-script [prerun]="form.value.prescript" [postrun]="form.value.postscript"
+                            (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
+                        </pre-post-run-script>
+                    </div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'Schema'">
+                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="respCodes">
+                        </response-schema-builder>
                     </div>
                 </div>
             </div>
@@ -180,8 +205,7 @@
                 <div class="controls btn-group">
                     <!--<div class="">-->
                     <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'ReqParam'"
-                        ng-click="vm.selectTab('reqTab','ReqParam')">URL Params <span
-                            class="badge">vm.urlparam_count</span></button>
+                        ng-click="vm.selectTab('reqTab','ReqParam')">URL Params </button>
                     <button class="btn btn-flat btn-default" ng-class="'active':vm.ctrls.reqTab == 'Headers'"
                         ng-click="vm.selectTab('reqTab','Headers')">Headers <span class="badge">vm.headers_count
                         </span></button>

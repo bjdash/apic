@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
-import Utils from 'src/app/services/utils.service';
+import { Utils } from 'src/app/services/utils.service';
 import { TestSnips } from 'src/app/utils/constants';
 import { ApicAceComponent } from '../apic-ace/apic-ace.component';
 

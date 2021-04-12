@@ -1,12 +1,14 @@
 <div class="tab-content">
     <div class="ctrls">
-        <button mat-icon-button class="t_color">
+        <button mat-icon-button class="t_color" matTooltip="Import APIs" (click)="importFolder()"
+            matTooltipPosition="left">
             <mat-icon>transit_enterexit</mat-icon>
         </button>
-        <button mat-icon-button class="t_color" (click)="showFolderForm()">
+        <button mat-icon-button class="t_color" (click)="showFolderForm()" matTooltip="New folder"
+            matTooltipPosition="left">
             <mat-icon>create_new_folder</mat-icon>
         </button>
-        <button mat-icon-button class="t_color">
+        <button mat-icon-button class="t_color" matTooltip="Search" matTooltipPosition="left">
             <mat-icon>search</mat-icon>
         </button>
     </div>
@@ -33,7 +35,6 @@
                 <label>Select a parent folder</label>
                 <apic-tree-selector [items]="folders$ |async" formControlName="parentId"
                     [options]="{disableChild:true, addRoot:true}"></apic-tree-selector>
-                {{newFolderForm.value|json}}
             </div>
 
         </form>

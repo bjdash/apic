@@ -1,6 +1,7 @@
 import { AuthInterceptor } from './AuthInterceptor';
 //@ts-check
-import Utils from './helpers'
+import xxx from './helpers'
+import { Utils } from '../services/utils.service';
 import { HttpClient, HttpXhrBackend } from '@angular/common/http';
 // import TeamService from '../services/TeamsService';
 // import TeamsState from '../state/atoms/Teams'
@@ -36,7 +37,7 @@ export class AppBootstrap {
         };
 
         //add addHeader function to XMLHttpRequest prototype
-        Utils.initXMLHttpRequest();
+        xxx.initXMLHttpRequest();
 
         //check if the dummy user is registered, otherwise add a dummy user.
         await this.addDummyUser();

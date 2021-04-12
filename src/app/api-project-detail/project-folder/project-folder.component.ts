@@ -5,7 +5,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import Helpers from '../../utils/helpers';
 import apic from '../../utils/apic';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
-import Utils from 'src/app/services/utils.service';
+import { Utils } from 'src/app/services/utils.service';
 
 @Component({
     selector: 'app-project-folder',

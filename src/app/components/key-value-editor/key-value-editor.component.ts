@@ -1,9 +1,10 @@
 import { Component, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormArray, FormBuilder, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Observable, Subject } from 'rxjs';
 import { Subscription, timer } from 'rxjs';
-import { debounce } from 'rxjs/operators';
+import { debounce, delay, map, startWith, takeUntil, tap } from 'rxjs/operators';
 import { KeyVal } from 'src/app/models/KeyVal.model';
-import Utils from 'src/app/services/utils.service';
+import { Utils } from 'src/app/services/utils.service';
 
 export interface KVEditorOptn {
   allowCopy?: boolean,
@@ -14,6 +15,8 @@ export interface KVEditorOptn {
   allowToggle?: boolean,
   placeholderKey?: string,
   placeholderVal?: string,
+  enableAutocomplete?: boolean,
+  autocompletes?: string[]
 }
 
 @Component({
@@ -32,33 +35,48 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   @Input()
   options: KVEditorOptn;
   private defaultOptions: KVEditorOptn = {
-    allowAdd: true, allowRemove: true, allowCopy: true, allowPaste: true, allowToggle: false, addOnFocus: false, placeholderKey: 'Key', placeholderVal: 'Value'
+    allowAdd: true,
+    allowRemove: true,
+    allowCopy: true,
+    allowPaste: true,
+    allowToggle: false,
+    addOnFocus: false,
+    placeholderKey: 'Key',
+    placeholderVal: 'Value',
+    enableAutocomplete: false,
+    autocompletes: []
   }
   keyValueForm: FormArray;
-  subscription: Subscription;
+  focusedIndex: number = 0;
+  private _destroy = new Subject<boolean>();
+  filteredOptions$: Observable<string[]>;
 
   propagateChange: any = () => { };
   propagateTouch: any = () => { };
 
   constructor(private fb: FormBuilder, private utils: Utils,) {
-
+    this.keyValueForm = this.fb.array([]);
   }
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this._destroy.next();
+    this._destroy.complete();
   }
 
   writeValue(initialValue: KeyVal[]): void {
     if (!initialValue || initialValue.length === 0) {
       initialValue = [{ key: '', val: '', ...(this.options.allowToggle && { active: true }) }]
     }
-
-    this.keyValueForm = this.fb.array(this.buildForm(initialValue));
-    if (this.subscription?.unsubscribe) {
-      this.subscription.unsubscribe();
+    while (this.keyValueForm.length !== 0) {
+      this.keyValueForm.removeAt(0)
     }
-    this.keyValueForm.valueChanges.pipe(debounce(() => timer(200))).subscribe(data => {
-      this.propagateChange(data)
-    })
+    this.buildForm(initialValue).forEach(form => this.keyValueForm.push(form));
+    // this.keyValueForm = this.fb.array();
+    this.keyValueForm.valueChanges
+      .pipe(takeUntil(this._destroy))
+      .pipe(debounce(() => timer(200)))
+      .subscribe(data => {
+        this.propagateChange(data)
+      })
   }
   registerOnChange(fn: any): void {
     this.propagateChange = fn;
@@ -71,7 +89,24 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   }
 
   ngOnInit(): void {
-    this.options = { ...this.defaultOptions, ...this.options }
+    this.options = { ...this.defaultOptions, ...this.options };
+    if (this.options.enableAutocomplete) {
+      //TODO: Update filtered on focus too
+      this.filteredOptions$ = this.keyValueForm.valueChanges
+        .pipe(takeUntil(this._destroy))
+        .pipe(
+          delay(0),
+          startWith([{ key: '' }]),
+          map(value => this._filter(value))
+        );
+    }
+  }
+
+  private _filter(formValue: KeyVal[]): string[] {
+    let value = formValue[this.focusedIndex]?.key;
+    if (!value) return this.options.autocompletes;
+    const filterValue = value.toLowerCase();
+    return this.options.autocompletes.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
   }
 
   buildForm(initialValue: KeyVal[]) {
@@ -93,7 +128,9 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     }))
   }
 
-  addRowOnFocus(isLast: boolean) {
+  onRowFocus(isLast: boolean, index: number) {
+    this.focusedIndex = index;
+    //add new row if last
     if (this.options.addOnFocus && isLast) {
       this.addKv();
     }

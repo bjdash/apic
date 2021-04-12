@@ -2,7 +2,7 @@ import { ApiProject, SecurityDef } from './../models/ApiProject.model';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
 import { JsonSchemaService } from '../components/json-schema-builder/jsonschema.service';
-import Utils from './utils.service';
+import { Utils } from './utils.service';
 
 @Injectable()
 export class SwaggerService {

@@ -12,6 +12,7 @@ export default class LocalStore {
     static VERIFIED = 'verified'; //is the logged in users email verified
     static THEME_TYPE = 'themeType';
     static THEME_ACCENT = 'themeAccent';
+    static REQ_TAB = 'reqTab';
 
     //return object for list of keys, direct value for single key
     static get(key: string): string {

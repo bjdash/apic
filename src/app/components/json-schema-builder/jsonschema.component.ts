@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { JsonSchemaService } from './jsonschema.service';
 import { JsonSchemaStateService } from './schemaState.service';
-import Utils from '../../services/utils.service'
+import { Utils } from '../../services/utils.service'
 // import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Component({

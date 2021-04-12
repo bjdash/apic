@@ -81,13 +81,26 @@
     margin-right: 20px;
     border: 2px solid transparent;
 }
-:host ::ng-deep .URL {
-    .apic-editor {
-        height: 35px;
-        border: none;
-        padding: 8px;
+
+:host ::ng-deep {
+    .URL {
+        .apic-editor {
+            height: 35px;
+            border: none;
+            padding: 8px;
+        }
+    }
+    .mat-badge-content {
+        z-index: 1;
+        position: relative;
+        width: 20px;
+        top: 5px !important;
+        color: var(--text-color);
+        background: var(--accent-shadow) !important;
+        height: 20px;
     }
 }
+
 @keyframes progress-bar-stripes {
     from {
         background-position: 40px 0;

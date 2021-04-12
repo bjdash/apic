@@ -26,7 +26,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     @ViewChild('modelsView') modelsView: ProjectFolderComponent;
     @ViewChild('traitsView') traitsView: ProjectTraitsComponent;
 
-    private destroy: Subject<boolean> = new Subject<boolean>();
+    private _destroy: Subject<boolean> = new Subject<boolean>();
     private pendingAction: Promise<any> = Promise.resolve(null);
 
     selectedPROJ: ApiProject;
@@ -53,18 +53,18 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.route.params.subscribe(params => {
             this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getByIdDynamic(params.projectId));
 
-            this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).pipe(takeUntil(this.destroy)).subscribe(leftTree => {
+            this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).pipe(takeUntil(this._destroy)).subscribe(leftTree => {
                 this.leftPanel.tree = leftTree;
             });
             // this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getById)
             //     .pipe(map(filterFn => filterFn(params.projectId)));
-            this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
+            this.store.select(UserState.getAuthUser).pipe(takeUntil(this._destroy)).subscribe(user => {
                 this.authUser = user;
             });
 
             this.selectedPROJ$
                 .pipe(delayWhen(() => from(this.pendingAction)))
-                .pipe(takeUntil(this.destroy))
+                .pipe(takeUntil(this._destroy))
                 // .pipe(delay(0))
                 .subscribe(p => {
                     if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
@@ -97,8 +97,8 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.deleteApiProject = this.deleteApiProject.bind(this)
     }
     ngOnDestroy(): void {
-        this.destroy.next();
-        this.destroy.complete();
+        this._destroy.next();
+        this._destroy.complete();
     }
     ngOnInit(): void {
 
@@ -135,8 +135,8 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
 
             this.router.navigate(['/designer']);
             this.toaster.success('Project deleted');
-            this.destroy.next();
-            this.destroy.complete();
+            this._destroy.next();
+            this._destroy.complete();
         } catch (e) {
             this.toaster.error('Failed to delete project');
         }

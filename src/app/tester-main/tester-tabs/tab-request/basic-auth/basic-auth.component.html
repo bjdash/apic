@@ -1,0 +1,23 @@
+<div class="margB10 vcenter">
+    <span class="title sm gap">Basic Authorization</span>
+    <mat-icon matTooltip="This will generate the Authorization header and add it to the request.">info
+    </mat-icon>
+</div>
+<div class="row margB10">
+    <label class="control-label col-sm-2" for="basic-auth-uname">User Name:</label>
+    <input type="text" value="" name="basic-auth-u" id="basic-auth-uname" [(ngModel)]="models.user"
+        class="form-control sm col-sm-5" autocomplete="off" placeholder="User Name" />
+</div>
+<div class="row margB10">
+    <label class="control-label col-sm-2" for="b-auth-pwd">Password:</label>
+    <input [type]="models.showPsd?'text':'password'" [(ngModel)]="models.password" value="" autocomplete="off"
+        class="col-sm-5 form-control sm" id="b-auth-pwd" placeholder="Password">
+</div>
+
+<div class="row">
+    <div class="col-sm-offset-2 col-sm-5 nopad">
+        <button mat-raised-button color="primary" type="button" class="sm gap" (click)="updateAuthHeader()">Update Auth
+            header</button>
+        <mat-checkbox class="example-margin" [(ngModel)]="models.showPsd">Show password</mat-checkbox>
+    </div>
+</div>

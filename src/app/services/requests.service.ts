@@ -47,7 +47,9 @@ export class RequestsService {
       } else {
         delete folder.owner;
       }
-      folder._id = folder._id ? folder._id : time + '-' + apic.s12();
+      if (!folder._id) {
+        folder._id = folder._id ? folder._id : time + '-' + apic.s12();
+      }
       folder._created = folder._created ? folder._created : time;
       folder._modified = folder._modified ? folder._modified : time;
     })
@@ -86,6 +88,32 @@ export class RequestsService {
       }
       this.store.dispatch(new RequestsAction.Folder.Delete(ids));
       return data;
+    });
+  }
+
+  createRequests(reqs: ApiRequest[], fromSync?: boolean) {
+    var time = new Date().getTime();
+    reqs.forEach(req => {
+      if (this.authUser?.UID) {
+        req.owner = this.authUser.UID;
+      } else {
+        delete req.owner;
+      }
+      if (!req._id) {
+        req._id = req._id ? req._id : time + '-' + apic.s12();
+      }
+      req._created = req._created ? req._created : time;
+      req._modified = req._modified ? req._modified : time;
+    })
+    for (var i = 0; i < reqs.length; i++) {
+      var folder = reqs[i];
+    }
+    return iDB.insertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((data) => {
+      if (!fromSync) {//added successfully
+        this.syncService.prepareAndSync('addAPIReq', reqs);
+      }
+      this.store.dispatch(new RequestsAction.Req.Add(reqs));
+      return reqs;
     });
   }
 
@@ -143,8 +171,8 @@ export class RequestsService {
     } else if (message.type == 'APIRequests' || message.type == 'Fetch:ApiRequests') {
       if ((message.apiRequests?.length > 0)) {
         if (message.action === 'update' || message.action === 'add') {
-          let folders = await this.updateRequests(message.apiRequests, true);
-          console.info('Sync: added/updated request', folders)
+          let reqs = await this.updateRequests(message.apiRequests, true);
+          console.info('Sync: added/updated request', reqs)
         }
       } else if (message.idList?.length > 0 && message.action === 'delete') {
         const resp = await this.deleteRequests(message.idList, true);
@@ -207,5 +235,27 @@ export class RequestsService {
       var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedApiRequests');
       this.syncService.fetch('Fetch:ApiRequests', lastSyncedTime?.time, { apiRequests: localReqsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
     }
+  }
+
+  validateImportData(importData): boolean {
+    const schema = {
+      "type": "object",
+      "properties": {
+        "TYPE": {
+          "type": "string",
+          "enum": ["Folder"]
+        },
+        "value": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "required": ["TYPE", "value"]
+    }
+    const validate = this.ajv.compile(schema);
+    const valid = validate(importData);
+    if (!valid) console.error(validate.errors);
+    return valid;
   }
 }

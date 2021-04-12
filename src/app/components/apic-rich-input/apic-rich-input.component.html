@@ -1,3 +1,10 @@
 <div class="apic-editor-cont">
-    <div contenteditable="true" class="apic-editor" placeholder="Request URL"></div>
+    <div #editor contenteditable="true" (keydown)="onKeyDown($event)" (input)="onChangeHandle()" class="apic-editor"
+        placeholder="Request URL"></div>
+
+    <div class="wysiwug-tooltip">
+        <div class="wysiwug-tooltip-head">localhost</div>
+        <div class="wysiwug-tooltip-tail align-right">Value read from selected environment</div>
+        <div class="wysiwug-tooltip-tail">Ctrl/Cmd + Click to copy value</div>
+    </div>'
 </div>

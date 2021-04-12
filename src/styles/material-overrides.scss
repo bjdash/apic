@@ -94,7 +94,7 @@ div {
 .mat-button.sm {
   line-height: 30px !important;
   padding: 0 15px;
-  min-width: 25px;
+  min-width: 25px !important;
 }
 .mat-stroked-button.sm {
   line-height: 30px !important;
@@ -384,4 +384,11 @@ div.mat-select-panel {
 }
 .mat-option {
   color: var(--text-color) !important;
+  background: var(--content-bg);
+}
+.mat-option:hover:not(.mat-option-disabled),
+.mat-option:focus:not(.mat-option-disabled),
+.mat-option.mat-active,
+.mat-autocomplete-panel .mat-option.mat-selected:not(.mat-active):not(:hover) {
+  background: var(--header-bg) !important;
 }

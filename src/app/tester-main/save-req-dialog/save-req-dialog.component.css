@@ -1,0 +1,9 @@
+.folder-select{
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    text-align: left;
+}
+.subfolder{
+    margin-left: 30px;
+}

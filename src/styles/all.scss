@@ -116,6 +116,9 @@ h4.head {
   font-size: 26px;
   font-family: apic-font;
 }
+.title.sm {
+  font-size: 20px;
+}
 .full-w {
   width: 100%;
 }
@@ -136,6 +139,9 @@ h4.head {
 }
 .margB10 {
   margin-bottom: 10px;
+}
+.nopad {
+  padding: 0 !important;
 }
 .pad10 {
   padding: 10px !important;
@@ -568,6 +574,11 @@ input.input-xs {
     background: var(--content-bg-contrast);
     border-right: 1px solid var(--border-color);
   }
+  button.mat-stroked-button {
+    border-radius: 0;
+    background: var(--content-bg);
+    border-right: 1px solid var(--border-color);
+  }
   button:first-child {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -575,6 +586,7 @@ input.input-xs {
   button:last-child {
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
+    border-left: none;
   }
 }
 .btn-group.toggle-group {

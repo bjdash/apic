@@ -8,7 +8,7 @@ import { ApiProjectState } from 'src/app/state/apiProjects.state';
 import { map, take } from 'rxjs/operators';
 import { SwaggerService } from 'src/app/services/swagger.service';
 import jsyaml from 'js-yaml';
-import Utils from 'src/app/services/utils.service';
+import { Utils } from 'src/app/services/utils.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 
 @Component({

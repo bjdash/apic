@@ -37,15 +37,16 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   }
   writeValue(value: any): void {
     this.responses = [...value];
+    if (this.responses.length === 0) {
+      this.responses.push({ code: '200', data: { type: 'object' } });
+      setTimeout(() => {
+        this.propagateChange(this.responses);
+      }, 0);
+    }
     this.selectResp(0);
   }
   registerOnChange(fn: any): void {
-    // this.propagateChange = fn;
-    this.propagateChange = (newVal) => {
-      console.log('new', newVal);
-      fn(newVal)
-
-    };
+    this.propagateChange = fn;
   }
   registerOnTouched(fn: any): void {
     this.propagateTouch = fn;

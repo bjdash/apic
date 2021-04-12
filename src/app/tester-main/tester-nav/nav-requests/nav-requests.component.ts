@@ -5,11 +5,13 @@ import { Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { ReqFolder } from 'src/app/models/ReqFolder.model';
 import { User } from 'src/app/models/User.model';
+import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { RequestsState } from 'src/app/state/requests.state';
 import { UserState } from 'src/app/state/user.state';
+import apic from 'src/app/utils/apic';
 
 @Component({
   selector: 'app-nav-requests',
@@ -33,7 +35,11 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
     newFolder: false,
     expanded: {}
   }
-  constructor(fb: FormBuilder, private store: Store, private reqService: RequestsService, private toastr: Toaster) {
+  constructor(fb: FormBuilder,
+    private store: Store,
+    private reqService: RequestsService,
+    private fileSystem: FileSystem,
+    private toastr: Toaster) {
     this.newFolderForm = fb.group({
       name: ['', Validators.required],
       desc: [''],
@@ -119,6 +125,94 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
         }
 
       });
+  }
+
+  async importFolder() {
+    const file: any = await this.fileSystem.readFile();
+    var data = null;
+    try {
+      data = JSON.parse(file.data);
+    } catch (e) {
+      this.toastr.error('Import failed. Invalid file format');
+    }
+    if (!data)
+      return;
+
+    if (data.TYPE === 'Folder') {
+      if (this.reqService.validateImportData(data) === true) {
+        let importFolderData = this.processImportedFolder(data.value, true);
+        try {
+          await this.reqService.createFolders(importFolderData.folders);
+          await this.reqService.createRequests(importFolderData.reqs);
+          this.toastr.success('Import Complete.');
+        } catch (e) {
+          this.toastr.error(`Failed to import. ${e.message}`);
+        }
+      } else {
+        this.toastr.error('Selected file doesn\'t contain valid environment information');
+      }
+    } else {
+      this.toastr.error('Selected file doesn\'t contain valid Folder information');
+    }
+  }
+
+  private processImportedFolder(folder, isParent: boolean) {
+    var time = new Date().getTime();
+    let importFolderData = {
+      folders: [],
+      reqs: []
+    };
+    var folderToAdd = {
+      _id: time + '-' + apic.s12(),
+      name: folder.name,
+      desc: folder.desc,
+      parentId: isParent ? null : folder.parentId
+    };
+    importFolderData.folders.push(folderToAdd);
+
+    if (folder.children && folder.children.length > 0) {
+      for (var i = 0; i < folder.children.length; i++) {
+        folder.children[i].parentId = folderToAdd._id;
+        let childImport = this.processImportedFolder(folder.children[i], false);
+        importFolderData.folders = [importFolderData.folders, ...childImport.folders]
+        importFolderData.reqs = [importFolderData.reqs, ...childImport.reqs]
+      }
+    }
+    if (folder.requests && folder.requests.length > 0) {
+      for (var i = 0; i < folder.requests.length; i++) {
+        var req = folder.requests[i];
+        var reqToAdd;
+        if (['Stomp', 'Websocket'].indexOf(req.method) >= 0) {
+          reqToAdd = {
+            url: req.url,
+            method: req.method,
+            name: req.name,
+            description: req.description,
+            _parent: folderToAdd._id,
+            type: req.type,
+            connection: req.connection,
+            destQ: req.destQ
+
+          };
+        } else {
+          reqToAdd = {
+            url: req.url,
+            method: req.method,
+            prescript: req.prescript,
+            postscript: req.postscript,
+            name: req.name,
+            description: req.description,
+            _parent: folderToAdd._id,
+            Req: req.Req,
+            Body: req.Body
+          };
+        }
+
+        importFolderData.reqs.push(reqToAdd);
+      }
+    }
+
+    return importFolderData;
   }
 
   deleteFolder() {

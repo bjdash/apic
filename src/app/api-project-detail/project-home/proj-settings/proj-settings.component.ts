@@ -9,7 +9,7 @@ import { KeyVal } from 'src/app/models/KeyVal.model';
 import { EnvService } from 'src/app/services/env.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { EnvState } from 'src/app/state/envs.state';
-import Utils from '../../../utils/helpers'
+import { Utils } from '../../../utils/helpers'
 
 @Component({
   selector: 'app-proj-settings',
