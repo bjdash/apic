@@ -40,21 +40,20 @@ export class RequestsService {
   }
 
   createFolders(folders: ReqFolder[], fromSync?: boolean) {
-    var time = new Date().getTime();
-    folders.forEach(folder => {
-      if (this.authUser?.UID) {
-        folder.owner = this.authUser.UID;
-      } else {
-        delete folder.owner;
-      }
-      if (!folder._id) {
-        folder._id = folder._id ? folder._id : time + '-' + apic.s12();
-      }
-      folder._created = folder._created ? folder._created : time;
-      folder._modified = folder._modified ? folder._modified : time;
-    })
-    for (var i = 0; i < folders.length; i++) {
-      var folder = folders[i];
+    if (!fromSync) {
+      var time = new Date().getTime();
+      folders.forEach(folder => {
+        if (this.authUser?.UID) {
+          folder.owner = this.authUser.UID;
+        } else {
+          delete folder.owner;
+        }
+        if (!folder._id) {//TODO: fix this
+          folder._id = folder._id ? folder._id : time + '-' + apic.s12();
+        }
+        folder._created = folder._created ? folder._created : time;
+        folder._modified = folder._modified ? folder._modified : time;
+      })
     }
     return iDB.insertMany(iDB.TABLES.FOLDERS, folders).then((data) => {
       if (!fromSync) {//added successfully
@@ -92,21 +91,18 @@ export class RequestsService {
   }
 
   createRequests(reqs: ApiRequest[], fromSync?: boolean) {
-    var time = new Date().getTime();
-    reqs.forEach(req => {
-      if (this.authUser?.UID) {
-        req.owner = this.authUser.UID;
-      } else {
-        delete req.owner;
-      }
-      if (!req._id) {
-        req._id = req._id ? req._id : time + '-' + apic.s12();
-      }
-      req._created = req._created ? req._created : time;
-      req._modified = req._modified ? req._modified : time;
-    })
-    for (var i = 0; i < reqs.length; i++) {
-      var folder = reqs[i];
+    if (!fromSync) {
+      var time = new Date().getTime();
+      reqs.forEach(req => {
+        if (this.authUser?.UID) {
+          req.owner = this.authUser.UID;
+        } else {
+          delete req.owner;
+        }
+        req._id = time + '-' + apic.s12();
+        req._created = time;
+        req._modified = time;
+      })
     }
     return iDB.insertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((data) => {
       if (!fromSync) {//added successfully
@@ -119,7 +115,14 @@ export class RequestsService {
 
   updateRequests(reqs: ApiRequest[], syncRequired?: boolean) {
     if (!syncRequired) {
-      reqs.forEach(f => f._modified = Date.now());
+      reqs.forEach(r => {
+        r._modified = Date.now();
+        if (this.authUser?.UID) {
+          r.owner = this.authUser.UID;
+        } else {
+          delete r.owner;
+        }
+      });
     }
     return iDB.upsertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((updatedIds) => {
       if (updatedIds && !syncRequired) {
@@ -129,7 +132,7 @@ export class RequestsService {
         }
       }
       this.store.dispatch(new RequestsAction.Req.Update(reqs));
-      return updatedIds;
+      return reqs;
     });
   }
 
@@ -139,7 +142,7 @@ export class RequestsService {
         this.syncService.prepareAndSync('deleteAPIReq', ids);
       }
       this.store.dispatch(new RequestsAction.Req.Delete(ids));
-      return data;
+      return ids;
     });
   }
 

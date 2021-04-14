@@ -702,3 +702,22 @@ input.input-xs {
     transform: rotate(360deg);
   }
 }
+
+/************* pulse ****************/
+.pulse {
+  transform: scale(1);
+  animation: pulse-anim 2s infinite;
+}
+@keyframes pulse-anim {
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-color);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgb(255 82 82 / 0%);
+  }
+
+  100% {
+    transform: rotate(-360deg);
+  }
+}

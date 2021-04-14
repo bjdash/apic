@@ -1,4 +1,4 @@
-import { Selector } from "@ngxs/store"
+import { createSelector, Selector } from "@ngxs/store"
 import { ReqFolder } from "../models/ReqFolder.model";
 import { ApiRequest } from "../models/Request.model";
 import { RequestsState, RequestsStateModel } from "./requests.state"
@@ -32,10 +32,34 @@ export class RequestsStateSelector {
         return state.requests;
     }
 
+    @Selector([RequestsStateSelector.getRequests])
+    static getRequestsInFolder(requests: ApiRequest[]) {
+        return (parentId) => {
+            return requests.filter(p => p._parent === parentId);
+        };
+    }
+
+    @Selector([RequestsStateSelector.getRequests])
+    static getRequestById(requests: ApiRequest[]) {
+        return (id) => {
+            return requests.find(p => p._id === id);
+        };
+    }
+
+    //this is to prevent ngxs re running the selector on state change
+    static getRequestByIdDynamic(id: string) {
+        return createSelector(
+            [RequestsStateSelector.getRequestById],
+            (filterFn: (id: any) => ApiRequest) => {
+                return filterFn(id);
+            }
+        );
+    };
+
 
     @Selector([RequestsStateSelector.getFoldersPartial, RequestsStateSelector.getReqsPartial])
     static getFoldersTree(folders: ReqFolder[], reqs: ApiRequest[]) {
-        console.log('generating left tree', folders, reqs);
+        // console.log('generating left tree', folders, reqs);
         var reqMap = {}; // map of requests based on the parent id
         reqs.forEach(r => {
             if (r._parent) {

@@ -96,6 +96,7 @@ import { RememberService } from './services/remember.service';
 import { RouteReuseStrategy } from '@angular/router';
 import { ApicRouteReuseStrategy } from './ApicRouteReuseStrategy';
 import { SaveReqDialogComponent } from './tester-main/save-req-dialog/save-req-dialog.component';
+import { TesterTabsService } from './tester-main/tester-tabs/tester-tabs.service';
 
 @NgModule({
   declarations: [
@@ -196,7 +197,8 @@ import { SaveReqDialogComponent } from './tester-main/save-req-dialog/save-req-d
     HttpService,
     StompService,
     SyncService,
-    RememberService
+    RememberService,
+    TesterTabsService
   ],
   bootstrap: [AppComponent],
 })

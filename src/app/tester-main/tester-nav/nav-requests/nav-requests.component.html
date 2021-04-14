@@ -69,11 +69,15 @@
                             </div>
                         </div>
                     </div>
-                    <div *ngFor="let req of folder.requests" class="savedReq" matRipple>
+                    <div *ngFor="let req of folder.requests" (click)="loadFromSave(req)" class="savedReq" matRipple
+                        [ngClass]="{active:req._id === selectedTabId}">
                         <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req}">
                         </ng-container>
                     </div>
                 </div>
+            </div>
+            <div class="msg" *ngIf="(folders$ |async)?.length == 0">Nothing saved.<br />Please <a class="t_color" href
+                    (click)="$event.preventDefault();showFolderForm()">Create a folder</a> to save requests
             </div>
         </div>
     </div>
@@ -129,9 +133,9 @@
         {{req.name}}
     </div>
     <div class="r-sec">
-        <a mat-icon-button [matMenuTriggerFor]="reqManu">
+        <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()">
             <mat-icon>more_vert</mat-icon>
-        </a>
+        </button>
         <mat-menu #reqManu="matMenu">
             <button mat-menu-item (click)="$event.stopPropagation()">
                 <mat-icon>code</mat-icon> Add to test suite
@@ -142,13 +146,15 @@
             <button mat-menu-item (click)="$event.stopPropagation()">
                 <mat-icon>content_cut</mat-icon> Move to
             </button>
-            <button mat-menu-item (click)="$event.stopPropagation()">
+            <button mat-menu-item (click)="$event.stopPropagation();duplicateReq(req._id)">
                 <mat-icon>content_copy</mat-icon> Duplicate
             </button>
             <button mat-menu-item (click)="$event.stopPropagation()">
                 <mat-icon>edit</mat-icon> Edit
             </button>
-            <button mat-menu-item (click)="$event.stopPropagation()">
+            <button mat-menu-item (click)="$event.stopPropagation();" confirm="Do you want to delete this Request?"
+                confirmTitle="Delete Confirmation" confirmOk="Delete"
+                (confirm-click)="deleteRequest(req._id, req.name)">
                 <mat-icon class="red">delete</mat-icon> Delete
             </button>
         </mat-menu>

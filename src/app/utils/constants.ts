@@ -81,6 +81,17 @@ function getConstants() {
                     '--border-color': '#ccc',
                     '--input-bg': '#d1ebff'
                 },
+                midnight: {
+                    '--header-bg': '#2d333b',
+                    '--main-bg': '#22272e',
+                    '--text-color': '#cdd9e5',
+                    '--text-color-bold': '#e8e8e8',
+                    '--content-bg': '#1e2228',
+                    '--content-bg-contrast': '#2d333b',
+                    '--accent-bg-text': '#ffffff',
+                    '--border-color': '#444c56',
+                    '--input-bg': '#d1ebff1f'
+                },
             },
             accents: ['#2196f3', '#24BAFF', '#E81123', '#F7630C', '#EA005E', '#FF8C00', '#E3008C', '#9A0089', '#FF4343', '#00CC6A', '#107C10']
         },

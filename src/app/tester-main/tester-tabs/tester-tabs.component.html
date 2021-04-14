@@ -6,13 +6,14 @@
             <mat-icon class="sm">add</mat-icon>
         </button>
         <button mat-button class="ws" (click)="addWsTab()">
-            <i class="icon bj-websocket"></i>ws {{overFlowtabsCount}}
+            <i class="icon bj-websocket"></i>ws {{selectedTabIndex}}
         </button>
     </div>
-    <mat-tab-group animationDuration="0ms" class="test-tabs" [selectedIndex]="selectedTabIndex">
+    <mat-tab-group animationDuration="0ms" class="test-tabs" [selectedIndex]="selectedTabIndex"
+        (selectedIndexChange)="selectedIndexChange($event)">
         <mat-tab class="XXX" *ngFor="let tab of tabs; trackBy:trackbyFn;let i=index" [ngSwitch]="tab.type">
             <ng-template mat-tab-label>
-                <div class="tab-label">
+                <div class="tab-label" [title]="tab.name">
                     <i *ngSwitchCase="'req'" class="tab-icon icon bj-embed2"></i>
                     <i *ngSwitchCase="'ws'" class="tab-icon icon bj-websocket"></i>
                     {{tab.name}}
@@ -20,7 +21,7 @@
                 </div>
             </ng-template>
             <div>
-                <app-tab-request *ngSwitchCase="'req'"></app-tab-request>
+                <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id"></app-tab-request>
                 <app-tab-socket *ngSwitchCase="'ws'"></app-tab-socket>
             </div>
         </mat-tab>

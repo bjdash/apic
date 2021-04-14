@@ -20,7 +20,7 @@ export class RequestsStateModel {
 export class RequestsState {
 
     @Action(RequestsAction.Folder.Add)
-    add({ getState, patchState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Add) {
+    addFolder({ getState, patchState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Add) {
         const state = getState();
         patchState({
             folders: [...state.folders, ...payload]
@@ -28,14 +28,14 @@ export class RequestsState {
     }
 
     @Action(RequestsAction.Folder.Refresh)
-    refresh({ patchState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Refresh) {
+    refreshFolders({ patchState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Refresh) {
         patchState({
             folders: [...payload]
         })
     }
 
     @Action(RequestsAction.Folder.Delete)
-    delete({ patchState, getState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Delete) {
+    deleteFolders({ patchState, getState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Delete) {
         const folders = getState().folders;
         patchState({
             folders: folders.filter(f => !payload.includes(f._id))
@@ -43,7 +43,7 @@ export class RequestsState {
     }
 
     @Action(RequestsAction.Folder.Update)
-    update({ patchState, getState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Update) {
+    updateFolders({ patchState, getState }: StateContext<RequestsStateModel>, { payload }: RequestsAction.Folder.Update) {
         const folders = [...getState().folders];
         var updateRequired = false;
         payload.forEach(updated => {
@@ -95,7 +95,7 @@ export class RequestsState {
             if (index < 0) {
                 updateRequired = true;
                 reqs.push(updated);
-            } else if (reqs[index]._modified != updated._modified) { //if the project being updated hasn't changed then dont update state
+            } else if (reqs[index]._modified != updated._modified) { //if the request being updated hasn't changed then dont update state
                 updateRequired = true;
                 reqs[index] = updated;
             }

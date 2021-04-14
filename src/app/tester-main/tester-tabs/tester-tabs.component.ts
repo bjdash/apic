@@ -18,13 +18,26 @@ export class TesterTabsComponent implements OnInit {
     this.overFlowtabsCount = Math.floor((window.innerWidth - 416) / 170);
 
     this.tabsService.tabsChange.subscribe(tab => {
-      console.log(tab)
       if (!tab) return;
-      if (tab.action === 'add' && !this.tabs.find(t => t.id === tab.id)) {
-        this.tabs.push(tab);
-        setTimeout(() => {
-          this.selectedTabIndex = this.tabs.length - 1;
-        }, 0);
+      if (tab.action === 'add') {
+        let indexIfExist = this.tabs.findIndex(t => t.id === tab.id);
+        if (indexIfExist < 0) {
+          tab.originalId = tab.id;
+          this.tabs.push(tab);
+          setTimeout(() => {
+            this.selectedTabIndex = this.tabs.length - 1;
+          }, 0);
+        } else {
+          this.selectedTabIndex = indexIfExist
+        }
+      } else if (tab.action === 'update') {
+        let indexIfExist = this.tabs.findIndex(t => t.id === tab.id);
+        if (indexIfExist >= 0) {
+          this.tabs[indexIfExist] = { ...this.tabs[indexIfExist], name: tab.name, id: tab.newId };
+          if (indexIfExist === this.selectedTabIndex) {
+            this.tabsService.selectedTabChange.next(tab.newId);
+          }
+        }
       }
     })
   }
@@ -39,8 +52,11 @@ export class TesterTabsComponent implements OnInit {
     event.stopPropagation();
     this.tabs.splice(index, 1);
   }
-
+  selectedIndexChange(index) {
+    this.selectedTabIndex = index;
+    this.tabsService.selectedTabChange.next(this.tabs[index].id)
+  }
   trackbyFn(index, item: TesterTab) {
-    return item.id;
+    return item.originalId;
   }
 }

@@ -1,21 +1,33 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Store } from '@ngxs/store';
+import { from, Observable, Subject } from 'rxjs';
+import { delayWhen, takeUntil } from 'rxjs/operators';
+import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { ApiRequest } from 'src/app/models/Request.model';
 import LocalStore from 'src/app/services/localStore';
 import { RememberService } from 'src/app/services/remember.service';
+import { RequestsService } from 'src/app/services/requests.service';
 import { Toaster } from 'src/app/services/toaster.service';
+import { RequestsStateSelector } from 'src/app/state/requests.selector';
+import apic from 'src/app/utils/apic';
 import { HTTP_HEADERS, HTTP_METHODES, METHOD_WITH_BODY, RAW_BODY_TYPES } from 'src/app/utils/constants';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
+import { TesterTabsService } from '../tester-tabs.service';
 
 @Component({
   selector: 'app-tab-request',
   templateUrl: './tab-request.component.html',
   styleUrls: ['./tab-request.component.scss']
 })
-export class TabRequestComponent implements OnInit, OnDestroy {
+export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() requestId: string;
+  selectedReq: ApiRequest;
+  selectedReq$: Observable<ApiRequest>;
+  private pendingAction: Promise<any> = Promise.resolve(null);
+
   httpMethods = HTTP_METHODES;
   RAW_BODY_TYPES = RAW_BODY_TYPES;
   HTTP_HEADERS = HTTP_HEADERS;
@@ -23,20 +35,23 @@ export class TabRequestComponent implements OnInit, OnDestroy {
   private _destroy: Subject<boolean> = new Subject<boolean>();
 
   dummy = ''
+  reloadRequest: ApiRequest = null;
   flags = {
     showReq: true,
     reqTab: 'auth_basic',
     urlParamsCount: 0,
-    headersCount: 0
+    headersCount: 0,
   }
   constructor(private fb: FormBuilder,
-    private remember: RememberService,
+    private store: Store,
+    private tabsService: TesterTabsService,
+    private reqService: RequestsService,
     private dialog: MatDialog,
     private toastr: Toaster) {
     this.form = fb.group({
       name: [''],
       method: ['POST'],
-      url: ['asdddddddddddP{{aaa}}aaaaa{{host}}'],
+      url: [''],
       urlParams: [[]],
       headers: [[]],
       body: fb.group({
@@ -44,9 +59,10 @@ export class TabRequestComponent implements OnInit, OnDestroy {
         selectedRaw: [{ name: "JSON", val: "application/json" }],
         xForms: [[]],
         formData: [[]],
-        rawData: ['test']
+        rawData: [''],
+        gqlVars: ['']
       }),
-      savedResp: [''],
+      savedResp: [[]],
       prescript: [''],
       postscript: [''],
       respCodes: [[]]
@@ -66,6 +82,12 @@ export class TabRequestComponent implements OnInit, OnDestroy {
     //load last layout
     this.flags.reqTab = LocalStore.get(LocalStore.REQ_TAB) || 'ReqParam';
   }
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes, this.requestId)
+    if (changes.requestId?.previousValue?.includes('new_tab') && !changes.requestId?.currentValue?.includes('new_tab')) {
+      this.listenForUpdate()
+    }
+  }
 
   ngOnDestroy(): void {
     this._destroy.next();
@@ -73,9 +95,67 @@ export class TabRequestComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (!this.requestId.includes('new_tab')) {
+      this.listenForUpdate()
+    }
   }
 
-  initReqSave() {
+  listenForUpdate() {
+    this.selectedReq$ = this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.requestId));
+    this.selectedReq$
+      .pipe(delayWhen(() => from(this.pendingAction)))
+      .pipe(takeUntil(this._destroy))
+      // .pipe(delay(0))
+      .subscribe(req => {
+        console.log('req update');
+
+        if (req && (req._modified > this.selectedReq?._modified || !this.selectedReq)) {
+          if (this.selectedReq) {
+            this.reloadRequest = req;
+          } else {
+            setTimeout(() => {
+              this.processSelectedReq(req)
+            }, 0);
+          }
+        } else if (req == undefined && this.selectedReq) {
+          //tab got deleted
+          this.tabsService.updateTab(this.requestId, 'new_tab:' + apic.s8(), 'Deleted Tab: ' + this.selectedReq.name);
+        }
+      })
+  }
+
+  processSelectedReq(req: ApiRequest) {
+    this.selectedReq = req;
+    const { url, method, name, Req: { headers, url_params }, postscript, prescript, savedResp, respCodes } = req;
+    this.form.patchValue({
+      name,
+      method,
+      url,
+      urlParams: url_params,
+      headers,
+      savedResp,
+      prescript,
+      postscript,
+      respCodes: respCodes || []
+    });
+    if (req.Body) {
+      const { Body: { rawData, selectedRaw, type, gqlVars, formData, xForms } } = req;
+      this.form.patchValue({
+        body: {
+          type: type,
+          selectedRaw: selectedRaw || { name: "JSON", val: "application/json" },
+          xForms: xForms || [],
+          formData: formData || [],
+          rawData,
+          gqlVars
+        }
+      })
+    }
+
+    this.form.markAsPristine();
+  }
+
+  async initReqSave(saveAs: boolean = false) {
     // if(fromProject?){
     //   update the endpoint with prerun and postrun
     // }
@@ -88,7 +168,7 @@ export class TabRequestComponent implements OnInit, OnDestroy {
         headers: request.headers
       },
       Body: null,
-      tabId: 'TODO:',//TODO:
+      _id: this.requestId,
       respCodes: request.respCodes,
       prescript: request.prescript,
       postscript: request.postscript,
@@ -114,7 +194,18 @@ export class TabRequestComponent implements OnInit, OnDestroy {
       }
     }
     console.log(saveData);
-    this.dialog.open(SaveReqDialogComponent, { data: saveData });
+    if (this.requestId.includes('new_tab') || saveAs) {
+      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, saveAs }, width: '600px' });
+    } else {
+      this.pendingAction = this.reqService.updateRequests([{ ...saveData, _parent: this.selectedReq._parent, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
+      try {
+        this.selectedReq = (await this.pendingAction)[0];
+        this.toastr.success('Request updated')
+      } catch (e) {
+        console.error(e)
+        this.toastr.error(`Failed to update request: ${e.message}`);
+      }
+    }
   }
 
   selectTab(type: string, name: string) {
@@ -169,5 +260,10 @@ export class TabRequestComponent implements OnInit, OnDestroy {
 
   setDirty() {
     this.form.markAsDirty();
+  }
+
+  reload() {
+    this.processSelectedReq(this.reloadRequest)
+    this.reloadRequest = null
   }
 }

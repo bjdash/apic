@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { ReqFolder } from 'src/app/models/ReqFolder.model';
+import { ApiRequest } from 'src/app/models/Request.model';
 import { User } from 'src/app/models/User.model';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
@@ -12,6 +14,8 @@ import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { RequestsState } from 'src/app/state/requests.state';
 import { UserState } from 'src/app/state/user.state';
 import apic from 'src/app/utils/apic';
+import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
+import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 
 @Component({
   selector: 'app-nav-requests',
@@ -23,6 +27,7 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
 
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
+  selectedTabId: string;
   newFolderForm: FormGroup;
   rename = {
     _id: '',
@@ -39,6 +44,8 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
     private store: Store,
     private reqService: RequestsService,
     private fileSystem: FileSystem,
+    private testerTabService: TesterTabsService,
+    private dialog: MatDialog,
     private toastr: Toaster) {
     this.newFolderForm = fb.group({
       name: ['', Validators.required],
@@ -49,6 +56,8 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
     this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
       this.authUser = user;
     });
+    this.testerTabService.selectedTabChange.pipe(takeUntil(this.destroy)).subscribe(id => this.selectedTabId = id);
+
   }
   ngOnDestroy(): void {
     this.destroy.next();
@@ -219,7 +228,39 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
     alert()
   }
 
+  async deleteRequest(id: string, name: string) {
+    try {
+      await this.reqService.deleteRequests([id]);
+      this.toastr.success('Request deleted');
+      this.testerTabService.updateTab(id, 'new_tab:' + apic.s8(), 'Deleted Tab: ' + name);
+    } catch (e) {
+      console.error('Failed to delete request', e);
+      this.toastr.error(`Failed to delete request: ${e.message}`)
+    }
+  }
+
+  duplicateReq(reqId: string) {
+    this.store.select(RequestsStateSelector.getRequestByIdDynamic(reqId)).pipe(take(1))
+      .subscribe((req: ApiRequest) => {
+
+        this.store.select(RequestsStateSelector.getFolderById)
+          .pipe(map(filterFn => filterFn(req._parent)))
+          .pipe(take(1))
+          .subscribe((parent: ReqFolder) => {
+            let reqToCopy: ApiRequest = { ...req };
+            this.dialog.open(SaveReqDialogComponent, { data: { req: reqToCopy, duplicate: true, parent: parent.name }, width: '600px' });
+          })
+
+
+      });
+
+  }
+
   toggleExpand(id: string) {
     this.flags.expanded[id] = !this.flags.expanded[id];
+  }
+
+  loadFromSave(req: ApiRequest) {
+    this.testerTabService.addReqTab(req._id, req.name);
   }
 }

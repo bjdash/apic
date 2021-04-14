@@ -44,9 +44,12 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   ngOnInit(): void {
   }
 
-  textChanged() {
-    this.textChange.emit(this.text);
-    this._onChange(this.text)
+  textChanged(e) {
+    if (e != this.text) {
+      this.text = e;
+      this.textChange.emit(this.text);
+      this._onChange(this.text)
+    }
   }
 
   startResize(e) {

@@ -45,8 +45,10 @@
             border-top: 2px solid var(--accent-color);
         }
         .tab-label {
-            min-width: 150px;
+            width: 150px;
             text-align: left;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
         .mat-ink-bar {
             top: 0px;

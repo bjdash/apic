@@ -6,7 +6,6 @@ import { TesterTabsService } from './tester-tabs/tester-tabs.service';
   selector: 'apic-tester-main',
   templateUrl: './tester-main.component.html',
   styleUrls: ['./tester-main.component.scss'],
-  providers: [TesterTabsService]
 })
 export class TesterMainComponent implements OnInit {
 
@@ -14,9 +13,7 @@ export class TesterMainComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.tabsService.addTab({ action: 'add', id: 'new_tab' + apic.s8(), name: 'New tab', type: 'req' })
-
+      this.tabsService.addTab({ action: 'add', id: null, name: 'New tab', type: 'req' })
     }, 0);
   }
-
 }

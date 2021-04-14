@@ -91,12 +91,12 @@ export class ApiProjectService {
         });
     }
 
-    updateAPIProjects(projects: ApiProject[], syncRequired?: boolean, preventLeftmenuUpdate?: boolean) {
-        if (!syncRequired) {
+    updateAPIProjects(projects: ApiProject[], fromSync?: boolean, preventLeftmenuUpdate?: boolean) {
+        if (!fromSync) {
             projects.forEach(project => project._modified = Date.now());
         }
         return iDB.upsertMany(iDB.TABLES.API_PROJECTS, projects).then((updatedIds) => {
-            if (updatedIds && !syncRequired) {
+            if (updatedIds && !fromSync) {
                 var projsToSync = apic.removeDemoItems(projects); //returns a list
                 if (projsToSync.length > 0) {
                     this.syncService.prepareAndSync('updateAPIProject', projsToSync);
