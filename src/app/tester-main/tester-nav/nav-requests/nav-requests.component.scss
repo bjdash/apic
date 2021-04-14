@@ -1,0 +1,58 @@
+.ctrls {
+    text-align: right;
+}
+
+.new-folder {
+    padding: 0 10px;
+}
+
+.reqSection {
+    font-size: 20px;
+    font-family: apic-font;
+    cursor: pointer;
+    padding: 0 6px;
+    margin-bottom: 7px;
+}
+.msg {
+    font-size: 16px;
+    text-align: center;
+    line-height: 1.846;
+}
+.tree-select-dialog {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--content-bg);
+    padding: 0 10px;
+
+    .heading {
+        font-size: 18px;
+        color: var(--text-color);
+        background: var(--content-bg-contrast);
+        margin: 0 -10px;
+        height: 36px;
+        padding-left: 10px;
+        line-height: 34px;
+        box-shadow: 0 7px 9px rgb(0 0 0 / 10%);
+        margin-bottom: 15px;
+
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 3px;
+            z-index: 1;
+            border: 1px solid var(--accent-shadow);
+        }
+    }
+    .tree {
+        overflow: auto;
+        max-height: calc(100vh - 185px);
+        margin-bottom: 10px;
+    }
+    .done {
+        width: 100%;
+        text-transform: capitalize;
+    }
+}

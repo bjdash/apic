@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
@@ -20,7 +20,7 @@ import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 @Component({
   selector: 'app-nav-requests',
   templateUrl: './nav-requests.component.html',
-  styleUrls: ['./nav-requests.component.css']
+  styleUrls: ['./nav-requests.component.scss']
 })
 export class NavRequestsComponent implements OnInit, OnDestroy {
   @Select(RequestsStateSelector.getFoldersTree) folders$: Observable<any[]>;
@@ -34,6 +34,13 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
     name: ''
   }
 
+  copyMove = {
+    showTree: false,
+    type: '',
+    reqId: '',
+    reqName: '',
+    parent: new FormControl('')
+  }
   flags = {
     projReqs: true,
     savedReqs: true,
@@ -250,9 +257,55 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
             let reqToCopy: ApiRequest = { ...req };
             this.dialog.open(SaveReqDialogComponent, { data: { req: reqToCopy, duplicate: true, parent: parent.name }, width: '600px' });
           })
-
-
       });
+  }
+
+  initCopyMove(type: 'copy' | 'move', reqId: string, reqName: string) {
+    this.copyMove = {
+      ...this.copyMove,
+      type,
+      reqId,
+      reqName,
+      showTree: true
+    }
+    this.copyMove.parent.setValue('');
+  }
+
+  doCopyMove() {
+    let parent = this.copyMove.parent.value;
+    if (!parent) {
+      this.toastr.error('Please select the destination folder.');
+      return;
+    }
+    this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.copyMove.reqId))
+      .pipe(take(1))
+      .subscribe(originalReq => {
+        if (originalReq) {
+          this.store.select(RequestsStateSelector.getRequestsInFolder)
+            .pipe(map(filterFn => filterFn(parent)))
+            .pipe(take(1))
+            .subscribe(async (reqs) => {
+              let duplicate = false, reqName = this.copyMove.reqName, counter = 0;
+              do {
+                counter++;
+                duplicate = reqs.some(r => r.name.toLocaleLowerCase() == reqName.toLocaleLowerCase())
+                if (duplicate) {
+                  reqName = this.copyMove.reqName + ' ' + counter;
+                }
+              } while (duplicate);
+
+              let newReq = { ...originalReq, name: reqName, _parent: parent };
+              if (this.copyMove.type == 'copy') {
+                await this.reqService.createRequests([newReq])
+              } else {
+                await this.reqService.updateRequests([newReq])
+              }
+              this.toastr.success('Done');
+              this.copyMove.showTree = false;
+            });
+        }
+      })
+
 
   }
 

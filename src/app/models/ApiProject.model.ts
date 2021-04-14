@@ -140,7 +140,7 @@ export const NewApiEndp: ApiEndp = {
         type: 'raw',
         data: { type: 'object' }
     },
-    responses: [],
+    responses: [{ code: '200', data: { type: 'object' } }],
     postrun: '',
     prerun: '',
 }

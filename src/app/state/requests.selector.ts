@@ -73,7 +73,7 @@ export class RequestsStateSelector {
 
         var folderMap = {};
         let folderTree = folders.filter(f => !f.parentId).map(f => {
-            let rootFolder = { ...f, children: [], requests: reqMap[f._id] };
+            let rootFolder = { ...f, children: [], requests: reqMap[f._id] || [] };
             folderMap[f._id] = rootFolder;
             return rootFolder;
         }).sort((a, b) => {
@@ -85,7 +85,7 @@ export class RequestsStateSelector {
                 return a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase() ? -1 : 1
             })
             .forEach(f => {
-                let folder = { ...f, children: [], requests: reqMap[f._id] };
+                let folder = { ...f, children: [], requests: reqMap[f._id] || [] };
                 folderMap[f.parentId].children.push(folder);
             })
         return folderTree;

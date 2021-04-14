@@ -55,7 +55,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
       pathParams: [{ type: 'object' }],
       queryParams: [{ type: 'object' }],
       headers: [{ type: 'object' }],
-      responses: [[]],
+      responses: [[{ code: '200', data: { type: 'object' } }]],
       body: fb.group({
         type: [''],
         data: ['']

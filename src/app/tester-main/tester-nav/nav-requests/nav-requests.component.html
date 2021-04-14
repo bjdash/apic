@@ -63,10 +63,12 @@
                         <ng-container [ngTemplateOutlet]="FolderRef" [ngTemplateOutletContext]="{folder: subfolder}">
                         </ng-container>
                         <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id]">
-                            <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple>
+                            <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple
+                                (click)="loadFromSave(req)" [ngClass]="{active:req._id === selectedTabId}">
                                 <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req}">
                                 </ng-container>
                             </div>
+                            <span *ngIf="subfolder.requests?.length == 0">empty folder</span>
                         </div>
                     </div>
                     <div *ngFor="let req of folder.requests" (click)="loadFromSave(req)" class="savedReq" matRipple
@@ -74,6 +76,7 @@
                         <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req}">
                         </ng-container>
                     </div>
+                    <span *ngIf="folder.requests?.length == 0 && folder.children?.length == 0">empty folder</span>
                 </div>
             </div>
             <div class="msg" *ngIf="(folders$ |async)?.length == 0">Nothing saved.<br />Please <a class="t_color" href
@@ -81,6 +84,20 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="tree-select-dialog" *ngIf="copyMove.showTree">
+    <div class="heading">Select Folder
+        <button mat-icon-button class="close sm" (click)="copyMove.showTree=false">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <div class="tree">
+        <apic-tree-selector [items]="folders$ |async" [formControl]="copyMove.parent" [options]="{disableChild:false}">
+        </apic-tree-selector>
+    </div>
+    <button type="button" mat-raised-button color="primary" class="sm done"
+        (click)="doCopyMove()">{{copyMove.type}}</button>
 </div>
 
 <ng-template #FolderRef let-folder="folder">
@@ -140,21 +157,20 @@
             <button mat-menu-item (click)="$event.stopPropagation()">
                 <mat-icon>code</mat-icon> Add to test suite
             </button>
-            <button mat-menu-item (click)="$event.stopPropagation()">
+            <button mat-menu-item (click)="initCopyMove('copy', req._id, req.name)">
                 <mat-icon>file_copy</mat-icon> Copy to
             </button>
-            <button mat-menu-item (click)="$event.stopPropagation()">
+            <button mat-menu-item (click)="initCopyMove('move', req._id, req.name)">
                 <mat-icon>content_cut</mat-icon> Move to
             </button>
-            <button mat-menu-item (click)="$event.stopPropagation();duplicateReq(req._id)">
+            <button mat-menu-item (click)="duplicateReq(req._id)">
                 <mat-icon>content_copy</mat-icon> Duplicate
             </button>
             <button mat-menu-item (click)="$event.stopPropagation()">
                 <mat-icon>edit</mat-icon> Edit
             </button>
-            <button mat-menu-item (click)="$event.stopPropagation();" confirm="Do you want to delete this Request?"
-                confirmTitle="Delete Confirmation" confirmOk="Delete"
-                (confirm-click)="deleteRequest(req._id, req.name)">
+            <button mat-menu-item confirm="Do you want to delete this Request?" confirmTitle="Delete Confirmation"
+                confirmOk="Delete" (confirm-click)="deleteRequest(req._id, req.name)">
                 <mat-icon class="red">delete</mat-icon> Delete
             </button>
         </mat-menu>

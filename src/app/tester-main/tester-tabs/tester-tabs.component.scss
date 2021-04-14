@@ -62,12 +62,12 @@
             float: right;
             cursor: pointer;
             display: none;
-            color: #fff;
             width: 15px;
             height: 15px;
         }
         .tab-close:hover {
             background: red;
+            color: #fff;
         }
         .mat-tab-label:hover,
         .mat-tab-label-active {
