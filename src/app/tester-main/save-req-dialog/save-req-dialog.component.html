@@ -14,7 +14,7 @@
                 <textarea class="form-control" formControlName="description"></textarea>
             </div>
         </div>
-        <div class="row">
+        <div class="row" *ngIf="data.action !== 'rename'">
             <label class="col-sm-12">Select a folder to save:</label>
             <div class="col-sm-12" *ngIf="!data?.parent">
                 <div *ngFor="let folder of folders$ | async ">

@@ -4,6 +4,9 @@ import { Injectable } from "@angular/core";
 import { Message } from "@stomp/stompjs";
 import { BehaviorSubject } from 'rxjs';
 import { Toaster } from './toaster.service';
+import { Store } from '@ngxs/store';
+import { User } from '../models/User.model';
+import { UserState } from '../state/user.state';
 
 
 @Injectable()
@@ -12,8 +15,9 @@ export class SyncService {
     onEnvMessage$: BehaviorSubject<StompMessage> = null;
     onRequestsMessage$: BehaviorSubject<StompMessage> = null;
     onAccountMessage$: BehaviorSubject<StompMessage> = null;
+    authUser: User;
 
-    constructor(private stompService: StompService, private toaster: Toaster) {
+    constructor(private stompService: StompService, private toaster: Toaster, private store: Store) {
         this.onApiProjectMessage$ = new BehaviorSubject(null)
         this.onEnvMessage$ = new BehaviorSubject(null)
         this.onAccountMessage$ = new BehaviorSubject(null)
@@ -25,7 +29,11 @@ export class SyncService {
 
         this.stompService.client.connected$.subscribe(() => {
             this.syncUnsynced();
-        })
+        });
+
+        this.store.select(UserState.getAuthUser).subscribe(user => {
+            this.authUser = user;
+        });
     }
 
     fetch(command: string, lastSyncedTime?: number, data?: any) {
@@ -65,6 +73,7 @@ export class SyncService {
     }
 
     execute(command: string, data: StompMessage) {
+        if (!this.authUser?.UID) return;
         data.command = command;
         this.stompService.addtoSendQueue(data);
     }

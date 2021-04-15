@@ -29,19 +29,20 @@ export class SaveReqDialogComponent implements OnInit {
     private tabsService: TesterTabsService,
     private dialogRef: MatDialogRef<SaveReqDialogComponent>,
     private reqService: RequestsService,
-    @Inject(MAT_DIALOG_DATA) public data: { req: ApiRequest, saveAs?: boolean, duplicate?: boolean, parent?: string }) {
+    @Inject(MAT_DIALOG_DATA) public data: { req: ApiRequest, action: 'new' | 'saveAs' | 'duplicate' | 'rename', parent?: string }) {
     this.form = fb.group({
       name: ['', [Validators.required, Validators.maxLength(70)]],
       description: ['', Validators.maxLength(255)],
       _parent: ['', Validators.required]
     });
 
-    if (data.saveAs) this.title = 'Save as';
-    else if (data.duplicate) {
-      this.title = `Duplicate: ${data.req.name}`
+    if (data.action === 'saveAs') this.title = 'Save as';
+    else if (data.action === 'duplicate' || data.action === 'rename') {
+      this.title = data.action === 'duplicate' ? `Duplicate: ${data.req.name}` : `Edit: ${data.req.name}`
       this.form.patchValue({ _parent: this.data.req._parent });
       this.store.select(RequestsStateSelector.getRequestsInFolder)
         .pipe(map(filterFn => filterFn(this.data.req._parent)))
+        .pipe(take(1))
         .subscribe((reqs) => {
           this.selectedFolder = {
             _id: data.req._parent,
@@ -54,7 +55,10 @@ export class SaveReqDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form.patchValue({ name: this.data.req.name ? (this.data.req.name + ' copy') : Utils.urlToReqName(this.data.req.method, this.data.req.url) })
+    this.form.patchValue({
+      name: this.data.action === 'rename' ? this.data.req.name : (this.data.req.name ? (this.data.req.name + ' copy') : Utils.urlToReqName(this.data.req.method, this.data.req.url)),
+      description: this.data.req?.description || ''
+    })
   }
 
   async onSubmit() {
@@ -71,17 +75,24 @@ export class SaveReqDialogComponent implements OnInit {
     }
 
     if (this.selectedFolder.requests.find(r => r.name.toLowerCase() === details.name.toLocaleLowerCase())) {
-      this.toaster.error('A request with the same name is already in the folder');
+      this.toaster.error('A request with the same name already exists in the folder');
     } else {
-      let reqs: ApiRequest[] = await this.reqService.createRequests([{ ...this.data.req, ...details }]);
-      console.log('saved')
-      this.dialogRef.close();
-      if (this.data.saveAs) {
-        this.toaster.success('A copy of the request saved.');
-      } else {
+      if (this.data.action === 'rename') {
+        let reqs: ApiRequest[] = await this.reqService.updateRequests([{ ...this.data.req, ...details }]);
         this.toaster.success('Request saved.');
-        this.tabsService.updateTab(this.data.req._id, reqs[0]._id, reqs[0].name);
+        this.tabsService.updateTab(this.data.req._id, this.data.req._id, reqs[0].name);
+      } else {
+        let reqs: ApiRequest[] = await this.reqService.createRequests([{ ...this.data.req, ...details }]);
+        if (this.data.action == 'saveAs') {
+          this.toaster.success('A copy of the request saved.');
+        } else {
+          this.toaster.success('Request saved.');
+          if (this.data.action === 'new') {
+            this.tabsService.updateTab(this.data.req._id, reqs[0]._id, reqs[0].name);
+          }
+        }
       }
+      this.dialogRef.close();
     }
 
   }

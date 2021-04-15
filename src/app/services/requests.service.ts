@@ -56,7 +56,7 @@ export class RequestsService {
       })
     }
     return iDB.insertMany(iDB.TABLES.FOLDERS, folders).then((data) => {
-      if (!fromSync) {//added successfully
+      if (!fromSync && this.authUser?.UID) {//added successfully
         this.syncService.prepareAndSync('addFolder', folders);
       }
       this.store.dispatch(new RequestsAction.Folder.Add(folders));
@@ -64,12 +64,12 @@ export class RequestsService {
     });
   }
 
-  updateFolders(folders: ReqFolder[], syncRequired?: boolean) {
-    if (!syncRequired) {
+  updateFolders(folders: ReqFolder[], fromSync?: boolean) {
+    if (!fromSync) {
       folders.forEach(f => f._modified = Date.now());
     }
     return iDB.upsertMany(iDB.TABLES.FOLDERS, folders).then((updatedIds) => {
-      if (updatedIds && !syncRequired) {
+      if (updatedIds && !fromSync && this.authUser?.UID) {
         var foldersToSync = apic.removeDemoItems(folders); //returns a list
         if (foldersToSync.length > 0) {
           this.syncService.prepareAndSync('updateFolder', foldersToSync);
@@ -82,7 +82,7 @@ export class RequestsService {
 
   async deleteFolders(ids: string[], fromSync?: boolean) {
     return iDB.deleteMany(iDB.TABLES.FOLDERS, ids).then((data) => { //data doesnt contain deleted ids
-      if (!fromSync) {
+      if (!fromSync && this.authUser?.UID) {
         this.syncService.prepareAndSync('deleteFolder', ids);
       }
       this.store.dispatch(new RequestsAction.Folder.Delete(ids));
@@ -113,8 +113,8 @@ export class RequestsService {
     });
   }
 
-  updateRequests(reqs: ApiRequest[], syncRequired?: boolean) {
-    if (!syncRequired) {
+  updateRequests(reqs: ApiRequest[], fromSync?: boolean) {
+    if (!fromSync) {
       reqs.forEach(r => {
         r._modified = Date.now();
         if (this.authUser?.UID) {
@@ -125,7 +125,7 @@ export class RequestsService {
       });
     }
     return iDB.upsertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((updatedIds) => {
-      if (updatedIds && !syncRequired) {
+      if (updatedIds && !fromSync && this.authUser?.UID) {
         var toSync = apic.removeDemoItems(reqs); //returns a list
         if (toSync.length > 0) {
           this.syncService.prepareAndSync('updateAPIReq', toSync);
@@ -138,7 +138,7 @@ export class RequestsService {
 
   async deleteRequests(ids: string[], fromSync?: boolean) {
     return iDB.deleteMany(iDB.TABLES.SAVED_REQUESTS, ids).then((data) => { //data doesnt contain deleted ids
-      if (!fromSync) {
+      if (!fromSync && this.authUser?.UID) {
         this.syncService.prepareAndSync('deleteAPIReq', ids);
       }
       this.store.dispatch(new RequestsAction.Req.Delete(ids));

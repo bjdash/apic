@@ -59,6 +59,21 @@ export class RequestsStateSelector {
 
     @Selector([RequestsStateSelector.getFoldersPartial, RequestsStateSelector.getReqsPartial])
     static getFoldersTree(folders: ReqFolder[], reqs: ApiRequest[]) {
+        return RequestsStateSelector.generateTree(folders, reqs)
+    }
+
+    @Selector([RequestsStateSelector.getFolders, RequestsStateSelector.getRequests])
+    static getFoldersTreeById(allFolders: ReqFolder[], allRequests: ApiRequest[]) {
+        return (folderId) => {
+            let folders = allFolders.filter(f => f._id == folderId || f.parentId == folderId);
+            let includedFolderIds = folders.map(f => f._id);
+            let requests = allRequests.filter(r => includedFolderIds.includes(r._parent))
+
+            return RequestsStateSelector.generateTree(folders, requests)[0]
+        };
+    }
+
+    private static generateTree(folders: ReqFolder[], reqs: ApiRequest[]) {
         // console.log('generating left tree', folders, reqs);
         var reqMap = {}; // map of requests based on the parent id
         reqs.forEach(r => {
@@ -90,4 +105,5 @@ export class RequestsStateSelector {
             })
         return folderTree;
     }
+
 }

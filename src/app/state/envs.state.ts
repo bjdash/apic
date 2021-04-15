@@ -90,7 +90,7 @@ export class EnvState {
             if (index < 0) {
                 envs.push(updatedEnv);
             } else {
-                if (updatedEnv._id === selectedEnv._id) {
+                if (updatedEnv._id === selectedEnv?._id) {
                     shouldUpdateSelected = true;
                     selectedEnv = updatedEnv;
                 }

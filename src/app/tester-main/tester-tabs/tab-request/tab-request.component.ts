@@ -50,6 +50,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     private toastr: Toaster) {
     this.form = fb.group({
       name: [''],
+      description: [''],
       method: ['POST'],
       url: [''],
       urlParams: [[]],
@@ -126,9 +127,10 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
 
   processSelectedReq(req: ApiRequest) {
     this.selectedReq = req;
-    const { url, method, name, Req: { headers, url_params }, postscript, prescript, savedResp, respCodes } = req;
+    const { url, method, name, description, Req: { headers, url_params }, postscript, prescript, savedResp, respCodes } = req;
     this.form.patchValue({
       name,
+      description,
       method,
       url,
       urlParams: url_params,
@@ -163,6 +165,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     let saveData = {
       url: request.url,
       method: request.method,
+      description: request.description,
       Req: {
         url_params: request.urlParams,
         headers: request.headers
@@ -195,7 +198,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     }
     console.log(saveData);
     if (this.requestId.includes('new_tab') || saveAs) {
-      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, saveAs }, width: '600px' });
+      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
     } else {
       this.pendingAction = this.reqService.updateRequests([{ ...saveData, _parent: this.selectedReq._parent, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
       try {

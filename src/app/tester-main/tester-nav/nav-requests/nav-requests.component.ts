@@ -4,14 +4,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
-import { ReqFolder } from 'src/app/models/ReqFolder.model';
+import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
 import { User } from 'src/app/models/User.model';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
-import { RequestsState } from 'src/app/state/requests.state';
 import { UserState } from 'src/app/state/user.state';
 import apic from 'src/app/utils/apic';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
@@ -190,8 +189,8 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
       for (var i = 0; i < folder.children.length; i++) {
         folder.children[i].parentId = folderToAdd._id;
         let childImport = this.processImportedFolder(folder.children[i], false);
-        importFolderData.folders = [importFolderData.folders, ...childImport.folders]
-        importFolderData.reqs = [importFolderData.reqs, ...childImport.reqs]
+        importFolderData.folders = [...importFolderData.folders, ...childImport.folders]
+        importFolderData.reqs = [...importFolderData.reqs, ...childImport.reqs]
       }
     }
     if (folder.requests && folder.requests.length > 0) {
@@ -220,7 +219,9 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
             description: req.description,
             _parent: folderToAdd._id,
             Req: req.Req,
-            Body: req.Body
+            Body: req.Body,
+            respCodes: req.respCodes,
+            savedResp: req.savedResp
           };
         }
 
@@ -231,8 +232,25 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
     return importFolderData;
   }
 
-  deleteFolder() {
-    alert()
+  async deleteFolder(folder: TreeReqFolder) {
+    let reqsToDelete = folder.requests?.map(r => r._id) || [];
+    let foldersToDelete = folder.children?.map(f => {
+      if (f.requests?.length > 0) {
+        reqsToDelete = [...reqsToDelete, ...f.requests.map(r => r._id)];
+      }
+      return f._id
+    }) || [];
+    foldersToDelete.push(folder._id);
+    try {
+      await this.reqService.deleteRequests(reqsToDelete);
+      await this.reqService.deleteFolders(foldersToDelete);
+      this.toastr.success('Folder deleted');
+    } catch (e) {
+      console.error('Failed to delete folder', e);
+      this.toastr.error(`Failed to delete folder ${e.message}`);
+    }
+
+    console.log(folder, reqsToDelete, foldersToDelete)
   }
 
   async deleteRequest(id: string, name: string) {
@@ -255,7 +273,21 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
           .pipe(take(1))
           .subscribe((parent: ReqFolder) => {
             let reqToCopy: ApiRequest = { ...req };
-            this.dialog.open(SaveReqDialogComponent, { data: { req: reqToCopy, duplicate: true, parent: parent.name }, width: '600px' });
+            this.dialog.open(SaveReqDialogComponent, { data: { req: reqToCopy, action: 'duplicate', parent: parent.name }, width: '600px' });
+          })
+      });
+  }
+
+  editReq(reqId: string) {
+    this.store.select(RequestsStateSelector.getRequestByIdDynamic(reqId)).pipe(take(1))
+      .subscribe((req: ApiRequest) => {
+
+        this.store.select(RequestsStateSelector.getFolderById)
+          .pipe(map(filterFn => filterFn(req._parent)))
+          .pipe(take(1))
+          .subscribe((parent: ReqFolder) => {
+            let reqToCopy: ApiRequest = { ...req };
+            this.dialog.open(SaveReqDialogComponent, { data: { req: reqToCopy, action: 'rename', parent: parent.name }, width: '600px' });
           })
       });
   }
@@ -305,8 +337,19 @@ export class NavRequestsComponent implements OnInit, OnDestroy {
             });
         }
       })
+  }
 
-
+  downloadFolder(folderId: string) {
+    this.store.select(RequestsStateSelector.getFoldersTreeById)
+      .pipe(map(filterFn => filterFn(folderId)))
+      .pipe(take(1))
+      .subscribe(tree => {
+        let exportData = {
+          TYPE: 'Folder',
+          value: tree
+        }
+        this.fileSystem.download(tree.name + '.folder.apic.json', JSON.stringify(exportData, null, '\t'));
+      })
   }
 
   toggleExpand(id: string) {

@@ -46,7 +46,7 @@ export class EnvService {
 
   deleteEnvs(envIds: string[], fromSync?: boolean) {
     return iDB.deleteMany('Environments', envIds).then((data) => {
-      if (!fromSync) {
+      if (!fromSync && this.authUser?.UID) {
         this.syncService.prepareAndSync('deleteEnv', envIds);
       }
       this.store.dispatch(new EnvsAction.Delete(envIds));
@@ -99,7 +99,7 @@ export class EnvService {
   updateEnv(env: Env, fromSync?: boolean) {
     env._modified = Date.now();
     return iDB.upsert('Environments', env).then((data) => {
-      if (data && !fromSync) {
+      if (data && !fromSync && this.authUser?.UID) {
         var envsToSync = apic.removeDemoItems(env); //returns a list
         if (envsToSync.length > 0) {
           this.syncService.prepareAndSync('updateEnv', envsToSync);
@@ -116,7 +116,7 @@ export class EnvService {
 
   updateEnvs(envs: Env[], fromSync?: boolean) {
     return iDB.upsertMany('Environments', envs).then((updatedIds) => {
-      if (updatedIds && !fromSync) {
+      if (updatedIds && !fromSync && this.authUser?.UID) {
         var envsToSync = apic.removeDemoItems(envs); //returns a list
         if (envsToSync.length > 0) {
           this.syncService.prepareAndSync('updateEnv', envsToSync);

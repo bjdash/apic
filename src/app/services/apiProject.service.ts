@@ -57,7 +57,7 @@ export class ApiProjectService {
 
     async deleteAPIProjects(ids: string[], fromSync?: boolean) {
         return iDB.deleteMany(iDB.TABLES.API_PROJECTS, ids).then((data) => { //data doesnt contain deleted ids
-            if (!fromSync) {
+            if (!fromSync && this.authUser?.UID) {
                 this.syncService.prepareAndSync('deleteAPIProject', ids);
             }
             this.store.dispatch(new ApiProjectsAction.Delete(ids));
@@ -70,7 +70,7 @@ export class ApiProjectService {
             project._modified = Date.now();
         }
         return iDB.upsert('ApiProjects', project).then((data) => {
-            if (data && !fromSync) {
+            if (data && !fromSync && this.authUser?.UID) {
                 var projsToSync = apic.removeDemoItems(project); //returns list
                 if (projsToSync.length > 0) {
                     this.syncService.prepareAndSync('updateAPIProject', projsToSync);
@@ -96,7 +96,7 @@ export class ApiProjectService {
             projects.forEach(project => project._modified = Date.now());
         }
         return iDB.upsertMany(iDB.TABLES.API_PROJECTS, projects).then((updatedIds) => {
-            if (updatedIds && !fromSync) {
+            if (updatedIds && !fromSync && this.authUser?.UID) {
                 var projsToSync = apic.removeDemoItems(projects); //returns a list
                 if (projsToSync.length > 0) {
                     this.syncService.prepareAndSync('updateAPIProject', projsToSync);
