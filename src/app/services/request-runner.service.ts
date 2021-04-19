@@ -51,7 +51,7 @@ export class RequestRunnerService {
           type: 'prescript',
           req: req
         };
-        await this.tester.run(script);//TODO:
+        await this.tester.runScript(script);//TODO:
       }
 
       this._xhr = new XMLHttpRequest();
@@ -247,5 +247,9 @@ export class RequestRunnerService {
       }
     }
     return size === undefined ? 'Unknown' : size >= 1024 ? size >= 1048576 ? (size / 1048576).toFixed(1) + ' MB' : (size / 1024).toFixed(1) + ' KB' : size + ' B';
+  }
+
+  abort() {
+    this._xhr.abort();
   }
 }

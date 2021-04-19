@@ -16,7 +16,7 @@ export class TesterService {
     this.sandBox = document.getElementById('tester');
   };
 
-  run(script: TestScript) {
+  runScript(script: TestScript) {
     return new Promise((resolve, reject) => {
       window.addEventListener('message', (event) => {
         console.log('received response', event);

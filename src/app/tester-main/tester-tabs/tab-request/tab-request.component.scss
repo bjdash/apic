@@ -17,10 +17,11 @@
         overflow: hidden;
         background: var(--content-bg);
         z-index: -1;
+        height: 35px;
 
         .progress-bar {
             height: 35px;
-            width: 100px;
+            // width: 100px;
             background-image: linear-gradient(
                 45deg,
                 rgba(255, 255, 255, 0.15) 25%,
@@ -50,6 +51,12 @@
         height: 36px;
         border-radius: 0;
         padding-top: 10px;
+        background: var(--content-bg);
+    }
+    .abort {
+        background-color: red;
+        color: #fff;
+        border-radius: 0;
     }
     .run {
         background: var(--accent-color);
@@ -99,6 +106,10 @@
 
 .url-opt {
     min-width: 250px;
+}
+.loopRunInp {
+    padding: 10px;
+    margin-right: 35px;
 }
 :host ::ng-deep {
     .URL {

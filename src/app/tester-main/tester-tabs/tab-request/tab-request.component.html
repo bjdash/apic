@@ -2,14 +2,11 @@
     <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
         <div class="url-cont">
             <div class="progress-holder">
-                <div class="progress-bar"></div>
+                <div class="progress-bar" *ngIf="flags.running"></div>
             </div>
             <div class="vcenter">
                 <apic-rich-input class="URL" formControlName="url"></apic-rich-input>
-                <span class="url-opt">
-                    <!-- TODO: view compiled URL -->
-                    <!-- <a href="" class="icon bj-files-empty copy-url" title="Copy compiled URL"
-                    ng-click="copyToClipboard(interpolate(vm.URL,curEnv.vals))"></a> -->
+                <span class="url-opt vcenter">
                     <button type="button" mat-icon-button class="sm"
                         [matTooltip]="interpolationService.interpolate(this.form.value.url)" matTooltipPosition="left"
                         matTooltipClass="url-pop">
@@ -22,25 +19,22 @@
                     <mat-select formControlName="method">
                         <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
                     </mat-select>
-                    <button mat-button class="run" ng-disabled="vm.progress" (click)="doSingleRun()">Run</button>
-                    <button mat-button class="run-more sm" ng-disabled="vm.progress" ng-click="vm.doSingleRun()">
+                    <button mat-button class="run" (click)="doSingleRun()" *ngIf="!flags.running">Run</button>
+                    <button mat-button class="abort" (click)="abortRun()" *ngIf="flags.running">Abort</button>
+                    <button mat-button class="run-more sm" [disabled]="flags.running" [matMenuTriggerFor]="runLoop">
                         <mat-icon class="sm">arrow_drop_down</mat-icon>
                     </button>
                 </span>
-                <!-- <span class="dropdown" uib-dropdown="" auto-close="outsideClick" style="z-index: 1">
-                <button type="button" ng-disabled="vm.progress" class="btn btn-link run-extra dropdown-toggle" uib-dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
-                </button>
-                <ul uib-dropdown-menu="" role="menu" class="dropdown-menu-right dropdown-menu">
-                    <li role="menuitem" style="padding: 5px; width: 200px">
+                <mat-menu #runLoop="matMenu">
+                    <div class="loopRunInp" (click)="$event.stopPropagation()">
                         <span>Run in loop</span>
                         <span class="input-group">
-                            <input type="number" placeholder="Run count" class="form-control input-sm req-run-count ng-pristine ng-untouched ng-valid ng-not-empty" ng-model="vm.runCount">
-                            <button class="btn btn-primary btn-themed btn-sm" ng-click="vm.startLoopRun()">Run</button>
+                            <input type="number" placeholder="Run count" class="form-control"
+                                [(ngModel)]="flags.runCount" [ngModelOptions]="{standalone: true}">
+                            <button class="sm t_border" mat-stroked-button (click)="startLoopRun()">Run</button>
                         </span>
-                    </li>
-                </ul>
-            </span> -->
+                    </div>
+                </mat-menu>
             </div>
         </div>
         <div class="content" style="margin-top: 28px;">
@@ -168,7 +162,7 @@
                 </div>
             </div>
 
-            <div class="paper resp-box" *ngIf="runResponse">
+            <div class="paper resp-box" *ngIf="runResponse && !flags.running">
                 <h3 class="panel-title custom pointer" (click)="flags.showResp = !flags.showResp">
                     <mat-icon *ngIf="!flags.showResp" class="sm">chevron_right</mat-icon>
                     Response
@@ -235,7 +229,7 @@
                     </div>
 
                     <div class="control-content" *ngIf="flags.respTab == 'Headers'">
-                        <div *ngFor="let header of runResponse.headers| keyvalue">
+                        <div *ngFor="let header of runResponse.headers| keyvalue" class="margB5">
                             <span class="bold">{{header.key}} : </span>
                             <span>{{header.value}}</span>
                         </div>

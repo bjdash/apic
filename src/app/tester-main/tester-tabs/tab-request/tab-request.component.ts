@@ -51,7 +51,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     respAceMode: 'json',
     urlParamsCount: 0,
     headersCount: 0,
-    respHeadersCount: 0
+    respHeadersCount: 0,
+    runCount: 2,
+    running: false
   }
   constructor(private fb: FormBuilder,
     private store: Store,
@@ -293,14 +295,23 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async doSingleRun() {
+    this.applyRunStatus(true);
     const req: ApiRequest = this.getReqFromForm();
     let result: RunResult = await this.runner.run(req);
     console.log(result);
     this.runResponse = result.resp;
     this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
     this.flags.respHeadersCount = Utils.objectKeys(this.runResponse.headers).length;
+    this.applyRunStatus(false);
   }
 
+  startLoopRun() {
+
+  }
+  abortRun() {
+    this.applyRunStatus(false);
+    this.runner.abort();
+  }
   beautifyResponse(contentType: string, body: string): string {
     //formatting response for pretty print
     if (contentType?.includes('json')) {
@@ -321,6 +332,15 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
         this.flags.respAceMode = 'text';
         return body
       }
+    }
+  }
+
+  applyRunStatus(running: boolean) {
+    this.flags.running = running;
+    if (running) {
+      this.form.disable();
+    } else {
+      this.form.enable()
     }
   }
 }

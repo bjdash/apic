@@ -56,14 +56,14 @@ export class InterpolationService {
 
   private applyRule(str, rule: Rule, data = {}) {
     const dataToReplace = this.applyData(rule.key, data);
-    if (dataToReplace) {
-      return str.replace(rule.match, dataToReplace);
-    }
+    return str.replace(rule.match, dataToReplace);
   }
 
   private applyData(key: string, data: any) {
     const ast = parse(key); // abstract syntax tree (AST)
-    return _eval(ast, data);
+    let evaluated = _eval(ast, data);
+    if (!evaluated) evaluated = '';
+    return evaluated;
   }
 
   private getRegex() {
