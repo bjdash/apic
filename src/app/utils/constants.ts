@@ -111,28 +111,6 @@ function getConstants() {
             text: 'Generate random from UUID',
             code: '"{{apic.uuid()}}"'
         }],
-        restrictedHeaders: [
-            "ACCEPT-CHARSET",
-            "ACCEPT-ENCODING",
-            "ACCESS-CONTROL-REQUEST-HEADERS",
-            "ACCESS-CONTROL-REQUEST-METHOD",
-            "CONTENT-LENGTHNECTION",
-            "CONTENT-LENGTH",
-            "COOKIE",
-            "CONTENT-TRANSFER-ENCODING",
-            "DATE",
-            "EXPECT",
-            "HOST",
-            "KEEP-ALIVE",
-            "ORIGIN",
-            "REFERER",
-            "TE",
-            "TRAILER",
-            "TRANSFER-ENCODING",
-            "UPGRADE",
-            "USER-AGENT",
-            "VIA"
-        ]
     };
 }
 
@@ -223,4 +201,26 @@ export const TestSnips = [{
     text: 'Generate random from UUID',
     code: 'var randomUUID = apic.uuid();'
 }
+];
+export const RESTRICTED_HEADERS = [
+    "ACCEPT-CHARSET",
+    "ACCEPT-ENCODING",
+    "ACCESS-CONTROL-REQUEST-HEADERS",
+    "ACCESS-CONTROL-REQUEST-METHOD",
+    "CONTENT-LENGTHNECTION",
+    "CONTENT-LENGTH",
+    "COOKIE",
+    "CONTENT-TRANSFER-ENCODING",
+    "DATE",
+    "EXPECT",
+    "HOST",
+    "KEEP-ALIVE",
+    "ORIGIN",
+    "REFERER",
+    "TE",
+    "TRAILER",
+    "TRANSFER-ENCODING",
+    "UPGRADE",
+    "USER-AGENT",
+    "VIA"
 ]

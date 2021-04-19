@@ -22,7 +22,7 @@ import { EnvState } from 'src/app/state/envs.state';
 export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @ViewChild('editor') editor: ElementRef;
   @Select(EnvState.getSelected) selectedEnv$: Observable<ParsedEnv>;
-  @Select(EnvState.getInMemEnv) inMemEnv$: Observable<Env>;
+  @Select(EnvState.getInMemEnv) inMemEnv$: Observable<{ [key: string]: string }>;
   private _destroy = new Subject<boolean>();
 
   selectedEnv: ParsedEnv;

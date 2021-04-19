@@ -40,7 +40,7 @@
                 </div>
                 <mat-selection-list #envs [multiple]="false" [(ngModel)]="selectedEnvId"
                     (selectionChange)="onEnvSelected($event)">
-                    <mat-list-option [value]="'in-mem'">
+                    <mat-list-option [value]="inMemEnvId">
                         In-memory/generated variables
                     </mat-list-option>
                     <mat-list-option *ngFor="let env of envsList; trackBy: trackByEnvId;let i = index"
@@ -74,7 +74,7 @@
                     file.
                 </div>
             </div>
-            <div class="envs-right" *ngIf="selectedEnv">
+            <div class="envs-right" *ngIf="selectedEnvId[0] !== inMemEnvId">
                 <div class="vcenter">
                     <span class="title" *ngIf="!flags.editName">{{selectedEnv.name}}</span>
                     <button mat-icon-button (click)="startEnvEdit()"
@@ -113,6 +113,33 @@
                     <button mat-flat-button type="button" class="sm"
                         (click)="selectedEnv.vals.push({key:'',val:''});addToPendingSave(selectedEnv._id)">+
                         Add another</button>
+                </div>
+            </div>
+            <div class="envs-right" *ngIf="selectedEnvId[0] == inMemEnvId">
+                <div class="vcenter">
+                    <span class="title">In-memory/generated variables</span>
+                </div>
+                <div class="envForm pad10">
+                    <div class="margB10" style="width: 100%"
+                        *ngFor="let entry of inMemEnvs; trackBy: trackByIndex;let i=index">
+                        <span *ngIf="entry.readOnly" class="vcenter">
+                            <span class="fakeInp">{{entry.key}}</span>
+                            <span class="fakeInp">{{entry.val}}</span>
+                        </span>
+                        <span *ngIf="!entry.readOnly" class="vcenter">
+                            <input onlyAlphaNumericInput type="text" placeholder="Name" [(ngModel)]="entry.key"
+                                (ngModelChange)="addToPendingSave(inMemEnvId)" class="form-control">
+                            <input style="display:inline-block" type="text" class="form-control" placeholder="Value"
+                                (ngModelChange)="addToPendingSave(inMemEnvId)" [(ngModel)]="entry.val" />
+                            <button mat-icon-button class="sm red" (click)="removeEnvVals(i)">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </span>
+                    </div>
+                    <button mat-flat-button type="button" class="sm"
+                        (click)="inMemEnvs.push({key:'',val:''});addToPendingSave(inMemEnvId)">+
+                        Add another</button>
+                    {{inMemEnvs|json}}
                 </div>
             </div>
         </div>

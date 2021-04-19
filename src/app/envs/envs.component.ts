@@ -12,6 +12,9 @@ import { FileSystem } from '../services/fileSystem.service';
 import { env } from 'process';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
+import { KeyVal } from '../models/KeyVal.model';
+import { Utils } from '../services/utils.service';
+import { EnvsAction } from '../actions/envs.action';
 
 @Component({
   selector: 'app-envs',
@@ -20,6 +23,7 @@ import { UserState } from '../state/user.state';
 })
 export class EnvsComponent implements OnInit, OnDestroy {
   @Select(EnvState.getAll) envs$: Observable<Env[]>;
+  @Select(EnvState.getInMemEnv) inMem$: Observable<{ [key: string]: string }>;
   envsList: Env[] = [];
 
   @ViewChild('addEnvInput') addEnvInput: ElementRef;
@@ -27,7 +31,8 @@ export class EnvsComponent implements OnInit, OnDestroy {
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
 
-  private inMemEnvId = 'in-mem'
+  inMemEnvId = 'in-mem';
+  inMemEnvs: KeyVal[];
   selectedEnvId: string[] = [this.inMemEnvId];
   selectedEnv: Env = null;
   pendingSave: string[] = [];
@@ -61,6 +66,11 @@ export class EnvsComponent implements OnInit, OnDestroy {
       // this.envsList = envs.map(env => JSON.parse(JSON.stringify(env)))
       this.envsList = JSON.parse(JSON.stringify(envs))
     });
+    this.inMem$.pipe(take(1)).subscribe(envsObj => {
+      this.inMemEnvs = Utils.objectEntries(envsObj).map(([key, val]) => {
+        return { key, val };
+      })
+    })
   }
   ngOnDestroy(): void {
     this.destroy.next();
@@ -198,10 +208,22 @@ export class EnvsComponent implements OnInit, OnDestroy {
   }
 
   async saveEnvs() {
-    const updatedIds = await this.envService.updateEnvs(this.envsList.filter(env => this.pendingSave.indexOf(env._id) >= 0));
-    this.toaster.success('Environments updated.');
+    let envsToUpdate = this.envsList.filter(env => this.pendingSave.indexOf(env._id) >= 0);
+    if (envsToUpdate.length > 0) {
+      try {
+        const updatedIds = await this.envService.updateEnvs(envsToUpdate);
+        //update inmem envs in state
+        this.store.dispatch(new EnvsAction.PatchInMem(Utils.keyValPairAsObject(this.inMemEnvs, true)))
+        this.toaster.success('Environments updated.');
+      } catch (e) {
+        console.error('Failed to update env', e);
+        this.toaster.error(`Failed to update enviroment: ${e.message}`);
+      }
+    } else {
+      this.store.dispatch(new EnvsAction.SetInMem(Utils.keyValPairAsObject(this.inMemEnvs, true)))
+      this.toaster.success('Environments updated.');
+    }
     this.pendingSave = [];
-    //TODO: //update in memory envs (if any)
   }
 
 

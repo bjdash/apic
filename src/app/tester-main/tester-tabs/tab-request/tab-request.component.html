@@ -6,19 +6,27 @@
             </div>
             <div class="vcenter">
                 <apic-rich-input class="URL" formControlName="url"></apic-rich-input>
-                <span>
+                <span class="url-opt">
                     <!-- TODO: view compiled URL -->
                     <!-- <a href="" class="icon bj-files-empty copy-url" title="Copy compiled URL"
                     ng-click="copyToClipboard(interpolate(vm.URL,curEnv.vals))"></a> -->
-
+                    <button type="button" mat-icon-button class="sm"
+                        [matTooltip]="interpolationService.interpolate(this.form.value.url)" matTooltipPosition="left"
+                        matTooltipClass="url-pop">
+                        <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url"
+                        matTooltipPosition="left" (click)="copyCompiledUrl()">
+                        <mat-icon>content_copy</mat-icon>
+                    </button>
                     <mat-select formControlName="method">
                         <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
                     </mat-select>
+                    <button mat-button class="run" ng-disabled="vm.progress" (click)="doSingleRun()">Run</button>
+                    <button mat-button class="run-more sm" ng-disabled="vm.progress" ng-click="vm.doSingleRun()">
+                        <mat-icon class="sm">arrow_drop_down</mat-icon>
+                    </button>
                 </span>
-                <button mat-button class="run" ng-disabled="vm.progress" ng-click="vm.doSingleRun()">Run</button>
-                <button mat-button class="run-more sm" ng-disabled="vm.progress" ng-click="vm.doSingleRun()">
-                    <mat-icon class="sm">arrow_drop_down</mat-icon>
-                </button>
                 <!-- <span class="dropdown" uib-dropdown="" auto-close="outsideClick" style="z-index: 1">
                 <button type="button" ng-disabled="vm.progress" class="btn btn-link run-extra dropdown-toggle" uib-dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
                     <span class="caret"></span>
@@ -36,11 +44,10 @@
             </div>
         </div>
         <div class="content" style="margin-top: 28px;">
-            {{form.value|json}}
-            <div class="paper">
+            <div class="paper req-box">
                 <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
-                    <mat-icon *ngIf="!flags.showReq"></mat-icon>
-                    Request {{requestId}}
+                    <mat-icon *ngIf="!flags.showReq" class="sm">chevron_right</mat-icon>
+                    <span>Request</span>
                 </h3>
                 <div class="reqControls vcenter" ng-if="!vm.testTab">
                     <a class="f18 pull-right" mat-icon-button aria-label="Make an API call"
@@ -157,6 +164,85 @@
                     <div class="control-content" *ngIf="flags.reqTab == 'Schema'">
                         <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="respCodes">
                         </response-schema-builder>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper resp-box" *ngIf="runResponse">
+                <h3 class="panel-title custom pointer" (click)="flags.showResp = !flags.showResp">
+                    <mat-icon *ngIf="!flags.showResp" class="sm">chevron_right</mat-icon>
+                    Response
+                </h3>
+                <div class="reqControls vcenter">
+                    <span class="run-stats">
+                        <span>
+                            Time: <span class="status info">{{runResponse.timeTakenStr}}</span>
+                        </span>
+                        <span>
+                            Status: <span class="status" [ngClass]="{
+                                    info:runResponse.status<199,
+                                    success:(runResponse.status>=200),
+                                    warning:(runResponse.status>=300),
+                                    error:(runResponse.status>=400)
+                                }">{{runResponse.status}} {{runResponse.statusText}}</span>
+                        </span>
+                        <span>
+                            Size: <span class="status info">{{runResponse.respSize}}</span>
+                        </span>
+                    </span>
+                    <button class="sm t_border gap" mat-stroked-button ng-disabled="vm.TAB.fromProject"
+                        *ngIf="runResponse.data" ng-click="vm.saveResponse()">Save response</button>
+                    <button class="sm t_border gap" mat-stroked-button ng-show="vm.savedResp.length>0"
+                        ng-click="vm.loadResponse(true)">Load saved response</button>
+                </div>
+                <div class="panel-body" [hidden]="!flags.showResp">
+                    <div class="controls btn-group toggle-group">
+                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Body'}"
+                            (click)="selectTab('respTab','Body')">Body/Test builder</button>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Tests'}"
+                            (click)="selectTab('respTab','Tests')">Test cases
+                            <!-- <span class="badge badge-success">{{tests.passed}}</span> / 
+                            <span class="badge badge-danger">{{runResponse.tests.failed}}</span> -->
+                        </button>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Headers'}"
+                            (click)="selectTab('respTab','Headers')" [matBadge]="flags.respHeadersCount">Response
+                            Headers </button>
+                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Logs'}"
+                            (click)="selectTab('respTab','Logs')">Logs</button>
+                    </div>
+
+                    <div class="control-content" *ngIf="flags.respTab == 'Body'">
+                        <div class="controls btn-group toggle-group">
+                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'pretty'}"
+                                (click)="selectTab('respBodyTab','pretty')">Pretty</button>
+                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'raw'}"
+                                (click)="selectTab('respBodyTab','raw')">Raw</button>
+                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'preview'}"
+                                (click)="selectTab('respBodyTab','preview')">Preview</button>
+                        </div>
+                        <div *ngIf="flags.respBodyTab == 'pretty'">
+                            <apic-ace #preRunAce [(text)]="runResponse.bodyPretty" [readOnly]="true"
+                                [mode]="flags.respAceMode"></apic-ace>
+                        </div>
+                        <div *ngIf="flags.respBodyTab == 'raw'">
+                            <textarea readonly class="raw-resp-area">{{runResponse.body}}</textarea>
+                        </div>
+                        <div *ngIf="flags.respBodyTab == 'preview'">
+                            <iframe id="iframe_" style="width: 100%; height: 300px;background-color: white;"
+                                sandbox="allow-same-origin"></iframe>
+                        </div>
+                        {{runResponse|json}}
+                    </div>
+
+                    <div class="control-content" *ngIf="flags.respTab == 'Headers'">
+                        <div *ngFor="let header of runResponse.headers| keyvalue">
+                            <span class="bold">{{header.key}} : </span>
+                            <span>{{header.value}}</span>
+                        </div>
+                    </div>
+
+                    <div class="control-content" *ngIf="flags.respTab == 'Logs'">
+                        <textarea readonly class="raw-resp-area">{{runResponse.logs}}</textarea>
                     </div>
                 </div>
             </div>

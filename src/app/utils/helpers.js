@@ -5,17 +5,13 @@ import apic from './apic'
 //TODO: Move all these to Utils.service, use static wherever required
 export default {
     encodeUrl,
-    getUrlEncodedBody,
-    getFormDataBody,
     getUrlParts,
     processEnv,
     doesExist,
-    checkForHTTP,
     prepareQueryParams,
     removeQueryParams,
     copyToClipboard,
     prepareScript,
-    prepareHeadersObj,
     objToArray,
     arrayToObj,
     getTestsCountByType,
@@ -25,7 +21,6 @@ export default {
     addHeader,
     getReqV2,
     getReqBody,
-    getGqlBody,
     updateInMemEnv,
     interpolate,
     deepCopy
@@ -34,40 +29,6 @@ export default {
 
 function encodeUrl(url) {
     return encodeURIComponent(url);
-}
-
-function getUrlEncodedBody(xForms) {
-    var paramsList = [];
-    for (var i = 0; i < xForms.length; i++) {
-        var pair = xForms[i];
-        if (pair.key) {
-            var key = encodeURIComponent(pair.key);
-            key = key.replace(/%20/g, '+');
-            var val = encodeURIComponent(pair.val);
-            val = val.replace(/%20/g, '+');
-            paramsList.push(key + '=' + val);
-        }
-    }
-    if (paramsList.length > 0) {
-        return paramsList.join('&');
-    } else {
-        return null;
-    }
-}
-
-function getFormDataBody(formData) {
-    var bodyData = new FormData();
-    for (var i = 0; i < formData.length; i++) {
-        var obj = formData[i];
-        if (obj.key) {
-            if (obj.type.toLowerCase() === 'text') {
-                bodyData.append(obj.key, obj.val);
-            } else if (obj.type.toLowerCase() === 'file') {
-                bodyData.append(obj.key, obj.file);
-            }
-        }
-    }
-    return bodyData;
 }
 
 function getUrlParts(url) {
@@ -124,13 +85,6 @@ function doesExist(list, value, field) {
         }
     }
     return false;
-}
-
-function checkForHTTP(url) {
-    if (url.indexOf('http') !== 0) {
-        url = 'http://' + url;
-    }
-    return url;
 }
 
 //add query string to URL, params can be in 2 format
@@ -198,19 +152,6 @@ function prepareScript(code) {
     if (!code)
         return false;
     return '(function (){' + code + '})()';
-}
-
-function prepareHeadersObj(headerStr) {
-    var headerList = headerStr.split('\n'),
-        headers = {};
-    for (var i = 0; i < headerList.length; i++) {
-        if (headerList[i].search(':') >= 0) {
-            var index = headerList[i].indexOf(':');
-            //var split = headerList[i].split(':');
-            headers[headerList[i].substring(0, index).trim()] = headerList[i].substring(index + 1).trim();
-        }
-    }
-    return headers;
 }
 
 function objToArray(obj, autoInit) {
@@ -347,16 +288,6 @@ function getReqBody(body, type) {
     } catch (e) {
         return body || {}
     }
-}
-
-function getGqlBody(query, vars) {
-    var variables = null;
-    if (vars) variables = JSON.parse(vars.trim());
-    var q = {
-        query: query
-    };
-    if (variables) q.variables = variables;
-    return JSON.stringify(q);
 }
 
 //TODO: update in mem env - replace rootscope

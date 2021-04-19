@@ -7,12 +7,16 @@ import { delayWhen, takeUntil } from 'rxjs/operators';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { KeyVal } from 'src/app/models/KeyVal.model';
 import { ApiRequest } from 'src/app/models/Request.model';
+import { InterpolationService } from 'src/app/services/interpolation.service';
 import LocalStore from 'src/app/services/localStore';
 import { RememberService } from 'src/app/services/remember.service';
+import { RequestRunnerService, RunResponse, RunResult } from 'src/app/services/request-runner.service';
 import { RequestsService } from 'src/app/services/requests.service';
 import { Toaster } from 'src/app/services/toaster.service';
+import { Utils } from 'src/app/services/utils.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import apic from 'src/app/utils/apic';
+import { Beautifier } from 'src/app/utils/Beautifier';
 import { HTTP_HEADERS, HTTP_METHODES, METHOD_WITH_BODY, RAW_BODY_TYPES } from 'src/app/utils/constants';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
 import { TesterTabsService } from '../tester-tabs.service';
@@ -20,7 +24,8 @@ import { TesterTabsService } from '../tester-tabs.service';
 @Component({
   selector: 'app-tab-request',
   templateUrl: './tab-request.component.html',
-  styleUrls: ['./tab-request.component.scss']
+  styleUrls: ['./tab-request.component.scss'],
+  providers: [RequestRunnerService] //to make sure each tab gets one instance of runner service
 })
 export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
@@ -35,24 +40,33 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   private _destroy: Subject<boolean> = new Subject<boolean>();
 
   dummy = ''
+  runResponse: RunResponse;
   reloadRequest: ApiRequest = null;
   flags = {
     showReq: true,
+    showResp: true,
     reqTab: 'auth_basic',
+    respTab: 'Body', //Body,Tests,Headers,Logs,
+    respBodyTab: 'pretty', //pretty, raw, preview
+    respAceMode: 'json',
     urlParamsCount: 0,
     headersCount: 0,
+    respHeadersCount: 0
   }
   constructor(private fb: FormBuilder,
     private store: Store,
     private tabsService: TesterTabsService,
     private reqService: RequestsService,
     private dialog: MatDialog,
+    private utils: Utils,
+    private runner: RequestRunnerService,
+    public interpolationService: InterpolationService,
     private toastr: Toaster) {
     this.form = fb.group({
       name: [''],
       description: [''],
-      method: ['POST'],
-      url: [''],
+      method: ['GET'],
+      url: ['http://localhost:5000/app/src/#!/apic/home/{{x}}'],
       urlParams: [[]],
       headers: [[]],
       body: fb.group({
@@ -84,7 +98,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.flags.reqTab = LocalStore.get(LocalStore.REQ_TAB) || 'ReqParam';
   }
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes, this.requestId)
     if (changes.requestId?.previousValue?.includes('new_tab') && !changes.requestId?.currentValue?.includes('new_tab')) {
       this.listenForUpdate()
     }
@@ -108,8 +121,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       .pipe(takeUntil(this._destroy))
       // .pipe(delay(0))
       .subscribe(req => {
-        console.log('req update');
-
         if (req && (req._modified > this.selectedReq?._modified || !this.selectedReq)) {
           if (this.selectedReq) {
             this.reloadRequest = req;
@@ -161,8 +172,25 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     // if(fromProject?){
     //   update the endpoint with prerun and postrun
     // }
+    let saveData: ApiRequest = this.getReqFromForm();
+    if (this.requestId.includes('new_tab') || saveAs) {
+      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
+    } else {
+      this.pendingAction = this.reqService.updateRequests([{ ...saveData, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
+      try {
+        this.selectedReq = (await this.pendingAction)[0];
+        this.toastr.success('Request updated');
+        this.reloadRequest = null;
+      } catch (e) {
+        console.error(e)
+        this.toastr.error(`Failed to update request: ${e.message}`);
+      }
+    }
+  }
+
+  getReqFromForm(): ApiRequest {
     let request = this.form.value;
-    let saveData = {
+    let saveData: ApiRequest = {
       url: request.url,
       method: request.method,
       description: request.description,
@@ -176,7 +204,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       prescript: request.prescript,
       postscript: request.postscript,
       name: request.name,
-      savedResp: request.savedResp
+      savedResp: request.savedResp,
+      _parent: this.selectedReq?._parent
     }
     if (METHOD_WITH_BODY.includes(request.method)) {
       let body = { type: request.body.type };
@@ -196,19 +225,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
           break;
       }
     }
-    console.log(saveData);
-    if (this.requestId.includes('new_tab') || saveAs) {
-      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
-    } else {
-      this.pendingAction = this.reqService.updateRequests([{ ...saveData, _parent: this.selectedReq._parent, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
-      try {
-        this.selectedReq = (await this.pendingAction)[0];
-        this.toastr.success('Request updated')
-      } catch (e) {
-        console.error(e)
-        this.toastr.error(`Failed to update request: ${e.message}`);
-      }
-    }
+
+    return saveData;
   }
 
   selectTab(type: string, name: string) {
@@ -261,6 +279,10 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  copyCompiledUrl() {
+    this.utils.copyToClipboard(this.interpolationService.interpolate(this.form.value.url))
+  }
+
   setDirty() {
     this.form.markAsDirty();
   }
@@ -268,5 +290,37 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   reload() {
     this.processSelectedReq(this.reloadRequest)
     this.reloadRequest = null
+  }
+
+  async doSingleRun() {
+    const req: ApiRequest = this.getReqFromForm();
+    let result: RunResult = await this.runner.run(req);
+    console.log(result);
+    this.runResponse = result.resp;
+    this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
+    this.flags.respHeadersCount = Utils.objectKeys(this.runResponse.headers).length;
+  }
+
+  beautifyResponse(contentType: string, body: string): string {
+    //formatting response for pretty print
+    if (contentType?.includes('json')) {
+      this.flags.respAceMode = 'json';
+      return Beautifier.json(body)
+    } else if (contentType?.includes('xml') || contentType?.includes('html')) {
+      this.flags.respAceMode = 'xml';
+      return Beautifier.xml(body);
+    } else if (contentType?.includes('javascript')) {
+      this.flags.respAceMode = 'javascript';
+      return Beautifier.javascript(body)
+    } else {
+      //attepmt to use json, fallback to text
+      try {
+        this.flags.respAceMode = 'json';
+        return Beautifier.json(body)
+      } catch (e) {
+        this.flags.respAceMode = 'text';
+        return body
+      }
+    }
   }
 }

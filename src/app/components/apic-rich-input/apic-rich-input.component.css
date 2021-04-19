@@ -1,7 +1,6 @@
 .apic-editor-cont {
     position: relative;
     flex: 1;
-/*     overflow: hidden; */
     white-space: nowrap;
 }
 [contenteditable="true"]:empty:before {
@@ -18,6 +17,8 @@
     outline: none;
     padding: 4px;
     height: 30px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 :host ::ng-deep .env {
     color: var(--accent-color);

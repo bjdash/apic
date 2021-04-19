@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="./apic-lib.js"></script>
+    <!-- <script type="text/javascript" src="../apic-proto.js"></script> TTODO:-->
+    <script type="text/javascript" src="./chai.min.js"></script>
+    <script type="text/javascript" src="./ajv.bundle.js"></script>
+    <script type="text/javascript">
+        var expect = chai.expect;
+        var should = chai.should();
+        var assert = chai.assert;
+
+        chai.Assertion.addProperty('date', function () {
+            this.assert(
+                new Date(this._obj).getTime() > 0
+                , 'expected #{this} to be a valid Date'
+                , 'expected #{this} to not be a valid Date'
+            );
+        })
+
+        chai.Assertion.addMethod('matchSchema', function (statusCode) {
+            var status = statusCode || this._obj.status || 'current';
+            this.assert(
+                validateSchema(statusCode)
+                , 'expected response to match schema for status code: ' + status
+                , 'expected response not to match schema for status code: ' + status
+            );
+        });
+    </script>
+    <script type="text/javascript" src="./tester.js"></script>
+</head>
+
+<body></body>
+
+</html>

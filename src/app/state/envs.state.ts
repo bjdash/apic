@@ -9,7 +9,7 @@ import { KeyVal } from '../models/KeyVal.model';
 export class EnvStateModel {
     envs: Env[];
     selectedEnv: Env;
-    inMem: {}
+    inMem: { [key: string]: string }
 }
 
 // Section 3
@@ -18,7 +18,7 @@ export class EnvStateModel {
     defaults: {
         envs: [],
         selectedEnv: null,
-        inMem: {}
+        inMem: { test: 'TEST' }
     }
 })
 @Injectable()
@@ -53,7 +53,7 @@ export class EnvState {
     }
 
     @Selector()
-    static getInMemEnv(state: EnvStateModel) {
+    static getInMemEnv(state: EnvStateModel): { [key: string]: string } {
         return state.inMem;
     }
 
@@ -115,6 +115,17 @@ export class EnvState {
         const envs = ctx.getState().envs;
         ctx.patchState({ selectedEnv: envs.find(p => p._id === payload) });
         LocalStore.set(LocalStore.LAST_SELECTED_ENV, payload);
+    }
+
+    @Action(EnvsAction.PatchInMem)
+    updateInmemEnv(ctx: StateContext<EnvStateModel>, { payload }: EnvsAction.PatchInMem) {
+        const inMemEnv = ctx.getState().inMem;
+        ctx.patchState({ inMem: { ...inMemEnv, ...payload } });
+    }
+
+    @Action(EnvsAction.SetInMem)
+    setInmemEnv(ctx: StateContext<EnvStateModel>, { payload }: EnvsAction.SetInMem) {
+        ctx.patchState({ inMem: { ...payload } });
     }
 
 

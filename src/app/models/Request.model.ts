@@ -2,15 +2,15 @@ import { KeyVal } from "./KeyVal.model";
 
 export interface ApiRequest {
     Req?: {
-        url_params?: any[], headers?: any[]
+        url_params?: KeyVal[], headers?: KeyVal[]
     },
     Body?: {
         rawData?: string,
         selectedRaw?: { name?: string, val?: string },
         type?: 'raw' | 'form-data' | 'x-www-form-urlencoded' | 'graphql',
         gqlVars?: string,
-        formData: KeyVal[],
-        xForms: KeyVal[]
+        formData?: KeyVal[],
+        xForms?: KeyVal[]
     }
     description?: string
     id?: string
@@ -23,9 +23,9 @@ export interface ApiRequest {
     savedResp?: SavedResp[]
     _parent: string
     url: string
-    _created: number
+    _created?: number
     _id: string
-    _modified: number
+    _modified?: number
 }
 
 export interface SavedResp {

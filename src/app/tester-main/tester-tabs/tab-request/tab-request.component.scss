@@ -39,6 +39,11 @@
     .URL {
         flex: 1;
         height: 35px;
+        width: 1px;
+    }
+    .url-pop {
+        background: var(--header-bg);
+        color: var(--text-color);
     }
     .mat-select {
         width: 95px;
@@ -68,11 +73,18 @@
     float: right;
     margin-top: 2px;
 }
+.panel-title > mat-icon {
+    width: 18px;
+    height: 13px;
+    font-size: 16px;
+    overflow: hidden;
+}
 .panel-body {
     margin-top: 10px;
 }
-.control-content {
-    padding: 10px 0;
+.req-box .control-content,
+.resp-box .control-content {
+    padding: 10px;
     &.short {
         max-width: 1200px;
     }
@@ -85,6 +97,9 @@
     border: 2px solid transparent;
 }
 
+.url-opt {
+    min-width: 250px;
+}
 :host ::ng-deep {
     .URL {
         .apic-editor {
@@ -103,7 +118,21 @@
         height: 20px;
     }
 }
-
+.resp-box .status {
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 20px;
+}
+.raw-resp-area {
+    width: 100%;
+    height: calc(100vh - 331px);
+    resize: vertical;
+    padding: 5px;
+    font-size: 13px;
+    line-height: 1.3;
+    font-family: monospace;
+    background: var(--main-bg);
+}
 @keyframes progress-bar-stripes {
     from {
         background-position: 40px 0;

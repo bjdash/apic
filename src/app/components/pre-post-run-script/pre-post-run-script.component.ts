@@ -36,8 +36,10 @@ export class PrePostRunScriptComponent implements OnInit {
 
     if (this.scriptType == 'prerun') {
       this.prerun += (this.prerun ? '\n' : '') + script;
+      this.prerunUpdated();
     } else {
       this.postrun += (this.postrun ? '\n' : '') + script;
+      this.postrunUpdated();
     }
   }
 

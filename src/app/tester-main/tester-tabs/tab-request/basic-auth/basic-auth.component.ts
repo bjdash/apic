@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { InterpolationService } from 'src/app/services/interpolation.service';
 import { RememberService } from 'src/app/services/remember.service';
 
 @Component({
@@ -18,7 +19,7 @@ export class BasicAuthComponent implements OnInit {
     showPsd: false
   }
 
-  constructor(private rememberService: RememberService) { }
+  constructor(private rememberService: RememberService, private interpolation: InterpolationService) { }
 
   ngOnInit(): void {
     const lastUsedValue = this.rememberService.get(this.rememberKey);
@@ -39,16 +40,17 @@ export class BasicAuthComponent implements OnInit {
     }, 0);
   }
 
-  interpolate(str) {
-    //TODO
-    return str;
-  }
-
   updateAuthHeader() {
     const { user, password } = this.models;
-    var authdata = 'Basic ' + window.btoa(this.interpolate(user) + ':' + this.interpolate(password));
+    // if username or password contain a variable then preserve it to be used with environment
+    // else generate the base64 encoded string
+    let authdata;
+    if (this.interpolation.hasVariables(user) || this.interpolation.hasVariables(password)) {
+      authdata = `Basic {{apic.base64Encode(${user}, ${password})}}`; //TODO
+    } else {
+      authdata = 'Basic ' + window.btoa(user + ':' + password);
+    }
     this.onChange.emit(authdata);
     this.rememberService.set(this.rememberKey, { user, password });
-    //TODO: save this value and use it with any other tabs if required;
   }
 }

@@ -21,4 +21,12 @@ export namespace EnvsAction {
         static readonly type = '[Env] Select';
         constructor(public payload: String) { };
     }
+    export class SetInMem {
+        static readonly type = '[Env] SetInMem';
+        constructor(public payload: { [key: string]: string }) { };
+    }
+    export class PatchInMem {
+        static readonly type = '[Env] PatchInMem';
+        constructor(public payload: { [key: string]: string }) { };
+    }
 }

@@ -2,6 +2,7 @@ import { Toaster } from './toaster.service';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
 import { Const } from '../utils/constants';
+import { KeyVal } from '../models/KeyVal.model';
 
 
 @Injectable()
@@ -48,6 +49,13 @@ export class Utils {
 
     static arrayToObj<T>(array: T[], key: string): { [key: string]: T } {
         return array.reduce((obj, item: T) => Object.assign(obj, { [item[key]]: item }), {});
+    }
+
+    static keyValPairAsObject(keyVals: KeyVal[], includeInactive?: boolean) {
+        if (!keyVals?.length) return {};
+        return keyVals
+            .filter(kv => includeInactive || kv.active)
+            .reduce((obj, item: KeyVal) => Object.assign(obj, { [item.key]: item.val }), {});
     }
 
     static objectEntries(obj): [string, any][] {
@@ -97,6 +105,63 @@ export class Utils {
         }
         return part;
 
+    }
+
+    static getUrlEncodedBody(xForms) {
+        var paramsList = [];
+        for (var i = 0; i < xForms.length; i++) {
+            var pair = xForms[i];
+            if (pair.key) {
+                var key = encodeURIComponent(pair.key);
+                key = key.replace(/%20/g, '+');
+                var val = encodeURIComponent(pair.val);
+                val = val.replace(/%20/g, '+');
+                paramsList.push(key + '=' + val);
+            }
+        }
+        if (paramsList.length > 0) {
+            return paramsList.join('&');
+        } else {
+            return null;
+        }
+    }
+
+    static getGqlBody(query, vars) {
+        var variables = null;
+        if (vars) variables = JSON.parse(vars.trim());
+        var q: any = {
+            query: query,
+        };
+        if (variables) q.variables = variables;
+        return JSON.stringify(q);
+    }
+
+    static getFormDataBody(formData) {
+        var bodyData = new FormData();
+        for (var i = 0; i < formData.length; i++) {
+            var obj = formData[i];
+            if (obj.key) {
+                if (obj.type.toLowerCase() === 'text') {
+                    bodyData.append(obj.key, obj.val);
+                } else if (obj.type.toLowerCase() === 'file') {
+                    bodyData.append(obj.key, obj.file);
+                }
+            }
+        }
+        return bodyData;
+    }
+
+    static prepareHeadersObj(headerStr) {
+        var headerList = headerStr.split('\n'),
+            headers = {};
+        for (var i = 0; i < headerList.length; i++) {
+            if (headerList[i].search(':') >= 0) {
+                var index = headerList[i].indexOf(':');
+                //var split = headerList[i].split(':');
+                headers[headerList[i].substring(0, index).trim()] = headerList[i].substring(index + 1).trim();
+            }
+        }
+        return headers;
     }
 
     static urlToReqName(method, url) {
