@@ -6,7 +6,7 @@ import { from, Observable, Subject } from 'rxjs';
 import { delayWhen, takeUntil } from 'rxjs/operators';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { KeyVal } from 'src/app/models/KeyVal.model';
-import { ApiRequest } from 'src/app/models/Request.model';
+import { ApiRequest, SavedResp } from 'src/app/models/Request.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import LocalStore from 'src/app/services/localStore';
 import { RememberService } from 'src/app/services/remember.service';
@@ -55,6 +55,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     runCount: 2,
     running: false
   }
+  savedRespIdentifier = 'SAVED_RESPONSE'
+
   constructor(private fb: FormBuilder,
     private store: Store,
     private tabsService: TesterTabsService,
@@ -125,6 +127,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       .subscribe(req => {
         if (req && (req._modified > this.selectedReq?._modified || !this.selectedReq)) {
           if (this.selectedReq) {
+            //TODO: Implement a field level matching logic 
+            //so that if any non form fields are updated such as name, savedResponse etc 
+            //then directly just update the request instead of asking the user if they want to reload
             this.reloadRequest = req;
           } else {
             setTimeout(() => {
@@ -178,15 +183,19 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     if (this.requestId.includes('new_tab') || saveAs) {
       this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
     } else {
-      this.pendingAction = this.reqService.updateRequests([{ ...saveData, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
-      try {
-        this.selectedReq = (await this.pendingAction)[0];
-        this.toastr.success('Request updated');
-        this.reloadRequest = null;
-      } catch (e) {
-        console.error(e)
-        this.toastr.error(`Failed to update request: ${e.message}`);
-      }
+      await this.updateRequest(saveData);
+    }
+  }
+
+  async updateRequest(updatedRequest: ApiRequest) {
+    this.pendingAction = this.reqService.updateRequests([{ ...updatedRequest, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
+    try {
+      this.selectedReq = (await this.pendingAction)[0];
+      this.toastr.success('Request updated');
+      this.reloadRequest = null;
+    } catch (e) {
+      console.error(e)
+      this.toastr.error(`Failed to update request: ${e.message}`);
     }
   }
 
@@ -234,7 +243,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   selectTab(type: string, name: string) {
     this.flags[type] = name;
     LocalStore.set(type, name);
-    //TODO: Utils.storage.set(type, name);
   }
 
   initRawBody() {
@@ -342,5 +350,43 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       this.form.enable()
     }
+  }
+
+  async saveResponse() {
+    console.log(this.runResponse);
+    if (this.requestId.includes('new_tab')) {
+      this.toastr.error('Please save the request first.');
+      return;
+    }
+    let savedResp: SavedResp = {
+      data: this.runResponse.body,
+      headers: this.runResponse.headers,
+      size: this.runResponse.respSize,
+      status: this.runResponse.status,
+      statusText: this.runResponse.statusText,
+      time: this.runResponse.timeTaken
+    }
+    let updatedReq: ApiRequest = { ...this.selectedReq, savedResp: [savedResp] };
+    await this.updateRequest(updatedReq);
+  }
+
+  loadResponse(scroll?: boolean) {
+    let savedResp: SavedResp = this.selectedReq.savedResp[0];
+    this.runResponse = {
+      headers: savedResp.headers,
+      status: parseInt(`${savedResp.status}`), //old apic status was saved as string
+      statusText: savedResp.statusText,
+      body: savedResp.data,
+      bodyPretty: this.beautifyResponse(savedResp?.headers?.['Content-Type'], savedResp.data),
+      json: null,
+      timeTaken: parseInt(`${savedResp.time}`),
+      timeTakenStr: Utils.formatTime(parseInt(`${savedResp.time}`)),
+      respSize: savedResp.statusText,
+      logs: 'Loaded from saved response',
+      meta: this.savedRespIdentifier
+    };
+
+    //TODO:
+    // if (scroll) scrollRespIntoView()
   }
 }

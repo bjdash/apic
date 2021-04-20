@@ -32,6 +32,7 @@ export interface SavedResp {
     data: string,
     headers: any,
     size: string,
-    status: string,
-    time: string
+    status: number,
+    statusText: string,
+    time: number
 }

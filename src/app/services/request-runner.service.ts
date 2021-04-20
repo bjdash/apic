@@ -16,11 +16,12 @@ export interface RunResponse {
   readyState?: number,
   body: string,
   bodyPretty?: string,
-  data: any,//json body
+  json: any,//json body
   timeTaken: number,
   timeTakenStr: string,
   respSize: string,
-  logs: string
+  logs: string,
+  meta?: any // additional metadata
 }
 
 export interface RunResult {
@@ -90,8 +91,8 @@ export class RequestRunnerService {
         body: target.response,
         respSize: 'Unknown',
         timeTaken: timeDiff,
-        timeTakenStr: timeDiff >= 1000 ? (timeDiff / 1000) + ' s' : timeDiff + ' ms',
-        data: null,
+        timeTakenStr: Utils.formatTime(timeDiff),
+        json: null,
         logs: 'Logs can be added in PreRun/PostRun scripts with "log()" function. Eg: log($response)',//TODO
       };
       respObj.respSize = this.getResponseSize(respObj)
@@ -103,7 +104,7 @@ export class RequestRunnerService {
         console.info('The response cant be converted to JSON');
       }
       if (jsonResp) {
-        respObj.data = jsonResp;
+        respObj.json = jsonResp;
       }
 
       resolve({ req, resp: respObj })

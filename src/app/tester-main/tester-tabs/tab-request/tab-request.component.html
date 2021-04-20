@@ -53,6 +53,9 @@
                         matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
                         <mat-icon>sync</mat-icon>
                     </button>
+                    <button class="sm t_border gap" mat-stroked-button
+                        *ngIf="selectedReq?.savedResp?.length>0 && !runResponse" (click)="loadResponse(true)">Load saved
+                        response</button>
                     <span class="btn-group gap">
                         <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
                             <mat-icon>save</mat-icon> Save
@@ -168,6 +171,8 @@
                     Response
                 </h3>
                 <div class="reqControls vcenter">
+                    <span *ngIf="runResponse?.meta == savedRespIdentifier" class="gap-lg">Loaded from saved
+                        response</span>
                     <span class="run-stats">
                         <span>
                             Time: <span class="status info">{{runResponse.timeTakenStr}}</span>
@@ -185,9 +190,11 @@
                         </span>
                     </span>
                     <button class="sm t_border gap" mat-stroked-button ng-disabled="vm.TAB.fromProject"
-                        *ngIf="runResponse.data" ng-click="vm.saveResponse()">Save response</button>
-                    <button class="sm t_border gap" mat-stroked-button ng-show="vm.savedResp.length>0"
-                        ng-click="vm.loadResponse(true)">Load saved response</button>
+                        *ngIf="runResponse.body && runResponse?.meta !== savedRespIdentifier"
+                        (click)="saveResponse()">Save response</button>
+                    <button class="sm t_border gap" mat-stroked-button
+                        *ngIf="selectedReq?.savedResp?.length>0 && runResponse?.meta !== savedRespIdentifier"
+                        (click)="loadResponse(true)">Load saved response</button>
                 </div>
                 <div class="panel-body" [hidden]="!flags.showResp">
                     <div class="controls btn-group toggle-group">

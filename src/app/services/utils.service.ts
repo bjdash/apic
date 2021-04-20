@@ -201,6 +201,10 @@ export class Utils {
         return window.navigator.userAgent.toLowerCase().indexOf('electron') >= 0 ? true : false;
     }
 
+    static formatTime(timeDiff: number): string {
+        return timeDiff >= 1000 ? (timeDiff / 1000) + ' s' : timeDiff + ' ms'
+    }
+
     static getAppType() {
         if (Utils.isElectron()) {
             return 'ELECTRON';
