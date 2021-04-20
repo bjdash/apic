@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { T } from '@angular/cdk/keycodes';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatMenuTrigger } from '@angular/material/menu';
 import apic from 'src/app/utils/apic';
 import { TesterTab, TesterTabsService } from './tester-tabs.service';
 
@@ -11,6 +13,10 @@ export class TesterTabsComponent implements OnInit {
   tabs: TesterTab[] = [];
   overFlowtabsCount = 0;
   selectedTabIndex = 0;
+  contextMenuPosition = { x: '0px', y: '0px' };
+  @ViewChild(MatMenuTrigger)
+  contextMenu: MatMenuTrigger;
+
   constructor(private tabsService: TesterTabsService) { }
 
   ngOnInit(): void {
@@ -58,5 +64,21 @@ export class TesterTabsComponent implements OnInit {
   }
   trackbyFn(index, item: TesterTab) {
     return item.originalId;
+  }
+
+  onContextMenu(event: MouseEvent, item: TesterTab) {
+    event.preventDefault();
+    this.contextMenuPosition.x = event.clientX + 'px';
+    this.contextMenuPosition.y = event.clientY + 'px';
+    this.contextMenu.menuData = { 'item': item };
+    this.contextMenu.openMenu();
+  }
+  closeAllButThis(item: TesterTab) {
+    this.tabs = this.tabs.filter(tab => tab.id === item.id)
+  }
+
+  closeAllRight(item: TesterTab) {
+    let currIndex = this.tabs.findIndex(tab => tab.id == item.id);
+    this.tabs = this.tabs.filter((tab, index) => index <= currIndex)
   }
 }

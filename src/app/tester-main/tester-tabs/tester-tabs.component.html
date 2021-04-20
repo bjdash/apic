@@ -13,7 +13,7 @@
         (selectedIndexChange)="selectedIndexChange($event)">
         <mat-tab class="XXX" *ngFor="let tab of tabs; trackBy:trackbyFn;let i=index" [ngSwitch]="tab.type">
             <ng-template mat-tab-label>
-                <div class="tab-label" [title]="tab.name">
+                <div class="tab-label" [title]="tab.name" (contextmenu)="onContextMenu($event, tab)">
                     <i *ngSwitchCase="'req'" class="tab-icon icon bj-embed2"></i>
                     <i *ngSwitchCase="'ws'" class="tab-icon icon bj-websocket"></i>
                     {{tab.name}}
@@ -26,4 +26,14 @@
             </div>
         </mat-tab>
     </mat-tab-group>
+    <div style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x"
+        [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
+    </div>
+    <mat-menu #contextMenu="matMenu">
+        <ng-template matMenuContent let-item="item">
+            <button mat-menu-item (click)="closeAllButThis(item)">Close all but this</button>
+            <button mat-menu-item (click)="closeAllRight(item)">Close all to the right</button>
+            <!--TODO: <button mat-menu-item (click)="closeAllRight(item)">Duplicate</button> -->
+        </ng-template>
+    </mat-menu>
 </div>
