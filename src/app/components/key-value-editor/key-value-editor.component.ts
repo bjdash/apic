@@ -16,6 +16,7 @@ export interface KVEditorOptn {
   placeholderKey?: string,
   placeholderVal?: string,
   enableAutocomplete?: boolean,
+  allowFileType?: boolean,
   autocompletes?: string[]
 }
 
@@ -44,6 +45,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     placeholderKey: 'Key',
     placeholderVal: 'Value',
     enableAutocomplete: false,
+    allowFileType: false,
     autocompletes: []
   }
   keyValueForm: FormArray;
@@ -115,7 +117,8 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
         key: [kv.key || ''],
         val: [kv.val || ''],
         //if checkbox is enabled and kv pair doesnt have an active property then set it to true by default
-        ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] })
+        ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] }),
+        ...(this.options.allowFileType && { type: [kv.type || 'text'], meta: [null] })
       })
     });
   }
@@ -124,7 +127,8 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     this.keyValueForm.push(this.fb.group({
       key: [''],
       val: [''],
-      ...(this.options.allowToggle && { active: true })
+      ...(this.options.allowToggle && { active: [true] }),
+      ...(this.options.allowFileType && { type: ['text'], meta: [null] }),
     }))
   }
 
@@ -141,11 +145,12 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   }
 
   copyKV(index: number) {
-    var kvPair = this.keyValueForm.at(index).value;
+    var kvPair: KeyVal = this.keyValueForm.at(index).value;
     var copyText = {
       key: kvPair.key,
       val: kvPair.val,
-      ...(this.options.allowToggle && { active: kvPair.active })
+      ...(this.options.allowToggle && { active: kvPair.active }),
+      ...(this.options.allowFileType && { type: kvPair.type, meta: null }),
     };
     this.utils.copyToClipboard(JSON.stringify(copyText));
   }
@@ -153,6 +158,15 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     var text = await navigator.clipboard.readText();
     var pair = JSON.parse(text);
     this.keyValueForm.at(index).setValue(pair);
+  }
+
+  onFileChange(event, index: number) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      let value: KeyVal = this.keyValueForm.at(index).value;
+      this.keyValueForm.at(index).setValue({ ...value, val: '', meta: file });
+      console.log(file, index);
+    }
   }
 
   trackByFn(index, item) {

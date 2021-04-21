@@ -13,9 +13,15 @@
                 </mat-option>
             </mat-autocomplete>
         </span>
-        <input class="form-control input-sm" (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val"
-            placeholder="{{options.placeholderVal}}" />
+        <input class="form-control input-sm" *ngIf="!options.allowFileType || kv.controls.type?.value=='text'"
+            (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" placeholder="{{options.placeholderVal}}" />
+        <input type="file" class="form-control input-sm"
+            *ngIf="options.allowFileType && kv.controls.type?.value=='file'" (change)="onFileChange($event, i)" />
         <div class="kvCtrls vcenter">
+            <mat-select *ngIf="options.allowFileType" [formControl]="kv.controls.type" class="kv-type">
+                <mat-option value="text">Text</mat-option>
+                <mat-option value="file">File</mat-option>
+            </mat-select>
             <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
                 *ngIf="count!==1 && options.allowRemove">
                 <mat-icon>close</mat-icon>

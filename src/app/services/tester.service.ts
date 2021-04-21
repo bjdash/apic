@@ -43,6 +43,11 @@ export class TesterService {
           saved: { ...this.selectedEnv?.vals },
           inMem: { ...this.inMemEnv }
         }
+        // let scriptToTun:TestScript = {}
+        if (script.$request?.bodyData) {
+          let { bodyData, ...rest } = script.$request;
+          script.$request = rest;
+        }
         this.sandBox.contentWindow.postMessage(script, '*');
       } else {
         console.error('Script runner sandbox not loaded');

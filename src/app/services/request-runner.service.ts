@@ -155,8 +155,7 @@ export class RequestRunnerService {
       });
     newReq.headers = {
       ...Utils.keyValPairAsObject(headersList),
-      'X-APIC-REQ-ID': apic.s8() + '-' + apic.s8(),
-      'Content-Type': ''
+      'X-APIC-REQ-ID': apic.s8() + '-' + apic.s8()
     }
 
     //Prepare body to be sent with the request
@@ -204,8 +203,19 @@ export class RequestRunnerService {
           //TODO: populate body to be used with $request in test
           break;
         case 'form-data':
-          //interpolating form data (key and values)//TODO: handle input type file
-          newReq.bodyData = Utils.getFormDataBody(req.Body.formData);
+          //interpolating form data (key and values)
+          let formData = req.Body.formData.filter(xf => xf.key && xf.active)
+            .map(xf => {
+              return {
+                active: xf.active,
+                key: this.interpolationService.interpolate(xf.key),
+                val: this.interpolationService.interpolate(xf.val),
+                type: xf.type,
+                meta: xf.meta,
+              }
+            })
+          newReq.body = Utils.keyValPairAsObject(formData);
+          newReq.bodyData = Utils.getFormDataBody(formData);
           //TODO: populate body to be used with $request in test
           break;
       }

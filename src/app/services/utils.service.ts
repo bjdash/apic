@@ -144,7 +144,7 @@ export class Utils {
                 if (obj.type.toLowerCase() === 'text') {
                     bodyData.append(obj.key, obj.val);
                 } else if (obj.type.toLowerCase() === 'file') {
-                    bodyData.append(obj.key, obj.file);
+                    bodyData.append(obj.key, obj.meta);
                 }
             }
         }

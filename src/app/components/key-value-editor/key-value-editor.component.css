@@ -14,3 +14,6 @@
 .kvCtrls .copy .material-icons, .kvCtrls .paste .material-icons{
     font-size: 16px;
 }
+.kv-type{
+    width: 65px;
+}

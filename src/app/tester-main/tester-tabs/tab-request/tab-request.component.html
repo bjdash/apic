@@ -127,7 +127,7 @@
                         <div *ngIf="form.value.body.type==='form-data'">
                             <!--TODO: Add input type file-->
                             <app-key-value-editor formControlName="formData"
-                                [options]="{addOnFocus:true,allowToggle:true}">
+                                [options]="{addOnFocus:true,allowToggle:true, allowFileType:true}">
                             </app-key-value-editor>
                         </div>
                         <div *ngIf="form.value.body.type==='x-www-form-urlencoded'">
