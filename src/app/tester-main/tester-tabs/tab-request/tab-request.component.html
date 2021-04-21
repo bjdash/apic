@@ -242,8 +242,20 @@
                         </div>
                     </div>
 
-                    <div class="control-content" *ngIf="flags.respTab == 'Logs'">
-                        <textarea readonly class="raw-resp-area">{{runResponse.logs}}</textarea>
+                    <div class="run-log" *ngIf="flags.respTab == 'Logs'">
+                        <div class="vcenter rl-row" *ngFor="let log of runResponse.logs;trackBy:trackByFn; let i=index">
+                            <span class="rl-num">{{i+1}}</span>
+                            <pre class="rl-msg">{{log}}</pre>
+                            <div class="rl-btn">
+                                <button mat-icon-button class="sm" (click)="beautifyLog(i)">
+                                    <mat-icon class="xs t_color">code</mat-icon>
+                                </button>
+                                <button mat-icon-button class="sm" (click)="utils.copyToClipboard(log)">
+                                    <mat-icon class="xs t_color">content_copy</mat-icon>
+                                </button>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -270,6 +270,13 @@ div.mat-menu-content {
 .mat-select-value {
   color: var(--text-color);
 }
+.mat-select-disabled {
+  cursor: not-allowed;
+}
+.mat-select-disabled .mat-select-value {
+  cursor: not-allowed;
+  color: var(--text-color) !important;
+}
 .mat-select-arrow {
   color: var(--text-color);
 }

@@ -62,7 +62,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     private tabsService: TesterTabsService,
     private reqService: RequestsService,
     private dialog: MatDialog,
-    private utils: Utils,
+    public utils: Utils,
     private runner: RequestRunnerService,
     public interpolationService: InterpolationService,
     private toastr: Toaster) {
@@ -81,7 +81,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
         rawData: [''],
         gqlVars: ['']
       }),
-      savedResp: [[]],
       prescript: [''],
       postscript: [''],
       respCodes: [[]]
@@ -145,7 +144,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
 
   processSelectedReq(req: ApiRequest) {
     this.selectedReq = req;
-    const { url, method, name, description, Req: { headers, url_params }, postscript, prescript, savedResp, respCodes } = req;
+    const { url, method, name, description, Req: { headers, url_params }, postscript, prescript, respCodes } = req;
     this.form.patchValue({
       name,
       description,
@@ -153,7 +152,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       url,
       urlParams: url_params,
       headers,
-      savedResp,
       prescript,
       postscript,
       respCodes: respCodes || []
@@ -188,7 +186,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async updateRequest(updatedRequest: ApiRequest) {
-    this.pendingAction = this.reqService.updateRequests([{ ...updatedRequest, _created: this.selectedReq._created, _modified: this.selectedReq._modified }]);
+    updatedRequest = { ...this.selectedReq, ...updatedRequest }
+    this.pendingAction = this.reqService.updateRequests([updatedRequest]);
     try {
       this.selectedReq = (await this.pendingAction)[0];
       this.toastr.success('Request updated');
@@ -215,7 +214,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       prescript: request.prescript,
       postscript: request.postscript,
       name: request.name,
-      savedResp: request.savedResp,
       _parent: this.selectedReq?._parent
     }
     if (METHOD_WITH_BODY.includes(request.method)) {
@@ -382,11 +380,19 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       timeTaken: parseInt(`${savedResp.time}`),
       timeTakenStr: Utils.formatTime(parseInt(`${savedResp.time}`)),
       respSize: savedResp.statusText,
-      logs: 'Loaded from saved response',
+      logs: ['Loaded from saved response'],
       meta: this.savedRespIdentifier
     };
 
     //TODO:
     // if (scroll) scrollRespIntoView()
+  }
+
+  beautifyLog(index: number) {
+    this.runResponse.logs[index] = Beautifier.json(this.runResponse.logs[index], '  ')
+  }
+
+  trackByFn(index, item) {
+    return index;
   }
 }

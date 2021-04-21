@@ -1,27 +1,38 @@
+//@ts-check
 
+var TEST_RUN_CONTEXT = {
+    envs: { saved: null, inMem: null },
+    logs: []
+}
+var $scriptType, $response, $request, $env, TESTS, TESTSX;
 
-var from, type, code, reqObj, $response, $request, $env, TESTS, TESTSX;
-
-function sendResponseBack(msg, type) {
-    msg.$type = type;
+function sendResponseBack(msg) {
     window.parent.postMessage(msg, '*');
 }
 
-/* data
- * fields{
- *  type : type if script, prescript or postscript,
- * }
+/**
+ * @param {Object} data
+ * @param {'prescript' | 'postscript'} data.type
+ * @param {Object} data.req
+ * @param {Object} data.envs
+ * @param {Object} data.envs.saved
+ * @param {Object} data.envs.inMem
  */
 function onMessageReceived(data) {
     console.log('received test script', data);
-    reqObj = data.req;
-    type = data.type;
-    //code = data.type === 'prescript' ? data.req.prescript : data.req.postscript;
-    code = data.req[data.type];
+    TEST_RUN_CONTEXT = {
+        envs: data.envs,
+        logs: []
+    };
+    $scriptType = data.type;
+    $request = { ...data.req };
+    // $response = data.req.response;
+    let code = data.req[data.type];
     code = prepareScript(code);
-    $response = data.req.response;
-    $request = data.req.request;
-    $env = {}
+    $env = { ...data.envs.saved, ...data.envs.inMem };
+    Object.freeze($env);
+    Object.freeze($request);
+    // Object.freeze($response)
 
     TESTS = {};
     TESTSX = [];
@@ -29,21 +40,22 @@ function onMessageReceived(data) {
         eval(code);
     } catch (e) {
         console.log('error', e);
-        reqObj.testError = e.toString();
+        // reqObj.testError = e.toString();
     }
-    reqObj.tests = TESTSX.concat(convertToTestX(TESTS));
+    // reqObj.tests = TESTSX.concat(convertToTestX(TESTS));
     // reqObj.testsX = TESTSX;
-    sendResponseBack(reqObj, data.type);
+    sendResponseBack({
+        type: $scriptType,
+        inMem: TEST_RUN_CONTEXT.envs.inMem,
+        logs: TEST_RUN_CONTEXT.logs
+    });
 }
 
 window.addEventListener('message', function (event) {
     onMessageReceived(event.data);
-    from = event.source;
 }, false);
 
 function prepareScript(code) {
-    if (!code)
-        return false;
     return '(function (){\n' + code + '\n})()';
 }
 
@@ -51,94 +63,92 @@ function prepareScript(code) {
 function setEnv(key, value) {
     if (!key)
         return false;
-    if (!reqObj.xtraEnv)
-        reqObj.xtraEnv = {};
-    //if(!reqObj.xtraEnv.vals) reqObj.xtraEnv.vals = {};
+    if (!TEST_RUN_CONTEXT.envs.inMem)
+        TEST_RUN_CONTEXT.envs.inMem = {};
 
-    reqObj.xtraEnv[key] = value;
+    TEST_RUN_CONTEXT.envs.inMem = { ...TEST_RUN_CONTEXT.envs.inMem, [key]: value };
     return true;
 }
 
 function removeEnv(key) {
-    if (key && reqObj && reqObj.env && reqObj.env.vals) {
-        delete reqObj.env.vals[key];
+    if (key) {
+        let { [key]: omit, ...rest } = TEST_RUN_CONTEXT.envs.inMem;
+        TEST_RUN_CONTEXT.envs.inMem = rest;
     }
 }
 function getEnv(key) {
-    if (key && reqObj && reqObj.env && reqObj.env.vals) {
-        return reqObj.env.vals[key];
-    }
+    return TEST_RUN_CONTEXT.envs.inMem?.[key] || TEST_RUN_CONTEXT.envs.saved?.[key]
 }
 
 //TODO: deprecate these
-function assertTrue(msg, condition) {
-    if (condition) {
-        TESTS[msg] = true;
-    } else {
-        TESTS[msg] = false;
-    }
-}
+// function assertTrue(msg, condition) {
+//     if (condition) {
+//         TESTS[msg] = true;
+//     } else {
+//         TESTS[msg] = false;
+//     }
+// }
 
-function assertFalse(msg, condition) {
-    if (!condition) {
-        TESTS[msg] = true;
-    } else {
-        TESTS[msg] = false;
-    }
-}
+// function assertFalse(msg, condition) {
+//     if (!condition) {
+//         TESTS[msg] = true;
+//     } else {
+//         TESTS[msg] = false;
+//     }
+// }
 
-function log(data) {
-    if (!data)
-        return;
-    var delim = '\n';
-    if (!reqObj.logs) {
-        reqObj.logs = '';
-        delim = '';
-    }
-    try {
-        reqObj.logs += delim + JSON.stringify(data);
-    } catch (e) {
-        reqObj.logs += delim + 'Error parsing data. COuld not convert to string';
-    }
-}
+function log() {
+    let args = [...arguments], argsString = []
 
-function validateSchema(code) {
-    if (!Ajv) return false;
-
-    if (code === undefined) {
-        code = reqObj.response.status || undefined;
-    }
-    var valid = false;
-    if (code !== undefined && reqObj.respCodes) {
-        //code = code.toString();
-        var schema;
-        for (var i = 0; i < reqObj.respCodes.length; i++) {
-            if (reqObj.respCodes[i].code == code) {
-                schema = reqObj.respCodes[i].data;
-                break;
-            }
+    for (let i = 0; i < args.length; i++) {
+        try {
+            argsString.push(JSON.stringify(args[i]));
+        } catch (e) {
+            argsString.push(`'Error parsing data. Could not convert to string: ${e.message}`);
         }
-        if (!schema) return false;
-        var a = new Ajv();
-        valid = a.validate(schema, reqObj.response.data);
-        //var validate = a.compile(schema);
-        //valid = validate(reqObj.response.data);
     }
-    return valid;
+    TEST_RUN_CONTEXT.logs.push(argsString.join(', '))
 }
 
-function convertToTestX(tests) {
-    var testsX = [];
-    for (var name in tests) {
-        var test = {
-            name: name,
-            success: tests[name],
-            type: 'old'
-        }
-        if (test.success === false) {
-            test.reason = 'You have used the deprecated test method which doesn\'t report error for each test case. Use apic.test() instead.'
-        }
-        testsX.push(test)
-    }
-    return testsX;
-}
+// function validateSchema(code) {
+//     // @ts-ignore
+//     if (!Ajv) return false;
+
+//     if (code === undefined) {
+//         code = reqObj.response.status || undefined;
+//     }
+//     var valid = false;
+//     if (code !== undefined && reqObj.respCodes) {
+//         //code = code.toString();
+//         var schema;
+//         for (var i = 0; i < reqObj.respCodes.length; i++) {
+//             if (reqObj.respCodes[i].code == code) {
+//                 schema = reqObj.respCodes[i].data;
+//                 break;
+//             }
+//         }
+//         if (!schema) return false;
+//         // @ts-ignore
+//         var a = new Ajv();
+//         valid = a.validate(schema, reqObj.response.data);
+//         //var validate = a.compile(schema);
+//         //valid = validate(reqObj.response.data);
+//     }
+//     return valid;
+// }
+
+// function convertToTestX(tests) {
+//     var testsX = [];
+//     for (var name in tests) {
+//         var test = {
+//             name: name,
+//             success: tests[name],
+//             type: 'old'
+//         }
+//         if (test.success === false) {
+//             test.reason = 'You have used the deprecated test method which doesn\'t report error for each test case. Use apic.test() instead.'
+//         }
+//         testsX.push(test)
+//     }
+//     return testsX;
+// }

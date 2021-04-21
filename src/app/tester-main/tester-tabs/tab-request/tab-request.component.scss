@@ -144,6 +144,45 @@
     font-family: monospace;
     background: var(--main-bg);
 }
+.run-log {
+    border: 1px solid var(--border-color);
+
+    .rl-row {
+        line-height: 22px;
+        position: relative;
+        align-items: stretch;
+
+        &:hover {
+            background: var(--header-bg);
+            .rl-btn {
+                display: block;
+            }
+        }
+    }
+    .rl-num {
+        background: var(--header-bg);
+        min-width: 45px;
+        text-align: right;
+        min-height: 20px;
+        padding: 3px 5px 2px;
+    }
+    .rl-msg {
+        margin: 2px;
+        overflow: auto;
+        // word-wrap: break-word;
+        // white-space: normal;
+    }
+
+    .rl-btn {
+        position: absolute;
+        right: 0px;
+        top: -3px;
+        height: 28px;
+        display: none;
+        padding: 2px 5px;
+        background: var(--header-bg);
+    }
+}
 @keyframes progress-bar-stripes {
     from {
         background-position: 40px 0;

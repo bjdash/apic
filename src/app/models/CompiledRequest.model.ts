@@ -6,5 +6,7 @@ export interface CompiledApiRequest {
     postscript?: string
     prescript?: string
     headers?: { [key: string]: string; },
-    body?: string | FormData
+    queryParams?: { [key: string]: string; },
+    bodyData?: string | FormData //body to use used wile sending request
+    body?: any //body to be used with pre/post scripts
 }

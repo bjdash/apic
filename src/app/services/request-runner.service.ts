@@ -5,7 +5,7 @@ import { ApiRequest } from '../models/Request.model';
 import apic from '../utils/apic';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { InterpolationService } from './interpolation.service';
-import { TesterService, TestScript } from './tester.service';
+import { TesterService, TestResponse, TestScript } from './tester.service';
 import { Utils } from './utils.service';
 
 export interface RunResponse {
@@ -20,7 +20,7 @@ export interface RunResponse {
   timeTaken: number,
   timeTakenStr: string,
   respSize: string,
-  logs: string,
+  logs: string[],
   meta?: any // additional metadata
 }
 
@@ -36,6 +36,8 @@ export class RequestRunnerService {
   private _xhr: XMLHttpRequest;
   private sentTime: number;
 
+  private defaultLogMsg = 'Logs can be added in PreRun/PostRun scripts with "log()" function. Eg: log($response)';
+
   constructor(
     private tester: TesterService,
     private interpolationService: InterpolationService
@@ -46,13 +48,13 @@ export class RequestRunnerService {
   run(req: ApiRequest): Promise<RunResult> {
     return new Promise(async (resolve, reject) => {
       let compiledReq: CompiledApiRequest = this.prepareRequestForRun(req);
-      console.log(req, compiledReq);
+      let preRunResponse: TestResponse = null;
       if (req.prescript) {
         var script: TestScript = {
           type: 'prescript',
-          req: req
+          req: compiledReq
         };
-        await this.tester.runScript(script);//TODO:
+        preRunResponse = await this.tester.runScript(script);//TODO:
       }
 
       this._xhr = new XMLHttpRequest();
@@ -60,14 +62,14 @@ export class RequestRunnerService {
 
       this.addHeadersFromObj(compiledReq.headers);
       this._xhr.onreadystatechange = (event) => {
-        this.onreadystatechange(event, compiledReq, resolve)
+        this.onreadystatechange(event, compiledReq, preRunResponse, resolve)
       };
 
       this.sentTime = Date.now();
-      if (compiledReq.body) {
+      if (compiledReq.bodyData) {
         //TODO
         // req.request.body = Utils.getReqBody(BODY, req.request.bodyMeta.type);
-        this._xhr.send(compiledReq.body);
+        this._xhr.send(compiledReq.bodyData);
       } else {
         // req.request.body = {};
         this._xhr.send();
@@ -75,7 +77,7 @@ export class RequestRunnerService {
     });
   }
 
-  onreadystatechange(event, req: CompiledApiRequest, resolve) {
+  onreadystatechange(event, req: CompiledApiRequest, preRunResponse: TestResponse, resolve) {
     if (event.target.readyState === 4) {
       //calculating time taken
       var respTime = new Date().getTime();
@@ -93,7 +95,7 @@ export class RequestRunnerService {
         timeTaken: timeDiff,
         timeTakenStr: Utils.formatTime(timeDiff),
         json: null,
-        logs: 'Logs can be added in PreRun/PostRun scripts with "log()" function. Eg: log($response)',//TODO
+        logs: preRunResponse?.logs || [this.defaultLogMsg],//TODO
       };
       respObj.respSize = this.getResponseSize(respObj)
       //convert response to json object
@@ -143,6 +145,7 @@ export class RequestRunnerService {
         }
       })
     newReq.url = this.prepareQueryParams(newReq.url, queryParams || []);
+    newReq.queryParams = Utils.keyValPairAsObject(queryParams)
 
     //interpolating header key and values
     let headersList = req.Req.headers
@@ -174,25 +177,40 @@ export class RequestRunnerService {
                   val: this.interpolationService.interpolate(xf.val)
                 }
               })
-            newReq.body = Utils.getUrlEncodedBody(xForms);
+            newReq.bodyData = Utils.getUrlEncodedBody(xForms);
+            newReq.body = Utils.keyValPairAsObject(xForms);
+          } else {
+            newReq.body = {}
           }
           newReq.headers['Content-Type'] = 'application/x-www-form-urlencoded';
           break;
         case 'raw':
           // interpolating raw body data
           let rawBody = this.interpolationService.interpolate(req.Body.rawData);
-          newReq.body = rawBody;
+          newReq.bodyData = rawBody;
           newReq.headers['Content-Type'] = req.Body.selectedRaw.val;
+          if (rawBody && req.Body.selectedRaw?.val?.includes('json')) {
+            try {
+              newReq.body = JSON.parse(rawBody);
+            } catch (e) {
+              console.error(`Unable to convert request body to json`, e);
+              newReq.body = rawBody;
+            }
+          } else {
+            newReq.body = rawBody;
+          }
           break;
         case 'graphql':
           //TODO://interpolating graphql (key and values)
           req.Body.type = 'raw';
-          newReq.body = Utils.getGqlBody(req.Body.rawData, req.Body.gqlVars);
+          newReq.bodyData = Utils.getGqlBody(req.Body.rawData, req.Body.gqlVars);
           newReq.headers['Content-Type'] = 'application/json';
+          //TODO: populate body to be used with $request in test
           break;
         case 'form-data':
           //interpolating form data (key and values)//TODO: handle input type file
-          newReq.body = Utils.getFormDataBody(req.Body.formData);
+          newReq.bodyData = Utils.getFormDataBody(req.Body.formData);
+          //TODO: populate body to be used with $request in test
           break;
       }
     }
