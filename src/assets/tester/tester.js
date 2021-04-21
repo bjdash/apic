@@ -2,10 +2,18 @@
 
 var TEST_RUN_CONTEXT = {
     envs: { saved: null, inMem: null },
-    logs: []
+    logs: [],
+    tests: []
 }
-var $scriptType, $response, $request, $env, TESTS, TESTSX;
+var $scriptType, $response, $request, $env;
 
+/**
+ * @param {Object} msg
+ * @param {'prescript' | 'postscript'} msg.type
+ * @param {Object} msg.inMem
+ * @param {string[]} msg.logs
+ * @param {Object[]} msg.tests
+ */
 function sendResponseBack(msg) {
     window.parent.postMessage(msg, '*');
 }
@@ -13,7 +21,9 @@ function sendResponseBack(msg) {
 /**
  * @param {Object} data
  * @param {'prescript' | 'postscript'} data.type
- * @param {Object} data.req
+ * @param {string} data.script
+ * @param {Object} data.$request
+ * @param {Object} data.$response
  * @param {Object} data.envs
  * @param {Object} data.envs.saved
  * @param {Object} data.envs.inMem
@@ -22,32 +32,32 @@ function onMessageReceived(data) {
     console.log('received test script', data);
     TEST_RUN_CONTEXT = {
         envs: data.envs,
-        logs: []
+        logs: [],
+        tests: []
     };
     $scriptType = data.type;
-    $request = { ...data.req };
-    // $response = data.req.response;
-    let code = data.req[data.type];
+    $request = { ...data.$request };
+    $response = data.$response;
+    let code = data.script || data.$request[data.type];
     code = prepareScript(code);
     $env = { ...data.envs.saved, ...data.envs.inMem };
     Object.freeze($env);
     Object.freeze($request);
-    // Object.freeze($response)
+    Object.freeze($response)
 
-    TESTS = {};
-    TESTSX = [];
     try {
         eval(code);
     } catch (e) {
         console.log('error', e);
-        // reqObj.testError = e.toString();
+        log(`Error: ${e.message}`)
     }
     // reqObj.tests = TESTSX.concat(convertToTestX(TESTS));
     // reqObj.testsX = TESTSX;
     sendResponseBack({
         type: $scriptType,
         inMem: TEST_RUN_CONTEXT.envs.inMem,
-        logs: TEST_RUN_CONTEXT.logs
+        logs: TEST_RUN_CONTEXT.logs,
+        tests: TEST_RUN_CONTEXT.tests
     });
 }
 
@@ -110,32 +120,28 @@ function log() {
     TEST_RUN_CONTEXT.logs.push(argsString.join(', '))
 }
 
-// function validateSchema(code) {
-//     // @ts-ignore
-//     if (!Ajv) return false;
+function validateSchema(code) {
+    // @ts-ignore
+    if (!Ajv) return false;
 
-//     if (code === undefined) {
-//         code = reqObj.response.status || undefined;
-//     }
-//     var valid = false;
-//     if (code !== undefined && reqObj.respCodes) {
-//         //code = code.toString();
-//         var schema;
-//         for (var i = 0; i < reqObj.respCodes.length; i++) {
-//             if (reqObj.respCodes[i].code == code) {
-//                 schema = reqObj.respCodes[i].data;
-//                 break;
-//             }
-//         }
-//         if (!schema) return false;
-//         // @ts-ignore
-//         var a = new Ajv();
-//         valid = a.validate(schema, reqObj.response.data);
-//         //var validate = a.compile(schema);
-//         //valid = validate(reqObj.response.data);
-//     }
-//     return valid;
-// }
+    if (code === undefined) {
+        code = $response.status || undefined;
+    }
+    var valid = false;
+    if (code !== undefined && $request.respCodes) {
+        let codeStr = `${code}`;
+        //code = code.toString();
+        var schema = $request.respCodes.find(resp => resp.code == codeStr);
+
+        if (!schema) return false;
+        // @ts-ignore
+        var a = new Ajv();
+        valid = a.validate(schema.data, $response.data);
+        //var validate = a.compile(schema);
+        //valid = validate(reqObj.response.data);
+    }
+    return valid;
+}
 
 // function convertToTestX(tests) {
 //     var testsX = [];

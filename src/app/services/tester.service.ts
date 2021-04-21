@@ -4,25 +4,12 @@ import { Observable } from 'rxjs';
 import { EnvsAction } from '../actions/envs.action';
 import { CompiledApiRequest } from '../models/CompiledRequest.model';
 import { ParsedEnv } from '../models/Envs.model';
-import { ApiRequest } from '../models/Request.model';
+import { TestResponse } from '../models/TestResponse.model';
+import { TestScript } from '../models/TestScript.model';
 import { EnvState } from '../state/envs.state';
 import { Toaster } from './toaster.service';
 import { Utils } from './utils.service';
 
-export interface TestScript {
-  type: 'prescript' | 'postscript',
-  req: CompiledApiRequest,
-  envs?: {
-    saved: { [key: string]: string },
-    inMem: { [key: string]: any }
-  }
-}
-
-export interface TestResponse {
-  type: 'prescript' | 'postscript'
-  inMem: { [key: string]: string } //updated env
-  logs: string[]
-}
 
 @Injectable({
   providedIn: 'root'

@@ -202,14 +202,15 @@
                             (click)="selectTab('respTab','Body')">Body/Test builder</button>
                         <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Tests'}"
                             (click)="selectTab('respTab','Tests')">Test cases
-                            <!-- <span class="badge badge-success">{{tests.passed}}</span> / 
-                            <span class="badge badge-danger">{{runResponse.tests.failed}}</span> -->
+                            <span class="badge success">{{passedTests().length}}</span> /
+                            <span class="badge error">{{failedTests().length}}</span>
                         </button>
                         <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Headers'}"
                             (click)="selectTab('respTab','Headers')" [matBadge]="flags.respHeadersCount">Response
                             Headers </button>
                         <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Logs'}"
-                            (click)="selectTab('respTab','Logs')">Logs</button>
+                            (click)="selectTab('respTab','Logs')"
+                            [matBadge]="runResponse.logs?.length || 0">Logs</button>
                     </div>
 
                     <div class="control-content" *ngIf="flags.respTab == 'Body'">
@@ -232,7 +233,10 @@
                             <iframe id="iframe_" style="width: 100%; height: 300px;background-color: white;"
                                 sandbox="allow-same-origin"></iframe>
                         </div>
-                        {{runResponse|json}}
+                    </div>
+
+                    <div class="control-content" *ngIf="flags.respTab == 'Tests'">
+                        <app-resp-tab-tests [tests]="runResponse.tests"></app-resp-tab-tests>
                     </div>
 
                     <div class="control-content" *ngIf="flags.respTab == 'Headers'">
@@ -245,7 +249,7 @@
                     <div class="run-log" *ngIf="flags.respTab == 'Logs'">
                         <div class="vcenter rl-row" *ngFor="let log of runResponse.logs;trackBy:trackByFn; let i=index">
                             <span class="rl-num">{{i+1}}</span>
-                            <pre class="rl-msg">{{log}}</pre>
+                            <pre class="rl-msg" [ngClass]="{error:log.startsWith(errorIdentifier)}">{{log}}</pre>
                             <div class="rl-btn">
                                 <button mat-icon-button class="sm" (click)="beautifyLog(i)">
                                     <mat-icon class="xs t_color">code</mat-icon>

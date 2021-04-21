@@ -97,12 +97,12 @@ function removeDemoItems(items) {
 function test(name, testFn) {
     try {
         testFn();
-        TESTSX.push({
+        TEST_RUN_CONTEXT.tests.push({
             name: name,
             success: true
         });
     } catch (e) {
-        TESTSX.push({
+        TEST_RUN_CONTEXT.tests.push({
             name: name,
             success: false,
             reason: e.message
@@ -114,7 +114,7 @@ function _try(testFn) {
     try {
         testFn();
     } catch (e) {
-        log(e.message)
+        log(`Error: ${e.message}`)
     }
 }
 

@@ -58,6 +58,7 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   ngOnInit(): void {
     this.selectedRespForm.valueChanges.subscribe(value => {
       this.responses[this.selectedIndex] = { ...this.responses[this.selectedIndex], ...value };
+      this.propagateChange(this.responses)
     });
   }
 

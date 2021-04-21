@@ -1,0 +1,41 @@
+<div class="vcenter margB10">
+    <div class="title">
+        Test result:
+        <span class="green">{{passedTests().length}}</span>/<span class="red">{{failedTests().length}}</span>
+        <span>({{tests.length}})</span>
+    </div>
+
+    <mat-select [formControl]="filter" class="filter">
+        <mat-option value="All">All</mat-option>
+        <mat-option value="Passed">Passed</mat-option>
+        <mat-option value="Failed">Failed</mat-option>
+    </mat-select>
+
+    <!-- <div class="progress">
+        <div class="progress-bar progress-bar-success progress-bar-striped active" style="width: 50%;"
+            ng-style="{width: vm.RESP.tests.passed/vm.RESP.tests.total*100+'%'}">
+        </div>
+        <div class="progress-bar progress-bar-danger progress-bar-striped active" style="width: 50%;"
+            ng-style="{width: vm.RESP.tests.failed/vm.RESP.tests.total*100+'%'}">
+        </div>
+    </div> -->
+</div>
+
+<div *ngFor="let case of filtered$ | async">
+    <div class="test-result vcenter">
+        <span class="t_status passed" *ngIf="case.success">
+            <mat-icon class="sm gap">check_circle</mat-icon><span>Passed</span>
+        </span>
+        <span class="t_status failed" *ngIf="!case.success">
+            <mat-icon class="sm gap">cancel</mat-icon><span>Failed</span>
+        </span>
+        <div>
+            <span>{{case.name}}</span>
+            <div class="red" *ngIf="!case.success">{{case.reason}}</div>
+        </div>
+    </div>
+</div>
+<!-- <div ng-if="vm.RESP.testError">
+    <div class="tbh_bh">Error </div>
+    {{vm.RESP.testError}}
+</div> -->

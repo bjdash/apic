@@ -98,6 +98,7 @@ import { ApicRouteReuseStrategy } from './ApicRouteReuseStrategy';
 import { SaveReqDialogComponent } from './tester-main/save-req-dialog/save-req-dialog.component';
 import { TesterTabsService } from './tester-main/tester-tabs/tester-tabs.service';
 import { TesterService } from './services/tester.service';
+import { RespTabTestsComponent } from './tester-main/tester-tabs/resp-tab-tests/resp-tab-tests.component';
 
 @NgModule({
   declarations: [
@@ -147,7 +148,8 @@ import { TesterService } from './services/tester.service';
     TabSocketComponent,
     ApicRichInputComponent,
     BasicAuthComponent,
-    SaveReqDialogComponent
+    SaveReqDialogComponent,
+    RespTabTestsComponent
   ],
   imports: [
     BrowserModule,

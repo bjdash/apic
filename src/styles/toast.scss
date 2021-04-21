@@ -3,23 +3,23 @@
     color: var(--text-color);
 }
 .mat-snack-bar-container.success {
-    border: 1px solid #51bc54;
-    border-left: 10px solid #51bc54;
+    border: 1px solid var(--success);
+    border-left: 10px solid var(--success);
 }
 .mat-snack-bar-container.error {
-    border: 1px solid #f44336;
-    border-left: 10px solid #f44336;
+    border: 1px solid var(--error);
+    border-left: 10px solid var(--error);
 }
 .mat-snack-bar-container.warning {
-    border: 1px solid #ff9800;
-    border-left: 10px solid #ff9800;
+    border: 1px solid var(--warn);
+    border-left: 10px solid var(--warn);
 }
 .mat-snack-bar-container.info {
-    border: 1px solid #2196f3;
-    border-left: 10px solid #2196f3;
+    border: 1px solid var(--info);
+    border-left: 10px solid var(--info);
 }
 .mat-simple-snackbar-action {
     button {
-        color: #f44336;
+        color: var(--error);
     }
 }

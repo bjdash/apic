@@ -13,10 +13,16 @@ export default class LocalStore {
     static THEME_TYPE = 'themeType';
     static THEME_ACCENT = 'themeAccent';
     static REQ_TAB = 'reqTab';
+    static RESP_TAB = 'respTab';
+    static RESP_BODY_TAB = 'respBodyTab';
 
     //return object for list of keys, direct value for single key
     static get(key: string): string {
         return localStorage.getItem(key);
+    }
+
+    static getOrDefault(key: string, _default: string): string {
+        return localStorage.getItem(key) || _default;
     }
 
     static getMany(keys: string[]): any {

@@ -151,6 +151,7 @@
         line-height: 22px;
         position: relative;
         align-items: stretch;
+        overflow-y: hidden;
 
         &:hover {
             background: var(--header-bg);
@@ -169,18 +170,21 @@
     .rl-msg {
         margin: 2px;
         overflow: auto;
-        // word-wrap: break-word;
-        // white-space: normal;
+        &.error {
+            background: #b34242;
+            width: 100%;
+            color: #fff;
+        }
     }
 
     .rl-btn {
         position: absolute;
         right: 0px;
-        top: -3px;
-        height: 28px;
+        height: 27px;
         display: none;
         padding: 2px 5px;
         background: var(--header-bg);
+        top: -3px;
     }
 }
 @keyframes progress-bar-stripes {

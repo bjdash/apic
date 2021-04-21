@@ -2,32 +2,16 @@ import { Injectable } from '@angular/core';
 import { CompiledApiRequest } from '../models/CompiledRequest.model';
 import { KeyVal } from '../models/KeyVal.model';
 import { ApiRequest } from '../models/Request.model';
+import { RunResponse } from '../models/RunResponse.model';
+import { RunResult } from '../models/RunResult.model';
+import { TestResponse } from '../models/TestResponse.model';
+import { TestScript } from '../models/TestScript.model';
 import apic from '../utils/apic';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { InterpolationService } from './interpolation.service';
-import { TesterService, TestResponse, TestScript } from './tester.service';
+import { TesterService } from './tester.service';
 import { Utils } from './utils.service';
 
-export interface RunResponse {
-  headersStr?: string, // not available in apic-cli
-  headers: { [key: string]: any; },
-  status: number,
-  statusText: string,
-  readyState?: number,
-  body: string,
-  bodyPretty?: string,
-  json: any,//json body
-  timeTaken: number,
-  timeTakenStr: string,
-  respSize: string,
-  logs: string[],
-  meta?: any // additional metadata
-}
-
-export interface RunResult {
-  req: CompiledApiRequest,
-  resp: RunResponse
-}
 
 @Injectable({
   providedIn: 'root'
@@ -47,29 +31,30 @@ export class RequestRunnerService {
 
   run(req: ApiRequest): Promise<RunResult> {
     return new Promise(async (resolve, reject) => {
-      let compiledReq: CompiledApiRequest = this.prepareRequestForRun(req);
+      let $request: CompiledApiRequest = this.prepareRequestForRun(req);
       let preRunResponse: TestResponse = null;
       if (req.prescript) {
         var script: TestScript = {
           type: 'prescript',
-          req: compiledReq
+          script: $request.prescript,
+          $request
         };
-        preRunResponse = await this.tester.runScript(script);//TODO:
+        preRunResponse = await this.tester.runScript(script);
       }
 
       this._xhr = new XMLHttpRequest();
-      this._xhr.open(compiledReq.method, compiledReq.url, true);
+      this._xhr.open($request.method, $request.url, true);
 
-      this.addHeadersFromObj(compiledReq.headers);
+      this.addHeadersFromObj($request.headers);
       this._xhr.onreadystatechange = (event) => {
-        this.onreadystatechange(event, compiledReq, preRunResponse, resolve)
+        this.onreadystatechange(event, $request, preRunResponse, resolve)
       };
 
       this.sentTime = Date.now();
-      if (compiledReq.bodyData) {
+      if ($request.bodyData) {
         //TODO
         // req.request.body = Utils.getReqBody(BODY, req.request.bodyMeta.type);
-        this._xhr.send(compiledReq.bodyData);
+        this._xhr.send($request.bodyData);
       } else {
         // req.request.body = {};
         this._xhr.send();
@@ -77,14 +62,14 @@ export class RequestRunnerService {
     });
   }
 
-  onreadystatechange(event, req: CompiledApiRequest, preRunResponse: TestResponse, resolve) {
+  async onreadystatechange(event, $request: CompiledApiRequest, preRunResponse: TestResponse, resolve) {
     if (event.target.readyState === 4) {
       //calculating time taken
       var respTime = new Date().getTime();
       var timeDiff = respTime - this.sentTime;
       var target = event.target;
       var headerStr = target.getAllResponseHeaders();
-      var respObj: RunResponse = {
+      var $response: RunResponse = {
         headersStr: headerStr, // not available in apic-cli
         headers: Utils.prepareHeadersObj(headerStr),
         status: target.status,
@@ -94,22 +79,30 @@ export class RequestRunnerService {
         respSize: 'Unknown',
         timeTaken: timeDiff,
         timeTakenStr: Utils.formatTime(timeDiff),
-        json: null,
-        logs: preRunResponse?.logs || [this.defaultLogMsg],//TODO
+        data: null,
+        logs: preRunResponse?.logs || [this.defaultLogMsg],
+        tests: preRunResponse?.tests || []
       };
-      respObj.respSize = this.getResponseSize(respObj)
+      $response.respSize = this.getResponseSize($response)
       //convert response to json object
-      var jsonResp: any = undefined;
       try {
-        jsonResp = JSON.parse(respObj.body);
+        $response.data = JSON.parse($response.body);
       } catch (e) {
         console.info('The response cant be converted to JSON');
       }
-      if (jsonResp) {
-        respObj.json = jsonResp;
-      }
 
-      resolve({ req, resp: respObj })
+      //Run postrun script
+      if ($request.postscript) {
+        var script: TestScript = {
+          type: 'postscript',
+          script: $request.postscript,
+          $request,
+          $response
+        };
+        let postRunResponse: TestResponse = await this.tester.runScript(script);
+        $response.logs = [...$response.logs, ...postRunResponse.logs];
+        $response.tests = [...$response.tests, ...postRunResponse.tests];
+      }
       // _this.req.response = respObj;
       // if (_this.req.postscript) {
       //   var script = {
@@ -123,12 +116,15 @@ export class RequestRunnerService {
       //   _this.defer.resolve(_this.req);
       // }
 
+      resolve({ req: $request, resp: $response })
+
+
     }
   }
 
   prepareRequestForRun(req: ApiRequest): CompiledApiRequest {
-    const { _id, url, method, prescript, postscript } = req;
-    let newReq: CompiledApiRequest = { _id, url, method, prescript, postscript };
+    const { _id, url, method, prescript, postscript, respCodes } = req;
+    let newReq: CompiledApiRequest = { _id, url, method, prescript, postscript, respCodes };
 
     //interpolating URL
     newReq.url = this.checkForHTTP(this.interpolationService.interpolate(newReq.url));

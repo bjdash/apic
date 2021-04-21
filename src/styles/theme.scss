@@ -2,7 +2,7 @@
 input,
 select,
 textarea {
-    color: yellow;
+    color: var(--text-color);
 }
 select option {
     background: var(--content-bg);
@@ -15,10 +15,10 @@ select option {
     background-color: var(--accent-shadow);
 }
 .red {
-    color: #f9250f !important;
+    color: var(--error) !important;
 }
 .green {
-    color: #43a047 !important;
+    color: var(--success) !important;
 }
 .t_bgg {
     background: linear-gradient(60deg, var(--accent-color), var(--accent-shadow));

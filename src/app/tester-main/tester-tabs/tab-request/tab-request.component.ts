@@ -7,10 +7,12 @@ import { delayWhen, takeUntil } from 'rxjs/operators';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { KeyVal } from 'src/app/models/KeyVal.model';
 import { ApiRequest, SavedResp } from 'src/app/models/Request.model';
+import { RunResponse } from 'src/app/models/RunResponse.model';
+import { RunResult } from 'src/app/models/RunResult.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import LocalStore from 'src/app/services/localStore';
 import { RememberService } from 'src/app/services/remember.service';
-import { RequestRunnerService, RunResponse, RunResult } from 'src/app/services/request-runner.service';
+import { RequestRunnerService } from 'src/app/services/request-runner.service';
 import { RequestsService } from 'src/app/services/requests.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
@@ -56,6 +58,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     running: false
   }
   savedRespIdentifier = 'SAVED_RESPONSE'
+  errorIdentifier = '"Error'
 
   constructor(private fb: FormBuilder,
     private store: Store,
@@ -98,7 +101,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       })
 
     //load last layout
-    this.flags.reqTab = LocalStore.get(LocalStore.REQ_TAB) || 'ReqParam';
+    this.flags.reqTab = LocalStore.getOrDefault(LocalStore.REQ_TAB, 'ReqParam');
+    this.flags.respTab = LocalStore.getOrDefault(LocalStore.RESP_TAB, 'Body');
+    this.flags.respBodyTab = LocalStore.getOrDefault(LocalStore.RESP_BODY_TAB, 'pretty');
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.requestId?.previousValue?.includes('new_tab') && !changes.requestId?.currentValue?.includes('new_tab')) {
@@ -376,11 +381,12 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       statusText: savedResp.statusText,
       body: savedResp.data,
       bodyPretty: this.beautifyResponse(savedResp?.headers?.['Content-Type'], savedResp.data),
-      json: null,
+      data: null,
       timeTaken: parseInt(`${savedResp.time}`),
       timeTakenStr: Utils.formatTime(parseInt(`${savedResp.time}`)),
       respSize: savedResp.statusText,
       logs: ['Loaded from saved response'],
+      tests: [],
       meta: this.savedRespIdentifier
     };
 
@@ -392,6 +398,12 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.runResponse.logs[index] = Beautifier.json(this.runResponse.logs[index], '  ')
   }
 
+  passedTests() {
+    return this.runResponse.tests.filter(test => test.success)
+  }
+  failedTests() {
+    return this.runResponse.tests.filter(test => !test.success)
+  }
   trackByFn(index, item) {
     return index;
   }

@@ -422,22 +422,22 @@ fieldset legend {
 .SUCCESS,
 .ok,
 .OK {
-  color: #4caf50;
+  color: var(--success);
 }
 .status.warning,
 .warning,
 .WARNING {
-  color: #ff9800;
+  color: var(--warn);
 }
 .status.error,
 .error,
 .ERROR {
-  color: #f44336;
+  color: var(--error);
 }
 .status.info,
 .info,
 .INFO {
-  color: #03a9f4;
+  color: var(--info);
 }
 
 .submodMenu {
@@ -651,6 +651,31 @@ input.input-xs {
 }
 .input-group.sm {
   height: 30px;
+}
+
+.badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 3px 6px;
+  color: var(--accent-bg-text);
+  line-height: 1;
+  vertical-align: middle;
+  background-color: var(--accent-color);
+  border-radius: 10px;
+
+  &.sm {
+    font-size: 12px;
+  }
+
+  &.success {
+    background: var(--success);
+    color: #fff;
+  }
+
+  &.error {
+    background: var(--error);
+    color: #fff;
+  }
 }
 
 /******** Modal**********/
