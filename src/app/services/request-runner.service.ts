@@ -42,6 +42,8 @@ export class RequestRunnerService {
         preRunResponse = await this.tester.runScript(script);
       }
 
+      $request = this.interpolateReq($request, req);
+
       this._xhr = new XMLHttpRequest();
       this._xhr.open($request.method, $request.url, true);
 
@@ -122,12 +124,15 @@ export class RequestRunnerService {
     }
   }
 
+  /**
+   * Prepares request for run, variables will not be interpolated yet
+   */
   prepareRequestForRun(req: ApiRequest): CompiledApiRequest {
     const { _id, url, method, prescript, postscript, respCodes } = req;
     let newReq: CompiledApiRequest = { _id, url, method, prescript, postscript, respCodes };
 
     //interpolating URL
-    newReq.url = this.checkForHTTP(this.interpolationService.interpolate(newReq.url));
+    newReq.url = this.checkForHTTP(newReq.url);
 
 
     //interpolate query params
@@ -135,12 +140,11 @@ export class RequestRunnerService {
       ?.filter(qp => qp.key && qp.active)
       ?.map(qp => {
         return {
-          key: this.interpolationService.interpolate(qp.key),
-          val: this.interpolationService.interpolate(qp.val),
+          key: qp.key,
+          val: qp.val,
           active: qp.active
         }
       })
-    newReq.url = this.prepareQueryParams(newReq.url, queryParams || []);
     newReq.queryParams = Utils.keyValPairAsObject(queryParams)
 
     //interpolating header key and values
@@ -148,8 +152,8 @@ export class RequestRunnerService {
       ?.filter(h => h.key && h.active)
       ?.map(qp => {
         return {
-          key: this.interpolationService.interpolate(qp.key),
-          val: this.interpolationService.interpolate(qp.val),
+          key: qp.key,
+          val: qp.val,
           active: qp.active
         }
       });
@@ -160,19 +164,19 @@ export class RequestRunnerService {
 
     //Prepare body to be sent with the request
     if (METHOD_WITH_BODY.indexOf(req.method) >= 0 && req.Body) {
+      newReq.bodyType = req.Body.type;
       switch (req.Body.type) {
         case 'x-www-form-urlencoded':
-          //interpolating x-www-form-urlencoded form data (key and values)
+          //parsing x-www-form-urlencoded form data (key and values)
           if (req.Body?.xForms) {
             let xForms = req.Body.xForms.filter(xf => xf.key && xf.active)
               .map(xf => {
                 return {
                   active: xf.active,
-                  key: this.interpolationService.interpolate(xf.key),
-                  val: this.interpolationService.interpolate(xf.val)
+                  key: xf.key,
+                  val: xf.val
                 }
-              })
-            newReq.bodyData = Utils.getUrlEncodedBody(xForms);
+              });
             newReq.body = Utils.keyValPairAsObject(xForms);
           } else {
             newReq.body = {}
@@ -180,9 +184,8 @@ export class RequestRunnerService {
           newReq.headers['Content-Type'] = 'application/x-www-form-urlencoded';
           break;
         case 'raw':
-          // interpolating raw body data
-          let rawBody = this.interpolationService.interpolate(req.Body.rawData);
-          newReq.bodyData = rawBody;
+          // parsing raw body data
+          let rawBody = req.Body.rawData;
           newReq.headers['Content-Type'] = req.Body.selectedRaw.val;
           if (rawBody && req.Body.selectedRaw?.val?.includes('json')) {
             try {
@@ -198,30 +201,82 @@ export class RequestRunnerService {
         case 'graphql':
           //TODO://interpolating graphql (key and values)
           req.Body.type = 'raw';
-          newReq.bodyData = Utils.getGqlBody(req.Body.rawData, req.Body.gqlVars);
+          // newReq.bodyData = Utils.getGqlBody(req.Body.rawData, req.Body.gqlVars);
           newReq.headers['Content-Type'] = 'application/json';
           //TODO: populate body to be used with $request in test
           break;
         case 'form-data':
-          //interpolating form data (key and values)
+          //parsing form data (key and values)
           let formData = req.Body.formData.filter(xf => xf.key && xf.active)
             .map(xf => {
               return {
                 active: xf.active,
-                key: this.interpolationService.interpolate(xf.key),
-                val: this.interpolationService.interpolate(xf.val),
+                key: xf.key,
+                val: xf.val,
                 type: xf.type,
                 meta: xf.meta,
               }
             })
           newReq.body = Utils.keyValPairAsObject(formData);
-          newReq.bodyData = Utils.getFormDataBody(formData);
-          //TODO: populate body to be used with $request in test
           break;
       }
     }
 
     return newReq;
+  }
+
+  interpolateReq($request: CompiledApiRequest, originalReq: ApiRequest): CompiledApiRequest {
+    let { url, headers, queryParams, body } = $request, bodyData;
+    headers = this.interpolationService.interpolateObject(headers);
+    queryParams = this.interpolationService.interpolateObject(queryParams);
+    url = this.interpolationService.interpolate(this.prepareQueryParams(url, queryParams || {}));
+    if (METHOD_WITH_BODY.indexOf($request.method) >= 0 && $request.bodyType) {
+      switch ($request.bodyType) {
+        case 'x-www-form-urlencoded':
+          body = this.interpolationService.interpolateObject(body);
+          bodyData = Utils.getUrlEncodedXForm(body);
+          break;
+        case 'form-data':
+          body = this.interpolationService.interpolateObject(body);
+          let formData = originalReq.Body.formData.filter(xf => xf.key && xf.active)
+            .map(xf => {
+              return {
+                active: xf.active,
+                key: xf.key,
+                val: xf.val,
+                type: xf.type,
+                meta: xf.meta,
+              }
+            })
+          bodyData = Utils.getFormDataBody(formData);
+          break;
+        case 'raw':
+          let rawBody = this.interpolationService.interpolate(originalReq.Body.rawData);
+          bodyData = rawBody;
+          if (rawBody && originalReq.Body.selectedRaw?.val?.includes('json')) {
+            try {
+              body = JSON.parse(rawBody);
+            } catch (e) {
+              console.error(`Unable to convert request body to json`, e);
+              body = rawBody;
+            }
+          } else {
+            body = rawBody;
+          }
+          break;
+        case 'graphql':
+        //TODO:
+      }
+    }
+
+    return {
+      ...$request,
+      url,
+      headers,
+      queryParams,
+      body,
+      bodyData
+    }
   }
 
   addHeadersFromObj(headers) {
@@ -248,11 +303,9 @@ export class RequestRunnerService {
     return url;
   }
 
-  prepareQueryParams(url: string, params: KeyVal[]): string {
-    if (!params?.length) return url;
-    var queryString = params
-      .filter(p => p.key && p.active)
-      .map(p => encodeURIComponent(p.key) + '=' + encodeURIComponent(p.val));
+  prepareQueryParams(url: string, params: { [key: string]: string }): string {
+    var queryString = Utils.objectEntries(params)
+      .map(([key, val]) => encodeURIComponent(key) + '=' + encodeURIComponent(val));
 
     if (queryString.length > 0) {
       //check if URL already has querystrings

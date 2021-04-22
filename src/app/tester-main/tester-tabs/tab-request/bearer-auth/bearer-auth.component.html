@@ -1,0 +1,15 @@
+<div class="margB10 vcenter">
+    <span class="title sm gap">Bearer Token Authentication</span>
+    <mat-icon matTooltip="This will generate the Authorization header and add it to the request.">info
+    </mat-icon>
+</div>
+<div class="row margB10">
+    <label class="" for="basic-auth-uname">Bearer Token:</label>
+</div>
+<div class="row margB10">
+    <textarea class="form-control col-sm-8" id="bearer-token" [(ngModel)]="token"></textarea>
+</div>
+<div class="row">
+    <button mat-raised-button color="primary" type="button" class="sm gap" (click)="updateAuthHeader()">Update Auth
+        header</button>
+</div>

@@ -7,9 +7,8 @@
             <div class="vcenter">
                 <apic-rich-input class="URL" formControlName="url"></apic-rich-input>
                 <span class="url-opt vcenter">
-                    <button type="button" mat-icon-button class="sm"
-                        [matTooltip]="interpolationService.interpolate(this.form.value.url)" matTooltipPosition="left"
-                        matTooltipClass="url-pop">
+                    <button matTooltip="Click & hold to view compiled url" type="button" mat-icon-button class="sm"
+                        (mousedown)="showCompiledUrl()" (mouseup)="hideCompiledUrl()" matTooltipClass="url-pop">
                         <mat-icon>visibility</mat-icon>
                     </button>
                     <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url"
@@ -123,7 +122,6 @@
                             </mat-select>
                             <mat-radio-button value="graphql" (click)="initGQLBody()">Graphql</mat-radio-button>
                         </mat-radio-group>
-
                         <div *ngIf="form.value.body.type==='form-data'">
                             <!--TODO: Add input type file-->
                             <app-key-value-editor formControlName="formData"
@@ -146,6 +144,10 @@
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_basic'">
                         <app-basic-auth [headers]="form.value.headers"
                             (onChange)="updateHeader('Authorization', $event)"></app-basic-auth>
+                    </div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'">
+                        <app-bearer-auth [headers]="form.value.headers"
+                            (onChange)="updateHeader('Authorization', $event)"></app-bearer-auth>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'"></div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'"></div>

@@ -107,6 +107,20 @@ export class Utils {
 
     }
 
+    static getUrlEncodedXForm(xForm: { [key: string]: string }) {
+        var paramsList = Utils.objectEntries(xForm).map(([key, val]) => {
+            if (key) {
+                key = encodeURIComponent(key).replace(/%20/g, '+');
+                val = encodeURIComponent(val).replace(/%20/g, '+');
+                return (key + '=' + val);
+            }
+            return;
+        }).filter(p => p != undefined);
+
+        return paramsList.length > 0 ? paramsList.join('&') : null;
+    }
+
+    //TODO: remove this, not used
     static getUrlEncodedBody(xForms) {
         var paramsList = [];
         for (var i = 0; i < xForms.length; i++) {

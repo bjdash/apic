@@ -25,7 +25,7 @@ export class BasicAuthComponent implements OnInit {
     const lastUsedValue = this.rememberService.get(this.rememberKey);
     //if auth header is present extract value from it
     let authData = this.headers.find(h => h.key.toLocaleLowerCase() === 'authorization')?.val;
-    if (authData?.toLocaleLowerCase().startsWith('basic ')) {
+    if (authData?.toLocaleLowerCase().startsWith('basic ') && !this.interpolation.hasVariables(authData || '')) {
       authData = authData.substring(5, authData.length).trim();
       let parts = window.atob(authData).split(':');
       this.models.user = parts[0];
@@ -46,7 +46,7 @@ export class BasicAuthComponent implements OnInit {
     // else generate the base64 encoded string
     let authdata;
     if (this.interpolation.hasVariables(user) || this.interpolation.hasVariables(password)) {
-      authdata = `Basic {{apic.base64Encode(${user}, ${password})}}`; //TODO
+      authdata = `{{apic.basicAuth(${this.interpolation.getExpressionString(user)} , ${this.interpolation.getExpressionString(password)})}}`; //TODO
     } else {
       authdata = 'Basic ' + window.btoa(user + ':' + password);
     }

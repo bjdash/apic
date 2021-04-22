@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Env, ParsedEnv } from '../models/Envs.model';
 import { EnvState } from '../state/envs.state';
 import apic from '../utils/apic';
+import { Utils } from './utils.service';
 
 
 interface Rule {
@@ -40,6 +41,13 @@ export class InterpolationService {
     }
 
     return str;
+  }
+
+  interpolateObject(obj: { [key: string]: string }): { [key: string]: string } {
+    return Utils.objectEntries(obj).reduce((reduced, [key, val]) => {
+      reduced[this.interpolate(key)] = this.interpolate(val)
+      return reduced;
+    }, {})
   }
 
   private parseRules(str: string): Rule[] {
@@ -84,5 +92,30 @@ export class InterpolationService {
 
   delimiterEnd() {
     return this.delimiter[1];
+  }
+
+  /**
+   * Method to return a string to be used inside an expression
+   * eg: {{abc}} -> abc
+   * asdf{{abc}} -> 'asdf'+abc
+   * asdf{{abc}}xyz ->  'asdf'+abc+'xyz
+   */
+  getExpressionString(str: string) {
+    let originalStr = str;
+    const execRegex = this.getRegex();
+    const matches = str.match(execRegex);
+    matches.forEach((match, index) => {
+      let prefix = '\' + ';
+      let postfix = ' + \'';
+      if (index == 0 && str.startsWith(this.delimiterStart())) { prefix = '' }
+      if (index == (matches.length - 1) && str.endsWith(this.delimiterEnd())) { postfix = '' }
+
+      let replaced = prefix + match.replace(new RegExp(this.delimiterStart(), 'g'), '').replace(new RegExp(this.delimiterEnd(), 'g'), '') + postfix;
+      str = str.replace(match, replaced)
+    });
+    if (!originalStr.startsWith(this.delimiterStart())) str = '\'' + str;
+    if (!originalStr.endsWith(this.delimiterEnd())) str = str + '\'';
+    console.log(str)
+    return str;
   }
 }

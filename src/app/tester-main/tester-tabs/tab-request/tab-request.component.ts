@@ -55,7 +55,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     headersCount: 0,
     respHeadersCount: 0,
     runCount: 2,
-    running: false
+    running: false,
+    urlCopy: ''
   }
   savedRespIdentifier = 'SAVED_RESPONSE'
   errorIdentifier = '"Error'
@@ -294,6 +295,18 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
 
   copyCompiledUrl() {
     this.utils.copyToClipboard(this.interpolationService.interpolate(this.form.value.url))
+  }
+
+  showCompiledUrl() {
+    this.flags.urlCopy = this.form.value.url;
+    this.form.patchValue({ url: this.interpolationService.interpolate(this.form.value.url) });
+    setTimeout(() => {
+      this.hideCompiledUrl()
+    }, 3000);
+  }
+
+  hideCompiledUrl() {
+    this.form.patchValue({ url: this.flags.urlCopy });
   }
 
   setDirty() {
