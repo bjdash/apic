@@ -1,5 +1,5 @@
 export interface Test {
-    name: string, success: boolean, error?: string
+    name: string, success: boolean, reason?: string
 }
 
 export interface TestResponse {

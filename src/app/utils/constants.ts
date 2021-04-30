@@ -224,3 +224,22 @@ export const RESTRICTED_HEADERS = [
     "USER-AGENT",
     "VIA"
 ]
+
+export const TEST_BUILDER_OPS = {
+    val: 'expect(<key>).to.be.eql(<val>)',
+    body: 'expect(<key>).to.be.eql($request.body<val>)',
+    header: 'expect(<key>).to.be.eql($request.headers<val>)',
+    eqenv: 'expect(<key>).to.be.eql(getEnv("<val>"))',
+    ex: ' expect(<key>).not.to.be.undefined',
+    exnot: 'expect(<key>).to.be.undefined',
+    in: 'expect(<val>).to.include(<key>)',
+    cont: 'expect(<key>).to.include("<val>")',
+    contnot: 'expect(<key>).not.to.include("<val>")',
+    gt: 'expect(<key>).to.be.gt(<val>)',
+    gte: 'expect(<key>).to.be.gte(<val>)',
+    lt: 'expect(<key>).to.be.lt(<val>)',
+    lte: 'expect(<key>).to.be.lte(<val>)',
+    env: 'setEnv("<val>", <key>)',
+    is: 'expect(<key>).to.be.a(\'<val>\')',
+    isDate: 'expect(<key>).to.be.a.date'
+}

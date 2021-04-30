@@ -4,11 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngxs/store';
 import { from, Observable, Subject } from 'rxjs';
 import { delayWhen, takeUntil } from 'rxjs/operators';
+import { Segment } from 'src/app/components/json-viewer/json-viewer.component';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
+import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
 import { KeyVal } from 'src/app/models/KeyVal.model';
 import { ApiRequest, SavedResp } from 'src/app/models/Request.model';
 import { RunResponse } from 'src/app/models/RunResponse.model';
 import { RunResult } from 'src/app/models/RunResult.model';
+import { TestBuilderOption } from 'src/app/models/TestBuilderOption.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import LocalStore from 'src/app/services/localStore';
 import { RememberService } from 'src/app/services/remember.service';
@@ -42,7 +45,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   private _destroy: Subject<boolean> = new Subject<boolean>();
 
   dummy = ''
-  runResponse: RunResponse;
+  runResponse: RunResponse; //$response
+  runRequest: CompiledApiRequest;//$request
   reloadRequest: ApiRequest = null;
   flags = {
     showReq: true,
@@ -59,7 +63,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     urlCopy: ''
   }
   savedRespIdentifier = 'SAVED_RESPONSE'
-  errorIdentifier = '"Error'
+  errorIdentifier = '"Error';
+  testBuilderOpt: TestBuilderOption = null;
 
   constructor(private fb: FormBuilder,
     private store: Store,
@@ -324,6 +329,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     let result: RunResult = await this.runner.run(req);
     console.log(result);
     this.runResponse = result.resp;
+    this.runRequest = result.req;
     this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
     this.flags.respHeadersCount = Utils.objectKeys(this.runResponse.headers).length;
     this.applyRunStatus(false);
@@ -411,6 +417,24 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.runResponse.logs[index] = Beautifier.json(this.runResponse.logs[index], '  ')
   }
 
+  onTestBuilder(segment: Segment) {
+    this.testBuilderOpt = {
+      parent: segment.parent,
+      key: segment.key,
+      val: segment.value,
+      showRun: true,
+      show: true
+    }
+  }
+
+  saveBuilderTests(tests: string, autoSaveReq: boolean) {
+    this.form.patchValue({ postscript: this.form.value.postscript + '\n' + tests });
+    if (autoSaveReq) {
+      this.initReqSave();
+    } else {
+      this.toastr.info('Test added to postrun scripts.')
+    }
+  }
   passedTests() {
     return this.runResponse.tests.filter(test => test.success)
   }

@@ -187,6 +187,12 @@
         top: -3px;
     }
 }
+.error-cont {
+    mat-icon {
+        font-size: 45px;
+        width: 60px;
+    }
+}
 @keyframes progress-bar-stripes {
     from {
         background-position: 40px 0;

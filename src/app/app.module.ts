@@ -100,6 +100,8 @@ import { TesterTabsService } from './tester-main/tester-tabs/tester-tabs.service
 import { TesterService } from './services/tester.service';
 import { RespTabTestsComponent } from './tester-main/tester-tabs/resp-tab-tests/resp-tab-tests.component';
 import { BearerAuthComponent } from './tester-main/tester-tabs/tab-request/bearer-auth/bearer-auth.component';
+import { JsonViewerComponent } from './components/json-viewer/json-viewer.component';
+import { JsonTestBuilderComponent } from './components/json-test-builder/json-test-builder.component';
 
 @NgModule({
   declarations: [
@@ -151,7 +153,9 @@ import { BearerAuthComponent } from './tester-main/tester-tabs/tab-request/beare
     BasicAuthComponent,
     SaveReqDialogComponent,
     RespTabTestsComponent,
-    BearerAuthComponent
+    BearerAuthComponent,
+    JsonViewerComponent,
+    JsonTestBuilderComponent
   ],
   imports: [
     BrowserModule,

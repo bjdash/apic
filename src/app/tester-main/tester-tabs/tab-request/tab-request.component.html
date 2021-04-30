@@ -167,7 +167,7 @@
                 </div>
             </div>
 
-            <div class="paper resp-box" *ngIf="runResponse && !flags.running">
+            <div class="paper resp-box" *ngIf="runResponse && !flags.running && runResponse?.status != 0">
                 <h3 class="panel-title custom pointer" (click)="flags.showResp = !flags.showResp">
                     <mat-icon *ngIf="!flags.showResp" class="sm">chevron_right</mat-icon>
                     Response
@@ -223,6 +223,8 @@
                                 (click)="selectTab('respBodyTab','raw')">Raw</button>
                             <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'preview'}"
                                 (click)="selectTab('respBodyTab','preview')">Preview</button>
+                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'builder'}"
+                                (click)="selectTab('respBodyTab','builder')">Build API Tests</button>
                         </div>
                         <div *ngIf="flags.respBodyTab == 'pretty'">
                             <apic-ace #preRunAce [(text)]="runResponse.bodyPretty" [readOnly]="true"
@@ -234,6 +236,17 @@
                         <div *ngIf="flags.respBodyTab == 'preview'">
                             <iframe id="iframe_" style="width: 100%; height: 300px;background-color: white;"
                                 sandbox="allow-same-origin"></iframe>
+                        </div>
+                        <div *ngIf="flags.respBodyTab == 'builder'">
+                            <apic-json-viewer (showTestBuilder)="onTestBuilder($event)" *ngIf="runResponse.data"
+                                [json]="runResponse.data" parent="$response.data">
+                            </apic-json-viewer>
+                            <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt"
+                                [$request]="runRequest" [$response]="runResponse" [save]="saveBuilderTests.bind(this)"
+                                (close)="testBuilderOpt.show=false">
+                            </json-test-builder>
+                            <span class="red margV10" *ngIf="!runResponse.data">Can't use test builder as response is
+                                not a json.</span>
                         </div>
                     </div>
 
@@ -265,7 +278,39 @@
                     </div>
                 </div>
             </div>
+
+            <div class="error-cont flex" *ngIf="runResponse?.status == 0 && !flags.running">
+                <mat-icon class="red">error</mat-icon>
+                <div class="err-msg">
+                    <div class="title margB10"><span class="bold">apic</span>
+                        can't establish a connection to the specified server.</div>
+                    <ul>
+                        <li>If you are using the Web version of apic, chances are the <a class="t_color"
+                                href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS"
+                                target="_new">preflight OPTIONS request(CORS)</a> didn't pass.
+                            <ul>
+                                <li>Use <a class="t_color"
+                                        href="https://chrome.google.com/webstore/detail/apic-extension/dejjobgejdajdjjhjcindbjcfohoiehn"
+                                        target="_new">apic's web extension for Chrome</a> along with the web app.
+                                    Alternatively you can use other CORS enabler extentions for other browsers.</li>
+                                <li>Or you could use the standalone version of apic available for <a class="t_color"
+                                        href="https://chrome.google.com/webstore/detail/apic/ndlppagggobloiddihlgkhambleecphp"
+                                        target="_new">Chrome</a>, Windows, Mac & Linux without any dependency.</li>
+                                <li>Otherwise please make sure that your API responds to OPTIONS request</li>
+                            </ul>
+                        </li>
+                        <li>The site could be temporarily unavailable or too busy. Try again in a few moments.</li>
+                        <li>If you are unable to load any pages, check your computer's network connection.</li>
+                        <li>Insecure SSL connections are being blocked. This can be fixed by
+                            <span class="bold">importing SSL certificates in Chrome.</span>
+                        </li>
+                        <li>If your computer or network is protected by a firewall or proxy, make sure that
+                            <span class="bold">apic</span> is permitted to access the host.
+                        </li>
+                        <li>Request may have timed out. Change the default timeout duration in settings.</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        {{selectedReq|json}}
     </form>
 </div>

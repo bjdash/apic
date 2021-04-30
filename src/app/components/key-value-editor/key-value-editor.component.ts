@@ -17,6 +17,7 @@ export interface KVEditorOptn {
   placeholderVal?: string,
   enableAutocomplete?: boolean,
   allowFileType?: boolean,
+  useRichText?: false,//TODO
   autocompletes?: string[]
 }
 
@@ -46,6 +47,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     placeholderVal: 'Value',
     enableAutocomplete: false,
     allowFileType: false,
+    useRichText: false,
     autocompletes: []
   }
   keyValueForm: FormArray;

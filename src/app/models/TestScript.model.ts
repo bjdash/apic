@@ -2,7 +2,7 @@ import { CompiledApiRequest } from "./CompiledRequest.model";
 import { RunResponse } from "./RunResponse.model";
 
 export interface TestScript {
-    type: 'prescript' | 'postscript',
+    type: 'prescript' | 'postscript' | 'tempTest',
     script: string,
     $request?: CompiledApiRequest,
     $response?: RunResponse,

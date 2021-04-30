@@ -13,8 +13,12 @@
                 </mat-option>
             </mat-autocomplete>
         </span>
-        <input class="form-control input-sm" *ngIf="!options.allowFileType || kv.controls.type?.value=='text'"
+        <input class="form-control input-sm"
+            *ngIf="!options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')"
             (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" placeholder="{{options.placeholderVal}}" />
+        <apic-rich-input [formControl]="kv.controls.val"
+            *ngIf="options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')">
+        </apic-rich-input>
         <input type="file" class="form-control input-sm"
             *ngIf="options.allowFileType && kv.controls.type?.value=='file'" (change)="onFileChange($event, i)" />
         <div class="kvCtrls vcenter">

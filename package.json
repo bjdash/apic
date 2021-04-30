@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port=5000 --hmr",
+    "start": "ng serve --port=5000",
+    "start-hmr": "ng serve --port=5000 --hmr",
     "start1": "ng serve",
     "build": "ng build",
     "test": "ng test",

@@ -1,0 +1,176 @@
+<div class="tbh_cont">
+    <div class="tbh_h fullwidth">{{options.parent}}{{getKey(options.key)}}
+        <a href="" class="icon bj-files-empty" title="Copy"
+            (click)="copyToClipboard(options.parent+'.'+options.key)"></a>
+        <span class="red pull-right bold" *ngIf="!flags.saved" style="margin-right: 20px;">Not saved</span>
+    </div>
+    <div class="flex">
+        <div class="tbh_icon_c">
+            <div class="tbh_icon" uib-tooltip="Assert Equals" (click)="flags.selectedType='eq'"
+                [ngClass]="flags.selectedType==='eq'?'act':''">
+                <div class="tbh_icon_i">==</div>
+                <div class="tbh_icon_t">Assert Equals</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Assert Exists" (click)="flags.selectedType='ex'"
+                [ngClass]="flags.selectedType==='ex'?'act':''">
+                <div class="tbh_icon_i">Ex</div>
+                <div class="tbh_icon_t">Assert Exists</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Assert Is" (click)="flags.selectedType='is'"
+                [ngClass]="flags.selectedType==='is'?'act':''">
+                <div class="tbh_icon_i">Is</div>
+                <div class="tbh_icon_t">Assert Is</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Assert Constants" (click)="flags.selectedType='cont'"
+                [ngClass]="flags.selectedType==='cont'?'act':''">
+                <div class="tbh_icon_i">Cnt</div>
+                <div class="tbh_icon_t">Assert Contains</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Assert In" (click)="flags.selectedType='in'"
+                [ngClass]="flags.selectedType==='in'?'act':''">
+                <div class="tbh_icon_i">In</div>
+                <div class="tbh_icon_t">Assert In</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Assert Greater" (click)="flags.selectedType='gt'"
+                [ngClass]="flags.selectedType==='gt'?'act':''">
+                <div class="tbh_icon_i">&gt;</div>
+                <div class="tbh_icon_t">Assert Greater</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Assert Less" (click)="flags.selectedType='lt'"
+                [ngClass]="flags.selectedType==='lt'?'act':''">
+                <div class="tbh_icon_i">&lt;</div>
+                <div class="tbh_icon_t">Assert Less</div>
+            </div>
+            <div class="tbh_icon" uib-tooltip="Environment" (click)="flags.selectedType='env'"
+                [ngClass]="flags.selectedType==='env'?'act':''">
+                <div class="tbh_icon_i"><i class="icon bj-stack"></i></div>
+                <div class="tbh_icon_t">Environment</div>
+            </div>
+        </div>
+        <div style="flex: 1 1 auto;">
+            <div class="tbh_b tbh_eq" *ngIf="flags.selectedType==='eq'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> should be equal to</div>
+                <mat-radio-group aria-label="Select an option" class="block margB10" [(ngModel)]="models.radio.eq">
+                    <mat-radio-button name="eq" value="val">Value specified below
+                    </mat-radio-button>
+                    <mat-radio-button name="eq" value="body">Value in request body specified
+                        below
+                    </mat-radio-button>
+                    <mat-radio-button name="eq" value="header">Value of header specified
+                        below
+                    </mat-radio-button>
+                    <mat-radio-button name="eq" value="eqenv">Value of environment variable
+                        specified
+                        below</mat-radio-button>
+                </mat-radio-group>
+                <textarea [(ngModel)]="models.input" class="form-control margB10"></textarea>
+                <mat-radio-group aria-label="Select an option" *ngIf="models.radio.eq==='val'"
+                    [(ngModel)]="models.radio.eqX">
+                    <mat-radio-button name="eqX" value="string">String</mat-radio-button>
+                    <mat-radio-button name="eqX" value="number">Object/Number/Boolean
+                    </mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <div class="tbh_b tbh_ex" *ngIf="flags.selectedType==='ex'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> should</div>
+                <mat-radio-group aria-label="Select an option" [(ngModel)]="models.radio.ex" class="block margV10">
+                    <mat-radio-button name="ex" value="ex">Exist in response</mat-radio-button>
+                    <mat-radio-button name="ex" value="exnot">Not exist in response </mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <div class="tbh_b tbh_ex" *ngIf="flags.selectedType==='is'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> is </div>
+                <mat-radio-group aria-label="Select an option" [(ngModel)]="models.radio.is" class="block margV10">
+                    <mat-radio-button name="is" value="string">a String</mat-radio-button>
+                    <mat-radio-button name="is" value="number">a Number</mat-radio-button>
+                    <mat-radio-button name="is" value="boolean">a Boolean</mat-radio-button>
+                    <mat-radio-button name="is" value="array">an Array</mat-radio-button>
+                    <mat-radio-button name="is" value="object">an Object</mat-radio-button>
+                    <mat-radio-button name="is" value="date">a valid Date</mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <div class="tbh_b tbh_ex" *ngIf="flags.selectedType==='cont'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> should</div>
+                <mat-radio-group aria-label="Select an option" [(ngModel)]="models.radio.cont" class="block margV10">
+                    <mat-radio-button name="cont" value="cont">Contain below phrase</mat-radio-button>
+                    <mat-radio-button name="cont" value="contnot">Not contain below phrase</mat-radio-button>
+                </mat-radio-group>
+                <textarea [(ngModel)]="models.input" class="form-control"></textarea>
+            </div>
+
+            <div class="tbh_b tbh_ex" *ngIf="flags.selectedType==='in'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> should match to any one
+                    value from below list</div>
+                <textarea [(ngModel)]="models.input" class="form-control"></textarea>
+                (Comma separated values)
+            </div>
+
+            <div class="tbh_b tbh_ex" *ngIf="flags.selectedType==='gt'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> should be</div>
+                <mat-radio-group aria-label="Select an option" [(ngModel)]="models.radio.gt" class="block margV10">
+                    <mat-radio-button name="gt" value="gt">Greater than</mat-radio-button>
+                    <mat-radio-button name="gt" value="gte">Greater than or equals to</mat-radio-button>
+                </mat-radio-group>
+                <textarea [(ngModel)]="models.input" class="form-control"></textarea>
+            </div>
+
+            <div class="tbh_b tbh_ex" *ngIf="flags.selectedType==='lt'">
+                <div class="tbh_bh"><span>{{options.parent}}{{getKey(options.key)}}</span> should be</div>
+                <mat-radio-group aria-label="Select an option" [(ngModel)]="models.radio.lt" class="block margV10">
+                    <mat-radio-button name="lt" value="lt">Lesser than</mat-radio-button>
+                    <mat-radio-button name="lt" value="lte">Lesser than or equals to</mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <div class="tbh_b tbh_env" *ngIf="flags.selectedType==='env'">
+                <div class="tbh_bh">Store <span>{{options.parent}}{{getKey(options.key)}}</span> in an environment
+                    variable</div>
+                Variable name:
+                <textarea [(ngModel)]="models.input" class="form-control"></textarea>
+            </div>
+
+            <div class="tbh_b">
+                <button type="button" mat-stroked-button (click)="addTest()" class="sm">
+                    <mat-icon class="sm gap">add</mat-icon>Add
+                </button>
+            </div>
+            <div class="tbh_b">
+                <div class="bold">Tests</div>
+                <div *ngFor="let k of tests;let i=index" class="">
+                    <button mat-icon-button class="sm red" (click)="delTest(i)">
+                        <mat-icon class="">remove_circle</mat-icon>
+                    </button>
+                    <button mat-icon-button class="sm green" (click)="runTests([k])" *ngIf="options.showRun">
+                        <mat-icon class="">play_arrow</mat-icon>
+                    </button>
+                    <span class="pointer" (click)="k.show=!k.show">{{k.str}}</span>
+                    <span class="green" *ngIf="k.status"> Passed</span>
+                    <span class="red" *ngIf="k.status===false"> Failed</span>
+                    <div style="margin-left:55px;" class="red" *ngIf="k.error">{{k.error}}</div>
+                    <pre *ngIf="k.show">{{k.val}}</pre>
+                </div>
+                <div ng-if="testError">
+                    <div class="tbh_bh">Error </div>
+                    {{testError}}
+                </div>
+                <div class="tbh_fbtn">
+                    <button mat-raised-button ng-hide="cfg.hideRun" type="button" class="sm green gap"
+                        (click)="runTests()">
+                        <mat-icon class="sm gap">play_arrow</mat-icon> Run All
+                    </button>
+                    <button type="button" mat-raised-button class="sm gap" (click)="saveTests()">Add Tests to
+                        Request</button>
+                    <button type="button" mat-raised-button class="sm gap" (click)="saveTests(true)">Add Tests to
+                        Request
+                        & Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button mat-icon-button class="sm close" (click)="close.emit(true)">
+        <mat-icon>cancel</mat-icon>
+    </button>
+</div>
