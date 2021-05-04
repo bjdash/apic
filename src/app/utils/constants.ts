@@ -229,6 +229,7 @@ export const TEST_BUILDER_OPS = {
     val: 'expect(<key>).to.be.eql(<val>)',
     body: 'expect(<key>).to.be.eql($request.body<val>)',
     header: 'expect(<key>).to.be.eql($request.headers<val>)',
+    query: 'expect(<key>).to.be.eql($request.queryParams<val>)',
     eqenv: 'expect(<key>).to.be.eql(getEnv("<val>"))',
     ex: ' expect(<key>).not.to.be.undefined',
     exnot: 'expect(<key>).to.be.undefined',

@@ -15,11 +15,14 @@
 .tbh_cont .close {
     position: absolute;
     right: 5px;
-    top: 5px;
+    top: 1px;
+}
+.mat-radio-button {
+    margin: 5px 35px 5px 15px;
 }
 .tbh_h {
     font-size: 16px;
-    padding: 0 10px;
+    padding: 6px 10px;
     color: var(--accent-color);
     border-bottom: 1px dashed var(--border-color);
 }

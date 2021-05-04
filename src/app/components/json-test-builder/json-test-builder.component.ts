@@ -26,7 +26,6 @@ export class JsonTestBuilderComponent implements OnInit {
 
   ops = TEST_BUILDER_OPS;
   tests: Test[] = [];
-  testError;
   models = {
     input: '',
     radio: {
@@ -98,7 +97,10 @@ export class JsonTestBuilderComponent implements OnInit {
           inp = inp + ' field in body';
           op = op.replace('<val>', this.getKey(this.models.input));
         } else if (this.models.radio.eq === 'header') {
-          inp = inp + ' field in header';
+          inp = ' header ' + inp;
+          op = op.replace('<val>', this.getKey(this.models.input));
+        } else if (this.models.radio.eq === 'query') {
+          inp = ' query param ' + inp;
           op = op.replace('<val>', this.getKey(this.models.input));
         }
       default:

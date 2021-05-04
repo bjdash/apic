@@ -54,10 +54,13 @@
                     <mat-radio-button name="eq" value="val">Value specified below
                     </mat-radio-button>
                     <mat-radio-button name="eq" value="body">Value in request body specified
-                        below
+                        below (eg: $request.body["&lt;filed&gt;"])
                     </mat-radio-button>
                     <mat-radio-button name="eq" value="header">Value of header specified
-                        below
+                        below (eg: $request.headers["&lt;filed&gt;"])
+                    </mat-radio-button>
+                    <mat-radio-button name="eq" value="query">Value of query parameter specified
+                        below (eg: $request.queryParams["&lt;filed&gt;"])
                     </mat-radio-button>
                     <mat-radio-button name="eq" value="eqenv">Value of environment variable
                         specified
@@ -152,10 +155,7 @@
                     <div style="margin-left:55px;" class="red" *ngIf="k.error">{{k.error}}</div>
                     <pre *ngIf="k.show">{{k.val}}</pre>
                 </div>
-                <div ng-if="testError">
-                    <div class="tbh_bh">Error </div>
-                    {{testError}}
-                </div>
+                <div *ngIf="tests?.length === 0">No tests added yet</div>
                 <div class="tbh_fbtn">
                     <button mat-raised-button ng-hide="cfg.hideRun" type="button" class="sm green gap"
                         (click)="runTests()">

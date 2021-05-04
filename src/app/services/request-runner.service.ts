@@ -152,7 +152,7 @@ export class RequestRunnerService {
       ?.filter(h => h.key && h.active)
       ?.map(qp => {
         return {
-          key: qp.key,
+          key: qp.key.toLowerCase(),
           val: qp.val,
           active: qp.active
         }

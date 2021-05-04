@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngxs/store';
@@ -34,6 +34,7 @@ import { TesterTabsService } from '../tester-tabs.service';
 })
 export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
+  @ViewChild('previewFrame') previewFrame: ElementRef;
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
   private pendingAction: Promise<any> = Promise.resolve(null);
@@ -333,6 +334,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
     this.flags.respHeadersCount = Utils.objectKeys(this.runResponse.headers).length;
     this.applyRunStatus(false);
+    if (this.flags.respBodyTab == 'preview' && this.flags.respTab == 'Body') {
+      this.setPreviewFrame(this.runResponse.body);
+    }
   }
 
   startLoopRun() {
@@ -441,6 +445,13 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   failedTests() {
     return this.runResponse.tests.filter(test => !test.success)
   }
+
+  setPreviewFrame(data) {
+    setTimeout(() => {
+      this.previewFrame.nativeElement.src = 'data:text/html;charset=utf-8,' + escape(data)
+    }, 0);
+  }
+
   trackByFn(index, item) {
     return index;
   }

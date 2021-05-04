@@ -92,8 +92,16 @@
 .req-box .control-content,
 .resp-box .control-content {
     padding: 10px;
+    position: relative;
     &.short {
         max-width: 1200px;
+    }
+    .build-test-btn {
+        font-size: 16px;
+        border-radius: 18px;
+        position: absolute;
+        top: 0;
+        right: 0;
     }
 }
 .raw-type {

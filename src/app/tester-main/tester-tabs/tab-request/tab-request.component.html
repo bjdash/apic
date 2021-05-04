@@ -222,19 +222,24 @@
                             <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'raw'}"
                                 (click)="selectTab('respBodyTab','raw')">Raw</button>
                             <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'preview'}"
-                                (click)="selectTab('respBodyTab','preview')">Preview</button>
+                                (click)="selectTab('respBodyTab','preview');setPreviewFrame(runResponse.body)">Preview</button>
                             <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'builder'}"
                                 (click)="selectTab('respBodyTab','builder')">Build API Tests</button>
                         </div>
-                        <div *ngIf="flags.respBodyTab == 'pretty'">
-                            <apic-ace #preRunAce [(text)]="runResponse.bodyPretty" [readOnly]="true"
+                        <button mat-raised-button color="primary" class="build-test-btn"
+                            (click)="selectTab('respBodyTab','builder')">
+                            Build API Tests
+                        </button>
+                        <div *ngIf=" flags.respBodyTab=='pretty'">
+                            <apic-ace #preRunAce [(text)]=" runResponse.bodyPretty" [readOnly]="true"
                                 [mode]="flags.respAceMode"></apic-ace>
                         </div>
                         <div *ngIf="flags.respBodyTab == 'raw'">
                             <textarea readonly class="raw-resp-area">{{runResponse.body}}</textarea>
                         </div>
                         <div *ngIf="flags.respBodyTab == 'preview'">
-                            <iframe id="iframe_" style="width: 100%; height: 300px;background-color: white;"
+                            <iframe id="iframe_" #previewFrame
+                                style="width: 100%; height: 300px;background-color: white;"
                                 sandbox="allow-same-origin"></iframe>
                         </div>
                         <div *ngIf="flags.respBodyTab == 'builder'">
@@ -245,8 +250,8 @@
                                 [$request]="runRequest" [$response]="runResponse" [save]="saveBuilderTests.bind(this)"
                                 (close)="testBuilderOpt.show=false">
                             </json-test-builder>
-                            <span class="red margV10" *ngIf="!runResponse.data">Can't use test builder as response is
-                                not a json.</span>
+                            <div class="red margV10" *ngIf="!runResponse.data">Can't use test builder as response is
+                                not a json.</div>
                         </div>
                     </div>
 
