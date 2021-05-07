@@ -80,4 +80,8 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   focus() {
     this.ace.getEditor().focus();
   }
+
+  getEditor() {
+    return this.ace.getEditor();
+  }
 }

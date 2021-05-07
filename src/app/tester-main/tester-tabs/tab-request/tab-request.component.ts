@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngxs/store';
 import { from, Observable, Subject } from 'rxjs';
 import { delayWhen, takeUntil } from 'rxjs/operators';
+import { ApicAceComponent } from 'src/app/components/apic-ace/apic-ace.component';
 import { Segment } from 'src/app/components/json-viewer/json-viewer.component';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
@@ -22,7 +23,7 @@ import { Utils } from 'src/app/services/utils.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import apic from 'src/app/utils/apic';
 import { Beautifier } from 'src/app/utils/Beautifier';
-import { HTTP_HEADERS, HTTP_METHODES, METHOD_WITH_BODY, RAW_BODY_TYPES } from 'src/app/utils/constants';
+import { HTTP_HEADERS, HTTP_METHODES, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS } from 'src/app/utils/constants';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
 import { TesterTabsService } from '../tester-tabs.service';
 
@@ -35,6 +36,7 @@ import { TesterTabsService } from '../tester-tabs.service';
 export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
   @ViewChild('previewFrame') previewFrame: ElementRef;
+  @ViewChild('bodyAce') bodyAce: ApicAceComponent;
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
   private pendingAction: Promise<any> = Promise.resolve(null);
@@ -42,6 +44,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   httpMethods = HTTP_METHODES;
   RAW_BODY_TYPES = RAW_BODY_TYPES;
   HTTP_HEADERS = HTTP_HEADERS;
+  REQ_BODY_SNIPS = REQ_BODY_SNIPS;
   form: FormGroup;
   private _destroy: Subject<boolean> = new Subject<boolean>();
 
@@ -451,6 +454,19 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       this.previewFrame.nativeElement.src = 'data:text/html;charset=utf-8,' + escape(data)
     }, 0);
   }
+
+  prettifyBody() {
+    this.form.controls.body.patchValue({ rawData: Beautifier.json(this.form.value.body.rawData) })
+  }
+
+  addReqBodySnip(code) {
+    let editor = this.bodyAce.getEditor();
+    var cursor = editor.selection.getCursor();
+    editor.session.insert(cursor, code);
+    this.form.controls.body.patchValue({ rawData: editor.getValue() });
+    this.bodyAce.focus();
+  }
+
 
   trackByFn(index, item) {
     return index;

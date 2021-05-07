@@ -94,23 +94,7 @@ function getConstants() {
                 },
             },
             accents: ['#2196f3', '#24BAFF', '#E81123', '#F7630C', '#EA005E', '#FF8C00', '#E3008C', '#9A0089', '#FF4343', '#00CC6A', '#107C10']
-        },
-        reqBodySnippets: [{
-            text: 'Generate random string (length)',
-            code: '"{{apic.randomStr(30)}}"'
-        }, {
-            text: 'Generate random number (min, max, isDecimal)',
-            code: '{{apic.randomNum(1,999)}}'
-        }, {
-            text: 'Generate random email',
-            code: '"{{apic.randomEmail()}}"'
-        }, {
-            text: 'Generate random from a list',
-            code: '"{{apic.randomInList([1, \'foo\', \'bar@xyz.com\', 2.396])}}"'
-        }, {
-            text: 'Generate random from UUID',
-            code: '"{{apic.uuid()}}"'
-        }],
+        }
     };
 }
 
@@ -244,3 +228,20 @@ export const TEST_BUILDER_OPS = {
     is: 'expect(<key>).to.be.a(\'<val>\')',
     isDate: 'expect(<key>).to.be.a.date'
 }
+
+export const REQ_BODY_SNIPS = [{
+    text: 'Generate random string (length)',
+    code: '"{{apic.randomStr(30)}}"'
+}, {
+    text: 'Generate random number (min, max, isDecimal)',
+    code: '{{apic.randomNum(1,999)}}'
+}, {
+    text: 'Generate random email',
+    code: '"{{apic.randomEmail()}}"'
+}, {
+    text: 'Generate random from a list',
+    code: '"{{apic.randomInList([1, \'foo\', \'bar@xyz.com\', 2.396])}}"'
+}, {
+    text: 'Generate random from UUID',
+    code: '"{{apic.uuid()}}"'
+}];

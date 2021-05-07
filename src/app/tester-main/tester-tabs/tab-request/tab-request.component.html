@@ -122,6 +122,16 @@
                             </mat-select>
                             <mat-radio-button value="graphql" (click)="initGQLBody()">Graphql</mat-radio-button>
                         </mat-radio-group>
+                        <div class="xtra-opt" *ngIf="form.value.body.type=='raw'">
+                            <button mat-icon-button class="sm gap" (click)="prettifyBody()">
+                                <mat-icon>code</mat-icon>
+                            </button>
+                            <button mat-button class="sm" [matMenuTriggerFor]="reqSnip">Snippets</button>
+                            <mat-menu #reqSnip="matMenu">
+                                <button mat-menu-item *ngFor="let snip of REQ_BODY_SNIPS"
+                                    (click)="addReqBodySnip(snip.code)">{{snip.text}}</button>
+                            </mat-menu>
+                        </div>
                         <div *ngIf="form.value.body.type==='form-data'">
                             <!--TODO: Add input type file-->
                             <app-key-value-editor formControlName="formData"
@@ -133,7 +143,7 @@
                                 [options]="{addOnFocus:true,allowToggle:true}">
                             </app-key-value-editor>
                         </div>
-                        <apic-ace *ngIf="form.value.body.type=='raw'" formControlName="rawData"
+                        <apic-ace *ngIf="form.value.body.type=='raw'" #bodyAce formControlName="rawData"
                             [mode]="form.value.body.selectedRaw.name.toLowerCase()">
                         </apic-ace>
                         <div *ngIf="form.value.body.type ==='graphql'">
