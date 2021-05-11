@@ -10,6 +10,7 @@ import 'brace/mode/xml';
 import 'brace/mode/javascript';
 import { ThemesService } from './services/themes.service';
 import { RequestsService } from './services/requests.service';
+import { ReqHistoryService } from './services/reqHistory.service';
 
 
 @Component({
@@ -23,6 +24,7 @@ export class AppComponent {
     private envService: EnvService,
     private reqService: RequestsService,
     private themeService: ThemesService,
+    private reqHistoryService: ReqHistoryService,
     private bootstrap: AppBootstrap) {
 
     bootstrap.init();
@@ -30,6 +32,7 @@ export class AppComponent {
     envService.getAllEnvs();
     reqService.getFolders();
     reqService.getRequests();
+    reqHistoryService.getAll();
     this.themeService.applyCurrentTheme();
   }
 }

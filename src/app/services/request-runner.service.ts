@@ -118,9 +118,7 @@ export class RequestRunnerService {
       //   _this.defer.resolve(_this.req);
       // }
 
-      resolve({ req: $request, resp: $response })
-
-
+      resolve({ $request, $response })
     }
   }
 

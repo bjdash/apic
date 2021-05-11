@@ -1,7 +1,7 @@
 import { UserState } from './state/user.state';
 import { EnvState } from './state/envs.state';
 import { EnvService } from './services/env.service';
-import { NewApiProjectModal } from './designer/newApiProject/newApiProject.modal.component';
+import { NewApiProjectModal } from './components/designer/newApiProject/newApiProject.modal.component';
 import { AuthInterceptor } from './utils/AuthInterceptor';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -31,19 +31,19 @@ import { MatBadgeModule } from '@angular/material/badge';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './header/header.component';
-import { DesignerComponent } from './designer/designer.component';
-import { DocsComponent } from './docs/docs.component';
+import { HeaderComponent } from './components/header/header.component';
+import { DesignerComponent } from './components/designer/designer.component';
+import { DocsComponent } from './components/docs/docs.component';
 import { ApiProjectState } from './state/apiProjects.state';
 import { ApiProjectService } from './services/apiProject.service';
 import { Toaster } from './services/toaster.service';
 import { FormValidatorDirective } from './directives/form-validator.directive';
-import { ApiProjectDetailComponent } from './api-project-detail/api-project-detail.component';
-import { ProjectHomeComponent } from './api-project-detail/project-home/project-home.component';
-import { ProjectFolderComponent } from './api-project-detail/project-folder/project-folder.component';
-import { ProjectTraitsComponent } from './api-project-detail/project-traits/project-traits.component';
-import { ProjectEndpointComponent } from './api-project-detail/project-endpoint/project-endpoint.component';
-import { ProjectModelsComponent } from './api-project-detail/project-models/project-models.component';
+import { ApiProjectDetailComponent } from './components/designer/api-project-detail/api-project-detail.component';
+import { ProjectHomeComponent } from './components/designer/api-project-detail/project-home/project-home.component';
+import { ProjectFolderComponent } from './components/designer/api-project-detail/project-folder/project-folder.component';
+import { ProjectTraitsComponent } from './components/designer/api-project-detail/project-traits/project-traits.component';
+import { ProjectEndpointComponent } from './components/designer/api-project-detail/project-endpoint/project-endpoint.component';
+import { ProjectModelsComponent } from './components/designer/api-project-detail/project-models/project-models.component';
 import {
   ConfirmDirective,
   ConfirmDirectiveComponent,
@@ -51,57 +51,59 @@ import {
 } from './directives/confirm.directive';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { AppBootstrap } from './utils/appBootstrap';
-import { ApicTagEditorComponent } from './components/apic-tag-editor/apic-tag-editor.component';
+import { ApicTagEditorComponent } from './components/common/apic-tag-editor/apic-tag-editor.component';
 import { Utils } from './services/utils.service';
-import { ResponseBuilderItem } from './components/response-schema-builder/response-builder-item.component';
-import { ResponseSchemaBuilderComponent } from './components/response-schema-builder/response-schema-builder.component';
-import { EnvsComponent } from './envs/envs.component';
+import { ResponseBuilderItem } from './components/common/response-schema-builder/response-builder-item.component';
+import { ResponseSchemaBuilderComponent } from './components/common/response-schema-builder/response-schema-builder.component';
+import { EnvsComponent } from './components/envs/envs.component';
 import { OnlyAlphaNumericInputDirective } from './directives/only-alpha-numeric-input.directive';
 import { FileSystem } from './services/fileSystem.service';
-import { ImportProjectComponent } from './designer/import-project/import-project.component';
+import { ImportProjectComponent } from './components/designer/import-project/import-project.component';
 import { SwaggerService } from './services/swagger.service';
-import { ProjectExportModalComponent } from './api-project-detail/project-export-modal/project-export-modal.component';
-import { LoginComponent } from './login/login.component';
+import { ProjectExportModalComponent } from './components/designer/api-project-detail/project-export-modal/project-export-modal.component';
+import { LoginComponent } from './components/login/login.component';
 import { HttpService } from './services/http.service';
 import { StompService } from './services/stomp.service';
 import { SyncService } from './services/sync.service';
-import { OfflineComponent } from './components/offline/offline.component';
-import { SettingsComponent } from './settings/settings.component';
-import { ThemesComponent } from './settings/themes/themes.component';
-import { WebClientComponent } from './settings/web-client/web-client.component';
-import { SecurityDefComponent } from './api-project-detail/project-home/security-def/security-def.component';
+import { OfflineComponent } from './components/common/offline/offline.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { ThemesComponent } from './components/settings/themes/themes.component';
+import { WebClientComponent } from './components/settings/web-client/web-client.component';
+import { SecurityDefComponent } from './components/designer/api-project-detail/project-home/security-def/security-def.component';
 import { environment } from 'src/environments/environment';
-import { KeyValueEditorComponent } from './components/key-value-editor/key-value-editor.component';
-import { ProjSettingsComponent } from './api-project-detail/project-home/proj-settings/proj-settings.component';
-import { JsonSchemaComponent } from './components/json-schema-builder/jsonschema.component';
-import { MainJsonSchemaComponent } from './components/json-schema-builder/main/main.component';
-import { SelectSchemaJsonSchemaComponent } from './components/json-schema-builder/field/selectschema.component';
-import { FieldJsonSchemaComponent } from './components/json-schema-builder/field/field.component';
-import { JsonSchemaStateService } from './components/json-schema-builder/schemaState.service';
-import { EndpBodyParamsComponent } from './api-project-detail/project-endpoint/endp-body-params/endp-body-params.component';
-import { ApicAceComponent } from './components/apic-ace/apic-ace.component';
+import { KeyValueEditorComponent } from './components/common/key-value-editor/key-value-editor.component';
+import { ProjSettingsComponent } from './components/designer/api-project-detail/project-home/proj-settings/proj-settings.component';
+import { JsonSchemaComponent } from './components/common/json-schema-builder/jsonschema.component';
+import { MainJsonSchemaComponent } from './components/common/json-schema-builder/main/main.component';
+import { SelectSchemaJsonSchemaComponent } from './components/common/json-schema-builder/field/selectschema.component';
+import { FieldJsonSchemaComponent } from './components/common/json-schema-builder/field/field.component';
+import { JsonSchemaStateService } from './components/common/json-schema-builder/schemaState.service';
+import { EndpBodyParamsComponent } from './components/designer/api-project-detail/project-endpoint/endp-body-params/endp-body-params.component';
+import { ApicAceComponent } from './components/common/apic-ace/apic-ace.component';
 import { AceResizeDirective } from './directives/ace-resize.directive';
-import { PrePostRunScriptComponent } from './components/pre-post-run-script/pre-post-run-script.component';
-import { TesterMainComponent } from './tester-main/tester-main.component';
-import { TesterNavComponent } from './tester-main/tester-nav/tester-nav.component';
-import { NavRequestsComponent } from './tester-main/tester-nav/nav-requests/nav-requests.component';
+import { PrePostRunScriptComponent } from './components/common/pre-post-run-script/pre-post-run-script.component';
+import { TesterMainComponent } from './components/tester/tester-main.component';
+import { TesterLeftNavComponent } from './components/tester/tester-left-nav/tester-left-nav.component';
+import { TesterLeftNavRequestsComponent } from './components/tester/tester-left-nav/tester-left-nav-requests/tester-left-nav-requests.component';
 import { RequestsState } from './state/requests.state';
-import { TreeSelectorComponent } from './components/tree-selector/tree-selector.component';
-import { TesterTabsComponent } from './tester-main/tester-tabs/tester-tabs.component';
-import { TabRequestComponent } from './tester-main/tester-tabs/tab-request/tab-request.component';
-import { TabSocketComponent } from './tester-main/tester-tabs/tab-socket/tab-socket.component';
-import { ApicRichInputComponent } from './components/apic-rich-input/apic-rich-input.component';
-import { BasicAuthComponent } from './tester-main/tester-tabs/tab-request/basic-auth/basic-auth.component';
+import { TreeSelectorComponent } from './components/common/tree-selector/tree-selector.component';
+import { TesterTabsComponent } from './components/tester/tester-tabs/tester-tabs.component';
+import { TabRequestComponent } from './components/tester/tester-tabs/tab-request/tab-request.component';
+import { TabSocketComponent } from './components/tester/tester-tabs/tab-socket/tab-socket.component';
+import { ApicRichInputComponent } from './components/common/apic-rich-input/apic-rich-input.component';
+import { BasicAuthComponent } from './components/tester/tester-tabs/tab-request/basic-auth/basic-auth.component';
 import { RememberService } from './services/remember.service';
 import { RouteReuseStrategy } from '@angular/router';
 import { ApicRouteReuseStrategy } from './ApicRouteReuseStrategy';
-import { SaveReqDialogComponent } from './tester-main/save-req-dialog/save-req-dialog.component';
-import { TesterTabsService } from './tester-main/tester-tabs/tester-tabs.service';
+import { SaveReqDialogComponent } from './components/tester/save-req-dialog/save-req-dialog.component';
+import { TesterTabsService } from './components/tester/tester-tabs/tester-tabs.service';
 import { TesterService } from './services/tester.service';
-import { RespTabTestsComponent } from './tester-main/tester-tabs/resp-tab-tests/resp-tab-tests.component';
-import { BearerAuthComponent } from './tester-main/tester-tabs/tab-request/bearer-auth/bearer-auth.component';
-import { JsonViewerComponent } from './components/json-viewer/json-viewer.component';
-import { JsonTestBuilderComponent } from './components/json-test-builder/json-test-builder.component';
+import { RespTabTestsComponent } from './components/tester/tester-tabs/tab-request/resp-tab-tests/resp-tab-tests.component';
+import { BearerAuthComponent } from './components/tester/tester-tabs/tab-request/bearer-auth/bearer-auth.component';
+import { JsonViewerComponent } from './components/common/json-viewer/json-viewer.component';
+import { JsonTestBuilderComponent } from './components/common/json-test-builder/json-test-builder.component';
+import { ReqHistoryService } from './services/reqHistory.service';
+import { ReqHistoryState } from './state/history.state';
 
 @NgModule({
   declarations: [
@@ -143,8 +145,8 @@ import { JsonTestBuilderComponent } from './components/json-test-builder/json-te
     AceResizeDirective,
     PrePostRunScriptComponent,
     TesterMainComponent,
-    TesterNavComponent,
-    NavRequestsComponent,
+    TesterLeftNavComponent,
+    TesterLeftNavRequestsComponent,
     TreeSelectorComponent,
     TesterTabsComponent,
     TabRequestComponent,
@@ -163,7 +165,7 @@ import { JsonTestBuilderComponent } from './components/json-test-builder/json-te
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxsModule.forRoot([ApiProjectState, EnvState, UserState, RequestsState], {
+    NgxsModule.forRoot([ApiProjectState, EnvState, UserState, RequestsState, ReqHistoryState], {
       developmentMode: !environment.production,
       selectorOptions: {
         suppressErrors: false,
@@ -208,7 +210,8 @@ import { JsonTestBuilderComponent } from './components/json-test-builder/json-te
     SyncService,
     RememberService,
     TesterTabsService,
-    TesterService
+    TesterService,
+    ReqHistoryService
   ],
   bootstrap: [AppComponent],
 })

@@ -245,3 +245,5 @@ export const REQ_BODY_SNIPS = [{
     text: 'Generate random from UUID',
     code: '"{{apic.uuid()}}"'
 }];
+
+export const MONTHS = ['January', 'February', 'Mararch', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

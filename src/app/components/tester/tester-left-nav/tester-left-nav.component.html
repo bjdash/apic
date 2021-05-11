@@ -1,0 +1,27 @@
+<div class="left-nav">
+    <mat-tab-group animationDuration="0ms" selectedIndex="1">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="gap">history</mat-icon>
+                History
+            </ng-template>
+            <div class="">History</div>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="gap">code</mat-icon>
+                Requests
+            </ng-template>
+            <div class="">
+                <app-tester-left-nav-requests></app-tester-left-nav-requests>
+            </div>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span class="icon bj-lab gap"></span>
+                Tests
+            </ng-template>
+            <div class="">Tests</div>
+        </mat-tab>
+    </mat-tab-group>
+</div>

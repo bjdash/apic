@@ -1,7 +1,7 @@
 import { Toaster } from './toaster.service';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
-import { Const } from '../utils/constants';
+import { Const, MONTHS } from '../utils/constants';
 import { KeyVal } from '../models/KeyVal.model';
 
 
@@ -118,6 +118,12 @@ export class Utils {
         }).filter(p => p != undefined);
 
         return paramsList.length > 0 ? paramsList.join('&') : null;
+    }
+
+    static formatDate(ts: number) {
+        var date = new Date(ts);
+        var formatedDate = MONTHS[date.getMonth()] + ' ' + date.getDate() + ' ' + date.getFullYear();
+        return formatedDate;
     }
 
     //TODO: remove this, not used
