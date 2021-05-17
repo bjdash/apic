@@ -12,15 +12,15 @@ import { EnvService } from '../services/env.service';
 import LocalStore from '../services/localStore';
 import { AuthService } from '../services/auth.service';
 import { RequestsService } from '../services/requests.service';
+import { environment } from 'src/environments/environment';
+import { MigrationService } from '../services/migration.service';
 
 @Injectable()
 export class AppBootstrap {
     // static httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
 
     constructor(private httpClient: HttpClient,
-        private apiProjectService: ApiProjectService,
-        private envService: EnvService,
-        private reqService: RequestsService,
+        private migrationService: MigrationService,
         private authService: AuthService) {
 
     }
@@ -28,28 +28,26 @@ export class AppBootstrap {
     async init() {
         //Init window.APP
         window['APP'] = {
-            VERSION: '2.0.0',
-            PLATFORM: 'WEB',
+            VERSION: environment.VERSION,
+            PLATFORM: environment.PLATFORM,
             IS_ELECTRON: Utils.isElectron(),
             TYPE: Utils.getAppType()
         };
-
-        //add addHeader function to XMLHttpRequest prototype
-        Utils.initXMLHttpRequest();
+        const newVersion = environment.VERSION, oldVersion = LocalStore.get(LocalStore.VERSION);
 
         //check if the dummy user is registered, otherwise add a dummy user.
-        await this.addDummyUser();
+        this.addDummyUser();
 
         //check if the user is logged in
-        await this.initLoggedinUser();
+        this.initLoggedinUser();
 
         //do firstRun
-        this.doFirstRun()
+        await this.doFirstRunIfRequired();
+
+        this.migrationService.migrate(newVersion, oldVersion);
 
         //check if APIC was updated, and show notification
         this.checkUpdate();
-
-        //puts test code snippets in rootScope
     }
 
     private async addDummyUser() {
@@ -74,7 +72,7 @@ export class AppBootstrap {
         }
     }
 
-    private async initLoggedinUser() {
+    private initLoggedinUser() {
         this.authService.initLoggedinUser();
         // const data = LocalStore.getMany([LocalStore.UID, LocalStore.AUTH_TOKEN]);
         // if (data?.UID && data?.authToken) { //user is logged in
@@ -115,7 +113,7 @@ export class AppBootstrap {
         // }
     }
 
-    private async doFirstRun() {
+    private async doFirstRunIfRequired() {
         //detect for first run of APIC
         const firstRun = LocalStore.get(LocalStore.FIRST_RUN);
 
@@ -136,33 +134,17 @@ export class AppBootstrap {
             // promises.push(pr4);
             promises.push(pr5);
             promises.push(pr6);
-            Promise.all(promises).then(() => {
-                //TODO: 
-                //add the demo environment in rootScope
-                // if (!$rootScope.ENVS) {
-                //     $rootScope.ENVS = [];
-                // }
-                // $rootScope.ENVS.push(DemoData.demoEnv);
-                //mark first run complete
-                LocalStore.set(LocalStore.FIRST_RUN, true);
-                this.apiProjectService.getApiProjs();
-                this.envService.getAllEnvs();
-                this.reqService.getFolders();
-                this.reqService.getRequests();
-                //TODO: do get all for others
-            });
+
+            await Promise.all(promises);
+            //mark first run complete
+            LocalStore.set(LocalStore.FIRST_RUN, true);
+
         }
     }
 
     private checkUpdate() {
+        //TODO:
 
-        const version = LocalStore.get(LocalStore.VERSION);
-        if (version) {
-            if (Utils.isNewVersion(window['APP'].VERSION, version)) {
-                Utils.notify('APIC Updated', 'Apic has been updated to a new version (' + window['APP'].VERSION + ').', 'https://apic.app/changelog.html');
-            }
-        }
-        LocalStore.set(LocalStore.VERSION, window['APP'].VERSION);
     }
 }
 

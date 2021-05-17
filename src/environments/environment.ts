@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  host: 'http://localhost:8080/'
+  host: 'http://localhost:8080/',
+  VERSION: '3.0.0',
+  PLATFORM: 'WEB',
   // host: 'https://apic.app/'
 };
 

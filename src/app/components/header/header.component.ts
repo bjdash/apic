@@ -12,6 +12,7 @@ import { LoginComponent } from './../login/login.component';
 import { User } from '../../models/User.model';
 import { ApicRxStompState, StompService } from '../../services/stomp.service';
 import { SettingsComponent } from '../settings/settings.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'apic-header',
@@ -23,6 +24,7 @@ export class HeaderComponent implements OnInit {
   @Select(EnvState.getSelected) selectedEnv$: Observable<ParsedEnv>;
   @Select(UserState.getAuthUser) loggedInUser$: Observable<User>;
 
+  version = environment.VERSION;
 
   constructor(private store: Store,
     private dialog: MatDialog,

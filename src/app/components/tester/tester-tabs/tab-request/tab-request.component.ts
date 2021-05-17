@@ -8,6 +8,7 @@ import { ApicAceComponent } from 'src/app/components/common/apic-ace/apic-ace.co
 import { Segment } from 'src/app/components/common/json-viewer/json-viewer.component';
 import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { HistoryRequest } from 'src/app/models/ReqHistory.model';
 import { ApiRequest, SavedResp } from 'src/app/models/Request.model';
 import { RunResponse } from 'src/app/models/RunResponse.model';
 import { RunResult } from 'src/app/models/RunResult.model';
@@ -23,6 +24,7 @@ import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import apic from 'src/app/utils/apic';
 import { Beautifier } from 'src/app/utils/Beautifier';
 import { HTTP_HEADERS, HTTP_METHODES, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS } from 'src/app/utils/constants';
+import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
 import { TesterTabsService } from '../tester-tabs.service';
 
@@ -34,6 +36,8 @@ import { TesterTabsService } from '../tester-tabs.service';
 })
 export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
+  @Input() initialData: ApiRequest;
+
   @ViewChild('previewFrame') previewFrame: ElementRef;
   @ViewChild('bodyAce') bodyAce: ApicAceComponent;
   selectedReq: ApiRequest;
@@ -129,6 +133,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     if (!this.requestId.includes('new_tab')) {
       this.listenForUpdate()
+    }
+    if (this.initialData) {
+      this.processSelectedReq(this.initialData)
     }
   }
 
@@ -328,12 +335,12 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async doSingleRun() {
-    try{
+    try {
       this.applyRunStatus(true);
       const req: ApiRequest = this.getReqFromForm();
       let result: RunResult = await this.runner.run(req);
       console.log(result);
-      this.runResponse = result.$response;
+      this.runResponse = { ...result.$response };
       this.runRequest = result.$request;
       this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
       this.flags.respHeadersCount = Utils.objectKeys(this.runResponse.headers).length;
@@ -341,16 +348,17 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       if (this.flags.respBodyTab == 'preview' && this.flags.respTab == 'Body') {
         this.setPreviewFrame(this.runResponse.body);
       }
-      this.addToHistory(req);
-    }catch(e){
+      this.addToHistory(req, result.$response);
+    } catch (e) {
       this.toastr.error(`Failed to run request ${e.message}`)
       console.error(e);
-      
+
     }
   }
 
-  addToHistory(request: ApiRequest) {
-    this.historyServ.add([{ ...request }])
+  addToHistory(request: ApiRequest, response: RunResponse) {
+    let history: HistoryRequest = { ...request, savedResp: [RequestUtils.formatResponseForSave(response)] }
+    this.historyServ.add([history])
   }
 
   startLoopRun() {
@@ -393,19 +401,11 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async saveResponse() {
-    console.log(this.runResponse);
     if (this.requestId.includes('new_tab')) {
       this.toastr.error('Please save the request first.');
       return;
     }
-    let savedResp: SavedResp = {
-      data: this.runResponse.body,
-      headers: this.runResponse.headers,
-      size: this.runResponse.respSize,
-      status: this.runResponse.status,
-      statusText: this.runResponse.statusText,
-      time: this.runResponse.timeTaken
-    }
+    let savedResp: SavedResp = RequestUtils.formatResponseForSave(this.runResponse);
     let updatedReq: ApiRequest = { ...this.selectedReq, savedResp: [savedResp] };
     await this.updateRequest(updatedReq);
   }

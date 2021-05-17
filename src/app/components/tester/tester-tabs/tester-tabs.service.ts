@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Toaster } from 'src/app/services/toaster.service';
 import apic from 'src/app/utils/apic';
 
 export interface TesterTab {
@@ -8,7 +9,8 @@ export interface TesterTab {
   originalId?: string,
   newId?: string,
   type?: 'req' | 'socket' | 'ws' | 'suite',
-  name: string
+  name: string,
+  data?: any
 }
 
 @Injectable({
@@ -17,14 +19,16 @@ export interface TesterTab {
 export class TesterTabsService {
   tabsChange = new BehaviorSubject<TesterTab>(null);
   selectedTabChange = new BehaviorSubject<string>(null);
-  constructor() { }
+  constructor(private toaster: Toaster) { }
 
   addReqTab(id: string, name: string) {
     this.tabsChange.next({ action: 'add', id, type: 'req', name });
   }
 
   addTab(tab: TesterTab) {
-    tab.id = 'new_tab:' + apic.s8()
+    if (!tab?.id) {
+      this.toaster.error('Failed to open tab. Missing tab id.')
+    }
     this.tabsChange.next(tab);
   }
 

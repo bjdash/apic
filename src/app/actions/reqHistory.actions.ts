@@ -13,5 +13,10 @@ export namespace ReqHistoryAction {
         static readonly type = '[ReqHistory] delete';
         constructor(public payload: string[]) { };
     }
+
+    export class Clear {
+        static readonly type = '[ReqHistory] clear';
+        constructor() { };
+    }
 }
 

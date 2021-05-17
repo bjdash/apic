@@ -1,0 +1,50 @@
+<div class="tab-content">
+    <div class="ctrls">
+        <button mat-icon-button class="red" matTooltip="Clear all" confirm="Do you want to clear all history?"
+            confirmTitle="Delete Confirmation" confirmOk="Delete" (confirm-click)="clearAllHistory()"
+            matTooltipPosition="left">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button class="t_color" (click)="importHistory()" matTooltip="Import" matTooltipPosition="left">
+            <mat-icon>south_west</mat-icon>
+        </button>
+        <button mat-icon-button class="t_color" (click)="exportHistory()" matTooltip="Export" matTooltipPosition="left">
+            <mat-icon>north_east</mat-icon>
+        </button>
+        <button mat-icon-button class="t_color" matTooltip="Search" matTooltipPosition="left" (click)="showSearch()">
+            <mat-icon>search</mat-icon>
+        </button>
+    </div>
+
+    <div class="input-group search-box req-search" [ngClass]="{'visible':flags.showSearch}">
+        <input type="search" placeholder="Search history" id="history-search" class="form-control sm"
+            [(ngModel)]="flags.searchModel"
+            ng-change="vm.filteredHistory = (vm.historyUrls | objFilterOfArray:vm.search:'url')">
+        <button mat-icon-button class="red sm" (click)="flags.showSearch = false;flags.searchModel=''">
+            <mat-icon>highlight_off</mat-icon>
+        </button>
+    </div>
+
+    <div>
+        <div *ngFor="let item of groupedHistory$| async | keyvalue:historyDateSort">
+            <div class="h-date t_color">{{item.key.substring(0, item.key.length - 5)}}</div>
+            <div *ngFor="let entry of item.value" (click)="openRequest(entry)">
+                <div *ngIf="entry.url.includes(flags.searchModel)" class="h-item vcenter">
+                    <div class="h-icon" [ngClass]="entry.method">{{entry.method}}</div>
+                    <div class="h-url">{{entry.url}}</div>
+                    <div class="h-action">
+                        <button mat-icon-button class="xs" (click)="copyUrl(entry.url);$event.stopPropagation()">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                        <button mat-icon-button class="xs red"
+                            (click)="deleteHistory(entry._id);$event.stopPropagation()">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="item.value?.length===0" class="margV10">Nothing for this day</div>
+        </div>
+    </div>
+</div>
+<!-- {{groupedHistory$|async|json}} -->

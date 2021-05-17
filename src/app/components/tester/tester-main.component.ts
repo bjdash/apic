@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import apic from 'src/app/utils/apic';
 import { TesterTabsService } from './tester-tabs/tester-tabs.service';
 
 @Component({
@@ -12,7 +13,7 @@ export class TesterMainComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.tabsService.addTab({ action: 'add', id: null, name: 'New tab', type: 'req' })
+      this.tabsService.addTab({ action: 'add', id: 'new_tab:' + apic.s8(), name: 'New tab', type: 'req' })
     }, 0);
   }
 }

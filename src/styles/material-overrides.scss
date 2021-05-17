@@ -119,9 +119,10 @@ button.xs {
   }
 }
 .mat-icon-button.xs {
-  width: 18px;
-  height: 18px;
-  line-height: 17px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  padding: 1px;
   .material-icons {
     font-size: 15px;
     line-height: 17px;
@@ -173,6 +174,9 @@ div.mat-menu-item {
   line-height: 36px;
   height: 36px;
   color: var(--text-color);
+}
+a.mat-menu-item:hover {
+  text-decoration: none;
 }
 .mat-select-panel {
   .mat-optgroup-label {

@@ -9,7 +9,7 @@ export class ReqHistoryStateModel {
 }
 
 @State<ReqHistoryStateModel>({
-    name: 'ReqHistory',
+    name: 'History',
     defaults: {
         history: []
     }
@@ -22,15 +22,15 @@ export class ReqHistoryState {
     }
 
     @Selector([ReqHistoryState.getAll])
-    static getFormatted(state: ReqHistoryStateModel) {
-        var datedHistory = {};
-        state.history.forEach(entry => {
+    static getFormatted(history: HistoryRequest[]): { [key: string]: HistoryRequest[] } {
+        var datedHistory: { [key: string]: HistoryRequest[] } = {};
+        history.forEach(entry => {
             var date = Utils.formatDate(entry._time);
-            if (datedHistory[date]) {
-                datedHistory[date].push(entry);
-            } else {
-                datedHistory[date] = [entry];
-            }
+            if (!datedHistory[date]) datedHistory[date] = [];
+            datedHistory[date].push(entry);
+        })
+        Utils.objectEntries(datedHistory).forEach(([key, val]) => {
+            datedHistory[key] = val.sort((a, b) => b._time - a._time)
         })
         return datedHistory;
     }
@@ -55,6 +55,13 @@ export class ReqHistoryState {
         const history = getState().history;
         patchState({
             history: history.filter(p => !payload.includes(p._id))
+        })
+    }
+
+    @Action(ReqHistoryAction.Clear)
+    clear({ patchState, getState }: StateContext<ReqHistoryStateModel>) {
+        patchState({
+            history: []
         })
     }
 }

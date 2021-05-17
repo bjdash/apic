@@ -104,6 +104,8 @@ import { JsonViewerComponent } from './components/common/json-viewer/json-viewer
 import { JsonTestBuilderComponent } from './components/common/json-test-builder/json-test-builder.component';
 import { ReqHistoryService } from './services/reqHistory.service';
 import { ReqHistoryState } from './state/history.state';
+import { MigrationService } from './services/migration.service';
+import { TesterLeftNavHistoryComponent } from './components/tester/tester-left-nav/tester-left-nav-history/tester-left-nav-history.component';
 
 @NgModule({
   declarations: [
@@ -157,7 +159,8 @@ import { ReqHistoryState } from './state/history.state';
     RespTabTestsComponent,
     BearerAuthComponent,
     JsonViewerComponent,
-    JsonTestBuilderComponent
+    JsonTestBuilderComponent,
+    TesterLeftNavHistoryComponent
   ],
   imports: [
     BrowserModule,
@@ -197,6 +200,7 @@ import { ReqHistoryState } from './state/history.state';
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { ...new MatDialogConfig(), position: { top: '50px' } } },
     AppBootstrap,
+    MigrationService,
     ApiProjectService,
     JsonSchemaStateService,
     EnvService,

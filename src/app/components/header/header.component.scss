@@ -56,7 +56,7 @@
     margin-top: 10px;
     margin-right: 10px;
 }
-.bj-github{
+.bj-github {
     font-size: 20px;
     vertical-align: middle;
     margin-right: 14px;
@@ -117,6 +117,9 @@
     .initial {
         font-size: 18px;
     }
+}
+.mat-menu-item {
+    text-decoration: none;
 }
 .greet {
     color: var(--accent-color);

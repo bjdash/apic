@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import LocalStore from 'src/app/services/localStore';
 
 @Component({
   selector: 'app-tester-left-nav',
@@ -6,10 +7,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./tester-left-nav.component.css']
 })
 export class TesterLeftNavComponent implements OnInit {
-
-  constructor() { }
+  selectedTab = 1;
+  constructor() {
+    let lasttab = LocalStore.get(LocalStore.TESTER_LEFT_NAV_TAB);
+    if (lasttab) this.selectedTab = parseInt(lasttab);
+  }
 
   ngOnInit(): void {
+  }
+
+  saveSelectedTab(index) {
+    LocalStore.set(LocalStore.TESTER_LEFT_NAV_TAB, index);
   }
 
 }

@@ -15,6 +15,7 @@ export default class LocalStore {
     static REQ_TAB = 'reqTab';
     static RESP_TAB = 'respTab';
     static RESP_BODY_TAB = 'respBodyTab';
+    static TESTER_LEFT_NAV_TAB = 'leftTab';
 
     //return object for list of keys, direct value for single key
     static get(key: string): string {

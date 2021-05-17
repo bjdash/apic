@@ -27,12 +27,16 @@ export class AppComponent {
     private reqHistoryService: ReqHistoryService,
     private bootstrap: AppBootstrap) {
 
-    bootstrap.init();
-    apiProjectService.getApiProjs();
-    envService.getAllEnvs();
-    reqService.getFolders();
-    reqService.getRequests();
-    reqHistoryService.getAll();
+    this.init();
+  }
+
+  async init() {
+    await this.bootstrap.init();
+    this.apiProjectService.getApiProjs();
+    this.envService.getAllEnvs();
+    this.reqService.getFolders();
+    this.reqService.getRequests();
+    this.reqHistoryService.refresh();
     this.themeService.applyCurrentTheme();
   }
 }

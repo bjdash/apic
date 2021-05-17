@@ -23,30 +23,6 @@ export class Utils {
         this.toaster.success('Copied');
     }
 
-    static initXMLHttpRequest() {
-        //TODO:
-        // XMLHttpRequest.prototype.addHeadersFromObj = function (headers) {
-        //     var _this = this;
-
-        //     for (var key in headers) {
-        //         if (key && headers.hasOwnProperty(key)) {
-        //             var val = headers[key];
-        //             var header = key.toUpperCase();
-        //             if (Const.restrictedHeaders.indexOf(header) > -1) {
-        //                 header = 'APIC-' + header;
-        //             }
-        //             try {
-        //                 _this.setRequestHeader(header, val);
-        //             } catch (e) {
-        //                 var m = e.message;
-        //                 console.warn(m.slice(m.indexOf(':') + 1).trim());
-        //             }
-        //         }
-        //     }
-        //     return _this;
-        // };
-    }
-
     static arrayToObj<T>(array: T[], key: string): { [key: string]: T } {
         return array.reduce((obj, item: T) => Object.assign(obj, { [item[key]]: item }), {});
     }
@@ -120,7 +96,7 @@ export class Utils {
         return paramsList.length > 0 ? paramsList.join('&') : null;
     }
 
-    static formatDate(ts: number) {
+    static formatDate(ts: number): string {
         var date = new Date(ts);
         var formatedDate = MONTHS[date.getMonth()] + ' ' + date.getDate() + ' ' + date.getFullYear();
         return formatedDate;
@@ -233,25 +209,6 @@ export class Utils {
         } else {
             return 'WEB';
         }
-    }
-
-    static isNewVersion(newVersion, oldVersion) {
-        var newVParts = newVersion.split("."),
-            oldVParts = oldVersion.split(".");
-
-        if (parseInt(newVParts[0]) > parseInt(oldVParts[0])) {
-            return true;
-        } else if (parseInt(newVParts[0]) === parseInt(oldVParts[0])) {
-            if (parseInt(newVParts[1]) > parseInt(oldVParts[1])) {
-                return true;
-            } else if (parseInt(newVParts[1]) === parseInt(oldVParts[1])) {
-                if (parseInt(newVParts[2]) > parseInt(oldVParts[2])) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     static notify(title, content, link, image?) {
