@@ -106,6 +106,7 @@ import { ReqHistoryService } from './services/reqHistory.service';
 import { ReqHistoryState } from './state/history.state';
 import { MigrationService } from './services/migration.service';
 import { TesterLeftNavHistoryComponent } from './components/tester/tester-left-nav/tester-left-nav-history/tester-left-nav-history.component';
+import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
 
 @NgModule({
   declarations: [
@@ -195,6 +196,8 @@ import { TesterLeftNavHistoryComponent } from './components/tester/tester-left-n
     MatAutocompleteModule,
     MatBadgeModule,
     ScrollingModule,
+    RecaptchaModule,
+    RecaptchaFormsModule, // if you need forms support
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

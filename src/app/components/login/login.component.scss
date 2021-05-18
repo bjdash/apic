@@ -21,11 +21,9 @@
         width: 500px;
 
         div {
-            background: var(--border-color);
             border-radius: 15px;
             padding: 1px 15px;
             cursor: pointer;
-            opacity: 0.7;
             transition: all 0.5s;
         }
         div:hover {
@@ -36,18 +34,19 @@
             opacity: 1;
             background: var(--accent-color);
             font-size: 20px;
+            color: var(--accent-bg-text);
         }
     }
     .login-cont {
         box-shadow: 0 1px 11px rgb(0 0 0 / 27%);
-        border-radius: 2px;
+        border-radius: 5px;
         padding: 25px;
         width: 500px;
         display: inline-block;
         position: relative;
         background: var(--header-bg);
         padding-bottom: 60px;
-        // transition: left 0.7s;
+        border: 1px solid var(--border-color);
     }
     .form-horizontal .row {
         margin-bottom: 20px;
@@ -58,7 +57,7 @@
         bottom: 10px;
     }
     .msg {
-        font-size: 18px;
+        font-size: 14px;
         text-align: center;
         margin-bottom: 15px;
     }

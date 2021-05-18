@@ -1,7 +1,7 @@
 <div class="proj-banner">
     <h4 class="t_color head proj-head">{{selectedPROJ.title}}</h4>
     <div class="pull-right">
-        <span class="btn-group gap">
+        <span class="btn-group stroked gap">
             <button mat-stroked-button class="sm">
                 <i class="icon bj-cloud-upload gap"></i>
                 Enable mocked response
@@ -10,7 +10,7 @@
                 <mat-icon>help</mat-icon>
             </a>
         </span>
-        <span class="btn-group gap">
+        <span class="btn-group stroked gap">
             <button mat-stroked-button class="sm">
                 <i class="icon bj-cloud-upload gap"></i>
                 Publish Docs
@@ -85,13 +85,13 @@
 
 <div class="content">
     <div class="content paper">
-        <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms">
+        <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" class="sm">
             <!----Settings tab------>
             <mat-tab>
                 <ng-template mat-tab-label>
                     <div class="vcenter">
                         <span>Settings</span>
-                        <mat-icon class="tab-badge" matTooltip="modified" *ngIf="flags.settingsChanged">circle
+                        <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.settingsChanged">circle
                         </mat-icon>
                     </div>
                 </ng-template>
@@ -105,7 +105,7 @@
                 <ng-template mat-tab-label>
                     <div class="vcenter">
                         <span>Security</span>
-                        <mat-icon class="tab-badge" matTooltip="modified" *ngIf="flags.secDefChanged">circle
+                        <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.secDefChanged">circle
                         </mat-icon>
                     </div>
                 </ng-template>

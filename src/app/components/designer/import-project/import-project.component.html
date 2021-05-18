@@ -1,6 +1,6 @@
 <h2 mat-dialog-title class="modal-title">Import Project</h2>
-<mat-dialog-content>
-    <form [formGroup]="form" class="form-horizontal" name="import-project" (ngSubmit)="onSubmit()">
+<form [formGroup]="form" class="form-horizontal" name="import-project" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
         <div class="row vcenter">
             <label class="control-label col-sm-3">Import from:</label>
             <div class="col-sm-8">
@@ -27,10 +27,10 @@
         </div>
         <div class="row" *ngIf="form.value.type==='text'">
             <label class="col-sm-12">Enter Text:</label>
-            <div class="btn-group" role="group">
-                <button type="button" mat-button [ngClass]="flags.impType == 'yaml'?'t_bg':''" class="xs"
+            <div class="btn-group toggle-group" role="group">
+                <button type="button" mat-button [ngClass]="flags.impType == 'yaml'?'t_bg t_border':''" class="xs"
                     (click)="flags.impType='yaml'">YAML</button>
-                <button type="button" mat-button [ngClass]="flags.impType == 'json'?'t_bg':''" class="xs"
+                <button type="button" mat-button [ngClass]="flags.impType == 'json'?'t_bg t_border':''" class="xs"
                     (click)="flags.impType='json'">JSON</button>
             </div>
             <div class="col-sm-12">
@@ -38,10 +38,14 @@
                 </apic-ace>
             </div>
         </div>
+
+
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
         <div class="vcenter">
-            <div>You can import swagger specs or APIC exported projects.</div>
+            <div class="gap">You can import swagger specs or APIC exported projects.</div>
             <button mat-raised-button color="primary" class="left-auto sm gap">Import</button>
             <button mat-button type="button" class="sm" mat-dialog-close>Cancel</button>
         </div>
-    </form>
-</mat-dialog-content>
+    </mat-dialog-actions>
+</form>

@@ -58,6 +58,34 @@ export class AuthService {
       }))
   }
 
+  register(name, email, psd, captchaCode) {
+    return this.http.post(ApicUrls.register, { name, email, psd, captchaCode })
+      .pipe(map((response: any) => {
+        if (response?.status === 'ok') {
+          return response;
+        } else {
+          throw new Error(response?.desc || 'Unknown error');
+        }
+
+      }), catchError((error) => {
+        return this.httpService.handleHttpError(error, { messagePrefix: 'Registration failed.', supressNotification: true });
+      }))
+  }
+
+  forgotPds(email, captchaCode) {
+    return this.http.post(ApicUrls.forgotPsd, { email, captchaCode })
+      .pipe(map((response: any) => {
+        if (response?.status === 'ok') {
+          return response;
+        } else {
+          throw new Error(response?.desc || 'Unknown error');
+        }
+
+      }), catchError((error) => {
+        return this.httpService.handleHttpError(error, { messagePrefix: 'Request failed.', supressNotification: true });
+      }))
+  }
+
   postLoginHandler(userData: User) {
     userData.UID = userData.id;
     this.store.dispatch(new UserAction.Set(userData));//on set of user data we auto connect socket

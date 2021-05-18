@@ -28,7 +28,7 @@ export class DesignerComponent implements OnInit {
   }
 
   showProjImport() {
-    this.dialog.open(ImportProjectComponent);
+    this.dialog.open(ImportProjectComponent, { width: '900px' });
   }
 
 }

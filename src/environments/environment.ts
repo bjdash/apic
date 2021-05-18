@@ -7,6 +7,7 @@ export const environment = {
   host: 'http://localhost:8080/',
   VERSION: '3.0.0',
   PLATFORM: 'WEB',
+  CAPTCHA_SITE_KEY: '6Le_RmcUAAAAAMD717-PEB6il8QW3wTcPgbBpnXl'
   // host: 'https://apic.app/'
 };
 

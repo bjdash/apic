@@ -86,32 +86,50 @@ div {
     top: 10px;
   }
 }
-.mat-raised-button.sm {
-  line-height: 30px !important;
-  padding: 0 15px;
-  min-width: 25px;
+.sm {
+  &.mat-raised-button,
+  &.mat-button,
+  &.mat-stroked-button,
+  &.mat-flat-button {
+    line-height: 26px !important;
+    padding: 0 10px;
+    min-width: 25px;
+    font-size: 12px;
+  }
+  &.mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+  &.mat-icon-button {
+    width: 28px;
+    height: 28px;
+    line-height: 24px;
+    .material-icons {
+      font-size: 20px;
+    }
+    .bj-unshare {
+      font-size: 18px;
+    }
+  }
+  &button {
+    .mat-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+  }
+  .mat-tab-label {
+    height: 28px !important;
+    font-size: 12px;
+  }
 }
-.mat-button.sm {
-  line-height: 30px !important;
-  padding: 0 15px;
-  min-width: 25px !important;
-}
-.mat-stroked-button.sm {
-  line-height: 30px !important;
-  padding: 0 15px;
-  min-width: 25px;
-}
-.mat-flat-button.sm {
-  line-height: 30px !important;
-  padding: 0 15px;
-  min-width: 25px;
-  color: #fff;
-  background-color: var(--accent-shadow);
-}
+
 button.xs {
   line-height: 24px !important;
   padding: 0 10px;
   min-width: 25px;
+  font-size: 12px;
 }
 .mat-stroked-button {
   &:not([disabled]) {
@@ -127,17 +145,6 @@ button.xs {
     font-size: 15px;
     line-height: 17px;
     width: 18px;
-  }
-}
-.mat-icon-button.sm {
-  width: 28px;
-  height: 28px;
-  line-height: 24px;
-  .material-icons {
-    font-size: 20px;
-  }
-  .bj-unshare {
-    font-size: 18px;
   }
 }
 .btn-group {
@@ -259,11 +266,7 @@ div.mat-menu-content {
 .mat-mini-fab[disabled][disabled] {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }
-.mat-icon.sm {
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
-}
+
 .mat-select {
   border: 1px solid var(--border-color);
   border-radius: 5px;

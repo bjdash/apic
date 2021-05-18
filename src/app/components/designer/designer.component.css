@@ -21,7 +21,7 @@
     color: #cccccc;
 }
 .designer-cont{
-    overflow :auto;position :absolute;left :0;right :0;bottom :0;top :30px;
+    overflow :auto;position :absolute;left :0;right :0;bottom :0;top :28px;
 }
 .workspace {
     padding: 10px 20px;

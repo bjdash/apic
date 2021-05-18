@@ -55,7 +55,7 @@
                     <button class="sm t_border gap" mat-stroked-button
                         *ngIf="selectedReq?.savedResp?.length>0 && !runResponse" (click)="loadResponse(true)">Load saved
                         response</button>
-                    <span class="btn-group gap">
+                    <span class="btn-group accent gap">
                         <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
                             <mat-icon>save</mat-icon> Save
                         </button>
@@ -70,7 +70,7 @@
                     </mat-menu>
                 </div>
                 <div class="panel-body" [hidden]="!flags.showReq">
-                    <div class="controls btn-group toggle-group">
+                    <div class="controls btn-group tab-group">
                         <button mat-button class="sm" [matBadge]="flags.urlParamsCount"
                             [ngClass]="{'active':flags.reqTab == 'ReqParam'}"
                             (click)="selectTab('reqTab','ReqParam')">URL Params</button>
@@ -216,7 +216,7 @@
                     </button>
                 </div>
                 <div class="panel-body" [hidden]="!flags.showResp">
-                    <div class="controls btn-group toggle-group">
+                    <div class="controls btn-group tab-group">
                         <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Body'}"
                             (click)="selectTab('respTab','Body')">Body/Test builder</button>
                         <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Tests'}"
@@ -233,7 +233,7 @@
                     </div>
 
                     <div class="control-content" *ngIf="flags.respTab == 'Body'">
-                        <div class="controls btn-group toggle-group">
+                        <div class="controls btn-group tab-group">
                             <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'pretty'}"
                                 (click)="selectTab('respBodyTab','pretty')">Pretty</button>
                             <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'raw'}"

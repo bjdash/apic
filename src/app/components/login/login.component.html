@@ -4,9 +4,9 @@
     </button>
     <div class="title">apic</div>
     <div class="auth-tabs vcenter">
-        <div [ngClass]="{active:panel=='login'}" (click)="panel='login'">Login</div>
-        <div [ngClass]="{active:panel=='register'}" (click)="panel='register'">Register</div>
-        <div [ngClass]="{active:panel=='forgot'}" (click)="panel='forgot'">Forgot password</div>
+        <div [ngClass]="{active:panel=='login'}" (click)="panel='login';message.text=''">Login</div>
+        <div [ngClass]="{active:panel=='register'}" (click)="panel='register';message.text=''">Register</div>
+        <div [ngClass]="{active:panel=='forgot'}" (click)="panel='forgot';message.text=''">Forgot password</div>
     </div>
     <div class="login-cont" *ngIf="panel === 'login'">
         <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
@@ -40,4 +40,80 @@
         </form>
     </div>
 
+    <div class="login-cont" *ngIf="panel === 'register'">
+        <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
+
+        <form class="form-horizontal" role="form" [formGroup]="regForm" (ngSubmit)="register()">
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="name-reg">
+                    <mat-icon>badge</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="text" required="" id="name-reg" class="form-control" placeholder="Name"
+                        pattern=".{2,50}" formControlName="name">
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="email-reg">
+                    <mat-icon>email</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="email" required="" id="email-reg" class="form-control" placeholder="Email"
+                        pattern=".{3,100}" formControlName="email">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <label class="control-label col-sm-1" for="pwd-reg">
+                    <mat-icon>password</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="password" required="" class="form-control" id="pwd-reg" placeholder="Password"
+                        pattern=".{6,30}" formControlName="psd">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <re-captcha formControlName="captchaCode" #regCaptcha="reCaptcha" [siteKey]="CAPTCHA_SITE_KEY">
+                    </re-captcha>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button type="submit" mat-fab class="btn-login t_bg">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="login-cont" *ngIf="panel === 'forgot'">
+        <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
+
+        <form class="form-horizontal" role="form" [formGroup]="forgotForm" (ngSubmit)="forgotPsd()">
+
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="email-reg">
+                    <mat-icon>email</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="email" required="" id="email-reg" class="form-control" placeholder="Email"
+                        pattern=".{3,100}" formControlName="email">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <re-captcha formControlName="captchaCode" #forgotCaptcha="reCaptcha" [siteKey]="CAPTCHA_SITE_KEY">
+                    </re-captcha>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button type="submit" mat-fab class="btn-login t_bg">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>

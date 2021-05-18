@@ -87,7 +87,7 @@
                     <div *ngIf="! (loggedInUser$|async)?.UID">
                         <button mat-menu-item (click)="openAuthModal('login')">Login</button>
                         <button mat-menu-item (click)="openAuthModal('register')">Register</button>
-                        <button mat-menu-item (click)="openAuthModal('forgot-password')">Forgot Password</button>
+                        <button mat-menu-item (click)="openAuthModal('forgot')">Forgot Password</button>
                     </div>
                     <div *ngIf="(loggedInUser$|async)?.UID">
                         <div class="greet">Hi {{(loggedInUser$|async).name}}</div>

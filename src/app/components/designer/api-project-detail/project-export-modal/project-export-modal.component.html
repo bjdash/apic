@@ -1,9 +1,9 @@
 <h2 mat-dialog-title class="modal-title">Export Project: {{data.type}}</h2>
 <div class="modal-top-ctrl vcenter">
     <div role="group" class="pull-right btn-group toggle-group gap">
-        <button type="button" mat-button [ngClass]="format == 'yaml'?'t_bg':''" class="xs"
+        <button type="button" mat-button [ngClass]="format == 'yaml'?'t_bg t_border':''" class="xs"
             (click)="format='yaml'; jsonToYaml(exportObj)">YAML</button>
-        <button type="button" mat-button [ngClass]="format == 'json'?'t_bg':''" class="xs"
+        <button type="button" mat-button [ngClass]="format == 'json'?'t_bg t_border':''" class="xs"
             (click)="format='json';jsonToString(exportObj)">JSON</button>
     </div>
     <button mat-icon-button class="gap stroked" color="primary" (click)="download()">
@@ -15,7 +15,7 @@
 </div>
 <mat-dialog-content>
     <!-- <apic-ace [(text)]="exportStr" [mode]="format" [readOnly]="true"></apic-ace> -->
-    <apic-ace id="export-ace" apicAceResize [(text)]="exportStr" [mode]="format" [readOnly]="true">
+    <apic-ace id="export-ace" [(text)]="exportStr" [mode]="format" [readOnly]="true">
     </apic-ace>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

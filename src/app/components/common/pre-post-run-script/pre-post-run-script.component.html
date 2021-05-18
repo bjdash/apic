@@ -1,5 +1,5 @@
 <div class="run-scripts">
-    <mat-tab-group animationDuration="0ms" class="s-tabs" (selectedTabChange)="tabChange($event)">
+    <mat-tab-group animationDuration="0ms" class="s-tabs sm" (selectedTabChange)="tabChange($event)">
         <mat-tab label="Pre run scripts">
             <apic-ace #preRunAce [(text)]="prerun" (textChange)="prerunUpdated()" mode="javascript"></apic-ace>
         </mat-tab>

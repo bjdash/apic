@@ -36,7 +36,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.openAuthModal('register')
   }
 
   selectEnv(_id: String) {

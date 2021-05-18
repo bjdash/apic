@@ -316,7 +316,7 @@ fieldset legend {
   align-self: center;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 16px;
+  font-size: 14px;
   padding-left: 5px;
   /* background-color: aquamarine; */
 }
@@ -522,7 +522,7 @@ input[type="number"],
   padding: 0;
   padding-left: 4px;
   border: 1px solid var(--border-color);
-  font-size: 16px;
+  font-size: 14px;
 }
 select {
   padding: 5px;
@@ -583,13 +583,7 @@ input.input-xs {
 .btn-group {
   button {
     border-radius: 0;
-    background: var(--content-bg-contrast);
-    border-right: 1px solid var(--border-color);
-  }
-  button.mat-stroked-button {
-    border-radius: 0;
-    background: var(--content-bg);
-    border-right: 1px solid var(--border-color);
+    border: transparent;
   }
   button:first-child {
     border-top-left-radius: 5px;
@@ -598,32 +592,39 @@ input.input-xs {
   button:last-child {
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-    border-left: none;
   }
-}
-.btn-group.toggle-group {
-  button {
-    border-right: 1px solid var(--border-color);
-  }
-  button:last-child {
-    border-right: none;
-  }
-}
-.controls.btn-group.toggle-group {
-  &.sm {
+  &.toggle-group {
     button {
-      height: 28px;
-      line-height: 28px !important;
+      border: 1px solid var(--border-color);
     }
   }
-  button {
-    border-radius: 0;
+  &.stroked {
+    button {
+      border: 1px solid var(--border-color);
+    }
   }
-  button.active {
-    background: transparent;
-    border-top: 2px solid var(--accent-color);
+  &.tab-group {
+    &.sm {
+      button {
+        height: 28px;
+        font-size: 12px;
+        line-height: 28px !important;
+      }
+    }
+    button {
+      border-radius: 0;
+    }
+    button.active {
+      border-bottom: 2px solid var(--accent-color);
+    }
+  }
+  &.accent {
+    button {
+      border: 1px solid var(--accent-color);
+    }
   }
 }
+
 .input-group {
   display: flex;
 

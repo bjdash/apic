@@ -1,5 +1,5 @@
 <section class="json-schema">
-    <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0">
+    <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0" class="sm">
         <mat-tab label="Designer">
             <div index="0" heading="Designer">
                 <div>
@@ -32,11 +32,11 @@
     </mat-tab-group>
 
     <div class="tab-action">
-        <a href="" mat-icon-button aria-label="Download" (click)="downloadJSON();$event.preventDefault()">
+        <button type="button" class="sm" mat-icon-button aria-label="Download" (click)="downloadJSON();">
             <mat-icon>vertical_align_bottom</mat-icon>
-        </a>
-        <a href="" mat-icon-button aria-label="Copy" (click)="copyToClipboard();$event.preventDefault()">
+        </button>
+        <button type="button" class="sm" mat-icon-button aria-label="Copy" (click)="copyToClipboard()">
             <mat-icon>file_copy</mat-icon>
-        </a>
+        </button>
     </div>
 </section>

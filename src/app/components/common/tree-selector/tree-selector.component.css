@@ -1,6 +1,7 @@
 .treeSelector {
     margin-top: 5px;
     margin-bottom: 10px;
+    box-shadow: 1px 1px 4px rgb(0 0 0 / 40%);
 }
 
 .ts-item {
@@ -9,9 +10,7 @@
     border-radius: 0;
     height: 34px;
     line-height: 35px;
-    /* border-bottom: 1px solid var(--border-color); */
-    background: var(--header-bg);
-    box-shadow: 1px 1px 4px rgb(0 0 0 / 40%);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .ts-item.active {
