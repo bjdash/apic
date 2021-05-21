@@ -19,24 +19,13 @@ import { ReqHistoryService } from './services/reqHistory.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(
-    private apiProjectService: ApiProjectService,
-    private envService: EnvService,
-    private reqService: RequestsService,
-    private themeService: ThemesService,
-    private reqHistoryService: ReqHistoryService,
-    private bootstrap: AppBootstrap) {
+  constructor(private bootstrap: AppBootstrap, private authService: AuthService) {
 
     this.init();
   }
 
   async init() {
     await this.bootstrap.init();
-    this.apiProjectService.getApiProjs();
-    this.envService.getAllEnvs();
-    this.reqService.getFolders();
-    this.reqService.getRequests();
-    this.reqHistoryService.refresh();
-    this.themeService.applyCurrentTheme();
+    this.authService.initLoggedinUser();
   }
 }

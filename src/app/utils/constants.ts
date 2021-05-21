@@ -28,6 +28,7 @@ function getURLs() {
         base,
         register: base + 'register',
         login: base + 'login',
+        googleLogin: base + 'login/google',
         logout: base + 'logout',
         forgotPsd: base + 'forgotPsd',
         socketUrl: base + 'gs-guide-websocket',
@@ -247,3 +248,19 @@ export const REQ_BODY_SNIPS = [{
 }];
 
 export const MONTHS = ['January', 'February', 'Mararch', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+export const AUTH_PROVIDERS = {
+    GOOGLE: 'GOOGLE'
+}
+
+export const SAVED_SETTINGS = {
+    LAST_SYNCED: {
+        ENVS: 'lastSyncedEnvs',
+        API_PROJECTS: 'lastSyncedApiProjects',
+        API_REQUESTS: 'lastSyncedApiRequests',
+        API_REQUEST_FOLDERS: 'lastSyncedReqFolders',
+        SUITES: 'lastSyncedSuites',
+        TEST_PROJECTS: 'lastSyncedTestProjects'
+    }
+
+}

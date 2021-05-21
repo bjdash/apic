@@ -8,6 +8,7 @@ import { StompMessage } from '../models/StompMessage.model';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
 import apic from '../utils/apic';
+import { SAVED_SETTINGS } from '../utils/constants';
 import iDB from './IndexedDB';
 import { SyncService } from './sync.service';
 
@@ -213,7 +214,7 @@ export class RequestsService {
     if (hardSync) {
       this.syncService.fetch('Fetch:Folders');
     } else {
-      var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedReqFolders');
+      var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.API_REQUEST_FOLDERS);
       this.syncService.fetch('Fetch:Folders', lastSyncedTime?.time, { folders: localFoldersToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
     }
   }
@@ -235,7 +236,7 @@ export class RequestsService {
     if (hardSync) {
       this.syncService.fetch('Fetch:ApiRequests');
     } else {
-      var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedApiRequests');
+      var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.API_REQUESTS);
       this.syncService.fetch('Fetch:ApiRequests', lastSyncedTime?.time, { apiRequests: localReqsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
     }
   }
@@ -260,5 +261,19 @@ export class RequestsService {
     const valid = validate(importData);
     if (!valid) console.error(validate.errors);
     return valid;
+  }
+
+  async clearFolders() {
+    return await Promise.all([
+      iDB.clear(iDB.TABLES.FOLDERS),
+      iDB.delete(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.API_REQUEST_FOLDERS)
+    ]);
+  }
+
+  async clearRequests() {
+    return await Promise.all([
+      iDB.clear(iDB.TABLES.SAVED_REQUESTS),
+      iDB.delete(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.API_REQUESTS)
+    ]);
   }
 }

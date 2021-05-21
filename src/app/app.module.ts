@@ -107,6 +107,7 @@ import { ReqHistoryState } from './state/history.state';
 import { MigrationService } from './services/migration.service';
 import { TesterLeftNavHistoryComponent } from './components/tester/tester-left-nav/tester-left-nav-history/tester-left-nav-history.component';
 import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
+import { LogoutComponent } from './components/login/logout/logout.component';
 
 @NgModule({
   declarations: [
@@ -161,7 +162,8 @@ import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
     BearerAuthComponent,
     JsonViewerComponent,
     JsonTestBuilderComponent,
-    TesterLeftNavHistoryComponent
+    TesterLeftNavHistoryComponent,
+    LogoutComponent
   ],
   imports: [
     BrowserModule,

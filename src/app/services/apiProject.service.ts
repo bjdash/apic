@@ -9,6 +9,7 @@ import { User } from '../models/User.model'
 import { SyncService } from './sync.service';
 import { UserState } from '../state/user.state';
 import { StompMessage } from '../models/StompMessage.model';
+import { SAVED_SETTINGS } from '../utils/constants';
 
 @Injectable()
 export class ApiProjectService {
@@ -153,7 +154,7 @@ export class ApiProjectService {
         if (hardSync) {
             this.syncService.fetch('Fetch:ApiProject');
         } else {
-            var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, 'lastSyncedApiProjects');
+            var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.API_PROJECTS);
             this.syncService.fetch('Fetch:ApiProject', lastSyncedTime?.time, { apiProjects: localProjectsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
         }
 
@@ -197,10 +198,16 @@ export class ApiProjectService {
         if (!valid) console.error(validate.errors);
         return valid;
     }
+    async clear() {
+        return await Promise.all([
+            iDB.clear(iDB.TABLES.API_PROJECTS),
+            iDB.delete(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.API_PROJECTS)
+        ]);
+
+    }
     //TODO
     // updateAPIProjects: updateAPIProjects,
     // getAPIProjectById: getAPIProjectById,
-    // clear: clear,
     // enableMock: enableMock,
     // disableMock: disableMock,
     // formatEndpForRun: formatEndpForRun,

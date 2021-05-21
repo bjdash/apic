@@ -12,6 +12,7 @@ import { SyncService } from './sync.service';
 import { StompMessage } from '../models/StompMessage.model';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
+import { SAVED_SETTINGS } from '../utils/constants';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +38,7 @@ export class EnvService {
   }
 
   async getAllEnvs() {
-    const projects = await iDB.read('Environments');
+    const projects = await iDB.read(iDB.TABLES.ENVIRONMENTS);
     this.store.dispatch(new EnvsAction.Refresh(projects));
     //populate last selected env
     this.store.dispatch(new EnvsAction.Select(LocalStore.get(LocalStore.LAST_SELECTED_ENV)))
@@ -245,6 +246,11 @@ export class EnvService {
     if (!valid) console.error(validate.errors);
     return valid;
   }
-  //TODO
-  // clear: clear,
+
+  async clear() {
+    return await Promise.all([
+      iDB.clear(iDB.TABLES.ENVIRONMENTS),
+      iDB.delete(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.ENVS)
+    ]);
+  }
 }

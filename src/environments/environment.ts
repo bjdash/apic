@@ -7,7 +7,8 @@ export const environment = {
   host: 'http://localhost:8080/',
   VERSION: '3.0.0',
   PLATFORM: 'WEB',
-  CAPTCHA_SITE_KEY: '6Le_RmcUAAAAAMD717-PEB6il8QW3wTcPgbBpnXl'
+  CAPTCHA_SITE_KEY: '6Le_RmcUAAAAAMD717-PEB6il8QW3wTcPgbBpnXl',
+  GOOGLE_CLIENT_ID: '918023175434-lkfap6a7qi47bcje04hno7t7jadd21rd.apps.googleusercontent.com'
   // host: 'https://apic.app/'
 };
 

@@ -18,7 +18,7 @@ export class UserStateModel {
 export class UserState {
     @Selector()
     static getAuthUser(state: UserStateModel) {
-        return Object.assign({}, state.authUser);
+        return state.authUser
     }
 
     @Action(UserAction.Set)
@@ -36,7 +36,7 @@ export class UserState {
         });
     }
 
-    @Action(UserAction.Set)
+    @Action(UserAction.Update)
     update({ getState, patchState }: StateContext<UserStateModel>, { payload }: UserAction.Update) {
         const authUser = getState().authUser;
         patchState({
@@ -54,5 +54,13 @@ export class UserState {
                 authUser: { ...authUser, UID, id, email, name, verified, authToken }
             })
         }
+    }
+
+    @Action(UserAction.Clear)
+    clear({ getState, patchState }: StateContext<UserStateModel>) {
+        const authUser = getState().authUser;
+        patchState({
+            authUser: null
+        })
     }
 }

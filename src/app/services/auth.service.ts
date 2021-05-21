@@ -3,16 +3,21 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { catchError, map, first } from 'rxjs/operators';
 import { UserAction } from '../actions/user.action';
+import { SocialUser } from '../models/SocialUser.model';
 import { StompMessage } from '../models/StompMessage.model';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
+import { AppBootstrap } from '../utils/appBootstrap';
 import { ApicUrls } from '../utils/constants';
 import { ApiProjectService } from './apiProject.service';
 import { EnvService } from './env.service';
 import { HttpService } from './http.service';
+import LocalStore from './localStore';
 import { RequestsService } from './requests.service';
 import { ApicRxStompState, StompService } from './stomp.service';
+import { SuiteService } from './suite.service';
 import { SyncService } from './sync.service';
+import iDB from './IndexedDB';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +32,8 @@ export class AuthService {
     private syncService: SyncService,
     private apiProjectService: ApiProjectService,
     private reqService: RequestsService,
+    private suiteService: SuiteService,
+    private bootstrap: AppBootstrap,
     private envService: EnvService) {
 
     this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -34,8 +41,8 @@ export class AuthService {
         if ((user.UID != this.user?.UID || user.authToken != this.user?.authToken) && !stompService.client.connected()) {
           this.connectToSyncServer(user.UID, user.authToken);
         }
-        this.user = user;
       }
+      this.user = user;
     });
 
     this.syncService.onAccountMessage$.subscribe(async message => {
@@ -45,6 +52,26 @@ export class AuthService {
 
   login(email, psd) {
     return this.http.post(ApicUrls.login, { email, psd })
+      .pipe(map((response: any) => {
+        if (response?.status === 'ok') {
+          this.postLoginHandler(response.resp)
+          return response;
+        } else {
+          throw new Error(response?.desc || 'Unknown error');
+        }
+
+      }), catchError((error) => {
+        return this.httpService.handleHttpError(error, { messagePrefix: 'Login failed.', supressNotification: true });
+      }))
+  }
+
+  googleLogin(user: SocialUser) {
+    return this.http.post(ApicUrls.googleLogin, {
+      name: user.name,
+      email: user.email,
+      source: user.provider,
+      token: user.authToken,//TODO: use id token to validate the user instead, refer https://developers.google.com/identity/sign-in/web/backend-auth
+    })
       .pipe(map((response: any) => {
         if (response?.status === 'ok') {
           this.postLoginHandler(response.resp)
@@ -144,7 +171,41 @@ export class AuthService {
     }
   }
 
-  logout() {
+  async logout(logoutAll = false) {
+    //TODO: Move to a cookie based auth
+    if (logoutAll) {
+      this.http.get(ApicUrls.logout)
+        .pipe(map((response: any) => {
+          if (response?.status === 'ok') {
+            //TODO: Remove default auth header
+            return response;
+          } else {
+            console.error(response?.desc || 'Unknown error');
+          }
 
+        }), catchError((error) => {
+          return this.httpService.handleHttpError(error, { messagePrefix: 'Logout failed.', supressNotification: true });
+        }))
+    }
+
+    LocalStore.remove([LocalStore.UID, LocalStore.AUTH_TOKEN, LocalStore.NAME, LocalStore.EMAIL, LocalStore.ID, LocalStore.VERIFIED, LocalStore.FIRST_RUN]);
+    this.store.dispatch(new UserAction.Clear());
+    this.stompService.disconnect();
+
+    //clear dbs
+    await Promise.all([
+      this.envService.clear(),
+      this.apiProjectService.clear(),
+      this.reqService.clearFolders(),
+      this.reqService.clearRequests(),
+      this.suiteService.clearSuites(),
+      this.suiteService.clearTestProjects(),
+      iDB.clear(iDB.TABLES.UNSYNCED)
+    ]);
+
+    await this.bootstrap.doFirstRunIfRequired();
+    await this.bootstrap.readAllDbs();
+
+    //TODO:Change the IDs of each opened tabs
   }
 }

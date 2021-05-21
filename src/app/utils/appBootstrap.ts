@@ -10,10 +10,12 @@ import { Injectable } from '@angular/core';
 import { ApiProjectService } from '../services/apiProject.service';
 import { EnvService } from '../services/env.service';
 import LocalStore from '../services/localStore';
-import { AuthService } from '../services/auth.service';
 import { RequestsService } from '../services/requests.service';
 import { environment } from 'src/environments/environment';
 import { MigrationService } from '../services/migration.service';
+import { ThemesService } from '../services/themes.service';
+import { ReqHistoryService } from '../services/reqHistory.service';
+import { SuiteService } from '../services/suite.service';
 
 @Injectable()
 export class AppBootstrap {
@@ -21,7 +23,12 @@ export class AppBootstrap {
 
     constructor(private httpClient: HttpClient,
         private migrationService: MigrationService,
-        private authService: AuthService) {
+        private apiProjectService: ApiProjectService,
+        private envService: EnvService,
+        private reqService: RequestsService,
+        private suiteService: SuiteService,
+        private themeService: ThemesService,
+        private reqHistoryService: ReqHistoryService) {
 
     }
 
@@ -48,6 +55,12 @@ export class AppBootstrap {
 
         //check if APIC was updated, and show notification
         this.checkUpdate();
+
+        //apply theme
+        this.themeService.applyCurrentTheme();
+
+        //read all data from index DB
+        this.readAllDbs();
     }
 
     private async addDummyUser() {
@@ -72,8 +85,9 @@ export class AppBootstrap {
         }
     }
 
+    //TODO: Remove this
     private initLoggedinUser() {
-        this.authService.initLoggedinUser();
+
         // const data = LocalStore.getMany([LocalStore.UID, LocalStore.AUTH_TOKEN]);
         // if (data?.UID && data?.authToken) { //user is logged in
         //     this.authService.refreshFromLocal();
@@ -113,7 +127,7 @@ export class AppBootstrap {
         // }
     }
 
-    private async doFirstRunIfRequired() {
+    async doFirstRunIfRequired() {
         //detect for first run of APIC
         const firstRun = LocalStore.get(LocalStore.FIRST_RUN);
 
@@ -140,6 +154,19 @@ export class AppBootstrap {
             LocalStore.set(LocalStore.FIRST_RUN, true);
 
         }
+    }
+
+    async readAllDbs() {
+        return await Promise.all([
+            this.apiProjectService.getApiProjs(),
+            this.envService.getAllEnvs(),
+            this.reqService.getFolders(),
+            this.reqService.getRequests(),
+            this.reqHistoryService.refresh(),
+            this.suiteService.getTestProjects(),
+            this.suiteService.getTestSuites()
+        ])
+
     }
 
     private checkUpdate() {

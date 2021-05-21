@@ -1,0 +1,13 @@
+<h2 mat-dialog-title class="modal-title">Logout</h2>
+<mat-dialog-content>
+    <div class="margV10 f16">
+        Logging out will prevent you from syncing your projects with APIC's cloud and will clear all data from this
+        instance of APIC but don't worry your current data is safe in our cloud.
+    </div>
+    <mat-checkbox class="margV10 f16" [(ngModel)]="logoutAll">Logout from all APIC instances?
+    </mat-checkbox>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close class="sm">Cancel</button>
+    <button mat-raised-button color="primary" class="sm gap" (click)="logout()">Logout</button>
+</mat-dialog-actions>

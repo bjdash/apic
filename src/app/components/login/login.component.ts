@@ -1,5 +1,4 @@
 import { Toaster } from 'src/app/services/toaster.service';
-import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -7,11 +6,14 @@ import { first } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { environment } from 'src/environments/environment';
 import { RecaptchaComponent } from 'ng-recaptcha';
+import { GoogleLoginService } from 'src/app/services/google-login.service';
+import { SocialUser } from 'src/app/models/SocialUser.model';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  providers: [GoogleLoginService]
 })
 export class LoginComponent implements OnInit {
   @ViewChild('regCaptcha') regCaptcha: RecaptchaComponent;
@@ -19,15 +21,19 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   regForm: FormGroup;
   forgotForm: FormGroup;
-  panel: string = 'login';
+  flags = {
+    panel: 'login',
+    disableGoogle: false
+  }
   message = {
     type: '',
     text: ''
   }
   CAPTCHA_SITE_KEY: string = environment.CAPTCHA_SITE_KEY;
 
+  //TODO: Login with google
   constructor(@Inject(MAT_DIALOG_DATA) public data: { action: string },
-    private httpClient: HttpClient,
+    private googleAuth: GoogleLoginService,
     fb: FormBuilder,
     private authService: AuthService,
     private toaster: Toaster,
@@ -48,8 +54,11 @@ export class LoginComponent implements OnInit {
       captchaCode: ['']
     });
 
-    this.panel = data.action ?? 'login';
-
+    this.flags.panel = data.action ?? 'login';
+    googleAuth.initialize().catch((e) => {
+      console.error('Failed to load google auth plugin', e);
+      toaster.error(`Failed to load google auth plugin: ${e.message}`);
+    });
   }
 
   ngOnInit(): void {
@@ -119,6 +128,29 @@ export class LoginComponent implements OnInit {
           this.forgotForm.enable();
           this.forgotCaptcha.reset();
         });
+  }
+
+  async googleLogin() {
+    //TODO: login with chrome extn and electron app
+    try {
+      let user: SocialUser = await this.googleAuth.signIn();
+      console.log(user);
+      this.setMesssage('info', `Hi ${user.name}. Please wait a moment. We are logging you in...`);
+      this.authService.googleLogin(user)
+        .pipe(first())
+        .subscribe(data => {
+          this.toaster.success('Login successful.');
+          this.dialogRef.close();
+        },
+          error => {
+            console.error('login error', error)
+            this.setMesssage('error', error, true);
+            this.loginForm.enable();
+          })
+    } catch (e) {
+      console.error('Failed to login with google', e);
+      this.toaster.error(`Failed to login with google: ${e.message}`);
+    }
   }
 
   setMesssage(type, text, autoClear?: boolean) {

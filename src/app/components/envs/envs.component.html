@@ -78,7 +78,7 @@
                 <div class="vcenter">
                     <span class="title" *ngIf="!flags.editName">{{selectedEnv.name}}</span>
                     <button mat-icon-button (click)="startEnvEdit()"
-                        *ngIf="selectedEnv.owner === authUser.UID && !selectedEnv.proj && !flags.editName">
+                        *ngIf="selectedEnv.owner === authUser?.UID && !selectedEnv.proj && !flags.editName">
                         <mat-icon>edit</mat-icon>
                     </button>
                     <mat-icon *ngIf="selectedEnv.proj" class="warning" matTooltipPosition="below"

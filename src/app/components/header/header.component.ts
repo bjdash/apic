@@ -13,6 +13,7 @@ import { User } from '../../models/User.model';
 import { ApicRxStompState, StompService } from '../../services/stomp.service';
 import { SettingsComponent } from '../settings/settings.component';
 import { environment } from 'src/environments/environment';
+import { LogoutComponent } from '../login/logout/logout.component';
 
 @Component({
   selector: 'apic-header',
@@ -36,7 +37,6 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.openAuthModal('register')
   }
 
   selectEnv(_id: String) {
@@ -59,6 +59,10 @@ export class HeaderComponent implements OnInit {
         width: '100vw',
         height: '100vh', maxWidth: '100vw'
       });
+  }
+
+  logout() {
+    this.dialog.open(LogoutComponent);
   }
 
   public get ApicRxStompState() {

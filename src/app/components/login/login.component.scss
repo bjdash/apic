@@ -62,6 +62,31 @@
         margin-bottom: 15px;
     }
 }
+.login-g {
+    background: var(--content-bg);
+    color: var(--text-color);
+    border-radius: 1px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    outline: none;
+    border: none;
+    padding: 5px 15px 1px 15px;
+    position: absolute;
+    left: 80px;
+    bottom: 26px;
+}
+.login-g:focus,
+.login-g:active {
+    box-shadow: 1px 1px 7px 0 rgba(4, 117, 171, 0.6);
+}
+.login-g .g-logo {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+.login-g .g-text {
+    vertical-align: text-bottom;
+}
+
 // .auth-dialog:before {
 //     content: "";
 //     width: 100%;

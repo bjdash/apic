@@ -92,10 +92,18 @@
                     <div *ngIf="(loggedInUser$|async)?.UID">
                         <div class="greet">Hi {{(loggedInUser$|async).name}}</div>
                         <mat-divider></mat-divider>
-                        <button mat-menu-item>Account</button>
-                        <button mat-menu-item>Dashboard</button>
-                        <button mat-menu-item>Sync</button>
-                        <button mat-menu-item>Logout</button>
+                        <button mat-menu-item>
+                            <mat-icon>manage_accounts</mat-icon>Account
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>dashboard</mat-icon> Dashboard
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>sync</mat-icon> Sync
+                        </button>
+                        <button mat-menu-item (click)="logout()">
+                            <mat-icon>logout</mat-icon> Logout
+                        </button>
                     </div>
                 </mat-menu>
             </div>

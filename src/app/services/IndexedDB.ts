@@ -5,7 +5,7 @@ const TABLES = {
   FOLDERS: 'folders',
   SAVED_REQUESTS: 'savedRequests',
   ENVIRONMENTS: 'Environments',
-  PROJECTS: 'Projects',//Test projects
+  TEST_PROJECTS: 'Projects',//Test projects //TODO: Use migration to rename this table
   TEST_SUITES: 'TestSuits',
   API_PROJECTS: 'ApiProjects',
   SETTINGS: 'setting',
@@ -31,7 +31,7 @@ const dbPromise = openDB('apic', 11, {
     envs.createIndex('_created', '_created', { unique: false });
     envs.createIndex('_id', '_id', { unique: true });
 
-    var projectsStore = db.createObjectStore(TABLES.PROJECTS, { keyPath: '_id' });
+    var projectsStore = db.createObjectStore(TABLES.TEST_PROJECTS, { keyPath: '_id' });
     projectsStore.createIndex('_created', '_created', { unique: false });
     projectsStore.createIndex('_id', '_id', { unique: true });
 
