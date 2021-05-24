@@ -299,10 +299,11 @@ export class JsonSchemaService {
                         schema.default = entity._default;
                     }
                     if (entity._enum) {
-                        const _enum = '[' + entity._enum + ']';
+                        const _enum = '[' + entity._enum.replace(/'/g, '"') + ']';
                         try {
                             schema.enum = JSON.parse(_enum);
                         } catch (e) {
+                            console.error('Failed to parse enum', e, _enum);
                             delete schema.enum;
                         }
                     }

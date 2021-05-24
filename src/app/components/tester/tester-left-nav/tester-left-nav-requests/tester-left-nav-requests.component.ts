@@ -88,9 +88,6 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     if (newFolder.parentId === 'root' || !newFolder.parentId) {
       newFolder.parentId = null;
     }
-    if (this.authUser?.UID) {
-      newFolder.owner = this.authUser.UID;
-    }
 
     this.folders$.pipe(take(1)).subscribe(async (folders: any[]) => {
       let siblings = newFolder.parentId ?
@@ -130,6 +127,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
         if (f) {
           const toSave: ReqFolder = { ...f, name: this.rename.name };
           try {
+            //TODO:Check duplicate
             await this.reqService.updateFolders([toSave]);
             this.toastr.success('Folder renamed');
             this.rename._id = ''
@@ -164,7 +162,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           this.toastr.error(`Failed to import. ${e.message}`);
         }
       } else {
-        this.toastr.error('Selected file doesn\'t contain valid environment information');
+        this.toastr.error('Selected file doesn\'t contain valid Folder information');
       }
     } else {
       this.toastr.error('Selected file doesn\'t contain valid Folder information');

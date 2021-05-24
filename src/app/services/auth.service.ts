@@ -140,6 +140,8 @@ export class AuthService {
         this.envService.syncEnvs();
         this.reqService.syncFolders();
         this.reqService.syncReqs();
+        this.suiteService.syncTestProjects();
+        this.suiteService.syncTestSuites();
         //TODO: add for others
 
       })

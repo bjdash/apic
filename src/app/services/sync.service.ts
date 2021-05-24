@@ -14,6 +14,7 @@ export class SyncService {
     onApiProjectMessage$: BehaviorSubject<StompMessage> = null;
     onEnvMessage$: BehaviorSubject<StompMessage> = null;
     onRequestsMessage$: BehaviorSubject<StompMessage> = null;
+    onSuiteMessage$: BehaviorSubject<StompMessage> = null;
     onAccountMessage$: BehaviorSubject<StompMessage> = null;
     authUser: User;
 
@@ -22,6 +23,7 @@ export class SyncService {
         this.onEnvMessage$ = new BehaviorSubject(null)
         this.onAccountMessage$ = new BehaviorSubject(null)
         this.onRequestsMessage$ = new BehaviorSubject(null);
+        this.onSuiteMessage$ = new BehaviorSubject(null);
 
         this.stompService.client.onServerMessage$.subscribe((message: StompMessage) => {
             this.onServerMessage(message);
@@ -114,6 +116,7 @@ export class SyncService {
                 this.execute(action, outData);
                 break;
             case 'addTestProj':
+            case 'updateTestProj':
                 outData = {
                     testCaseProjects: data instanceof Array ? data : [data]
                 };
@@ -159,12 +162,12 @@ export class SyncService {
             case 'Fetch:Folders':
                 this.onRequestsMessage$.next(message);
                 break;
-            //     case 'TestCaseProjects':
-            //         caseTestCaseProjects(data);
-            //         break;
-            //     case 'TestSuits':
-            //         caseTestSuits(data);
-            //         break;
+            case 'TestCaseProjects':
+            case 'TestSuits':
+            case 'Fetch:TestSuits':
+            case 'Fetch:TestCaseProjects':
+                this.onSuiteMessage$.next(message);
+                break;
             //     case 'Team':
             //         caseTeam();
             //         break;
@@ -172,10 +175,7 @@ export class SyncService {
                 this.onEnvMessage$.next(message);
                 this.onApiProjectMessage$.next(message);
                 this.onRequestsMessage$.next(message);
-                // caseFolders(data);
-                // caseAPIReqs(data);
-                // caseTestCaseProjects(data);
-                // caseTestSuits(data);
+                this.onSuiteMessage$.next(message);
                 if (message.nonExistant) {
                     //handeled in each corresponding service
                 }

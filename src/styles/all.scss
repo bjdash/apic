@@ -21,7 +21,9 @@
 .contentV {
   padding: 10px 0;
 }
-
+.center {
+  text-align: center;
+}
 a:not(.t_color) {
   color: var(--text-color);
 }
@@ -303,6 +305,9 @@ fieldset legend {
   height: 40px;
   padding: 0 3px 0 6px;
   cursor: pointer;
+  &.sm {
+    height: 30px;
+  }
 }
 .l-sec {
   width: 30px;
@@ -321,13 +326,13 @@ fieldset legend {
   text-overflow: ellipsis;
   font-size: 14px;
   padding-left: 5px;
-  /* background-color: aquamarine; */
 }
 .r-sec {
-  width: 40px;
   flex: 0 0 40px;
   align-self: center;
-  /* background-color: aqua; */
+  &.three {
+    flex: 0 0 120px;
+  }
 }
 .l-sec .bj-folder {
   font-size: 22px;
