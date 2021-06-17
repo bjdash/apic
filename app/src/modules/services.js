@@ -1019,6 +1019,7 @@
                         case 'oauth2':
                             defObj.flow = def.oauth2.flow;
                             defObj.authorizationUrl = def.oauth2.authorizationUrl;
+                            defObj.tokenUrl = def.oauth2.tokenUrl;
                             defObj.scopes = {};
                             if (def.oauth2.scopes.length > 0) {
                                 def.oauth2.scopes.forEach(function (s) {
@@ -1396,6 +1397,7 @@
                             secdef.oauth2 = {
                                 flow: def.flow,
                                 authorizationUrl: def.authorizationUrl,
+                                tokenUrl: def.tokenUrl,
                                 scopes: []
                             }
                             angular.forEach(def.scopes, function (desc, scope) {

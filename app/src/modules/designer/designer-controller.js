@@ -1291,7 +1291,7 @@
 
         function checkForPathParams() {
             var path = vm.endp.path, error = false;
-            if(path.indexOf('?')>=0){
+            if (path.indexOf('?') >= 0) {
                 toastr.error("Query params can't be added here to the path property. Add them in Query Params section below.")
                 vm.endp.path = path.replace(/\?/g, '');
                 return;
@@ -2409,6 +2409,7 @@
                     def.oauth2 = {
                         flow: '',
                         authorizationUrl: '',
+                        tokenUrl: '',
                         scopes: [{ key: '', val: '' }]
                     }
                     delete def.apikey;
