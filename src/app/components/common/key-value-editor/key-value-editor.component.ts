@@ -10,6 +10,7 @@ export interface KVEditorOptn {
   allowCopy?: boolean,
   allowPaste?: boolean,
   allowAdd?: boolean,
+  allowZeroItem?: boolean,
   allowRemove?: boolean,
   addOnFocus?: boolean,
   allowToggle?: boolean,
@@ -38,6 +39,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   options: KVEditorOptn;
   private defaultOptions: KVEditorOptn = {
     allowAdd: true,
+    allowZeroItem: false,
     allowRemove: true,
     allowCopy: true,
     allowPaste: true,

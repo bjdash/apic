@@ -47,7 +47,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
       traits: [[]],
       tags: [[]],
       security: [[]],
-      operationId: ['', [Validators.maxLength(30)]],
+      operationId: ['', [Validators.maxLength(255)]],
       schemes: [[]],
       consumes: [[]],
       produces: [[]],
@@ -110,7 +110,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     this.selectedEndp = { ...endpToOpen };
     let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, body, responses, postrun, prerun } = endpToOpen;
     if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...security], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
+    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
     this.selectedName = summary || 'Create new endpoint';
 
     this.flags.traitQP = [];

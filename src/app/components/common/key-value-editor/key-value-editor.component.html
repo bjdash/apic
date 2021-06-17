@@ -27,7 +27,7 @@
                 <mat-option value="file">File</mat-option>
             </mat-select>
             <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
-                *ngIf="count!==1 && options.allowRemove">
+                *ngIf="(count!==1 || options.allowZeroItem ) && options.allowRemove">
                 <mat-icon>close</mat-icon>
             </button>
             <button type="button" (click)="copyKV(i)" mat-icon-button class="sm copy" *ngIf="options.allowCopy">
@@ -43,3 +43,7 @@
         </div>
     </div>
 </fieldset>
+<button type="button" (click)="addKv()" mat-icon-button class="sm green"
+    *ngIf="options.allowZeroItem && options.allowAdd && keyValueForm?.controls.length == 0">
+    <mat-icon>add</mat-icon>
+</button>

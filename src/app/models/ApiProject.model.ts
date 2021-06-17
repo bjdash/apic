@@ -11,8 +11,10 @@ export interface SecurityDef {
     oauth2?: {
         authorizationUrl?: string,
         flow?: string,
+        tokenUrl?: string,
         scopes?: KeyVal[]
     }
+    xProperty?: KeyVal[]
 }
 
 export interface ApiFolder {

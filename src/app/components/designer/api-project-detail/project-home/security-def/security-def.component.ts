@@ -20,7 +20,13 @@ export class SecurityDefComponent implements OnInit, OnChanges {
     placeholderKey: 'read:todo / write:todo',
     placeholderVal: 'description'
   }
+  addPropOption: KVEditorOptn = {
+    allowZeroItem: true,
+    placeholderKey: 'Property name (must start with x-)',
+    placeholderVal: 'Property value'
+  }
 
+  //TODO: Delete docs page /designer/defining-additional-properties
   constructor(private formBuilder: FormBuilder, private toaster: Toaster) {
     this.secDefForm = this.formBuilder.group({
       secDefs: this.formBuilder.array([])
@@ -69,9 +75,11 @@ export class SecurityDefComponent implements OnInit, OnChanges {
       }),
       oauth2: this.formBuilder.group({
         authorizationUrl: [secDef?.oauth2?.authorizationUrl || ''],
+        tokenUrl: [secDef?.oauth2?.tokenUrl || ''],
         scopes: [secDef?.oauth2?.scopes || [{ key: '', val: '' }]],
-        flow: [secDef?.oauth2?.flow || ''],
-      })
+        flow: [secDef?.oauth2?.flow || 'implicit'],
+      }),
+      xProperty: [secDef?.xProperty || [{ key: '', val: '' }]]
     })
   }
 
@@ -87,7 +95,7 @@ export class SecurityDefComponent implements OnInit, OnChanges {
     }
     //TODO: Handle already selected secdefs in endpoint, remove them too
     var prevSecDef = this.SelectedPROJ.securityDefinitions;
-    var updatedProj = { ...this.SelectedPROJ, securityDefinitions: this.secDefForm.controls.secDefs.value }
+    var updatedProj = { ...this.SelectedPROJ, securityDefinitions: this.sanitizeSecDef(this.secDefForm.controls.secDefs.value) }
     try {
       await this.updateApiProject(updatedProj);
       this.toaster.success('Security definitions Saved');
@@ -112,11 +120,31 @@ export class SecurityDefComponent implements OnInit, OnChanges {
   validateForm(form: FormGroup) {
     (form.get('secDefs') as FormArray).controls.forEach((fg: FormGroup, index: number) => {
       if (
-        (fg.value.type === 'oauth2' && (!fg.value.oauth2.authorizationUrl || !fg.value.oauth2.authorizationUrl)) ||
+        (fg.value.type === 'oauth2' && ['implicit', 'accessCode'].includes(fg.value.oauth2.flow) && (!fg.value.oauth2.authorizationUrl || !fg.value.oauth2.authorizationUrl)) ||
+        (fg.value.type === 'oauth2' && ['password', 'application', 'accessCode'].includes(fg.value.oauth2.flow) && (!fg.value.oauth2.tokenUrl || !fg.value.oauth2.tokenUrl)) ||
         (fg.value.type === 'apiKey' && !fg.value.apiKey.name)
       ) {
         form.setErrors({ msg: `Missing required parameter for security definition at position ${index + 1}` })
       }
     })
+  }
+
+  sanitizeSecDef(secDefs: SecurityDef[]) {
+    return secDefs.map(secDef => {
+      let sanitized: SecurityDef = {
+        type: secDef.type,
+        name: secDef.name,
+        description: secDef.description,
+        xProperty: [...secDef.xProperty]
+      }
+      if (sanitized.type === 'apiKey') {
+        sanitized.apiKey = { ...secDef.apiKey }
+      }
+      if (sanitized.type === 'oauth2') {
+        sanitized.oauth2 = { ...secDef.oauth2 }
+      }
+      return sanitized;
+    })
+
   }
 }
