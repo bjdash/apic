@@ -531,7 +531,8 @@
                                                     ng-disabled="securityDef.$invalid">Save</button>
                                                 <button class="btn btn-link cbg btn-sm" type="button"
                                                     ng-click="vm.addSecDef()">Add
-                                                    {{vm.securityDefs.length>0?'another':'Security Definition'}}</button>
+                                                    {{vm.securityDefs.length>0?'another':'Security
+                                                    Definition'}}</button>
                                             </div>
                                         </form>
                                     </div>
@@ -629,7 +630,8 @@
                             <h4 class="t_color head flex">Folders:
                                 <div uib-dropdown keyboard-nav class="margL10">
                                     <button uib-dropdown-toggle
-                                        class="btn btn-link ellipsis run-env t_color bold">{{vm.folderActnType === 'edit'?vm.folderCopy.name:'Create New'}}
+                                        class="btn btn-link ellipsis run-env t_color bold">{{vm.folderActnType ===
+                                        'edit'?vm.folderCopy.name:'Create New'}}
                                         <span ng-if="folderForm.$dirty">(modified)</span><span
                                             class="caret right"></span>
                                     </button>
@@ -706,7 +708,8 @@
                                 <h4 class="t_color head flex">Models:
                                     <div uib-dropdown keyboard-nav class="margL10">
                                         <button uib-dropdown-toggle
-                                            class="btn btn-link ellipsis run-env t_color bold">{{vm.modelActnType === 'edit'?vm.modelCopy.name:'Create New'}}
+                                            class="btn btn-link ellipsis run-env t_color bold">{{vm.modelActnType ===
+                                            'edit'?vm.modelCopy.name:'Create New'}}
                                             <span
                                                 ng-if="modelForm.$dirty || vm.flags.modelPageDirty">(modified)</span><span
                                                 class="caret right"></span>
@@ -962,7 +965,7 @@
                                             <div class="form-group marg0">
                                                 <label class="control-label col-sm-2">Operation Id:</label>
                                                 <div class="col-sm-4">
-                                                    <input type="text" class="form-control sm" id="opId" maxlength="30"
+                                                    <input type="text" class="form-control sm" id="opId" maxlength="255"
                                                         ng-model="vm.endp.operationId">
                                                 </div>
                                                 <label class="control-label col-sm-2">Schemes: </label>
@@ -1152,7 +1155,8 @@
                                                 <div style="margin-left: 160px;" ng-if="vm.endp.resp.fromTrait">This
                                                     response is imported from the trait <a
                                                         href="">{{vm.endp.resp.traitName}}</a> and can't be edited here.
-                                                    <a href="">Move to traits module</a> to edit it.</div>
+                                                    <a href="">Move to traits module</a> to edit it.
+                                                </div>
                                                 <div class="endp-response">
                                                     <div class="resp-codes">
                                                         <div class="head">
