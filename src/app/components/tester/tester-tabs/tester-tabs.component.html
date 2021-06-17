@@ -13,9 +13,10 @@
         (selectedIndexChange)="selectedIndexChange($event)">
         <mat-tab class="XXX" *ngFor="let tab of tabs; trackBy:trackbyFn;let i=index" [ngSwitch]="tab.type">
             <ng-template mat-tab-label>
-                <div class="tab-label" [title]="tab.name" (contextmenu)="onContextMenu($event, tab)">
+                <div class="tab-label vcenter" [title]="tab.name" (contextmenu)="onContextMenu($event, tab)">
                     <i *ngSwitchCase="'req'" class="tab-icon icon bj-embed2"></i>
                     <i *ngSwitchCase="'ws'" class="tab-icon icon bj-websocket"></i>
+                    <mat-icon *ngSwitchCase="'suite'" class="sm tab-icon gap">receipt_long</mat-icon>
                     {{tab.name}}
                     <mat-icon *ngIf="tabs.length>1" class="tab-close" (click)="closeTab(i,$event)">close</mat-icon>
                 </div>
@@ -23,6 +24,7 @@
             <div>
                 <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data"></app-tab-request>
                 <app-tab-socket *ngSwitchCase="'ws'"></app-tab-socket>
+                <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id"></app-tab-suite>
             </div>
         </mat-tab>
     </mat-tab-group>

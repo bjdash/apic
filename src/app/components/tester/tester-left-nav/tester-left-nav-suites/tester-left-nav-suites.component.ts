@@ -14,6 +14,7 @@ import { Utils } from 'src/app/services/utils.service';
 import { EnvState } from 'src/app/state/envs.state';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import { UserState } from 'src/app/state/user.state';
+import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 
 @Component({
   selector: 'app-tester-left-nav-suites',
@@ -40,6 +41,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     private toastr: Toaster,
     private suiteService: SuiteService,
     private fileSystem: FileSystem,
+    private testerTabsService: TesterTabsService,
     private store: Store) {
     this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
       this.authUser = user;
@@ -55,6 +57,8 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    //TODO: remove
+    this.testerTabsService.addSuiteTab("1621818079636-e5e574a3651c", "Cart");
   }
   ngOnDestroy(): void {
     this.destroy.next();
@@ -267,8 +271,8 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     }
   }
 
-  openSuite(s) {
-
+  openSuite(suite: Suite) {
+    this.testerTabsService.addSuiteTab(suite._id, suite.name)
   }
 
   openSuitReq(req, suite, index) {

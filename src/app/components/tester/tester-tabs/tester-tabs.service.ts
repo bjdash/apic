@@ -25,6 +25,10 @@ export class TesterTabsService {
     this.tabsChange.next({ action: 'add', id, type: 'req', name });
   }
 
+  addSuiteTab(id: string, name: string) {
+    this.tabsChange.next({ action: 'add', id, type: 'suite', name });
+  }
+
   addTab(tab: TesterTab) {
     if (!tab?.id) {
       this.toaster.error('Failed to open tab. Missing tab id.')

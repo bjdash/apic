@@ -130,6 +130,9 @@ h4.head {
 .align-left {
   text-align: left !important;
 }
+.f20 {
+  font-size: 20px;
+}
 .f18 {
   font-size: 18px;
 }
@@ -332,6 +335,9 @@ fieldset legend {
   align-self: center;
   &.three {
     flex: 0 0 120px;
+  }
+  &.two {
+    flex: 0 0 80px;
   }
 }
 .l-sec .bj-folder {

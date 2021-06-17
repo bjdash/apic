@@ -1,0 +1,104 @@
+<div class="test-tab-cont tab-req" *ngIf="selectedSuite">
+    <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
+        <div class="suite-bar f18">
+            <span ng-show="!vm.flags.editReq" class="vcenter">
+                <mat-icon class="gap">receipt_long</mat-icon>
+                <span *ngIf="!flags.editSuitName" class="vcenter">
+                    <span class="f20">{{selectedSuite.name}}</span>
+                    <button mat-icon-button class="sm" (click)="enableSuiteRename()">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </span>
+                <span *ngIf="flags.editSuitName" class="input-group">
+                    <input type="text" formControlName="name" (keydown.enter)="renameSuite()"
+                        id="suite_{{selectedSuite._id}}" class="form-control sm"
+                        style="display: inline; width: 300px;vertical-align: top">
+                    <span class="input-group-btn">
+                        <button mat-icon-button class="sm green" (click)="renameSuite()">
+                            <mat-icon>done_outline</mat-icon>
+                        </button>
+                        <button mat-icon-button class="sm red" (click)="flags.editSuitName = false">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </span>
+                </span>
+            </span>
+            <span *ngIf="flags.editReq" class="vcenter">
+                <a href="" class="t_color" ng-click="vm.discardReqEdit()">
+                    <i class="icon bj-arrow_back"></i>
+                    <i class="icon bj-box-filled"></i>
+                    <span class="sname">Cart</span>
+                </a>
+                <span class="sname ng-hide" ng-show="vm.flags.editReqType === 'harReq'">/ HAR Import</span>
+                <span class="sname">/ Create _cart copy</span>
+            </span>
+            <a class="f18 help" mat-icon-button aria-label="Test Suite"
+                href="https://apic.app/docs/tester/writing-test-cases.html" target="_new">
+                <mat-icon>help</mat-icon>
+            </a>
+        </div>
+
+        <div class="suit-detail">
+            <div class="row">
+                <div class="col-xs-7 suite-form">
+                    <div class="row">
+                        <div class="col-xs-7">
+                            <fieldset [disabled]="flags.running">
+                                <div class="form-group">
+                                    <label class="" for="suite-env">Environment</label>
+                                    <mat-select formControlName="env" name="env" id="suite-env">
+                                        <mat-option [value]="null">No Environment</mat-option>
+                                        <mat-divider></mat-divider>
+                                        <mat-option *ngFor="let env of envs$ | async " [value]="env._id">
+                                            {{env.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </div>
+                                <div class="form-group">
+                                    <mat-checkbox formControlName="multiRun">Multi run</mat-checkbox>
+                                </div>
+                                <div class="form-group" *ngIf="form.value.multiRun">
+                                    <label for="run-count" class="">Run count</label>
+                                    <input id="run-count" class="form-control sm" formControlName="runCount"
+                                        placeholder="Run count (max 100)" min="1" type="number">
+                                </div>
+                                <div class="form-group">
+                                    <mat-checkbox formControlName="includeDebLog">Include debug logs</mat-checkbox>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xs-5 center">
+                            <button mat-button class="big-run">
+                                <div class="run"></div>
+                                <span class="run-text">Run</span>
+                            </button>
+                            <button mat-button class="big-run" *ngIf="flags.running">
+                                <div class="stop"></div>
+                                <span class="stop-text">Stop</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <fieldset [disabled]="flags.running">
+                                <div class="form-group">
+                                    <mat-checkbox formControlName="useInmemEnv">Use global In-memory/generated
+                                        environment
+                                        variables
+                                    </mat-checkbox>
+                                </div>
+                                <div class="form-group">
+                                    <mat-checkbox formControlName="updateInmemEnv">Update global In-memory/generated
+                                        environment
+                                        variables during run</mat-checkbox>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-5"></div>
+            </div>
+        </div>
+    </form>
+    {{form.value|json}}
+</div>

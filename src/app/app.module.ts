@@ -110,6 +110,7 @@ import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
 import { LogoutComponent } from './components/login/logout/logout.component';
 import { TesterLeftNavSuitesComponent } from './components/tester/tester-left-nav/tester-left-nav-suites/tester-left-nav-suites.component';
 import { SuitesState } from './state/suites.state';
+import { TabSuiteComponent } from './components/tester/tester-tabs/tab-suite/tab-suite.component';
 
 @NgModule({
   declarations: [
@@ -166,7 +167,8 @@ import { SuitesState } from './state/suites.state';
     JsonTestBuilderComponent,
     TesterLeftNavHistoryComponent,
     LogoutComponent,
-    TesterLeftNavSuitesComponent
+    TesterLeftNavSuitesComponent,
+    TabSuiteComponent
   ],
   imports: [
     BrowserModule,

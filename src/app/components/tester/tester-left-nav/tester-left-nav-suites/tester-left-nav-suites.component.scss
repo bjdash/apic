@@ -1,3 +1,16 @@
 .ctrls {
     text-align: right;
 }
+.project {
+    .new-suite {
+        display: none;
+    }
+    &:hover {
+        > .r-sec {
+            flex: 0 0 80px;
+        }
+        .new-suite {
+            display: inline-block;
+        }
+    }
+}

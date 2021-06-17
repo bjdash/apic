@@ -87,7 +87,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       name: [''],
       description: [''],
       method: ['GET'],
-      url: ['http://localhost:5000/app/src/#!/apic/home/{{x}}'],
+      url: [''],
       urlParams: [[]],
       headers: [[]],
       body: fb.group({

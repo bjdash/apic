@@ -31,7 +31,7 @@
         </form>
     </div>
     <div *ngFor="let project of testProjects$ |async">
-        <div class="folder" (click)="toggleExpand(project._id)"
+        <div class="folder project" (click)="toggleExpand(project._id)"
             [ngClass]="flags.expanded[project._id]?'opened':'closed'">
             <div class="l-sec">
                 <mat-icon>fact_check</mat-icon>
@@ -45,7 +45,10 @@
                             (click)="$event.stopPropagation()" /></span>
                 </div>
             </div>
-            <div class="r-sec ">
+            <div class="r-sec">
+                <button class="new-suite" mat-icon-button (click)="showNewSuitForm(project._id)" matTooltip="New suite">
+                    <mat-icon>add</mat-icon>
+                </button>
                 <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()">
                     <mat-icon>more_vert</mat-icon>
                 </button>

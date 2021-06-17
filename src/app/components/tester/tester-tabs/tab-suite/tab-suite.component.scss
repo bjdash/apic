@@ -1,0 +1,56 @@
+.suite-bar {
+    padding: 2px 10px;
+    position: fixed;
+    margin-left: -15px;
+    padding: 0 5px 4px 5px;
+    z-index: 10;
+    background: var(--header-bg);
+    box-shadow: 0 7px 9px rgb(0 0 0 / 10%);
+    left: 365px;
+    right: 0;
+
+    .help {
+        position: absolute;
+        right: 0;
+        top: -7px;
+    }
+}
+.suit-detail {
+    padding-top: 50px;
+
+    .suite-form {
+        .form-group {
+            margin-bottom: 5px;
+        }
+    }
+}
+.big-run {
+    padding: 5px;
+    position: relative;
+
+    .run {
+        width: 0px;
+        height: 0px;
+        border-top: 35px solid transparent;
+        border-bottom: 35px solid transparent;
+        border-left: 60px solid var(--success);
+    }
+    .run-text {
+        position: absolute;
+        top: 22px;
+        left: 10px;
+        color: #fff;
+    }
+    .stop {
+        width: 60px;
+        height: 600px;
+        border-radius: 5px;
+        background-color: var(--error);
+    }
+    .stop-text {
+        position: absolute;
+        top: 16px;
+        left: 20px;
+        color: #fff;
+    }
+}
