@@ -1011,6 +1011,14 @@
                         type: def.type,
                         description: def.description || ''
                     }
+                    //process x-properties
+                    if (def.xProperty) {
+                        def.xProperty.forEach(function (prop) {
+                            if (prop.key && prop.key.startsWith('x-')) {
+                                defObj[prop.key] = prop.val
+                            }
+                        })
+                    }
                     switch (def.type) {
                         case 'apiKey':
                             defObj.in = def.apiKey.in;
@@ -1018,8 +1026,12 @@
                             break;
                         case 'oauth2':
                             defObj.flow = def.oauth2.flow;
-                            defObj.authorizationUrl = def.oauth2.authorizationUrl;
-                            defObj.tokenUrl = def.oauth2.tokenUrl;
+                            if (def.oauth2.flow == 'implicit' || def.oauth2.flow == 'accessCode') {
+                                defObj.authorizationUrl = def.oauth2.authorizationUrl;
+                            }
+                            if (['password', 'application', 'accessCode'].includes(def.oauth2.flow)) {
+                                defObj.tokenUrl = def.oauth2.tokenUrl;
+                            }
                             defObj.scopes = {};
                             if (def.oauth2.scopes.length > 0) {
                                 def.oauth2.scopes.forEach(function (s) {
@@ -1384,8 +1396,18 @@
                     var secdef = {
                         name: name,
                         type: def.type,
-                        description: def.description
+                        description: def.description,
+                        xProperty: []
                     }
+                    //import x-properties
+                    Object.keys(def).forEach(function (key) {
+                        if (key.startsWith('x-')) {
+                            secdef.xProperty.push({
+                                key: key,
+                                val: def[key]
+                            })
+                        }
+                    })
                     switch (def.type) {
                         case 'apiKey':
                             secdef.apiKey = {
@@ -1396,9 +1418,13 @@
                         case 'oauth2':
                             secdef.oauth2 = {
                                 flow: def.flow,
-                                authorizationUrl: def.authorizationUrl,
-                                tokenUrl: def.tokenUrl,
                                 scopes: []
+                            }
+                            if (def.flow == 'implicit' || def.flow == 'accessCode') {
+                                secdef.oauth2.authorizationUrl = def.authorizationUrl;
+                            }
+                            if (['password', 'application', 'accessCode'].includes(def.flow)) {
+                                secdef.oauth2.tokenUrl = def.tokenUrl;
                             }
                             angular.forEach(def.scopes, function (desc, scope) {
                                 secdef.oauth2.scopes.push({ key: scope, val: desc });

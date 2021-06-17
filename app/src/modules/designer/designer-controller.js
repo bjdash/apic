@@ -51,7 +51,8 @@
         var secDefModel = {
             type: 'basic', //apiKey,oauth2
             name: '',
-            description: ''
+            description: '',
+            xProperty: [{ key: '', val: '' }]
         }
 
         vm.getApiProjs = getApiProjs;

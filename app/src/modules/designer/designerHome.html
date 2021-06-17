@@ -487,7 +487,8 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div class="form-group">
+                                                    <div class="form-group"
+                                                        ng-if="def.oauth2.flow == 'implicit'|| def.oauth2.flow == 'accessCode'">
                                                         <label class="info-label col-xs-3">Authorization Url <span
                                                                 class="red">*</span></label>
                                                         <div class="col-xs-6">
@@ -495,7 +496,8 @@
                                                                 ng-model="def.oauth2.authorizationUrl" />
                                                         </div>
                                                     </div>
-                                                    <div class="form-group">
+                                                    <div class="form-group"
+                                                        ng-if="['password', 'application', 'accessCode'].includes(def.oauth2.flow)">
                                                         <label class="info-label col-xs-3">Token Url <span
                                                                 class="red">*</span></label>
                                                         <div class="col-xs-6">
@@ -528,6 +530,37 @@
                                                         </div>
                                                     </div>
 
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="info-label col-xs-3">
+                                                        <a href="https://apic.app/docs/designer/defining-additional-properties"
+                                                            target="_new" electron-a=""
+                                                            class="gap f18 glyphicon glyphicon-question-sign"></a>
+                                                        ^x-property
+                                                    </label>
+                                                    <div class="col-xs-9">
+                                                        <div class="kvCont"
+                                                            ng-repeat="prop in def.xProperty track by $index">
+                                                            <input type="text"
+                                                                placeholder="Property name (must start with x-)"
+                                                                ng-model="prop.key" class="form-control sm input-sm">
+                                                            <input type="text" placeholder="Property value"
+                                                                ng-model="prop.val" class="form-control sm input-sm">
+                                                            <div class="d2">
+                                                                <a href="" class="btn btn-link btn-round red"
+                                                                    ng-click="def.xProperty.splice($index,1)"><i
+                                                                        class="glyphicon glyphicon-remove"></i></a>
+                                                                <a ng-if="$last" href=""
+                                                                    class="btn btn-link btn-round green"
+                                                                    ng-click="def.xProperty.push({key:'',val:''})"><i
+                                                                        class="glyphicon glyphicon-plus"></i></a>
+                                                            </div>
+                                                        </div>
+                                                        <a ng-if="!def.xProperty || def.xProperty.length==0" href=""
+                                                            class="btn btn-link btn-round green"
+                                                            ng-click="def.xProperty=[{key:'',val:''}];"><i
+                                                                class="glyphicon glyphicon-plus"></i></a>
+                                                    </div>
                                                 </div>
                                                 <a href=""
                                                     ng-click="vm.securityDefs.splice($index,1);vm.saveSecDef(vm.securityDefs)"
