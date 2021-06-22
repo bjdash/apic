@@ -158,7 +158,8 @@ export class AppBootstrap {
 
     async readAllDbs() {
         return await Promise.all([
-            this.apiProjectService.getApiProjs(),
+            //TODO: Move initial data load to constructors
+            // this.apiProjectService.getApiProjs(),
             this.envService.getAllEnvs(),
             this.reqService.getFolders(),
             this.reqService.getRequests(),

@@ -1,226 +1,139 @@
-<div class="proj-banner">
-    <h4 class="t_color head proj-head">{{selectedPROJ.title}}</h4>
-    <div class="pull-right">
-        <span class="btn-group stroked gap">
-            <button mat-stroked-button class="sm">
-                <i class="icon bj-cloud-upload gap"></i>
-                Enable mocked response
+<div *ngIf="selectedPROJ">
+    <div class="proj-banner">
+        <h4 class="t_color head proj-head">{{selectedPROJ.title}}</h4>
+        <div class="pull-right">
+            <span class="btn-group stroked gap">
+                <button mat-stroked-button class="sm">
+                    <i class="icon bj-cloud-upload gap"></i>
+                    Enable mocked response
+                </button>
+                <a href="https://docs.apic.app/simulator" mat-stroked-button class="sm" target="_new">
+                    <mat-icon>help</mat-icon>
+                </a>
+            </span>
+            <span class="btn-group stroked gap">
+                <button mat-stroked-button class="sm">
+                    <i class="icon bj-cloud-upload gap"></i>
+                    Publish Docs
+                </button>
+                <a href="https://docs.apic.app/dashboard/published-docs" mat-stroked-button class="sm" target="_new">
+                    <mat-icon>help</mat-icon>
+                </a>
+            </span>
+            <button mat-stroked-button class="sm gap">
+                <span class="icon bj-wrench gap"></span>
+                Build Requests
             </button>
-            <a href="https://docs.apic.app/simulator" mat-stroked-button class="sm" target="_new">
-                <mat-icon>help</mat-icon>
-            </a>
-        </span>
-        <span class="btn-group stroked gap">
-            <button mat-stroked-button class="sm">
-                <i class="icon bj-cloud-upload gap"></i>
-                Publish Docs
+            <button mat-stroked-button class="sm gap">
+                <span class="icon bj-share-alt gap"></span>
+                Share
             </button>
-            <a href="https://docs.apic.app/dashboard/published-docs" mat-stroked-button class="sm" target="_new">
-                <mat-icon>help</mat-icon>
-            </a>
-        </span>
-        <button mat-stroked-button class="sm gap">
-            <span class="icon bj-wrench gap"></span>
-            Build Requests
-        </button>
-        <button mat-stroked-button class="sm gap">
-            <span class="icon bj-share-alt gap"></span>
-            Share
-        </button>
-        <button mat-stroked-button class="sm gap" [matMenuTriggerFor]="exportMenu">
-            <mat-icon class="sm">open_in_new</mat-icon>
-            Export
-        </button>
-        <mat-menu #exportMenu="matMenu">
-            <button mat-menu-item (click)="openExportModal('RAW',selectedPROJ._id)">Raw APIC
-                Project</button>
-            <button mat-menu-item (click)="openExportModal('OAS',selectedPROJ._id)">Open API
-                Specs(Swagger)</button>
-            <button mat-menu-item>RAML (Soon)</button>
-        </mat-menu>
-        <button mat-stroked-button class="sm gap">
-            <span class="icon bj-book gap" style="font-size: 14px;vertical-align: text-bottom;"></span>
-            View Docs
-        </button>
-        <button role="button" class="sm" mat-raised-button color="warn"
-            confirm="Do you want to delete this API Project?" confirmTitle="Delete Confirmation" confirmOk="Delete"
-            (confirm-click)="deleteApiProject()">
-            <mat-icon>delete_forever</mat-icon>
-        </button>
+            <button mat-stroked-button class="sm gap" [matMenuTriggerFor]="exportMenu">
+                <mat-icon class="sm">open_in_new</mat-icon>
+                Export
+            </button>
+            <mat-menu #exportMenu="matMenu">
+                <button mat-menu-item (click)="openExportModal('RAW',selectedPROJ._id)">Raw APIC
+                    Project</button>
+                <button mat-menu-item (click)="openExportModal('OAS',selectedPROJ._id)">Open API
+                    Specs(Swagger)</button>
+                <button mat-menu-item>RAML (Soon)</button>
+            </mat-menu>
+            <button mat-stroked-button class="sm gap">
+                <span class="icon bj-book gap" style="font-size: 14px;vertical-align: text-bottom;"></span>
+                View Docs
+            </button>
+            <button role="button" class="sm" mat-raised-button color="warn"
+                confirm="Do you want to delete this API Project?" confirmTitle="Delete Confirmation" confirmOk="Delete"
+                (confirm-click)="deleteApiProject()">
+                <mat-icon>delete_forever</mat-icon>
+            </button>
+        </div>
     </div>
-</div>
-<div class="content">
-    <div class="landing-action" (click)="changeStage('api builder')">
-        <div class="ac-text">
-            Describe your resource and auto-generate Create, Read, Update &amp; Delete (POST, GET, PUT,
-            DELETE) endpoints</div>
-        <div class="ac-head t_bg">API Builder</div>
+    <div class="content">
+        <a href="" class="landing-action" [routerLink]="['api-builder']">
+            <div class="ac-text">
+                Describe your resource and auto-generate Create, Read, Update &amp; Delete (POST, GET, PUT,
+                DELETE) endpoints</div>
+            <div class="ac-head t_bg">API Builder</div>
+        </a>
+        <a href="" class="landing-action" [routerLink]="['endpoints', 'new']">
+            <div class="ac-text">
+                Define your API endpoints in your project with request, response types etc.</div>
+            <div class="ac-head t_bg">Endpoints</div>
+        </a>
+        <a href="" class="landing-action" [routerLink]="['models', 'new']">
+            <div class="ac-text">
+                Models represent schema objects that allows the definition of input and output data types.
+                Should be used to reduce duplication. Used with <span class="bold">$ref</span>.</div>
+            <div class="ac-head t_bg">Models</div>
+        </a>
+        <a href="" class="landing-action" [routerLink]="['traits', 'new']">
+            <div class="ac-text">
+                Define generic request and response patterns. Reuse them across endpoints.</div>
+            <div class="ac-head t_bg">Traits</div>
+        </a>
+        <a class="landing-action" href="" [routerLink]="['folders', 'new']">
+            <div class="ac-text">
+                Folders can be used to group and organize related components in one place.</div>
+            <div class="ac-head t_bg">Folders</div>
+        </a>
+        <a class="f18 pull-right" mat-icon-button href="https://apic.app/docs/designer/working-with-api-design.html"
+            target="_new">
+            <mat-icon>help</mat-icon>
+        </a>
     </div>
-    <div class="landing-action" (click)="changeStage('endpoints')">
-        <div class="ac-text">
-            Define your API endpoints in your project with request, response types etc.</div>
-        <div class="ac-head t_bg">Endpoints</div>
-    </div>
-    <div class="landing-action" (click)="changeStage('models')">
-        <div class="ac-text">
-            Models represent schema objects that allows the definition of input and output data types.
-            Should be used to reduce duplication. Used with <span class="bold">$ref</span>.</div>
-        <div class="ac-head t_bg">Models</div>
-    </div>
-    <div class="landing-action" (click)="changeStage('traits')">
-        <div class="ac-text">
-            Define generic request and response patterns. Reuse them across endpoints.</div>
-        <div class="ac-head t_bg">Traits</div>
-    </div>
-    <div class="landing-action" (click)="changeStage('folders')">
-        <div class="ac-text">
-            Folders can be used to group and organize related components in one place.</div>
-        <div class="ac-head t_bg">Folders</div>
-    </div>
-    <a class="f18 pull-right" mat-icon-button href="https://apic.app/docs/designer/working-with-api-design.html"
-        target="_new">
-        <mat-icon>help</mat-icon>
-    </a>
-</div>
 
-<div class="content">
-    <div class="content paper">
-        <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" class="sm">
-            <!----Settings tab------>
-            <mat-tab>
-                <ng-template mat-tab-label>
-                    <div class="vcenter">
-                        <span>Settings</span>
-                        <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.settingsChanged">circle
-                        </mat-icon>
+    <div class="content">
+        <div class="content paper">
+            <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" class="sm">
+                <!----Settings tab------>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <div class="vcenter">
+                            <span>Settings</span>
+                            <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.settingsChanged">
+                                circle
+                            </mat-icon>
+                        </div>
+                    </ng-template>
+                    <div class="content">
+                        <app-proj-settings [updateApiProject]="updateApiProject" [SelectedPROJ]="selectedPROJ"
+                            [projEnv]="projEnv" (onChange)="tabContentModified($event,'settingsChanged')">
+                        </app-proj-settings>
                     </div>
-                </ng-template>
-                <div class="content">
-                    <app-proj-settings [updateApiProject]="updateApiProject" [SelectedPROJ]="selectedPROJ"
-                        [projEnv]="projEnv" (onChange)="tabContentModified($event,'settingsChanged')">
-                    </app-proj-settings>
-                </div>
-            </mat-tab>
-            <mat-tab>
-                <ng-template mat-tab-label>
-                    <div class="vcenter">
-                        <span>Security</span>
-                        <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.secDefChanged">circle
-                        </mat-icon>
-                    </div>
-                </ng-template>
-                <!--One time lazy loading of tab content-->
-                <app-security-def *ngIf="flags.loadSecDefTab" [updateApiProject]="updateApiProject"
-                    [SelectedPROJ]="selectedPROJ" (onChange)="tabContentModified($event,'secDefChanged')">
-                </app-security-def>
-            </mat-tab>
-            <mat-tab label="Project Info">
-                <div class="content">
-                    <form class="form-horizontal" [formGroup]="projDetailForm" (ngSubmit)="saveProjEdit()">
-                        <div class="row">
-                            <label class="control-label col-xs-2">Name :</label>
-                            <div class="bold col-xs-10">
-                                <span *ngIf="!flags.editProj">{{selectedPROJ.title}}</span>
-                                <span *ngIf="flags.editProj">
-                                    <input type="text" class="form-control input-sm" formControlName="title" />
-                                </span>
-                            </div>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <div class="vcenter">
+                            <span>Security</span>
+                            <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.secDefChanged">circle
+                            </mat-icon>
                         </div>
-                        <div class="row">
-                            <label class="control-label col-xs-2">Version :</label>
-                            <div class="bold col-xs-10">
-                                <span *ngIf="!flags.editProj">{{selectedPROJ.version}}</span>
-                                <span *ngIf="flags.editProj">
-                                    <input type="text" class="form-control input-sm" formControlName="version" />
-                                </span>
-                            </div>
+                    </ng-template>
+                    <!--One time lazy loading of tab content-->
+                    <app-security-def *ngIf="flags.loadSecDefTab" [updateApiProject]="updateApiProject"
+                        [SelectedPROJ]="selectedPROJ" (onChange)="tabContentModified($event,'secDefChanged')">
+                    </app-security-def>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <div class="vcenter">
+                            <span>Project Info</span>
+                            <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.infoChanged">circle
+                            </mat-icon>
                         </div>
-                        <div class="row">
-                            <label class="control-label col-xs-2">Description :</label>
-                            <div class="bold col-xs-10">
-                                <span *ngIf="!flags.editProj">{{selectedPROJ.description}}</span>
-                                <span *ngIf="flags.editProj">
-                                    <textarea formControlName="description" class="form-control input-sm"></textarea>
-                                </span>
-                            </div>
-                        </div>
-                        <div formGroupName="license">
-                            <div class="row">
-                                <label class="control-label col-xs-2">License Name :</label>
-                                <div class="bold col-xs-10">
-                                    <span *ngIf="!flags.editProj">{{selectedPROJ.license?.name}}</span>
-                                    <span *ngIf="flags.editProj">
-                                        <input type="text" class="form-control input-sm" formControlName="name" />
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="control-label col-xs-2">License URL :</label>
-                                <div class="bold col-xs-10">
-                                    <span *ngIf="!flags.editProj">{{selectedPROJ.license?.url}}</span>
-                                    <span *ngIf="flags.editProj">
-                                        <input type="text" class="form-control input-sm" formControlName="url" />
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <label class="control-label col-xs-2">Terms of service</label>
-                            <div class="bold col-xs-10">
-                                <span *ngIf="!flags.editProj">{{selectedPROJ.termsOfService}}</span>
-                                <span *ngIf="flags.editProj">
-                                    <input type="text" class="form-control input-sm" formControlName="termsOfService" />
-                                </span>
-                            </div>
-                        </div>
-                        <div formGroupName="contact">
-                            <div class="row">
-                                <label class="control-label col-xs-2">Contact Name :</label>
-                                <div class="bold col-xs-10">
-                                    <span *ngIf="!flags.editProj">{{selectedPROJ.contact?.name}}</span>
-                                    <span *ngIf="flags.editProj">
-                                        <input type="text" class="form-control input-sm" formControlName="name" />
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="control-label col-xs-2">Contact URL :</label>
-                                <div class="bold col-xs-10">
-                                    <span *ngIf="!flags.editProj">{{selectedPROJ.contact?.url}}</span>
-                                    <span *ngIf="flags.editProj">
-                                        <input type="text" class="form-control input-sm" formControlName="url" />
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="control-label col-xs-2">Contact email :</label>
-                                <div class="bold col-xs-10">
-                                    <span *ngIf="!flags.editProj">{{selectedPROJ.contact?.email}}</span>
-                                    <span *ngIf="flags.editProj">
-                                        <input type="text" class="form-control input-sm" formControlName="email" />
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row margV5">
-                            <div class="col-md-offset-2">
-                                <span *ngIf="flags.editProj">
-                                    <button type="submit" class="sm gap" mat-raised-button color="primary">Save</button>
-                                    <button type="button" mat-button class="sm"
-                                        (click)="flags.editProj = false;resetProjInfoEdit()">Cancel</button>
-                                </span>
-                                <button *ngIf="!flags.editProj" type="button" class="sm" mat-raised-button
-                                    color="primary" (click)="flags.editProj=true">Edit</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </mat-tab>
-        </mat-tab-group>
+                    </ng-template>
+                    <!--One time lazy loading of tab content-->
+                    <app-project-info [updateApiProject]="updateApiProject" [projEnv]="projEnv"
+                        [selectedPROJ]="selectedPROJ" (onChange)="tabContentModified($event,'infoChanged')">
+                    </app-project-info>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
     </div>
+
 </div>
-
-<div style="background: red;">
-
-
+<div *ngIf="!selectedPROJ">
+    <h3>Loading...</h3>
 </div>

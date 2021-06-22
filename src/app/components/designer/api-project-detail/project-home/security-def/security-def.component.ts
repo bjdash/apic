@@ -115,6 +115,7 @@ export class SecurityDefComponent implements OnInit, OnChanges {
   removeSecDef(index: number) {
     (this.secDefForm.get('secDefs') as FormArray).removeAt(index);
     this.secDefForm.markAsDirty();
+    //TODO: Remove this sec def selected in any endpoint
   }
 
   validateForm(form: FormGroup) {

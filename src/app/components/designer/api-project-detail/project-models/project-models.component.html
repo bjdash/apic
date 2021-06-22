@@ -1,4 +1,4 @@
-<div class="content">
+<div class="content" *ngIf="selectedPROJ">
     <div class="submodMenu">
         <div class="submodMenuOptn">
             <span *ngIf="selectedModel._id === 'NEW'">
@@ -14,9 +14,9 @@
                 <button type="button" type="button" *ngIf="modelForm.dirty" class="sm gap" mat-button
                     (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
-                <button type="button" type="button" (click)="openNewModel()" class="sm gap" mat-stroked-button>
+                <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
                     <mat-icon class="sm">add</mat-icon>New Model
-                </button>
+                </a>
             </span>
         </div>
         <div class="tip"></div>
@@ -26,15 +26,15 @@
         <span class="gap">Models:</span>
         <div class="margL10">
             <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="modelsList">
-                <span class="gap">{{selectedName}}</span>
+                <span class="gap">{{selectedModel?.name || 'Create new model'}}</span>
                 <span *ngIf="modelForm.dirty">(Unsaved)</span>
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #modelsList="matMenu">
-                <button mat-menu-item (click)="openNewModel()">Create new Model</button>
+                <a href="" mat-menu-item [routerLink]="['../', 'new']">Create new Model</a>
                 <mat-divider></mat-divider>
-                <button *ngFor="let model of selectedPROJ.models | keyvalue" (click)="openModelById(model.value._id)"
-                    mat-menu-item>{{model.value.name}}</button>
+                <a href="" *ngFor="let model of selectedPROJ.models | keyvalue" [routerLink]="['../', model.value._id]"
+                    mat-menu-item>{{model.value.name}}</a>
             </mat-menu>
         </div>
         <a class="f18 pull-right" mat-icon-button href="https://docs.apic.app/designer/create-model" target="_new">

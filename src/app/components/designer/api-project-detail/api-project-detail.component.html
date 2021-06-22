@@ -40,32 +40,32 @@
                             <div class="f-name">{{item.value.folder.name}}</div>
                         </div>
                         <div class="r-sec ">
-                            <button type="button" *ngIf="item.key != 'ungrouped'" mat-icon-button
-                                (click)="changeStage('folders');foldersView.openFolderById(item.value.folder._id);$event.stopPropagation()">
+                            <a href="" *ngIf="item.key != 'ungrouped'" [routerLink]="['folders', item.value.folder._id]"
+                                mat-icon-button (click)="$event.stopPropagation()">
                                 <mat-icon>edit</mat-icon>
-                            </button>
+                            </a>
                         </div>
                     </div>
 
                     <div class="sub-folder" [hidden]="!leftPanel.expanded[item.value.folder._id]">
                         <!--Endpoints TODO: sort by name-->
                         <div *ngFor="let endp of item.value.endps | keyvalue">
-                            <div class="savedReq" matRipple
-                                (click)="changeStage('endpoints');endpointsView.openEndpById(endp.value._id);$event.stopPropagation()"
-                                [ngClass]="{active:flags.stage === 'endpoints' && endp.value._id == endpointsView.selectedEndp._id}">
+                            <a href="" class="savedReq" matRipple [routerLink]="['endpoints', endp.value._id]"
+                                [routerLinkActive]="['active']">
                                 <div class="l-sec">
                                     <div class="method" [ngClass]="endp.value.method.toUpperCase()"></div>
                                 </div>
                                 <div class="m-sec name">{{endp.value.name}}</div>
                                 <div class="r-sec">
-                                    <a mat-icon-button [matMenuTriggerFor]="endpMenu">
+                                    <button type="button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                                        [ngClass]="{t_bg:e.menuOpen}" mat-icon-button [matMenuTriggerFor]="endpMenu"
+                                        #e="matMenuTrigger">
                                         <mat-icon>more_vert</mat-icon>
-                                    </a>
+                                    </button>
                                     <mat-menu #endpMenu="matMenu">
-                                        <button mat-menu-item
-                                            (click)="changeStage('endpoints');endpointsView.openEndpById(endp.value._id);$event.stopPropagation()">
+                                        <a href="" [routerLink]="['endpoints', endp.value._id]" mat-menu-item>
                                             <mat-icon>edit</mat-icon> Edit
-                                        </button>
+                                        </a>
                                         <button mat-menu-item
                                             (click)="endpointsView.run(endp.value._id);$event.stopPropagation()">
                                             <mat-icon class="green">play_arrow</mat-icon> Run
@@ -80,14 +80,13 @@
                                         </button>
                                     </mat-menu>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!--models TODO: sort by name-->
                         <div *ngFor="let model of item.value.models | keyvalue">
-                            <div class="savedReq" matRipple
-                                (click)="changeStage('models');modelsView.openModelById(model.value._id);$event.stopPropagation()"
-                                [ngClass]="{active:flags.stage === 'models' && model.value._id == modelsView.selectedModel._id}">
+                            <a href="" class="savedReq" matRipple [routerLink]="['models', model.value._id]"
+                                [routerLinkActive]="['active']">
                                 <div class="l-sec">
                                     <div class="method MODEL"></div>
                                 </div>
@@ -95,48 +94,48 @@
                                     {{model.value.name}}
                                 </div>
                                 <div class="r-sec">
-                                    <button type="button" (click)="$event.stopPropagation()" mat-icon-button
-                                        [matMenuTriggerFor]="modelMenu">
+                                    <button type="button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                                        [ngClass]="{t_bg:m.menuOpen}" mat-icon-button [matMenuTriggerFor]="modelMenu"
+                                        #m="matMenuTrigger">
                                         <mat-icon>more_vert</mat-icon>
                                     </button>
                                     <mat-menu #modelMenu="matMenu">
-                                        <button mat-menu-item
-                                            (click)="changeStage('models');modelsView.openModelById(model.value._id);$event.stopPropagation()">
+                                        <a href="" [routerLink]="['models', model.value._id]" mat-menu-item>
                                             <mat-icon>edit</mat-icon> Edit
-                                        </button>
+                                        </a>
                                         <button mat-menu-item
-                                            (click)="modelsView.duplicateModel(model.value._id);$event.stopPropagation()">
+                                            (click)="duplicateModel(model.value._id);$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
                                         </button>
                                         <button mat-menu-item
-                                            (click)="modelsView.deleteModel(model.value._id);$event.stopPropagation()">
+                                            (click)="deleteModel(model.value._id);$event.stopPropagation()">
                                             <mat-icon class="red">delete</mat-icon>Delete
                                         </button>
                                     </mat-menu>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!--Traits TODO: sort by name-->
                         <div *ngFor="let trait of item.value.traits | keyvalue">
-                            <div class="savedReq" matRipple
-                                (click)="changeStage('traits');traitsView.openTraitById(trait.value._id);$event.stopPropagation()"
-                                [ngClass]="{active:flags.stage === 'traits' && trait.value._id == traitsView.selectedTrait._id}">
+                            <a href="" class="savedReq" matRipple [routerLink]="['traits', trait.value._id]"
+                                [routerLinkActive]="['active']">
                                 <div class="l-sec">
                                     <div class="method TRAIT"></div>
                                 </div>
                                 <div class="m-sec name">
                                     {{trait.value.name}}
                                 </div>
-                                <div class="r-sec" (click)="$event.stopPropagation()">
-                                    <a mat-icon-button [matMenuTriggerFor]="traitMenu">
+                                <div class="r-sec">
+                                    <button type="button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                                        #t="matMenuTrigger" [ngClass]="{t_bg:t.menuOpen}" mat-icon-button
+                                        [matMenuTriggerFor]="traitMenu">
                                         <mat-icon>more_vert</mat-icon>
-                                    </a>
+                                    </button>
                                     <mat-menu #traitMenu="matMenu">
-                                        <button mat-menu-item
-                                            (click)="changeStage('traits');traitsView.openTraitById(trait.value._id);$event.stopPropagation()">
+                                        <a href="" [routerLink]="['traits', trait.value._id]" mat-menu-item>
                                             <mat-icon>edit</mat-icon> Edit
-                                        </button>
+                                        </a>
                                         <button mat-menu-item
                                             (click)="traitsView.duplicateTrait(trait.value._id);$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
@@ -147,7 +146,7 @@
                                         </button>
                                     </mat-menu>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                     <!-- </div> -->
@@ -162,40 +161,42 @@
                         <a href="" [routerLink]="['/designer']">Workspace</a>
                     </li>
                     <li>
-                        <button class="btn-link bold" (click)="changeStage('dashboard')">{{selectedPROJ.title}}</button>
+                        <a href="" class="btn-link bold" [routerLink]="['./']">{{selectedPROJ.title}}</a>
                     </li>
                     <li>
                         <button class="btn-link capitalize" [matMenuTriggerFor]="brcmbMenu">{{flags.stage}} ⯆</button>
                         <mat-menu #brcmbMenu="matMenu">
-                            <button mat-menu-item (click)="changeStage('dashboard')">Dashboard</button>
-                            <button mat-menu-item (click)="changeStage('api builder')">API Builder</button>
-                            <button mat-menu-item (click)="changeStage('folders')">Folders</button>
-                            <button mat-menu-item (click)="changeStage('models')">Models</button>
-                            <button mat-menu-item (click)="changeStage('endpoints')">Endpoints</button>
-                            <button mat-menu-item (click)="changeStage('traits')">Traits</button>
+                            <a [routerLink]="['./']" mat-menu-item>Dashboard</a>
+                            <a [routerLink]="['api-builder']" mat-menu-item>API Builder</a>
+                            <a [routerLink]="['folders', 'new']" mat-menu-item>Folders</a>
+                            <a [routerLink]="['models', 'new']" mat-menu-item>Models</a>
+                            <a [routerLink]="['endpoints', 'new']" mat-menu-item>Endpoints</a>
+                            <a [routerLink]="['traits', 'new']" mat-menu-item>Traits</a>
                         </mat-menu>
                     </li>
                 </ol>
             </div>
 
             <div class="designer-cont">
-                <app-project-home [hidden]="flags.stage!=='dashboard'" [selectedPROJ]="selectedPROJ"
+                <!-- <app-project-home [hidden]="flags.stage!=='dashboard'" [selectedPROJ]="selectedPROJ"
                     (changeStageEmitter)="changeStage($event)" [updateApiProject]="updateApiProject"
                     [deleteApiProject]="deleteApiProject" (onExport)="openExportModal($event[0], $event[1])">
-                </app-project-home>
-                <app-project-folder #foldersView [hidden]="flags.stage!=='folders'" [selectedPROJ]="selectedPROJ"
+                </app-project-home> -->
+                <!-- <app-project-folder #foldersView [hidden]="flags.stage!=='folders'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
-                </app-project-folder>
-                <app-project-models #modelsView [hidden]="flags.stage!=='models'" [selectedPROJ]="selectedPROJ"
+                </app-project-folder> -->
+                <!-- <app-project-models #modelsView [hidden]="flags.stage!=='models'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
-                </app-project-models>
+                </app-project-models> -->
                 <app-project-endpoint #endpointsView [hidden]="flags.stage!=='endpoints'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
                 </app-project-endpoint>
                 <app-project-traits #traitsView [hidden]="flags.stage!=='traits'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
                 </app-project-traits>
+                <router-outlet></router-outlet>
             </div>
 
         </div>
     </div>
+</div>

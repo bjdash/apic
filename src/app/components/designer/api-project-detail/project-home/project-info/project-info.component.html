@@ -1,0 +1,100 @@
+<div class="content">
+    <form class="form-horizontal" [formGroup]="projDetailForm" (ngSubmit)="saveProjEdit()">
+        <div class="row">
+            <label class="control-label col-xs-2">Name :</label>
+            <div class="bold col-xs-10">
+                <span *ngIf="!flags.editProj">{{selectedPROJ.title}}</span>
+                <span *ngIf="flags.editProj">
+                    <input type="text" class="form-control input-sm" formControlName="title" id="proj-info-title" />
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-xs-2">Version :</label>
+            <div class="bold col-xs-10">
+                <span *ngIf="!flags.editProj">{{selectedPROJ.version}}</span>
+                <span *ngIf="flags.editProj">
+                    <input type="text" class="form-control input-sm" formControlName="version" />
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-xs-2">Description :</label>
+            <div class="bold col-xs-10">
+                <span *ngIf="!flags.editProj">{{selectedPROJ.description}}</span>
+                <span *ngIf="flags.editProj">
+                    <textarea formControlName="description" class="form-control input-sm"></textarea>
+                </span>
+            </div>
+        </div>
+        <div formGroupName="license">
+            <div class="row">
+                <label class="control-label col-xs-2">License Name :</label>
+                <div class="bold col-xs-10">
+                    <span *ngIf="!flags.editProj">{{selectedPROJ.license?.name}}</span>
+                    <span *ngIf="flags.editProj">
+                        <input type="text" class="form-control input-sm" formControlName="name" />
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-xs-2">License URL :</label>
+                <div class="bold col-xs-10">
+                    <span *ngIf="!flags.editProj">{{selectedPROJ.license?.url}}</span>
+                    <span *ngIf="flags.editProj">
+                        <input type="text" class="form-control input-sm" formControlName="url" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-xs-2">Terms of service</label>
+            <div class="bold col-xs-10">
+                <span *ngIf="!flags.editProj">{{selectedPROJ.termsOfService}}</span>
+                <span *ngIf="flags.editProj">
+                    <input type="text" class="form-control input-sm" formControlName="termsOfService" />
+                </span>
+            </div>
+        </div>
+        <div formGroupName="contact">
+            <div class="row">
+                <label class="control-label col-xs-2">Contact Name :</label>
+                <div class="bold col-xs-10">
+                    <span *ngIf="!flags.editProj">{{selectedPROJ.contact?.name}}</span>
+                    <span *ngIf="flags.editProj">
+                        <input type="text" class="form-control input-sm" formControlName="name" />
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-xs-2">Contact URL :</label>
+                <div class="bold col-xs-10">
+                    <span *ngIf="!flags.editProj">{{selectedPROJ.contact?.url}}</span>
+                    <span *ngIf="flags.editProj">
+                        <input type="text" class="form-control input-sm" formControlName="url" />
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-xs-2">Contact email :</label>
+                <div class="bold col-xs-10">
+                    <span *ngIf="!flags.editProj">{{selectedPROJ.contact?.email}}</span>
+                    <span *ngIf="flags.editProj">
+                        <input type="text" class="form-control input-sm" formControlName="email" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row margV5">
+            <div class="col-md-offset-2">
+                <span *ngIf="flags.editProj">
+                    <button type="submit" class="sm gap" mat-raised-button color="primary">Save</button>
+                    <button type="button" mat-button class="sm"
+                        (click)="flags.editProj = false;resetProjInfoEdit()">Cancel</button>
+                </span>
+                <button *ngIf="!flags.editProj" type="button" class="sm" mat-raised-button color="primary"
+                    (click)="enableEdit()">Edit</button>
+            </div>
+        </div>
+    </form>
+</div>

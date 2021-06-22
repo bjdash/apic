@@ -138,7 +138,7 @@ export class StompService {
                 // $rootScope.onSocketInbound(body);
                 this.client.onServerMessage$.next(message);
             } else {//request was made by me, 
-                if (message.own) {//check if its for own
+                if (message.own || message.force) {//check if its for own
                     // $rootScope.onSocketInbound(body);
                     this.client.onServerMessage$.next(message);
                     //TODO: Move syncing to header and last synced to sync service

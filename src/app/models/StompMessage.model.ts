@@ -8,7 +8,8 @@ import { TestProject } from "./TestProject.model";
 export interface StompMessage {
     opId?: string,
     command?: string,
-    own?: boolean,
+    own?: boolean,//TODO: remove own, use force = true for fetch/read, force=false, update, delete
+    force?: boolean,
     intrim?: boolean,
     since?: number,
     type?: string

@@ -1,28 +1,34 @@
-import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges, OnChanges, OnDestroy } from '@angular/core';
 import { ApiModel, ApiProject, NewApiModel } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Toaster } from 'src/app/services/toaster.service';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import apic from '../../../../utils/apic';
+import { Subject } from 'rxjs';
+import { ApiProjectService } from 'src/app/services/apiProject.service';
+import { ApiProjectDetailService } from '../api-project-detail.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-project-models',
   templateUrl: './project-models.component.html',
   styleUrls: ['../api-project-detail.component.css'],
 })
-export class ProjectModelsComponent implements OnInit, OnChanges {
-  @Input() selectedPROJ: ApiProject;
-  @Input() updateApiProject: Function;
-  // @Output() projectUpdated = new EventEmitter<any>();
-
-  modelForm: FormGroup;
+export class ProjectModelsComponent implements OnInit, OnDestroy {
+  selectedPROJ: ApiProject;
   selectedModel: ApiModel = null;
-  selectedName: string;
+  modelForm: FormGroup;
+  private _destroy: Subject<boolean> = new Subject<boolean>();
 
   constructor(
     private fb: FormBuilder,
     private toaster: Toaster,
-    private confirmService: ConfirmService
+    private confirmService: ConfirmService,
+    private apiProjService: ApiProjectService,
+    private apiProjectDetailService: ApiProjectDetailService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.modelForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -30,56 +36,70 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
       folder: [''],
       data: [{ type: 'object' }],
     });
-    this.openNewModel()
+
+    this.apiProjectDetailService.onSelectedProj$
+      .pipe(takeUntil(this._destroy))
+      .subscribe(project => {
+        this.selectedPROJ = project;
+        if (this.selectedModel) {
+          this.handleModelSelect(this.selectedModel._id);
+        }
+      })
+
+    this.route.params
+      .pipe(takeUntil(this._destroy))
+      .subscribe(({ modelId }) => {
+        this.handleModelSelect(modelId);
+      })
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.selectedPROJ?.currentValue && this.selectedModel) {
-      setTimeout(() => {
-        this.openModelById(this.selectedModel._id)
-      }, 0);
+
+
+  private handleModelSelect(modelId: string) {
+    this.selectedModel = this.selectedPROJ?.models?.[modelId];
+    if (!this.selectedModel) {
+      if (modelId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
+        // this.toaster.warn('Selected folder doesn\'t exist.');
+        this.router.navigate(['../', 'new'], { relativeTo: this.route });
+        return;
+      } else {
+        this.selectedModel = NewApiModel;
+      }
     }
-  }
-
-  ngOnInit(): void { }
-
-  openNewModel() {
-    this.openModel(NewApiModel);
-  }
-
-  openModelById(modelIdToOpen: string) {
-    const modelToOpen: ApiModel = this.selectedPROJ?.models?.[modelIdToOpen] || NewApiModel;
-    this.openModel(modelToOpen)
-  }
-
-  private openModel(modelToOpen: ApiModel) {
-    if (this.modelForm.dirty) {
-      this.confirmService
-        .confirm({
-          confirmTitle: 'Unsaved data !',
-          confirm:
-            'The Models view has some unsaved data. Do you want to replace it with your current selection?',
-          confirmOk: 'Replace',
-          confirmCancel: 'No, let me save',
-        })
-        .then(() => {
-          this.handleModelSelect(modelToOpen);
-        })
-        .catch(() => {
-          console.info('Selected to keep the changes');
-        });
-    } else {
-      this.handleModelSelect(modelToOpen);
-    }
-  }
-
-  private handleModelSelect(modelToOpen: ApiModel) {
-    this.selectedModel = { ...modelToOpen };
-    const { name, nameSpace, folder, data } = modelToOpen;
+    const { name, nameSpace, folder, data } = this.selectedModel;
     this.modelForm.patchValue({ name, nameSpace, folder, data });
-    this.selectedName = name || 'Create new folder';
     this.modelForm.markAsPristine();
     this.modelForm.markAsUntouched();
+
+  }
+
+  createModel(allowDup?: boolean) {
+    if (!this.modelForm.valid) return;
+
+    const model: ApiModel = { ...this.modelForm.value, _id: this.isEditing() ? this.selectedModel._id : new Date().getTime() + apic.s8() };
+
+    if (this.checkExistingModel(model.name) && !this.isEditing() && !allowDup) {
+      this.toaster.error('Model ' + model.name + ' already exists');
+      return;
+    }
+
+    var projToUpdate: ApiProject = { ...this.selectedPROJ, models: { ...this.selectedPROJ.models, [model._id]: model } };
+    this.apiProjService.updateAPIProject(projToUpdate).then((data) => {
+      this.modelForm.markAsPristine();
+      this.modelForm.markAsUntouched();
+      if (this.isEditing()) {
+        this.toaster.success('Model updated.');
+        this.selectedModel = model;
+      } else {
+        this.router.navigate(['../', model._id], { relativeTo: this.route })
+        this.toaster.success('Model created.');;
+      }
+    },
+      (e) => {
+        console.error('Failed to create/update model', e, model);
+        this.toaster.error(`Failed to create/update model: ${e.message}`);
+      }
+    );
   }
 
   deleteModel(modelId: string) {
@@ -97,14 +117,11 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
       })
       .then(() => {
         delete project.models[modelId];
-
-        this.updateApiProject(project).then(
+        this.apiProjService.updateAPIProject(project).then(
           () => {
             this.toaster.success('Model deleted.');
             this.modelForm.markAsPristine();
-            if (modelId === this.selectedModel._id) {
-              this.openNewModel();
-            }
+            this.router.navigate(['../', 'new'], { relativeTo: this.route })
           },
           (e) => {
             console.error('Failed to delete model', e);
@@ -114,34 +131,23 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
       });
   }
 
-  createModel(allowDup?: boolean) {
-    if (!this.modelForm.valid) return;
-
-    const model: ApiModel = { ...this.modelForm.value, _id: this.isEditing() ? this.selectedModel._id : new Date().getTime() + apic.s8() };
-
-    if (this.checkExistingModel(model.name) && !this.isEditing() && !allowDup) {
-      this.toaster.error('Model ' + model.name + ' already exists');
-      return;
-    }
-
-    var projToUpdate: ApiProject = { ...this.selectedPROJ, models: { ...this.selectedPROJ.models, [model._id]: model } };
-    this.updateApiProject(projToUpdate).then((data) => {
-      this.selectedName = model.name;
-      if (this.isEditing()) {
-        this.toaster.success('Model updated');
+  canDeactivate() {
+    return new Promise<boolean>((resolve) => {
+      if (this.modelForm.dirty) {
+        this.confirmService.confirm({
+          confirmTitle: 'Unsaved data !',
+          confirm: 'Models view has some unsaved data. Current action will discard any unsave changes.',
+          confirmOk: 'Discard',
+          confirmCancel: 'No, let me save'
+        }).then(() => {
+          resolve(true)
+        }).catch(() => {
+          resolve(false)
+        })
       } else {
-        this.toaster.success('Model created');
+        resolve(true)
       }
-      this.modelForm.markAsPristine();
-      this.modelForm.markAsUntouched();
-      this.selectedModel._id = model._id;
-
-    },
-      (e) => {
-        console.error('Failed to create/update model', e, model);
-        this.toaster.error(`Failed to create/update model: ${e.message}`);
-      }
-    );
+    })
   }
 
   setDefaultNameSpace() {
@@ -158,41 +164,8 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
       name.toLowerCase()) !== undefined;
   }
 
-  duplicateModel(modelId: string) {
-    var toCopy: ApiModel = { ...this.selectedPROJ.models[modelId] };
-    toCopy._id = apic.s12();
-    while (this.checkExistingModel(toCopy.name)) {
-      var counter = parseInt(toCopy.name.charAt(toCopy.name.length - 1));
-      var numberAtEnd = true;
-      if (isNaN(counter)) {
-        counter = 0;
-        numberAtEnd = false;
-      }
-      counter++;
-      toCopy.name =
-        (numberAtEnd
-          ? toCopy.name.substring(0, toCopy.name.length - 1)
-          : toCopy.name
-        ).trim() +
-        ' ' +
-        counter;
-      toCopy.nameSpace =
-        (numberAtEnd
-          ? toCopy.nameSpace.substring(0, toCopy.nameSpace.length - 1)
-          : toCopy.nameSpace
-        ).trim() +
-        ' ' +
-        counter;
-    }
-    let project: ApiProject = { ...this.selectedPROJ, models: { ...this.selectedPROJ.models, [toCopy._id]: toCopy } }
-    this.updateApiProject(project).then(() => {
-      this.toaster.success('Duplicate Model ' + toCopy.name + ' created.');
-    });
-  }
-
   discardChange() {
-    this.modelForm.markAsPristine();
-    this.openModel(this.selectedModel);
+    this.handleModelSelect(this.selectedModel._id);
   }
 
   isEditing() {
@@ -202,4 +175,13 @@ export class ProjectModelsComponent implements OnInit, OnChanges {
   setDirty() {
     this.modelForm.markAsDirty();
   }
+
+  ngOnDestroy(): void {
+    this._destroy.next(true);
+    this._destroy.complete();
+  }
+
+  ngOnInit(): void { }
+
+
 }

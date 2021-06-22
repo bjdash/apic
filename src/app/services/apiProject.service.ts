@@ -10,11 +10,17 @@ import { SyncService } from './sync.service';
 import { UserState } from '../state/user.state';
 import { StompMessage } from '../models/StompMessage.model';
 import { SAVED_SETTINGS } from '../utils/constants';
+import { ApiProjectStateSelector } from '../state/apiProjects.selector';
+import { BehaviorSubject, from, Observable } from 'rxjs';
+import { delay, delayWhen } from 'rxjs/operators';
+import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 
 @Injectable()
 export class ApiProjectService {
     authUser: User;
     ajv = null;
+    updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
+
 
     constructor(private store: Store, private syncService: SyncService) {
         this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -23,7 +29,9 @@ export class ApiProjectService {
         this.syncService.onApiProjectMessage$.subscribe(async message => {
             this.onSyncMessage(message);
         })
+        this.updatedViaSync$ = new BehaviorSubject(null);
         this.ajv = new Ajv();
+        this.loadApiProjs();
     }
 
     addProjects(projs: ApiProject[], fromSync?: boolean): Promise<IDBValidKey> {
@@ -50,7 +58,16 @@ export class ApiProjectService {
         });
     }
 
-    async getApiProjs() {
+    getApiProjects(): Observable<ApiProject[]> {
+        return this.store.select(ApiProjectStateSelector.getPartial)
+    }
+
+    getApiProjectById(id): Observable<ApiProject> {
+        return this.store.select(ApiProjectStateSelector.getByIdDynamic(id))
+        // .pipe(delay(0));
+    }
+
+    private async loadApiProjs() {
         const projects = await iDB.read(iDB.TABLES.API_PROJECTS);
         this.store.dispatch(new ApiProjectsAction.Refresh(projects));
         return projects;
@@ -66,33 +83,21 @@ export class ApiProjectService {
         });
     }
 
-    updateAPIProject(project: ApiProject, fromSync?: boolean, preventLeftmenuUpdate?: boolean): Promise<ApiProject> {
-        if (!fromSync) {
-            project._modified = Date.now();
-        }
-        return iDB.upsert('ApiProjects', project).then((data) => {
-            if (data && !fromSync && this.authUser?.UID) {
-                var projsToSync = apic.removeDemoItems(project); //returns list
-                if (projsToSync.length > 0) {
-                    this.syncService.prepareAndSync('updateAPIProject', projsToSync);
-                }
+    async updateAPIProject(project: ApiProject): Promise<ApiProject> {
+        project._modified = Date.now();
+
+        let data = await iDB.upsert('ApiProjects', project);
+        if (data && this.authUser?.UID) {
+            var projsToSync = apic.removeDemoItems(project); //returns list
+            if (projsToSync.length > 0) {
+                this.syncService.prepareAndSync('updateAPIProject', projsToSync);
             }
-            this.store.dispatch(new ApiProjectsAction.Update([project]));
-            //TODO
-            // if (!preventLeftmenuUpdate) {
-            //     if (projects._id) {
-            //         $rootScope.$emit('refreshProjectReqs', { type: 'update', projId: projects._id });
-            //     } else {
-            //         $rootScope.$emit('refreshProjectReqs');
-            //     }
-            // } else {
-            //     $rootScope.$emit('ApiProjChanged');
-            // }
-            return project;
-        });
+        }
+        this.store.dispatch(new ApiProjectsAction.Update([project]));
+        return project;
     }
 
-    updateAPIProjects(projects: ApiProject[], fromSync?: boolean, preventLeftmenuUpdate?: boolean) {
+    /*updateAPIProjects(projects: ApiProject[], fromSync?: boolean, preventLeftmenuUpdate?: boolean) {
         if (!fromSync) {
             projects.forEach(project => project._modified = Date.now());
         }
@@ -110,6 +115,21 @@ export class ApiProjectService {
             // this.stateTracker.next({ env });
             return updatedIds;
         });
+    }*/
+
+    //Update the API projects when received via sync message
+    async updateSyncedProjects(projects: ApiProject[]) {
+        let updatedIds = await iDB.upsertMany(iDB.TABLES.API_PROJECTS, projects);
+        this.updatedViaSync$.next({ type: 'update', ids: updatedIds as string[] });
+        this.store.dispatch(new ApiProjectsAction.Update(projects));
+        return updatedIds;
+    }
+
+    async deleteSyncedProjects(ids: string[]) {
+        await iDB.deleteMany(iDB.TABLES.API_PROJECTS, ids);
+        this.updatedViaSync$.next({ type: 'delete', ids });
+        this.store.dispatch(new ApiProjectsAction.Delete(ids));
+        return ids;
     }
 
     async onSyncMessage(message: StompMessage) {
@@ -117,15 +137,15 @@ export class ApiProjectService {
 
         if (message.apiProjects?.length > 0) {
             if (message.action === 'add' || message.action === 'update') {
-                const resp = await this.updateAPIProjects(message.apiProjects, true);
+                const resp = await this.updateSyncedProjects(message.apiProjects);
                 console.info('Sync: added/updated API project', resp)
             }
         } else if (message.idList?.length > 0 && message.action === 'delete') {
-            const resp = await this.deleteAPIProjects(message.idList, true);
+            const resp = await this.deleteSyncedProjects(message.idList);
             console.info('Sync: deleted API project', resp)
         }
         if (message.nonExistant?.apiProjects?.length > 0) {
-            const resp = await this.deleteAPIProjects(message.nonExistant?.apiProjects, true);
+            const resp = await this.deleteSyncedProjects(message.nonExistant?.apiProjects);
             console.info('Sync: deleted API project', resp)
         }
 

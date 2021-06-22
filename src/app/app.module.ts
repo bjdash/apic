@@ -41,9 +41,9 @@ import { FormValidatorDirective } from './directives/form-validator.directive';
 import { ApiProjectDetailComponent } from './components/designer/api-project-detail/api-project-detail.component';
 import { ProjectHomeComponent } from './components/designer/api-project-detail/project-home/project-home.component';
 import { ProjectFolderComponent } from './components/designer/api-project-detail/project-folder/project-folder.component';
+import { ProjectModelsComponent } from './components/designer/api-project-detail/project-models/project-models.component';
 import { ProjectTraitsComponent } from './components/designer/api-project-detail/project-traits/project-traits.component';
 import { ProjectEndpointComponent } from './components/designer/api-project-detail/project-endpoint/project-endpoint.component';
-import { ProjectModelsComponent } from './components/designer/api-project-detail/project-models/project-models.component';
 import {
   ConfirmDirective,
   ConfirmDirectiveComponent,
@@ -111,6 +111,8 @@ import { LogoutComponent } from './components/login/logout/logout.component';
 import { TesterLeftNavSuitesComponent } from './components/tester/tester-left-nav/tester-left-nav-suites/tester-left-nav-suites.component';
 import { SuitesState } from './state/suites.state';
 import { TabSuiteComponent } from './components/tester/tester-tabs/tab-suite/tab-suite.component';
+import { ProjectInfoComponent } from './components/designer/api-project-detail/project-home/project-info/project-info.component';
+import { ProjectDetailRouteGuard } from './components/designer/api-project-detail/api-project-detail-route-guard';
 
 @NgModule({
   declarations: [
@@ -168,7 +170,8 @@ import { TabSuiteComponent } from './components/tester/tester-tabs/tab-suite/tab
     TesterLeftNavHistoryComponent,
     LogoutComponent,
     TesterLeftNavSuitesComponent,
-    TabSuiteComponent
+    TabSuiteComponent,
+    ProjectInfoComponent
   ],
   imports: [
     BrowserModule,
@@ -225,7 +228,8 @@ import { TabSuiteComponent } from './components/tester/tester-tabs/tab-suite/tab
     RememberService,
     TesterTabsService,
     TesterService,
-    ReqHistoryService
+    ReqHistoryService,
+    ProjectDetailRouteGuard
   ],
   bootstrap: [AppComponent],
 })

@@ -1,44 +1,76 @@
 import { Toaster } from './../../../../services/toaster.service';
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { ApiProject, ApiFolder, NewApiFolder, ApiModel, ApiEndp, ApiTrait } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import apic from '../../../../utils/apic';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Utils } from 'src/app/services/utils.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, Observable, Subject, zip } from 'rxjs';
+import { Store } from '@ngxs/store';
+import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
+import { take, takeUntil } from 'rxjs/operators';
+import { User } from 'src/app/models/User.model';
+import { ApiProjectDetailService } from '../api-project-detail.service';
+import { ApiProjectService } from 'src/app/services/apiProject.service';
 
 @Component({
     selector: 'app-project-folder',
     templateUrl: './project-folder.component.html',
     styleUrls: ['../api-project-detail.component.css']
 })
-export class ProjectFolderComponent implements OnInit, OnChanges {
-    @Input() selectedPROJ: ApiProject;
-    @Input() updateApiProject: Function;
-
-    folderForm: FormGroup;
+export class ProjectFolderComponent implements OnInit, OnDestroy {
+    selectedPROJ: ApiProject;
+    authUser: User;
     selectedFolder: ApiFolder = null;
-    selectedName: string
+    folderForm: FormGroup;
+    private _destroy: Subject<boolean> = new Subject<boolean>();
 
-    constructor(private fb: FormBuilder, private toaster: Toaster, private confirmService: ConfirmService) {
+    constructor(
+        private fb: FormBuilder,
+        private toaster: Toaster,
+        private confirmService: ConfirmService,
+        private apiProjService: ApiProjectService,
+        private apiProjectDetailService: ApiProjectDetailService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) {
         this.folderForm = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(30)]],
             desc: ['', Validators.maxLength(400)]
         });
-        this.openNewFolder()
+
+        this.apiProjectDetailService.onSelectedProj$
+            .pipe(takeUntil(this._destroy))
+            .subscribe(project => {
+                this.selectedPROJ = project;
+                if (this.selectedFolder) {
+                    this.handleFolderSelect(this.selectedFolder._id);
+                }
+            })
+
+        this.route.params
+            .pipe(takeUntil(this._destroy))
+            .subscribe(({ folderId }) => {
+                this.handleFolderSelect(folderId);
+            })
     }
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.selectedPROJ?.currentValue && this.selectedFolder) {
-            setTimeout(() => {
-                this.openFolderById(this.selectedFolder._id)
-            }, 0);
+
+    private handleFolderSelect(folderId: string) {
+        this.selectedFolder = this.selectedPROJ?.folders?.[folderId];
+        if (!this.selectedFolder) {
+            if (folderId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
+                // this.toaster.warn('Selected folder doesn\'t exist.');
+                this.router.navigate(['../', 'new'], { relativeTo: this.route });
+                return;
+            } else {
+                this.selectedFolder = NewApiFolder;
+            }
         }
-    }
-
-    ngOnInit(): void {
-    }
-
-    isEditing() {
-        return !(this.selectedFolder._id === 'NEW');
+        const { name, desc } = this.selectedFolder;
+        this.folderForm.patchValue({ name, desc });
+        this.folderForm.markAsPristine();
+        this.folderForm.markAsUntouched();
     }
 
     createFolder() {
@@ -52,56 +84,47 @@ export class ProjectFolderComponent implements OnInit, OnChanges {
         }
 
         var projToUpdate: ApiProject = { ...this.selectedPROJ, folders: { ...this.selectedPROJ.folders, [folder._id]: folder } };
-        this.updateApiProject(projToUpdate).then((data) => {
-            this.selectedName = folder.name;
-            if (this.isEditing()) {
-                this.toaster.success('Folder updated');
-            } else {
-                this.toaster.success('Folder created');
-            }
+        this.apiProjService.updateAPIProject(projToUpdate).then((data) => {
             this.folderForm.markAsPristine();
             this.folderForm.markAsUntouched();
-            this.selectedFolder._id = folder._id;
+            if (this.isEditing()) {
+                this.toaster.success('Folder updated.');
+                this.selectedFolder = folder;
+            } else {
+                this.router.navigate(['../', folder._id], { relativeTo: this.route })
+                this.toaster.success('Folder created.');
+            }
         }, (e) => {
             console.error('Failed to create/update folder', e, folder)
             this.toaster.error(`Failed to create/update folder: ${e.message}`);
         });
     }
 
-    openNewFolder() {
-        this.openFolder(NewApiFolder);
-    }
+    // openNewFolder() {
+    //     this.openFolder(NewApiFolder);
+    // }
 
-    openFolderById(folderIdToOpen: string) {
-        const folderToOpen: ApiFolder = this.selectedPROJ?.folders?.[folderIdToOpen] || NewApiFolder;
-        this.openFolder(folderToOpen)
-    }
+    // openFolderById(folderIdToOpen: string) {
+    //     const folderToOpen: ApiFolder = this.selectedPROJ?.folders?.[folderIdToOpen] || NewApiFolder;
+    //     this.openFolder(folderToOpen)
+    // }
 
-    private openFolder(folderToOpen: ApiFolder) {
-        if (this.folderForm.dirty) {
-            this.confirmService.confirm({
-                confirmTitle: 'Unsaved data !',
-                confirm: 'The Folders view has some unsaved data. Do you want to replace it with your current selection?',
-                confirmOk: 'Replace',
-                confirmCancel: 'No, let me save'
-            }).then(() => {
-                this.handleFolderSelect(folderToOpen);
-            }).catch(() => {
-                console.info('Selected to keep the changes');
-            })
-        } else {
-            this.handleFolderSelect(folderToOpen);
-        }
-    }
-
-    private handleFolderSelect(folderToOpen: ApiFolder) {
-        this.selectedFolder = { ...folderToOpen };
-        const { name, desc } = folderToOpen;
-        this.folderForm.patchValue({ name, desc });
-        this.selectedName = name || 'Create new folder';
-        this.folderForm.markAsPristine();
-        this.folderForm.markAsUntouched();
-    }
+    // private openFolder(folderToOpen: ApiFolder) {
+    //     if (this.folderForm.dirty) {
+    //         this.confirmService.confirm({
+    //             confirmTitle: 'Unsaved data !',
+    //             confirm: 'The Folders view has some unsaved data. Do you want to replace it with your current selection?',
+    //             confirmOk: 'Replace',
+    //             confirmCancel: 'No, let me save'
+    //         }).then(() => {
+    //             this.handleFolderSelect(folderToOpen);
+    //         }).catch(() => {
+    //             console.info('Selected to keep the changes');
+    //         })
+    //     } else {
+    //         this.handleFolderSelect(folderToOpen);
+    //     }
+    // }
 
     deleteFolder(id: string) {
         if (!id || !this.selectedPROJ.folders)
@@ -138,10 +161,10 @@ export class ProjectFolderComponent implements OnInit, OnChanges {
                 project = { ...project, traits: Utils.arrayToObj(updatedTraits, '_id') };
             }
 
-            this.updateApiProject(project).then(() => {
+            this.apiProjService.updateAPIProject(project).then(() => {
                 this.toaster.success('Folder deleted.');
                 this.folderForm.markAsPristine();
-                this.openFolder(NewApiFolder);
+                this.router.navigate(['../', 'new'], { relativeTo: this.route })
             }, (e) => {
                 console.error('Failed to delete folder', e);
                 this.toaster.error(`Failed to delete folder: ${e.message}`);
@@ -163,4 +186,34 @@ export class ProjectFolderComponent implements OnInit, OnChanges {
         return foundId;
     }
 
+    canDeactivate() {
+        return new Promise<boolean>((resolve) => {
+            if (this.folderForm.dirty) {
+                this.confirmService.confirm({
+                    confirmTitle: 'Unsaved data !',
+                    confirm: 'Folders view has some unsaved data. Current action will discard any unsave changes.',
+                    confirmOk: 'Discard',
+                    confirmCancel: 'No, let me save'
+                }).then(() => {
+                    resolve(true)
+                }).catch(() => {
+                    resolve(false)
+                })
+            } else {
+                resolve(true)
+            }
+        })
+    }
+
+    isEditing() {
+        return !(this.selectedFolder._id === 'NEW');
+    }
+
+    ngOnDestroy(): void {
+        this._destroy.next(true);
+        this._destroy.complete();
+    }
+
+    ngOnInit(): void {
+    }
 }
