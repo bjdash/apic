@@ -1,7 +1,7 @@
 import { ProjectTraitsComponent } from './project-traits/project-traits.component';
 import { ApiProjectService } from './../../../services/apiProject.service';
 import { from, Observable, Subject, Subscription } from 'rxjs';
-import { ApiModel, ApiProject } from './../../../models/ApiProject.model';
+import { ApiModel, ApiProject, ApiTrait } from './../../../models/ApiProject.model';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, Event as NavigationEvent, NavigationStart, NavigationEnd } from '@angular/router';
 import { Store } from '@ngxs/store';
@@ -57,8 +57,6 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
             this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).pipe(takeUntil(this._destroy)).subscribe(leftTree => {
                 this.leftPanel.tree = leftTree;
             });
-            // this.selectedPROJ$ = this.store.select(ApiProjectStateSelector.getById)
-            //     .pipe(map(filterFn => filterFn(params.projectId)));
             this.store.select(UserState.getAuthUser).pipe(takeUntil(this._destroy)).subscribe(user => {
                 this.authUser = user;
             });
@@ -74,7 +72,6 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                 })
             this.selectedPROJ$
                 .pipe(takeUntil(this._destroy))
-                // .pipe(delay(0))
                 .subscribe(p => {
                     if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
                         if (this.updatedInBackground == 'update') {
@@ -107,30 +104,6 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                             this.router.navigate(['designer'])
                         }
                     }
-
-                    // if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
-                    //     if (this.selectedPROJ) {
-                    //         this.confirmService.alert({
-                    //             id: 'Sync:Project Updated',
-                    //             confirmTitle: 'Project modified',
-                    //             confirm: 'The selected API project has been modified by another user. Contents of this screen will refresh to reflect changes.',
-                    //             confirmOk: 'Ok'
-                    //         }).then(() => {
-                    //             this.selectedPROJ = p;
-                    //         }).catch(() => { })
-                    //     } else {
-                    //         this.selectedPROJ = p;
-                    //     }
-                    // } else if (p == undefined && this.selectedPROJ) {
-                    //     this.confirmService.alert({
-                    //         id: 'Sync:Project Deleted',
-                    //         confirmTitle: 'Project deleted',
-                    //         confirm: 'The selected API project has been deleted by its owner.',
-                    //         confirmOk: 'Ok'
-                    //     }).then(() => {
-                    //         this.router.navigate(['designer'])
-                    //     }).catch(() => { })
-                    // }
                 })
         });
 
@@ -148,9 +121,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this._destroy.next();
         this._destroy.complete();
     }
-    ngOnInit(): void {
-
-    }
+    ngOnInit(): void { }
 
     get selectedPROJ() {
         return this._selectedPROJ;
@@ -161,50 +132,83 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.apiProjectDetailService.selectProj(proj);
     }
 
-    openItem(type, id, event?) {
-        if (event) event.stopPropagation();
-        this.router.navigate([type, id], { relativeTo: this.route })
-    }
-
-    duplicateModel(modelId: string) {
-        var toCopy: ApiModel = { ...this.selectedPROJ.models[modelId] };
+    duplicateItem(id: string, type: 'models' | 'traits' | 'endpoints') {
+        var toCopy = { ...this.selectedPROJ[type][id] };
         toCopy._id = apic.s12();
-        while (this.checkExistingModel(toCopy.name)) {
-            var counter = parseInt(toCopy.name.charAt(toCopy.name.length - 1));
+        let nameProperty = this.getNameProperty(type);
+        while (this.checkExistingItem(nameProperty, toCopy[nameProperty], type)) {
+            var counter = parseInt(toCopy[nameProperty].charAt(toCopy[nameProperty].length - 1));
             var numberAtEnd = true;
             if (isNaN(counter)) {
                 counter = 0;
                 numberAtEnd = false;
             }
             counter++;
-            toCopy.name =
+            toCopy[nameProperty] =
                 (numberAtEnd
-                    ? toCopy.name.substring(0, toCopy.name.length - 1)
-                    : toCopy.name
+                    ? toCopy[nameProperty].substring(0, toCopy[nameProperty].length - 1)
+                    : toCopy[nameProperty]
                 ).trim() +
                 ' ' +
                 counter;
-            toCopy.nameSpace =
-                (numberAtEnd
-                    ? toCopy.nameSpace.substring(0, toCopy.nameSpace.length - 1)
-                    : toCopy.nameSpace
-                ).trim() +
-                ' ' +
-                counter;
+            if (type === 'models') {
+                toCopy['nameSpace'] =
+                    (numberAtEnd
+                        ? toCopy['nameSpace'].substring(0, toCopy['nameSpace'].length - 1)
+                        : toCopy['nameSpace']
+                    ).trim() +
+                    ' ' +
+                    counter;
+            }
         }
-        let project: ApiProject = { ...this.selectedPROJ, models: { ...this.selectedPROJ.models, [toCopy._id]: toCopy } }
+        let project: ApiProject = { ...this.selectedPROJ, [type]: { ...this.selectedPROJ[type], [toCopy._id]: toCopy } }
         this.updateApiProject(project).then(() => {
-            this.toaster.success('Duplicate Model ' + toCopy.name + ' created.');
+            this.toaster.success(`Duplicate ${type.substring(0, type.length - 1)} '${toCopy[nameProperty]}' created.`);
         });
     }
-    checkExistingModel(name: string): boolean {
-        if (!name) return false;
 
-        return this.selectedPROJ?.models && Object.values(this.selectedPROJ.models).find((model: ApiModel) => model.name.toLowerCase() ===
-            name.toLowerCase()) !== undefined;
+    deleteItem(id: string, type: 'models' | 'traits' | 'endpoints') {
+        if (!id || !this.selectedPROJ[type]) return;
+
+        const { [id]: toRemove, ...remaining } = this.selectedPROJ[type];
+        let project: ApiProject = { ...this.selectedPROJ, [type]: remaining }
+        let nameProperty = this.getNameProperty(type);
+
+        this.confirmService
+            .confirm({
+                confirmTitle: 'Delete Confirmation',
+                confirm: `Do you want to delete the ${type.substring(0, type.length - 1)} '${toRemove[nameProperty]}'?`,
+                confirmOk: 'Delete',
+                confirmCancel: 'Cancel',
+            })
+            .then(() => {
+                delete project[type][id];
+                this.updateApiProject(project).then(
+                    () => {
+                        this.toaster.success(`Selected ${type.substring(0, type.length - 1)} deleted.`);
+                    },
+                    (e) => {
+                        console.error(`Failed to delete ${type.substring(0, type.length - 1)}`, e);
+                        this.toaster.error(`Failed to delete ${type.substring(0, type.length - 1)}: ${e.message}`);
+                    }
+                );
+            });
     }
-    deleteModel(id) {
-        alert()
+
+    checkExistingItem(nameProperty: string, nameValue: string, type: 'models' | 'traits' | 'endpoints'): boolean {
+        if (!nameValue || !nameProperty) return false;
+
+        return this.selectedPROJ[type] && Object.values(this.selectedPROJ[type]).find((item) => item[nameProperty].toLowerCase() ===
+            nameValue.toLowerCase()) !== undefined;
+    }
+    private getNameProperty(type) {
+        switch (type) {
+            case 'models':
+            case 'traits':
+                return 'name';
+            case 'endpoints':
+                return 'summary';
+        }
     }
 
     sortLeftTreeFolder = (a, b): number => {
@@ -212,7 +216,10 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         return a.value.folder.name.localeCompare(b.value);
     }
 
-    //TODO: remove this when all components moved to routes
+    run(id: string) {
+        //TODO: 
+    }
+
     async updateApiProject(proj?: ApiProject): Promise<ApiProject> {
         if (!proj) proj = this.selectedPROJ;
         this.selectedPROJ = await this.apiProjectService.updateAPIProject(proj);

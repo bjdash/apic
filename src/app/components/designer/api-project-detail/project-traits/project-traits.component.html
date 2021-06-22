@@ -1,10 +1,10 @@
-<div class="content">
+<div class="content" *ngIf="selectedPROJ">
     <div class="submodMenu">
         <div class="submodMenuOptn">
             <span *ngIf="selectedTrait._id === 'NEW'">
                 <button type="button" type="button" (click)="createTrait()" form="traitForm" class="sm gap"
                     mat-raised-button color="primary">Create</button>
-                <button mat-button class="sm" type="reset" (click)="openNewTrait()">Reset</button>
+                <button mat-button class="sm" type="reset" (click)="traitForm.reset()">Reset</button>
             </span>
             <span *ngIf="selectedTrait._id !== 'NEW'">
                 <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
@@ -14,9 +14,9 @@
                 <button type="button" type="button" *ngIf="traitForm.dirty" class="sm gap" mat-raised-button
                     (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
-                <button type="button" type="button" (click)="openNewTrait()" class="sm gap" mat-raised-button>
+                <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
                     <mat-icon class="sm">add</mat-icon>New Trait
-                </button>
+                </a>
             </span>
         </div>
         <div class="tip"></div>
@@ -26,15 +26,15 @@
         <span class="gap">Traits:</span>
         <div class="margL10">
             <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="traitsList">
-                <span class="gap">{{selectedName}}</span>
+                <span class="gap">{{selectedTrait?.name || 'Create new trait'}}</span>
                 <span *ngIf="traitForm.dirty">(Unsaved)</span>
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #traitsList="matMenu">
-                <button mat-menu-item (click)="openNewTrait()">Create new Trait</button>
+                <a href="" mat-menu-item [routerLink]="['../', 'new']">Create new Trait</a>
                 <mat-divider></mat-divider>
-                <button *ngFor="let trait of selectedPROJ.traits | keyvalue" (click)="openTraitById(trait.value._id)"
-                    mat-menu-item>{{trait.value.name}}</button>
+                <a href="" *ngFor="let trait of selectedPROJ.traits | keyvalue" [routerLink]="['../', trait.value._id]"
+                    mat-menu-item>{{trait.value.name}}</a>
             </mat-menu>
         </div>
         <a class="f18 pull-right" mat-icon-button href="https://apic.app/docs/designer/create-trait" target="_new">
@@ -70,54 +70,28 @@
                     <textarea class="form-control" formControlName="summary"></textarea>
                 </div>
             </div>
-            <fieldset class="paper2">
-                <legend class="vcenter" (click)="panels.path = !panels.path">
-                    <mat-icon *ngIf="panels.path">expand_more</mat-icon>
-                    <mat-icon *ngIf="!panels.path">chevron_right</mat-icon>
-                    Path Params
-                </legend>
-                <div [hidden]="!panels.path">
+            <mat-tab-group class="margV10" animationDuration="0ms">
+                <mat-tab label="Path Params">
                     <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
-                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams"></ng-jsonschema>
-                </div>
-            </fieldset>
-
-            <fieldset class="paper2">
-                <legend class="vcenter" (click)="panels.query = !panels.query">
-                    <mat-icon *ngIf="panels.query">expand_more</mat-icon>
-                    <mat-icon *ngIf="!panels.query">chevron_right</mat-icon>
-                    Query Params
-                </legend>
-                <div [hidden]="!panels.query">
+                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams">
+                    </ng-jsonschema>
+                </mat-tab>
+                <mat-tab label="Query Params">
                     <ng-jsonschema mode="list" msg="Define Query params here and reuse them with endpoints."
-                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"></ng-jsonschema>
-                </div>
-            </fieldset>
-
-            <fieldset class="paper2">
-                <legend class="vcenter" (click)="panels.header = !panels.header">
-                    <mat-icon *ngIf="panels.header">expand_more</mat-icon>
-                    <mat-icon *ngIf="!panels.header">chevron_right</mat-icon>
-                    Headers
-                </legend>
-                <div [hidden]="!panels.header">
+                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams">
+                    </ng-jsonschema>
+                </mat-tab>
+                <mat-tab label="Headers">
                     <ng-jsonschema mode="list" msg="Define Headers here and reuse them with endpoints."
                         (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
-                </div>
-            </fieldset>
-
-            <fieldset class="paper2">
-                <legend class="vcenter" (click)="panels.resp = !panels.resp">
-                    <mat-icon *ngIf="panels.resp">expand_more</mat-icon>
-                    <mat-icon *ngIf="!panels.resp">chevron_right</mat-icon>
-                    Responses
-                </legend>
-                <div [hidden]="!panels.resp">
-                    <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="responses">
-                    </response-schema-builder>
-
-                </div>
-            </fieldset>
+                </mat-tab>
+                <mat-tab label="Responses">
+                    <div class="pad10">
+                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="responses">
+                        </response-schema-builder>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
         </form>
     </div>
 </div>

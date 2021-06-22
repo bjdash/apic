@@ -35,8 +35,8 @@ const routes: Routes = [
       { path: '', component: ProjectHomeComponent, pathMatch: 'full' },
       { path: "folders/:folderId", component: ProjectFolderComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "models/:modelId", component: ProjectModelsComponent, canDeactivate: [ProjectDetailRouteGuard] },
-      // { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectEndpointComponent] },
-      // { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectTraitsComponent] },
+      { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
+      { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },
       // { path: "api-builder", component: , canDeactivate: [] },
     ]
   },

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { ApiEndp, ApiProject, ApiTrait, NewApiEndp } from 'src/app/models/ApiProject.model';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
@@ -6,29 +6,27 @@ import { Toaster } from 'src/app/services/toaster.service';
 import { MIMEs } from 'src/app/utils/constants';
 import { Utils } from 'src/app/services/utils.service';
 import apic from 'src/app/utils/apic';
+import { Subject } from 'rxjs';
+import { ApiProjectService } from 'src/app/services/apiProject.service';
+import { ApiProjectDetailService } from '../api-project-detail.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-project-endpoint',
   templateUrl: './project-endpoint.component.html',
   styleUrls: ['../api-project-detail.component.css'],
 })
-export class ProjectEndpointComponent implements OnInit, OnChanges {
-  @Input() selectedPROJ: ApiProject;
-  @Input() updateApiProject: Function;
+export class ProjectEndpointComponent implements OnInit, OnDestroy {
+  selectedPROJ: ApiProject;
+  selectedEndp: ApiEndp;
+  endpForm: FormGroup;
+  private _destroy: Subject<boolean> = new Subject<boolean>();
 
   schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
   MIMEs = MIMEs;
-  selectedEndp: ApiEndp;
-  selectedName: string;
-  endpForm: FormGroup;
   flags = {
     allOptn: true,
-    path: true,
-    body: true,
-    query: true,
-    header: true,
-    resp: true,
-    test: true,
     more: true,
     traitQP: [], //query params from trait
     traitHP: [] //header params from trait
@@ -37,7 +35,11 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
   constructor(
     private fb: FormBuilder,
     private toaster: Toaster,
-    private confirmService: ConfirmService
+    private confirmService: ConfirmService,
+    private apiProjService: ApiProjectService,
+    private apiProjectDetailService: ApiProjectDetailService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.endpForm = this.fb.group({
       summary: ['', [Validators.required, Validators.maxLength(255)]],
@@ -64,61 +66,42 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
       prerun: [''],
     });
 
-    this.openNewEndp();
+    this.apiProjectDetailService.onSelectedProj$
+      .pipe(takeUntil(this._destroy))
+      .subscribe(project => {
+        this.selectedPROJ = project;
+        if (this.selectedEndp) {
+          this.handleEndpSelect(this.selectedEndp._id);
+        }
+      })
+
+    this.route.params
+      .pipe(takeUntil(this._destroy))
+      .subscribe(({ endpId }) => {
+        this.handleEndpSelect(endpId);
+      })
   }
 
-  ngOnInit(): void { }
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.selectedPROJ?.currentValue && this.selectedEndp) {
-      setTimeout(() => {
-        this.openEndpById(this.selectedEndp._id)
-      }, 0);
+  private handleEndpSelect(endpId: string) {
+    this.selectedEndp = this.selectedPROJ?.endpoints?.[endpId];
+    if (!this.selectedEndp) {
+      if (endpId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
+        // this.toaster.warn('Selected folder doesn\'t exist.');
+        this.router.navigate(['../', 'new'], { relativeTo: this.route });
+        return;
+      } else {
+        this.selectedEndp = NewApiEndp;
+      }
     }
-  }
-
-  openNewEndp() {
-    this.openEndp(NewApiEndp);
-  }
-
-  openEndpById(endpIdToOpen: string) {
-    const endp: ApiEndp = this.selectedPROJ?.endpoints?.[endpIdToOpen] || NewApiEndp;
-    this.openEndp(endp)
-  }
-
-  openEndp(endpToOpen: ApiEndp) {
-    if (this.endpForm.dirty) {
-      this.confirmService
-        .confirm({
-          confirmTitle: 'Unsaved data !',
-          confirm:
-            'The Endpoints view has some unsaved data. Do you want to replace it with your current selection?',
-          confirmOk: 'Replace',
-          confirmCancel: 'No, let me save',
-        })
-        .then(() => {
-          this.handleEndpSelect(endpToOpen);
-        })
-        .catch(() => {
-          console.info('Selected to keep the changes');
-        });
-    } else {
-      this.handleEndpSelect(endpToOpen);
-    }
-  }
-
-  private handleEndpSelect(endpToOpen: ApiEndp) {
-    this.selectedEndp = { ...endpToOpen };
-    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, body, responses, postrun, prerun } = endpToOpen;
+    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, body, responses, postrun, prerun } = this.selectedEndp;
     if (!folder) folder = '';
     this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
-    this.selectedName = summary || 'Create new endpoint';
 
     this.flags.traitQP = [];
     this.flags.traitHP = [];
     if (traits?.length > 0) {
       traits.forEach((t: ApiTrait) => this.importTraitData(t._id, t.name))
     }
-
     this.addDefaultResponse();
     this.endpForm.markAsPristine();
     this.endpForm.markAsUntouched();
@@ -140,17 +123,17 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     });
 
     var projToUpdate: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
-    this.updateApiProject(projToUpdate).then(() => {
+    this.apiProjService.updateAPIProject(projToUpdate).then(() => {
       this.endpForm.markAsPristine();
       this.endpForm.markAsUntouched();
-      this.selectedName = endp.summary;
 
       if (this.isEditing()) {
-        this.toaster.success('Endpoint updated');
+        this.toaster.success('Endpoint updated.');
+        this.selectedEndp = endp;
       } else {
-        this.toaster.success('Endpoint created');
+        this.toaster.success('Endpoint created.');
+        this.router.navigate(['../', endp._id], { relativeTo: this.route })
       }
-      this.selectedEndp._id = endp._id;
     }, (e) => {
       console.error('Failed to create/update endpoint', e, endp);
       this.toaster.error(`Failed to create/update endpoint: ${e.message}`);
@@ -208,7 +191,12 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     let responses = [...this.endpForm.value.responses];
     trait.responses?.forEach(resp => {
       if (!resp.noneStatus) {
-        responses.push({ ...resp, fromTrait: true, traitId, traitName: name })
+        let existing = responses.findIndex(r => r.code == resp.code);
+        if (existing >= 0) {
+          responses[existing] = { ...resp, fromTrait: true, traitId, traitName: name }
+        } else {
+          responses.push({ ...resp, fromTrait: true, traitId, traitName: name })
+        }
       }
     })
     this.endpForm.patchValue({ responses });
@@ -272,7 +260,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     let traitPathParams = Utils.objectKeys(trait.pathParams?.properties);
     traitPathParams.forEach(p => {
       delete pathParams.properties[p];
-      pathParams.required = pathParams.required.filter(r => r != p)
+      pathParams.required = pathParams.required?.filter(r => r != p) || []
     })
 
     //remove headers
@@ -280,7 +268,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     let traitHeaders = Utils.objectKeys(trait.headers?.properties);
     traitHeaders.forEach(p => {
       delete headers.properties[p];
-      headers.required = headers.required.filter(r => r != p)
+      headers.required = headers.required?.filter(r => r != p) || []
     })
 
     //remove query params
@@ -288,7 +276,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     let traitqueryParams = Utils.objectKeys(trait.queryParams?.properties);
     traitqueryParams.forEach(p => {
       delete queryParams.properties[p];
-      queryParams.required = queryParams.required.filter(r => r != p)
+      queryParams.required = queryParams.required?.filter(r => r != p) || []
     })
 
     return { ...endpoint, responses, pathParams, headers, queryParams };
@@ -319,7 +307,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
         counter;
     }
     let project: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [toCopy._id]: toCopy } }
-    this.updateApiProject(project).then(() => {
+    this.apiProjService.updateAPIProject(project).then(() => {
       this.toaster.success('Duplicate endpoint ' + toCopy.summary + ' created.');
     });
   }
@@ -339,13 +327,11 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
       })
       .then(() => {
         delete project.endpoints[endpId];
-        this.updateApiProject(project).then(
+        this.apiProjService.updateAPIProject(project).then(
           () => {
             this.toaster.success('Endpoint deleted.');
             this.endpForm.markAsPristine();
-            if (endpId === this.selectedEndp._id) {
-              this.openNewEndp();
-            }
+            this.router.navigate(['../', 'new'], { relativeTo: this.route })
           },
           (e) => {
             console.error('Failed to delete endpoint', e);
@@ -386,8 +372,7 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
   }
 
   discardChange() {
-    this.endpForm.markAsPristine();
-    this.openEndp(this.selectedEndp);
+    this.handleEndpSelect(this.selectedEndp._id)
   }
 
   setDirty() {
@@ -423,9 +408,35 @@ export class ProjectEndpointComponent implements OnInit, OnChanges {
     return index;
   }
 
+  canDeactivate() {
+    return new Promise<boolean>((resolve) => {
+      if (this.endpForm.dirty) {
+        this.confirmService.confirm({
+          confirmTitle: 'Unsaved data !',
+          confirm: 'Endpoint view has some unsaved data. Current action will discard any unsave changes.',
+          confirmOk: 'Discard',
+          confirmCancel: 'No, let me save'
+        }).then(() => {
+          resolve(true)
+        }).catch(() => {
+          resolve(false)
+        })
+      } else {
+        resolve(true)
+      }
+    })
+  }
+
   run(id: string) {
     //TODO: 
   }
+
+  ngOnDestroy(): void {
+    this._destroy.next(true);
+    this._destroy.complete();
+  }
+
+  ngOnInit(): void { }
 
   //TODO: Add option to add test from  response schema builder: open test builder
 }

@@ -66,16 +66,15 @@
                                         <a href="" [routerLink]="['endpoints', endp.value._id]" mat-menu-item>
                                             <mat-icon>edit</mat-icon> Edit
                                         </a>
-                                        <button mat-menu-item
-                                            (click)="endpointsView.run(endp.value._id);$event.stopPropagation()">
+                                        <button mat-menu-item (click)="run(endp.value._id);$event.stopPropagation()">
                                             <mat-icon class="green">play_arrow</mat-icon> Run
                                         </button>
                                         <button mat-menu-item
-                                            (click)="endpointsView.duplicateEndp(endp.value._id);$event.stopPropagation()">
+                                            (click)="duplicateItem(endp.value._id, 'endpoints');$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
                                         </button>
                                         <button mat-menu-item
-                                            (click)="endpointsView.deleteEndp(endp.value._id);$event.stopPropagation()">
+                                            (click)="deleteItem(endp.value._id, 'endpoints');$event.stopPropagation()">
                                             <mat-icon class="red">delete</mat-icon>Delete
                                         </button>
                                     </mat-menu>
@@ -104,11 +103,11 @@
                                             <mat-icon>edit</mat-icon> Edit
                                         </a>
                                         <button mat-menu-item
-                                            (click)="duplicateModel(model.value._id);$event.stopPropagation()">
+                                            (click)="duplicateItem(model.value._id, 'models');$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
                                         </button>
                                         <button mat-menu-item
-                                            (click)="deleteModel(model.value._id);$event.stopPropagation()">
+                                            (click)="deleteItem(model.value._id, 'models');$event.stopPropagation()">
                                             <mat-icon class="red">delete</mat-icon>Delete
                                         </button>
                                     </mat-menu>
@@ -137,11 +136,11 @@
                                             <mat-icon>edit</mat-icon> Edit
                                         </a>
                                         <button mat-menu-item
-                                            (click)="traitsView.duplicateTrait(trait.value._id);$event.stopPropagation()">
+                                            (click)="duplicateItem(trait.value._id, 'traits');$event.stopPropagation()">
                                             <mat-icon>content_copy</mat-icon> Duplicate
                                         </button>
                                         <button mat-menu-item
-                                            (click)="traitsView.deleteTrait(trait.value._id);$event.stopPropagation()">
+                                            (click)="deleteItem(trait.value._id, 'traits');$event.stopPropagation()">
                                             <mat-icon class="red">delete</mat-icon>Delete
                                         </button>
                                     </mat-menu>
@@ -188,12 +187,12 @@
                 <!-- <app-project-models #modelsView [hidden]="flags.stage!=='models'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
                 </app-project-models> -->
-                <app-project-endpoint #endpointsView [hidden]="flags.stage!=='endpoints'" [selectedPROJ]="selectedPROJ"
+                <!-- <app-project-endpoint #endpointsView [hidden]="flags.stage!=='endpoints'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
-                </app-project-endpoint>
-                <app-project-traits #traitsView [hidden]="flags.stage!=='traits'" [selectedPROJ]="selectedPROJ"
+                </app-project-endpoint> -->
+                <!-- <app-project-traits #traitsView [hidden]="flags.stage!=='traits'" [selectedPROJ]="selectedPROJ"
                     [updateApiProject]="updateApiProject">
-                </app-project-traits>
+                </app-project-traits> -->
                 <router-outlet></router-outlet>
             </div>
 

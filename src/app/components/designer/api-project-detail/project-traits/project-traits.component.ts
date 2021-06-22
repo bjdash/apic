@@ -1,35 +1,34 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { ApiProject, ApiTrait, NewApiTrait } from 'src/app/models/ApiProject.model';
+import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import apic from '../../../../utils/apic';
+import { ApiProjectDetailService } from '../api-project-detail.service';
 
 @Component({
     selector: 'app-project-traits',
     templateUrl: './project-traits.component.html'
 })
-export class ProjectTraitsComponent implements OnInit, OnChanges {
-    @Input() selectedPROJ: ApiProject;
-    @Input() updateApiProject: Function;
-    // @Output() projectUpdated = new EventEmitter<any>();
-
-    traitForm: FormGroup;
+export class ProjectTraitsComponent implements OnInit, OnDestroy {
+    selectedPROJ: ApiProject;
     selectedTrait: ApiTrait = null;
-    selectedName: string;
+    traitForm: FormGroup;
     editCode: boolean = false;
-    panels = {
-        path: true,
-        query: true,
-        header: true,
-        resp: true
-    }
-
+    private _destroy: Subject<boolean> = new Subject<boolean>();
 
     constructor(
         private fb: FormBuilder,
         private toaster: Toaster,
-        private confirmService: ConfirmService
+        private confirmService: ConfirmService,
+        private apiProjService: ApiProjectService,
+        private apiProjectDetailService: ApiProjectDetailService,
+        private route: ActivatedRoute,
+        private router: Router
     ) {
         this.traitForm = this.fb.group({
             name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -40,60 +39,69 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
             pathParams: [undefined],
             responses: [[]]
         });
-        this.openNewTrait()
+
+        this.apiProjectDetailService.onSelectedProj$
+            .pipe(takeUntil(this._destroy))
+            .subscribe(project => {
+                this.selectedPROJ = project;
+                if (this.selectedTrait) {
+                    this.handleTraitSelect(this.selectedTrait._id);
+                }
+            })
+
+        this.route.params
+            .pipe(takeUntil(this._destroy))
+            .subscribe(({ traitId }) => {
+                this.handleTraitSelect(traitId);
+            })
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.selectedPROJ?.currentValue && this.selectedTrait) {
-            setTimeout(() => {
-                this.openTraitById(this.selectedTrait._id)
-            }, 0);
+    private handleTraitSelect(traitId: string) {
+        this.selectedTrait = this.selectedPROJ?.traits?.[traitId];
+        if (!this.selectedTrait) {
+            if (traitId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
+                // this.toaster.warn('Selected folder doesn\'t exist.');
+                this.router.navigate(['../', 'new'], { relativeTo: this.route });
+                return;
+            } else {
+                this.selectedTrait = NewApiTrait;
+            }
         }
-    }
-
-    ngOnInit(): void {
-        // this.addDefaultResponse();
-    }
-
-    openNewTrait() {
-        this.openTrait(NewApiTrait);
-    }
-
-    openTraitById(traitIdToOpen: string) {
-        const traitToOpen: ApiTrait = this.selectedPROJ?.traits?.[traitIdToOpen] || NewApiTrait;
-        this.openTrait(traitToOpen)
-    }
-
-    private openTrait(traitToOpen: ApiTrait) {
-        if (this.traitForm.dirty) {
-            this.confirmService
-                .confirm({
-                    confirmTitle: 'Unsaved data !',
-                    confirm:
-                        'The Traits view has some unsaved data. Do you want to replace it with your current selection?',
-                    confirmOk: 'Replace',
-                    confirmCancel: 'No, let me save',
-                })
-                .then(() => {
-                    this.handleTraitSelect(traitToOpen);
-                })
-                .catch(() => {
-                    console.info('Selected to keep the changes');
-                });
-        } else {
-            this.handleTraitSelect(traitToOpen);
-        }
-    }
-
-    private handleTraitSelect(traitToOpen: ApiTrait) {
-        this.selectedTrait = { ...traitToOpen };
-        let { name, summary, folder, queryParams, headers, pathParams, responses } = traitToOpen;
+        let { name, summary, folder, queryParams, headers, pathParams, responses } = this.selectedTrait;
         if (!folder) folder = '';
         this.traitForm.patchValue({ name, summary, folder, queryParams, headers, pathParams, responses: [...responses] });
-        this.selectedName = name || 'Create new trait';
         this.traitForm.markAsPristine();
         this.traitForm.markAsUntouched();
         this.addDefaultResponse();
+    }
+
+    createTrait(allowDup?: boolean) {
+        if (!this.traitForm.valid) return;
+        const trait: ApiTrait = { ...this.traitForm.value, _id: this.isEditing() ? this.selectedTrait._id : new Date().getTime() + apic.s8(), };
+
+        if (this.checkExistingTrait(trait.name) && !this.isEditing() && !allowDup) {
+            this.toaster.error('Trait ' + trait.name + ' already exists');
+            return;
+        }
+
+        var projToUpdate: ApiProject = { ...this.selectedPROJ, traits: { ...this.selectedPROJ.traits, [trait._id]: trait } };
+
+        this.apiProjService.updateAPIProject(projToUpdate).then(() => {
+            this.traitForm.markAsPristine();
+            this.traitForm.markAsUntouched();
+
+            if (this.isEditing()) {
+                this.toaster.success('Trait updated');
+                this.selectedTrait = trait;
+            } else {
+                this.toaster.success('Trait created');
+                this.router.navigate(['../', trait._id], { relativeTo: this.route })
+            }
+        }, (e) => {
+            console.error('Failed to create/update trait', e, trait);
+            this.toaster.error(`Failed to create/update trait: ${e.message}`);
+        }
+        );
     }
 
     deleteTrait(traitId: string) {
@@ -111,13 +119,11 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
             })
             .then(() => {
                 delete project.traits[traitId];
-                this.updateApiProject(project).then(
+                this.apiProjService.updateAPIProject(project).then(
                     () => {
                         this.toaster.success('Trait deleted.');
                         this.traitForm.markAsPristine();
-                        if (traitId === this.selectedTrait._id) {
-                            this.openNewTrait();
-                        }
+                        this.router.navigate(['../', 'new'], { relativeTo: this.route })
                     },
                     (e) => {
                         console.error('Failed to delete trait', e);
@@ -127,34 +133,7 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
             });
     }
 
-    createTrait(allowDup?: boolean) {
-        if (!this.traitForm.valid) return;
-        const trait: ApiTrait = { ...this.traitForm.value, _id: this.isEditing() ? this.selectedTrait._id : new Date().getTime() + apic.s8(), };
 
-        if (this.checkExistingTrait(trait.name) && !this.isEditing() && !allowDup) {
-            this.toaster.error('Trait ' + trait.name + ' already exists');
-            return;
-        }
-
-        var projToUpdate: ApiProject = { ...this.selectedPROJ, traits: { ...this.selectedPROJ.traits, [trait._id]: trait } };
-
-        this.updateApiProject(projToUpdate).then(() => {
-            this.traitForm.markAsPristine();
-            this.traitForm.markAsUntouched();
-            this.selectedName = trait.name;
-
-            if (this.isEditing()) {
-                this.toaster.success('Trait updated');
-            } else {
-                this.toaster.success('Trait created');
-            }
-            this.selectedTrait._id = trait._id;
-        }, (e) => {
-            console.error('Failed to create/update trait', e, trait);
-            this.toaster.error(`Failed to create/update trait: ${e.message}`);
-        }
-        );
-    }
 
     checkExistingTrait(name: string) {
         if (!name) return false;
@@ -163,34 +142,10 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
             name.toLowerCase()) !== undefined;
     }
 
-    duplicateTrait(traitId: string) {
-        var toCopy: ApiTrait = { ...this.selectedPROJ.traits[traitId] };
-        toCopy._id = apic.s12();
-        while (this.checkExistingTrait(toCopy.name)) {
-            var counter = parseInt(toCopy.name.charAt(toCopy.name.length - 1));
-            var numberAtEnd = true;
-            if (isNaN(counter)) {
-                counter = 0;
-                numberAtEnd = false;
-            }
-            counter++;
-            toCopy.name =
-                (numberAtEnd
-                    ? toCopy.name.substring(0, toCopy.name.length - 1)
-                    : toCopy.name
-                ).trim() +
-                ' ' +
-                counter;
-        }
-        let project: ApiProject = { ...this.selectedPROJ, traits: { ...this.selectedPROJ.traits, [toCopy._id]: toCopy } }
-        this.updateApiProject(project).then(() => {
-            this.toaster.success('Duplicate Trait ' + toCopy.name + ' created.');
-        });
-    }
+
 
     discardChange() {
-        this.traitForm.markAsPristine();
-        this.openTrait(this.selectedTrait);
+        this.handleTraitSelect(this.selectedTrait._id);
     }
 
     isEditing() {
@@ -213,4 +168,30 @@ export class ProjectTraitsComponent implements OnInit, OnChanges {
             })
         }
     }
+
+    canDeactivate() {
+        return new Promise<boolean>((resolve) => {
+            if (this.traitForm.dirty) {
+                this.confirmService.confirm({
+                    confirmTitle: 'Unsaved data !',
+                    confirm: 'Traits view has some unsaved data. Current action will discard any unsave changes.',
+                    confirmOk: 'Discard',
+                    confirmCancel: 'No, let me save'
+                }).then(() => {
+                    resolve(true)
+                }).catch(() => {
+                    resolve(false)
+                })
+            } else {
+                resolve(true)
+            }
+        })
+    }
+
+    ngOnDestroy(): void {
+        this._destroy.next(true);
+        this._destroy.complete();
+    }
+
+    ngOnInit(): void { }
 }

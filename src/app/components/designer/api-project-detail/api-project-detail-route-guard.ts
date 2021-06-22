@@ -1,12 +1,14 @@
 import { Injectable } from "@angular/core";
 import { CanDeactivate } from "@angular/router";
+import { ProjectEndpointComponent } from "./project-endpoint/project-endpoint.component";
 import { ProjectFolderComponent } from "./project-folder/project-folder.component";
 import { ProjectModelsComponent } from "./project-models/project-models.component";
+import { ProjectTraitsComponent } from "./project-traits/project-traits.component";
 
 // @Injectable({ providedIn: 'root' })
-export class ProjectDetailRouteGuard implements CanDeactivate<ProjectFolderComponent | ProjectModelsComponent> {
+export class ProjectDetailRouteGuard implements CanDeactivate<ProjectFolderComponent | ProjectModelsComponent | ProjectEndpointComponent | ProjectTraitsComponent> {
 
-    canDeactivate(component: ProjectFolderComponent | ProjectModelsComponent) {
+    canDeactivate(component: ProjectFolderComponent | ProjectModelsComponent | ProjectEndpointComponent | ProjectTraitsComponent) {
         return component.canDeactivate();
     }
 }

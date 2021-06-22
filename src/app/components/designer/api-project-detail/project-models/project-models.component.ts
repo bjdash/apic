@@ -53,8 +53,6 @@ export class ProjectModelsComponent implements OnInit, OnDestroy {
       })
   }
 
-
-
   private handleModelSelect(modelId: string) {
     this.selectedModel = this.selectedPROJ?.models?.[modelId];
     if (!this.selectedModel) {
