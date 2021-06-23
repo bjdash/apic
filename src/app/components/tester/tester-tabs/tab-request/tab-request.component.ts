@@ -1,6 +1,7 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { Store } from '@ngxs/store';
 import { from, Observable, Subject } from 'rxjs';
 import { delayWhen, takeUntil } from 'rxjs/operators';
@@ -40,6 +41,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
 
   @ViewChild('previewFrame') previewFrame: ElementRef;
   @ViewChild('bodyAce') bodyAce: ApicAceComponent;
+  @ViewChild('runLoopTrigger') runLoopTrigger: MatMenuTrigger;
+
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
   private pendingAction: Promise<any> = Promise.resolve(null);
@@ -54,6 +57,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   dummy = ''
   runResponse: RunResponse; //$response
   runRequest: CompiledApiRequest;//$request
+  loopRunResult: RunResponse[];
   reloadRequest: ApiRequest = null;
   flags = {
     showReq: true,
@@ -66,7 +70,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     headersCount: 0,
     respHeadersCount: 0,
     runCount: 2,
+    runCountCopy: 2,
     running: false,
+    loopRunning: false,
     urlCopy: ''
   }
   savedRespIdentifier = 'SAVED_RESPONSE'
@@ -348,11 +354,14 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       if (this.flags.respBodyTab == 'preview' && this.flags.respTab == 'Body') {
         this.setPreviewFrame(this.runResponse.body);
       }
+      if (this.runResponse.status != 0) {
+        this.scrollRespIntoView();
+      }
       this.addToHistory(req, result.$response);
     } catch (e) {
-      this.toastr.error(`Failed to run request ${e.message}`)
+      this.toastr.error(`Failed to run request: ${e.message}`)
       console.error(e);
-
+      this.applyRunStatus(false);
     }
   }
 
@@ -361,12 +370,49 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.historyServ.add([history])
   }
 
-  startLoopRun() {
+  async startLoopRun() {
+    if (this.flags.runCount === undefined) {
+      this.toastr.error('Please enter a valid number.');
+      return;
+    }
+    if (this.flags.runCount <= 0) {
+      this.toastr.error('Please enter a count greater than zero.');
+      return;
+    }
+    if (this.flags.runCount > 1000) {
+      this.toastr.error('Currently apic supports running a maximum of 1000 iterations.');
+      return;
+    }
+    this.flags.runCountCopy = this.flags.runCount;
+    this.applyRunStatus(true, true);
+    this.runLoopTrigger.closeMenu();
 
+    //scroll to end
+    setTimeout(() => {
+      let parent = (document.querySelector('.tester-tabs .mat-tab-body-active .mat-tab-body-content') as HTMLElement);
+      parent.scrollTop = parent.scrollHeight;
+    }, 0);
+
+    const req: ApiRequest = this.getReqFromForm();
+    while (this.flags.runCountCopy > 0 && this.flags.loopRunning) {
+      try {
+        let result: RunResult = await this.runner.run(req);
+        console.log(result);
+        this.loopRunResult.push({ ...result.$response });
+        this.flags.runCountCopy--;
+      } catch (e) {
+        this.toastr.error(`Failed to run request. Run count:${this.flags.runCount - this.flags.runCountCopy + 1}. ${e.message}`)
+      }
+    }
+    this.applyRunStatus(false, true);
+    this.scrollRespIntoView();
   }
+
   abortRun() {
     this.applyRunStatus(false);
     this.runner.abort();
+    this.flags.loopRunning = false;
+    this.flags.runCountCopy = 0;
   }
   beautifyResponse(contentType: string, body: string): string {
     //formatting response for pretty print
@@ -391,13 +437,16 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  applyRunStatus(running: boolean) {
+  applyRunStatus(running: boolean, loopRunning = false) {
     this.flags.running = running;
     if (running) {
       this.form.disable();
+      this.loopRunResult = [];
+      this.runResponse = null
     } else {
-      this.form.enable()
+      this.form.enable();
     }
+    this.flags.loopRunning = loopRunning ? running : false;
   }
 
   async saveResponse() {
@@ -427,8 +476,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       meta: this.savedRespIdentifier
     };
 
-    //TODO:
-    // if (scroll) scrollRespIntoView()
+    if (scroll) this.scrollRespIntoView()
   }
 
   beautifyLog(index: number) {
@@ -478,6 +526,17 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.bodyAce.focus();
   }
 
+  scrollRespIntoView() {
+    //Scroll response panel to view
+    setTimeout(() => {
+      var topOffset = (document.querySelector('.tester-tabs .mat-tab-body-active .resp-box') as HTMLElement).offsetTop;
+      if (topOffset - 150 > 0) {
+        let parent = (document.querySelector('.tester-tabs .mat-tab-body-active .mat-tab-body-content') as HTMLElement);
+        parent.scrollTo({ top: topOffset + parent.scrollTop - 50, behavior: 'smooth' });
+      }
+    }, 0);
+
+  }
 
   trackByFn(index, item) {
     return index;

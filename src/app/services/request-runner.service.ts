@@ -32,6 +32,10 @@ export class RequestRunnerService {
 
   run(req: ApiRequest): Promise<RunResult> {
     return new Promise(async (resolve, reject) => {
+      if (!req.url) {
+        reject({ message: 'Invalid URL.' })
+        return;
+      }
       let $request: CompiledApiRequest = RequestUtils.getCompiledRequest(req);
       let preRunResponse: TestResponse = null;
       if (req.prescript) {

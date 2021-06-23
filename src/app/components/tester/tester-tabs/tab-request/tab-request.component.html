@@ -20,7 +20,8 @@
                     </mat-select>
                     <button mat-button class="run" (click)="doSingleRun()" *ngIf="!flags.running">Run</button>
                     <button mat-button class="abort" (click)="abortRun()" *ngIf="flags.running">Abort</button>
-                    <button mat-button class="run-more sm" [disabled]="flags.running" [matMenuTriggerFor]="runLoop">
+                    <button mat-button class="run-more sm" [disabled]="flags.running" [matMenuTriggerFor]="runLoop"
+                        #runLoopTrigger="matMenuTrigger">
                         <mat-icon class="sm">arrow_drop_down</mat-icon>
                     </button>
                 </span>
@@ -143,8 +144,8 @@
                                 [options]="{addOnFocus:true,allowToggle:true}">
                             </app-key-value-editor>
                         </div>
-                        <apic-ace *ngIf="form.value.body.type=='raw'" #bodyAce formControlName="rawData"
-                            [mode]="form.value.body.selectedRaw.name.toLowerCase()">
+                        <apic-ace class="test_editor" *ngIf="form.value.body.type=='raw'" #bodyAce
+                            formControlName="rawData" [mode]="form.value.body.selectedRaw.name.toLowerCase()">
                         </apic-ace>
                         <div *ngIf="form.value.body.type ==='graphql'">
                             TODO: Graphql
@@ -166,8 +167,9 @@
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'"></div>
 
                     <div class="control-content" *ngIf="flags.reqTab == 'Scripts'">
-                        <pre-post-run-script [prerun]="form.value.prescript" [postrun]="form.value.postscript"
-                            (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
+                        <pre-post-run-script class="test_editor" [prerun]="form.value.prescript"
+                            [postrun]="form.value.postscript" (prerunChange)="prerunUpdated($event)"
+                            (postrunChange)="postrunUpdated($event)">
                         </pre-post-run-script>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'Schema'">
@@ -244,7 +246,7 @@
                                 (click)="selectTab('respBodyTab','builder')">Build API Tests</button>
                         </div>
                         <div *ngIf=" flags.respBodyTab=='pretty'">
-                            <apic-ace #preRunAce [(text)]=" runResponse.bodyPretty" [readOnly]="true"
+                            <apic-ace class="test_editor" [(text)]=" runResponse.bodyPretty" [readOnly]="true"
                                 [mode]="flags.respAceMode"></apic-ace>
                         </div>
                         <div *ngIf="flags.respBodyTab == 'raw'">
@@ -295,6 +297,43 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="paper resp-box" *ngIf="loopRunResult?.length>0">
+                <h3 class="panel-title custom pointer">Response</h3>
+                <div class="panel-body">
+                    <div *ngFor="let res of loopRunResult;trackBy: trackByFn;let i=index" class="loop-res">
+                        <div>
+                            <span class="run-index">#{{i+1}}</span>
+                            <span class="run-stats pull-right">
+                                <span>
+                                    Time: <span class="status info">{{res.timeTakenStr}}</span>
+                                </span>
+                                <span>
+                                    Status: <span class="status" [ngClass]="{
+                                        info:res.status<199,
+                                        success:(res.status>=200),
+                                        warning:(res.status>=300),
+                                        error:(res.status>=400)
+                                    }">{{res.status}}
+                                        {{res.statusText}}</span>
+                                </span>
+                                <span>
+                                    Size: <span class="status info">{{res.respSize}}</span>
+                                </span>
+                                <button class="sm" mat-icon-button (click)="utils.copyToClipboard(res.body)">
+                                    <mat-icon class="sm">content_copy</mat-icon>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="margV5">{{res.body}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cancel-cont" *ngIf="flags.running && flags.loopRunning">
+                <div class="loop-msg">Running in Loop <span
+                        class="bold">{{flags.runCount-flags.runCountCopy+1}}</span>/{{flags.runCount}}</div>
+                <button mat-raised-button color="primary" class="sm" (click)="abortRun()">Cancel run</button>
             </div>
 
             <div class="error-cont flex" *ngIf="runResponse?.status == 0 && !flags.running">

@@ -10,11 +10,11 @@ input[type="checkbox"].small:checked:before {
   width: 6px;
   height: 8px;
 }
-.vcenter{
+.vcenter {
   display: flex;
   align-items: center;
 }
-fieldset[disabled] button{
+fieldset[disabled] button {
   cursor: not-allowed;
 }
 .json-schema {
@@ -73,7 +73,7 @@ fieldset[disabled] button{
   position: relative;
 }
 
-.model-type-selector-cont small{
+.model-type-selector-cont small {
   color: var(--text-color);
   font-size: 10px;
   float: right;
@@ -134,10 +134,11 @@ input.model-key:active {
   outline: none;
 }
 
-input.model-key[readonly], fieldset[disabled] input{
- cursor: not-allowed;
+input.model-key[readonly],
+fieldset[disabled] input {
+  cursor: not-allowed;
 }
-button[disabled]{
+button[disabled] {
   cursor: not-allowed;
 }
 .btn.model-selector .caret {
@@ -155,14 +156,14 @@ button[disabled]{
 .objProps {
   border-left: 0px solid rgba(0, 0, 0, 0.2);
 }
-.expanded-ref{
+.expanded-ref {
   border: 1px dashed var(--border-color);
   margin: -1px 5px 1px -1px;
 }
-.expanded-ref .model-detail{
+.expanded-ref .model-detail {
   display: none;
 }
-.expanded-ref .model-remove{
+.expanded-ref .model-remove {
   display: none;
 }
 .js-row {
@@ -176,12 +177,12 @@ button[disabled]{
   background: var(--main-bg);
 }
 
-.objProps .js-row{
+.objProps .js-row {
   padding-left: 0;
   margin-left: -7px;
   border-left: 1px solid var(--border-color);
 }
-.objProps .js-row:before{
+.objProps .js-row:before {
   position: relative;
   top: -7px;
   height: 1em;
@@ -192,13 +193,8 @@ button[disabled]{
   left: -1px;
 }
 
-.js-row:hover .obj-add {
-}
-.propCont{
+.propCont {
   margin-left: 35px;
-}
-button.obj-add {
-
 }
 
 .obj-exp {
@@ -244,7 +240,7 @@ button.obj-add {
 .js-row .model-summary .ico {
   font-size: 22px;
 }
-.objProps .model-type-cont{
+.objProps .model-type-cont {
   display: flex;
 }
 .Array {
@@ -290,7 +286,7 @@ button.model-selector {
   margin-right: 5px;
   max-height: 20px;
 }
-button.model-selector .material-icons{
+button.model-selector .material-icons {
   line-height: inherit;
 }
 
@@ -373,4 +369,7 @@ label.model-label-x {
   z-index: 1;
   top: 3px;
   right: 10px;
+  &.static {
+    right: 35px;
+  }
 }

@@ -15,7 +15,7 @@
     <!--Hide the tabs for static/list mode-->
     <ng-container [ngTemplateOutlet]="SchemaRef" *ngIf="mode == 'list' || mode == 'static'"></ng-container>
 
-    <div class="tab-action">
+    <div class="tab-action" [ngClass]="{static:mode == 'list' || mode == 'static'}">
         <button type="button" class="sm" mat-icon-button aria-label="Download" (click)="downloadJSON();">
             <mat-icon>vertical_align_bottom</mat-icon>
         </button>

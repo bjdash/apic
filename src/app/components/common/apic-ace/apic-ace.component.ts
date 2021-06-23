@@ -6,7 +6,7 @@ import { AceEditorComponent } from 'ng2-ace-editor';
 @Component({
   selector: 'apic-ace',
   templateUrl: './apic-ace.component.html',
-  styleUrls: ['./apic-ace.component.css'],
+  styleUrls: ['./apic-ace.component.scss'],
   providers: [{
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => ApicAceComponent),

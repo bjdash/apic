@@ -143,10 +143,30 @@
         height: 20px;
     }
 }
-.resp-box .status {
-    font-weight: bold;
-    font-size: 14px;
-    margin-right: 20px;
+.resp-box {
+    .status {
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 20px;
+    }
+    /******* Loop Run Response *******/
+    .loop-res {
+        border-bottom: 1px solid var(--border-color);
+        margin: 5px;
+        word-wrap: break-word;
+        user-select: text;
+
+        .run-index {
+            font-size: 18px;
+            color: #03a9f4;
+            font-weight: bold;
+        }
+    }
+    .run-stats {
+        font-size: 13px;
+        font-weight: bold;
+        color: var(--text-color);
+    }
 }
 .raw-resp-area {
     width: 100%;
@@ -207,6 +227,19 @@
         width: 60px;
     }
 }
+.cancel-cont {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    .loop-msg {
+        font-size: 20px;
+        margin-bottom: 15px;
+        .bold {
+            font-size: 24px;
+        }
+    }
+}
+
 @keyframes progress-bar-stripes {
     from {
         background-position: 40px 0;
