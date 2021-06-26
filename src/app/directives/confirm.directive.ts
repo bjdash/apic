@@ -81,8 +81,8 @@ export class ConfirmService {
         })
     }
 
-    alert(options: CF_AlertOption) {
-        var p = new Promise<void>((resolve, reject) => {
+    alert(options: CF_AlertOption): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
             const dialogRef = this.dialog.open(ConfirmDirectiveComponent, {
                 data: {
                     confirmTitle: options.confirmTitle || 'Alert',
@@ -114,8 +114,6 @@ export class ConfirmService {
                 }
             });
         });
-
-        return p;
     }
 }
 

@@ -21,7 +21,7 @@ export interface ApiRequest {
     prescript?: string
     respCodes?: any[]
     savedResp?: SavedResp[]
-    _parent: string
+    _parent?: string
     url: string
     _created?: number
     _id: string

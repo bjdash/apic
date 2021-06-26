@@ -10,8 +10,10 @@ import { SAVED_SETTINGS } from '../utils/constants';
 import { SuitesAction } from '../actions/suites.action';
 import { TestProject } from '../models/TestProject.model';
 import apic from '../utils/apic';
-import { Suite } from '../models/Suite.model';
+import { Suite, SuiteReq } from '../models/Suite.model';
 import { ApiRequest } from '../models/Request.model';
+import { BehaviorSubject } from 'rxjs';
+import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +21,7 @@ import { ApiRequest } from '../models/Request.model';
 export class SuiteService {
   authUser: User;
   ajv = null;
+  updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
 
   constructor(private store: Store, private syncService: SyncService) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -26,7 +29,8 @@ export class SuiteService {
     });
     this.syncService.onSuiteMessage$.subscribe(async message => {
       this.onSyncMessage(message);
-    })
+    });
+    this.updatedViaSync$ = new BehaviorSubject(null);
     this.ajv = new Ajv();
   }
 
@@ -109,12 +113,11 @@ export class SuiteService {
     this.store.dispatch(new SuitesAction.Suites.Add(suites));
     return suites;
   }
-  async updateSuites(suites: Suite[], fromSync?: boolean) {
-    if (!fromSync) {
-      suites.forEach(f => f._modified = Date.now());
-    }
+  async updateSuites(suites: Suite[]) {
+    suites.forEach(f => f._modified = Date.now());
+
     return iDB.upsertMany(iDB.TABLES.TEST_SUITES, suites).then((updatedIds) => {
-      if (updatedIds && !fromSync && this.authUser?.UID) {
+      if (updatedIds && this.authUser?.UID) {
         var projectsToSync = apic.removeDemoItems(suites); //returns a list
         if (projectsToSync.length > 0) {
           this.syncService.prepareAndSync('updateTestSuit', projectsToSync);
@@ -124,6 +127,22 @@ export class SuiteService {
       return updatedIds;
     });
   }
+
+  //Update the API projects when received via sync message
+  async updateSyncedSuites(suites: Suite[]) {
+    let updatedIds = await iDB.upsertMany(iDB.TABLES.TEST_SUITES, suites);
+    this.updatedViaSync$.next({ type: 'update', ids: updatedIds as string[] });
+    this.store.dispatch(new SuitesAction.Suites.Update(suites));
+    return updatedIds;
+  }
+
+  async deleteSyncedProjects(ids: string[]) {
+    await iDB.deleteMany(iDB.TABLES.TEST_SUITES, ids);
+    this.updatedViaSync$.next({ type: 'delete', ids });
+    this.store.dispatch(new SuitesAction.Suites.Delete(ids));
+    return ids;
+  }
+
 
   async deleteSuites(ids: string[], fromSync?: boolean) {
     let data = await iDB.deleteMany(iDB.TABLES.TEST_SUITES, ids); //data doesnt contain deleted ids
@@ -162,16 +181,16 @@ export class SuiteService {
     } else if (message.type == 'TestSuits' || message.type == 'Fetch:TestSuits') {
       if ((message.testSuits?.length > 0)) {
         if (message.action === 'update' || message.action === 'add') {
-          let reqs = await this.updateSuites(message.testSuits, true);
+          let reqs = await this.updateSyncedSuites(message.testSuits);
           console.info('Sync: added/updated testSuits', reqs)
         }
       } else if (message.idList?.length > 0 && message.action === 'delete') {
-        const resp = await this.deleteSuites(message.idList, true);
+        const resp = await this.deleteSyncedProjects(message.idList);
         console.info('Sync: deleted testSuits', resp)
       }
 
       if (message.nonExistant?.testSuits?.length > 0) {
-        const resp = await this.deleteSuites(message.nonExistant?.testSuits, true);
+        const resp = await this.deleteSyncedProjects(message.nonExistant?.testSuits);
         console.info('Sync: deleted testSuits', resp)
       }
 
@@ -202,7 +221,7 @@ export class SuiteService {
       this.syncService.fetch('Fetch:TestCaseProjects');
     } else {
       var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.TEST_PROJECTS);
-      this.syncService.fetch('Fetch:TestCaseProjects', lastSyncedTime?.time, { testProjects: localProjectsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
+      this.syncService.fetch('Fetch:TestCaseProjects', lastSyncedTime?.time, { testCaseProjects: localProjectsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
     }
   }
 
@@ -224,7 +243,7 @@ export class SuiteService {
       this.syncService.fetch('Fetch:TestSuits');
     } else {
       var lastSyncedTime = await iDB.findById(iDB.TABLES.SETTINGS, SAVED_SETTINGS.LAST_SYNCED.SUITES);
-      this.syncService.fetch('Fetch:TestSuits', lastSyncedTime?.time, { apiRequests: localReqsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
+      this.syncService.fetch('Fetch:TestSuits', lastSyncedTime?.time, { testSuits: localReqsToSyncWithServer.map(p => { return { _id: p._id, _modified: p._modified }; }) })
     }
   }
 
@@ -242,9 +261,9 @@ export class SuiteService {
     ]);
   }
 
-  duplicateReqInSuit(suite: Suite, req: ApiRequest, index: number) {
+  duplicateReqInSuit(suite: Suite, req: SuiteReq, index: number) {
     let suiteToUpdate: Suite = { ...suite, reqs: [...suite.reqs] }
-    let newReq: ApiRequest = { ...req, name: req.name + ' copy' };
+    let newReq: SuiteReq = { ...req, name: req.name + ' copy' };
     suiteToUpdate.reqs.splice(index + 1, 0, newReq)
     return this.updateSuites([suiteToUpdate]);
   }

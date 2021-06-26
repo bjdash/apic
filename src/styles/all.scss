@@ -291,6 +291,12 @@ fieldset legend {
 .paper:hover {
   box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.15);
 }
+.panel-flat {
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
 .icon-sm {
   width: 30px;
   line-height: 30px;

@@ -104,7 +104,7 @@
                         {{suite.name}}
                     </div>
                     <div class="r-sec three">
-                        <button mat-icon-button (click)="openSuite(suite)" class="green">
+                        <button mat-icon-button (click)="openSuite(suite);$event.stopPropagation()" class="green">
                             <mat-icon>play_arrow</mat-icon>
                         </button>
                         <button mat-icon-button (click)="$event.stopPropagation()">

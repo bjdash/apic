@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
@@ -38,6 +38,9 @@ import { TesterTabsService } from '../tester-tabs.service';
 export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
   @Input() initialData: ApiRequest;
+  @Input() suitRequest: boolean;
+
+  @Output() onSuitReqSave = new EventEmitter();
 
   @ViewChild('previewFrame') previewFrame: ElementRef;
   @ViewChild('bodyAce') bodyAce: ApicAceComponent;
@@ -129,6 +132,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     if (changes.requestId?.previousValue?.includes('new_tab') && !changes.requestId?.currentValue?.includes('new_tab')) {
       this.listenForUpdate()
     }
+    if (changes.initialData.currentValue) {
+      this.processSelectedReq(this.initialData)
+    }
   }
 
   ngOnDestroy(): void {
@@ -137,7 +143,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    if (!this.requestId.includes('new_tab')) {
+    if (!this.requestId.includes('new_tab') && !this.requestId.includes('suit_req')) {
       this.listenForUpdate()
     }
     if (this.initialData) {
@@ -206,7 +212,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     //   update the endpoint with prerun and postrun
     // }
     let saveData: ApiRequest = this.getReqFromForm();
-    if (this.requestId.includes('new_tab') || saveAs) {
+    if (this.suitRequest) {
+      this.onSuitReqSave.next(saveData);
+    } else if (this.requestId.includes('new_tab') || saveAs) {
       this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
     } else {
       await this.updateRequest(saveData);
@@ -455,8 +463,12 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
     let savedResp: SavedResp = RequestUtils.formatResponseForSave(this.runResponse);
-    let updatedReq: ApiRequest = { ...this.selectedReq, savedResp: [savedResp] };
-    await this.updateRequest(updatedReq);
+    if (this.suitRequest) {
+      this.onSuitReqSave.emit({ savedResp: [savedResp] })
+    } else {
+      let updatedReq: ApiRequest = { ...this.selectedReq, savedResp: [savedResp] };
+      await this.updateRequest(updatedReq);
+    }
   }
 
   loadResponse(scroll?: boolean) {

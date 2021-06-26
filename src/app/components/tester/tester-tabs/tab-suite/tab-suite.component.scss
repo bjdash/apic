@@ -14,6 +14,14 @@
         right: 0;
         top: -7px;
     }
+
+    .edit-suite-btn {
+        opacity: 0.5;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
 }
 .suit-detail {
     padding-top: 50px;
@@ -54,3 +62,213 @@
         color: #fff;
     }
 }
+textarea.logs {
+    width: 100%;
+    min-height: 250px;
+    font-size: 12px;
+    font-family: monospace;
+    line-height: 1.2;
+    resize: vertical;
+}
+/******* Suite requests**********/
+.req-box {
+    margin: 10px;
+    .panel-body {
+        margin: 14px -10px;
+        position: relative;
+        padding-bottom: 5px;
+    }
+}
+.suit-req {
+    position: relative;
+    padding: 7px 10px 7px 10px;
+    &.temp {
+        padding: 7px 5px 7px 10px;
+        border-bottom: 1px dashed var(--border-color);
+        mat-checkbox {
+            margin-left: 10px;
+        }
+    }
+    .run-status {
+        position: absolute;
+        top: 10px;
+        right: 0;
+        font-size: 12px;
+        margin-top: -6px;
+        color: var(--text-color);
+        div {
+            font-size: 16px;
+            margin-bottom: -6px;
+            text-align: right;
+        }
+
+        & > span {
+            display: none;
+            font-weight: normal;
+        }
+    }
+    &:hover {
+        background-color: var(--header-bg);
+        .run-status > span {
+            display: inline-block;
+        }
+    }
+    .name {
+        overflow: hidden;
+        font-size: 16px;
+        text-overflow: ellipsis;
+        height: 25px;
+    }
+    .meth {
+        font-weight: bold;
+        font-size: 12px;
+        margin-right: 4px;
+    }
+    .url {
+        overflow: hidden;
+        color: #888;
+        text-overflow: ellipsis;
+    }
+}
+.suit-req .test-cont {
+    padding: 5px;
+    margin: 5px 0 15px;
+    border: 1px solid var(--border-color);
+    /* box-shadow: 0 1px 4px rgba(0,0,0,0.2); */
+    /* background: #fdfdfd; */
+    border-radius: 10px;
+}
+.suit-req .test-result {
+    font-size: 14px;
+    padding: 3px;
+}
+.suit-req .test-result:last-child {
+    border-bottom: none;
+}
+.suit-req .test-result .glyphicon > span {
+    font-size: 12px;
+    vertical-align: text-bottom;
+    /*margin-left: -5px;*/
+}
+.suit-req .test-result .glyphicon {
+    font-size: 12px;
+    padding: 2px 5px 3px;
+}
+.suit-req .mat-checkbox {
+    margin-right: 5px;
+}
+.suit-req .ctrls {
+    margin-left: auto;
+}
+.grip {
+    content: "";
+    width: 18px;
+    height: 35px;
+    display: inline-block;
+    line-height: 5px;
+    padding: 3px 4px;
+    cursor: move;
+    vertical-align: middle;
+    font-family: apic-font;
+    letter-spacing: 2px;
+    color: var(--text-color);
+    font-weight: bold;
+    margin-right: 5px;
+}
+.grip::after {
+    content: ".. .. .. .. ..";
+}
+/******* Suite requests end**********/
+
+/****** Add new test option ****/
+.new-test-cont {
+    position: absolute;
+    border-top: 1px solid var(--border-color);
+    z-index: 10;
+    width: 235px;
+    left: 40%;
+    opacity: 0.4;
+
+    &:hover {
+        opacity: 1;
+        .nt_options {
+            left: -4px;
+        }
+    }
+}
+
+.new-test-main {
+    position: absolute;
+    top: -12px;
+    width: 100%;
+    cursor: pointer;
+    overflow: hidden;
+
+    button.xs {
+        background: var(--content-bg);
+        outline: none !important;
+    }
+    mat-icon {
+        margin-left: -3px;
+    }
+}
+
+.nt_add {
+    background: var(--content-bg);
+    display: inline-block;
+    padding: 0 5px;
+    position: relative;
+    z-index: 30;
+}
+.nt_options {
+    left: -400px;
+    position: relative;
+    transition: left 0.3s;
+}
+.suit-req-nav {
+    position: relative;
+}
+.sn_opt {
+    position: absolute;
+    top: 13px;
+    opacity: 0.5;
+}
+.suit-req-nav:hover .sn_opt {
+    opacity: 1;
+}
+/****** Add new test option End****/
+
+/********** DGK DRAG ***************/
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+    opacity: 0;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+/********** DGK DRAG END***************/
+/******** Req edit **********/
+.submodMenu {
+    margin-top: 24px;
+}
+:host ::ng-deep .suit-req-nav {
+    .mat-fab {
+        width: 40px;
+        height: 40px;
+        background-color: var(--content-bg);
+        margin-left: -160px;
+        .mat-button-wrapper {
+            padding: 10px 0;
+            line-height: 14px;
+            color: var(--text-color);
+        }
+    }
+}
+/******** Req edit end **********/

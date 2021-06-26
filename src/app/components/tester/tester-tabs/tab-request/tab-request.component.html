@@ -1,6 +1,6 @@
-<div class="test-tab-cont tab-req">
+<div class="test-tab-cont tab-req" [ngClass]="{'suit-tab':suitRequest}">
     <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
-        <div class="url-cont">
+        <div class="url-cont" *ngIf="!suitRequest">
             <div class="progress-holder">
                 <div class="progress-bar" *ngIf="flags.running"></div>
             </div>
@@ -37,7 +37,31 @@
                 </mat-menu>
             </div>
         </div>
-        <div class="content" style="margin-top: 28px;">
+
+        <div class="top-spacer" *ngIf="!suitRequest"></div>
+        <!---Suit request fields--->
+        <div *ngIf="suitRequest" class="suit-req-det">
+            <div class="row">
+                <label class="control-label col-xs-1">Name <span class="red">*</span></label>
+                <div class="control-label col-xs-4">
+                    <input type="text" formControlName="name" placeholder="Request name" required=""
+                        class="form-control input-sm" />
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-xs-1">URL <span class="red">*</span></label>
+                <div class="col-xs-2">
+                    <mat-select formControlName="method">
+                        <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
+                    </mat-select>
+                </div>
+                <div class="col-xs-8">
+                    <apic-rich-input class="input-sm " formControlName="url"></apic-rich-input>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
             <div class="paper req-box">
                 <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
                     <mat-icon *ngIf="!flags.showReq" class="sm">chevron_right</mat-icon>
@@ -56,7 +80,7 @@
                     <button class="sm t_border gap" mat-stroked-button
                         *ngIf="selectedReq?.savedResp?.length>0 && !runResponse" (click)="loadResponse(true)">Load saved
                         response</button>
-                    <span class="btn-group accent gap">
+                    <span class="btn-group accent gap" *ngIf="!suitRequest">
                         <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
                             <mat-icon>save</mat-icon> Save
                         </button>

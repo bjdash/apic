@@ -41,7 +41,6 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     flags = {
         stage: 'Dashboard'
     }
-    subscriptions: Subscription[] = [];
 
     constructor(private route: ActivatedRoute,
         private store: Store,

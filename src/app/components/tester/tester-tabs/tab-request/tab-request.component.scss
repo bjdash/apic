@@ -73,6 +73,9 @@
         border-left: 1px solid #fff;
     }
 }
+.top-spacer {
+    margin-top: 26px;
+}
 .saveas {
     padding: 0;
 }
@@ -248,3 +251,24 @@
         background-position: 0 0;
     }
 }
+
+/******* separate styles for suit tab*****/
+.suit-tab {
+    .top-spacer {
+        margin-top: 35px;
+    }
+    .req-box {
+        .panel-body {
+            margin-top: 0px;
+        }
+    }
+    .suit-req-det {
+        .row {
+            margin-bottom: 5px;
+        }
+    }
+    .req-box .control-content {
+        padding-top: 5px;
+    }
+}
+/******* separate styles for suit tab end*****/

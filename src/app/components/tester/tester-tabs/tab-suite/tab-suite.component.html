@@ -1,11 +1,15 @@
-<div class="test-tab-cont tab-req" *ngIf="selectedSuite">
-    <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
-        <div class="suite-bar f18">
-            <span ng-show="!vm.flags.editReq" class="vcenter">
+<div class="test-tab-cont tab-suit" *ngIf="selectedSuite">
+    <form [formGroup]="form" autocomplete="off">
+        <div class="suite-bar f18 vcenter">
+            <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadSuite"
+                matTooltip="This suite is updated by another user. Reload?" matTooltipPosition="left">
+                <mat-icon>sync</mat-icon>
+            </button>
+            <span class="vcenter" *ngIf="!flags.editReq">
                 <mat-icon class="gap">receipt_long</mat-icon>
                 <span *ngIf="!flags.editSuitName" class="vcenter">
                     <span class="f20">{{selectedSuite.name}}</span>
-                    <button mat-icon-button class="sm" (click)="enableSuiteRename()">
+                    <button mat-icon-button class="sm edit-suite-btn" (click)="enableSuiteRename()">
                         <mat-icon>edit</mat-icon>
                     </button>
                 </span>
@@ -24,13 +28,13 @@
                 </span>
             </span>
             <span *ngIf="flags.editReq" class="vcenter">
-                <a href="" class="t_color" ng-click="vm.discardReqEdit()">
+                <a href="" class="f20" class="t_color vcenter" (click)="discardReqEdit(); $event.preventDefault()">
                     <i class="icon bj-arrow_back"></i>
-                    <i class="icon bj-box-filled"></i>
-                    <span class="sname">Cart</span>
+                    <mat-icon class=" sm">receipt_long</mat-icon>
+                    <span class="sname">{{selectedSuite.name}}</span>
                 </a>
-                <span class="sname ng-hide" ng-show="vm.flags.editReqType === 'harReq'">/ HAR Import</span>
-                <span class="sname">/ Create _cart copy</span>
+                <span class="sname" *ngIf="flags.editReqType === 'harReq'">/ HAR Import</span>
+                <span class="sname">/ {{selectedReq.req.name}}</span>
             </span>
             <a class="f18 help" mat-icon-button aria-label="Test Suite"
                 href="https://apic.app/docs/tester/writing-test-cases.html" target="_new">
@@ -38,7 +42,7 @@
             </a>
         </div>
 
-        <div class="suit-detail">
+        <div class="suit-detail" *ngIf="!flags.editReq">
             <div class="row">
                 <div class="col-xs-7 suite-form">
                     <div class="row">
@@ -47,7 +51,7 @@
                                 <div class="form-group">
                                     <label class="" for="suite-env">Environment</label>
                                     <mat-select formControlName="env" name="env" id="suite-env">
-                                        <mat-option [value]="null">No Environment</mat-option>
+                                        <mat-option [value]="''">No Environment</mat-option>
                                         <mat-divider></mat-divider>
                                         <mat-option *ngFor="let env of envs$ | async " [value]="env._id">
                                             {{env.name}}
@@ -95,10 +99,254 @@
                             </fieldset>
                         </div>
                     </div>
+
+                    <div class="paper">
+                        <h3 class="panel-title custom pointer">
+                            <span>Run result</span>
+                        </h3>
+                        <div class="pull-right margB5 vcenter">
+                            <button mat-icon-button class="sm" title="Save">
+                                <mat-icon>save</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sm" title="Download">
+                                <mat-icon>vertical_align_bottom</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sm" title="Close">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            Res
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xs-5"></div>
+                <div class="col-xs-5">
+                    <div class="panel-flat">
+                        <div class="vcenter margB10">
+                            <mat-icon class="sm">language</mat-icon>
+                            <span>Web Access URL</span>
+                        </div>
+                        <div *ngIf="wau">
+                            {{wau}}
+                            <button mat-icon-button class="sm" (click)="utils.copyToClipboard(wau)" title="Copy">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </div>
+                        <button mat-stroked-button class="sm t_border" (click)="loadWAU()" title="Copy">
+                            Get web access URL
+                        </button>
+                        <a href="https://docs.apic.app/cicd-integration" class="btn btn-link btn-sm" target="_new">Learn
+                            more</a>
+                    </div>
+                    <div class="paper">
+                        <h3 class="panel-title custom pointer" (click)="flags.showLogs = !flags.showLogs">
+                            <span>Run logs</span>
+                        </h3>
+                        <div class="pull-right margB5 vcenter">
+                            <button mat-icon-button class="sm" (click)="utils.copyToClipboard(run.logs)"
+                                title="Download">
+                                <mat-icon>vertical_align_bottom</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sm" (click)="utils.copyToClipboard(run.logs)" title="Copy">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                            <button class="sm" mat-icon-button (click)="flags.showLogs = !flags.showLogs">
+                                <mat-icon *ngIf="flags.showLogs">expand_less</mat-icon>
+                                <mat-icon *ngIf="!flags.showLogs">expand_more</mat-icon>
+                            </button>
+                        </div>
+                        <div class="panel-body" [hidden]="!flags.showLogs">
+                            <textarea disabled="disabled" class="logs">{{run.logs}}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
-    {{form.value|json}}
+
+    <div *ngIf="!flags.editReq">
+        <div class="paper req-box" *ngIf="flags.showHarPanel">
+            <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
+                <span>Import recorded requests</span>
+            </h3>
+            <div class="pull-right margB5 vcenter">
+                <a class="sm help" mat-icon-button aria-label="Import recorded requests"
+                    href="https://docs.apic.app/capture-and-test-api-from-real-user-sessions#2-importing-a-har-file"
+                    target="_new">
+                    <mat-icon>help</mat-icon>
+                </a>
+                <button mat-icon-button class="sm" (click)="flags.showHarPanel = false;har.requests=[];">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="panel-body">
+                <!-- <form id="har-import"> -->
+                <div class="row">
+                    <div class="col-sm-2" *ngIf="har.importType==='file'">
+                        <label class="bold">Browse HAR File:</label>
+                    </div>
+                    <div class="col-sm-4" *ngIf="har.importType==='auto'">
+                        <label class="bold">Requests imported from APIC Session Recorder:</label>
+                    </div>
+                    <div class="col-sm-4" *ngIf="har.importType==='file'">
+                        <input type="file" class="form-control input-sm" (change)="onFileChange($event)" />
+                    </div>
+                    <div class="col-sm-6">
+                        <button type="button" mat-stroked-button *ngIf="har.importType==='file'" class="sm gap t_border"
+                            (click)="processHarFile()">Process</button>
+                        <button type="button" mat-raised-button color="primary" *ngIf="har.requests.length>0"
+                            (click)="addRequestsToSuit(har.requests);har.requests=[];" class="sm">Add requests to
+                            suit</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <mat-checkbox class="col-sm-6" [(ngModel)]="har.excludeOptionReq">Exclude OPTIONS request
+                    </mat-checkbox>
+                </div>
+                <div>
+                    <div *ngFor="let req of har.requests; trackBy: trackByFn;let i=index" style="position: relative;">
+                        <div class="suit-req temp vcenter">
+                            <mat-checkbox [checked]="!req.disabled" (change)="harReqStatusChange($event, i)">
+                            </mat-checkbox>
+                            <div>
+                                <div class="vcenter">
+                                    <label class="bold gap">Name: </label>
+                                    <div class="full-w">
+                                        <input type="text" [(ngModel)]="req.name" class="form-control input-sm" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="meth" [ngClass]="req.method">{{req.method}}</span>
+                                    <span class="url">{{req.url}}</span>
+                                </div>
+                            </div>
+                            <div class="ctrls">
+                                <button type="button" mat-icon-button (click)="enableSuitReqEdit(req, i, 'harReq')"
+                                    class="sm">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button (click)="har.requests.splice(i,1)" mat-icon-button class="sm red">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- </form> -->
+            </div>
+        </div>
+
+        <div class="paper req-box">
+            <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
+                <span>Requests</span>
+            </h3>
+            <div class="pull-right margB5 vcenter">
+                <button class="sm t_border gap" mat-stroked-button
+                    (click)="flags.showHarPanel = true; har.importType='file'">
+                    <mat-icon>add</mat-icon>Add recorded requests (.HAR)
+                </button>
+                <button class="sm" mat-icon-button (click)="flags.showReq = !flags.showReq">
+                    <mat-icon *ngIf="flags.showReq">expand_less</mat-icon>
+                    <mat-icon *ngIf="!flags.showReq">expand_more</mat-icon>
+                </button>
+            </div>
+            <div class="panel-body" [hidden]="!flags.showReq">
+                <div class="new-test-cont">
+                    <div class="new-test-main vcenter">
+                        <mat-icon class="sm">add</mat-icon>
+                        <span class="nt_options">
+                            <button mat-button class="xs" (click)="addBlankReq(0)">Blank request</button>
+                            <button mat-button class="xs" ng-click="vm.addSavedReq(0)">Savedrequest</button>
+                        </span>
+                    </div>
+                </div>
+                <div cdkDropList (cdkDropListDropped)="drop($event)">
+                    <div cdkDrag *ngFor="let req of suiteReqs; trackBy: trackByFn;let i=index"
+                        style="position: relative;">
+                        <div class="suit-req vcenter">
+                            <mat-checkbox [checked]="!req.disabled" (change)="reqStatusChange($event, i)">
+                            </mat-checkbox>
+                            <!-- <input type="checkbox" ng-change="vm.updateSuit()" 
+                                ng-true-value="undefined" ng-false-value="true" /> -->
+                            <span cdkDragHandle class="grip"></span>
+                            <div>
+                                <div class="name"><a href=""
+                                        (click)="enableSuitReqEdit(req, i, 'suitReq');$event.preventDefault()">{{req.name}}</a>
+                                </div>
+                                <span class="meth" [ngClass]="req.method">{{req.method}}</span>
+                                <span class="url">{{req.url}}</span>
+                            </div>
+                            <div class="ctrls">
+                                <button (click)="enableSuitReqEdit(req, i, 'suitReq')" mat-icon-button class="sm">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button (click)="duplicateReqInSuit(req)" mat-icon-button class="sm">
+                                    <mat-icon>content_copy</mat-icon>
+                                </button>
+                                <button (click)="removeReqFromSuit(req._id, i)" mat-icon-button class="sm red">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="new-test-cont">
+                            <div class="new-test-main vcenter">
+                                <mat-icon class="sm">add</mat-icon>
+                                <span class="nt_options">
+                                    <button mat-button class="xs" (click)="addBlankReq(i+1)">Blank
+                                        request</button>
+                                    <button mat-button class="xs" ng-click="vm.addSavedReq($index+1)">Saved
+                                        request</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div *ngIf="flags.editReq">
+        <div class="submodMenu">
+            <div class="submodMenuOptn">
+                <span>
+                    <button type="button" mat-stroked-button class="sm gap" [disabled]="suitReqTab.flags.running"
+                        (click)="suitReqTab.doSingleRun()">
+                        <mat-icon class="green">play_arrow</mat-icon>{{suitReqTab.flags.running?'Running':'Run'}}
+                    </button>
+                    <button type="button" mat-stroked-button color="primary" class="sm gap t_border"
+                        [disabled]="suitReqTab.form.invalid" (click)="suitReqTab.initReqSave()">Save</button>
+                    <button type="button" mat-stroked-button color="primary" class="sm gap t_border"
+                        [disabled]="suitReqTab.form.invalid" (click)="suitReqTab.initReqSave();flags.editReq=false">Save
+                        &amp; Close</button>
+                    <button type="button" mat-button class="sm" (click)="discardReqEdit()">Discard</button>
+                </span>
+            </div>
+            <div class="tip"></div>
+        </div>
+        <div class="top-spacer" style="height:35px"></div>
+        <div class="center suit-req-nav" *ngIf="selectedReq.index!=0">
+            <button mat-fab type="button"
+                (click)="enableSuitReqEdit(getPrevReq(),selectedReq.index-1 , flags.editReqType)">
+                <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <span class="sn_opt">
+                Previous : {{getPrevReq().name}}
+            </span>
+        </div>
+
+        <app-tab-request #suitReqTab [suitRequest]="true" [initialData]="selectedReq.req"
+            [requestId]="'suit_req:'+selectedReq.req._id" (onSuitReqSave)="onSuitReqSave($event)">
+        </app-tab-request>
+
+        <div class="center suit-req-nav" *ngIf="getNextReq()">
+            <button mat-fab type="button" class="gap"
+                (click)="enableSuitReqEdit(getNextReq(),selectedReq.index+1 , flags.editReqType)">
+                <mat-icon>arrow_downward</mat-icon>
+            </button>
+            <span class="sn_opt">
+                Next: {{getNextReq().name}}
+            </span>
+        </div>
+    </div>
 </div>

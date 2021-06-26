@@ -28,6 +28,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatBadgeModule } from '@angular/material/badge';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -205,6 +206,7 @@ import { ProjectDetailRouteGuard } from './components/designer/api-project-detai
     MatCheckboxModule,
     MatAutocompleteModule,
     MatBadgeModule,
+    DragDropModule,
     ScrollingModule,
     RecaptchaModule,
     RecaptchaFormsModule, // if you need forms support

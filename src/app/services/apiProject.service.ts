@@ -64,7 +64,6 @@ export class ApiProjectService {
 
     getApiProjectById(id): Observable<ApiProject> {
         return this.store.select(ApiProjectStateSelector.getByIdDynamic(id))
-        // .pipe(delay(0));
     }
 
     private async loadApiProjs() {
@@ -96,26 +95,6 @@ export class ApiProjectService {
         this.store.dispatch(new ApiProjectsAction.Update([project]));
         return project;
     }
-
-    /*updateAPIProjects(projects: ApiProject[], fromSync?: boolean, preventLeftmenuUpdate?: boolean) {
-        if (!fromSync) {
-            projects.forEach(project => project._modified = Date.now());
-        }
-        return iDB.upsertMany(iDB.TABLES.API_PROJECTS, projects).then((updatedIds) => {
-            if (updatedIds && !fromSync && this.authUser?.UID) {
-                var projsToSync = apic.removeDemoItems(projects); //returns a list
-                if (projsToSync.length > 0) {
-                    this.syncService.prepareAndSync('updateAPIProject', projsToSync);
-                }
-            }
-            this.store.dispatch(new ApiProjectsAction.Update(projects));
-
-            //TODO
-            // $rootScope.$emit('envUpdated');
-            // this.stateTracker.next({ env });
-            return updatedIds;
-        });
-    }*/
 
     //Update the API projects when received via sync message
     async updateSyncedProjects(projects: ApiProject[]) {

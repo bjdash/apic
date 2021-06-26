@@ -1,8 +1,10 @@
 import { Toaster } from './toaster.service';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
-import { Const, MONTHS } from '../utils/constants';
+import { Const, MONTHS, RESTRICTED_HEADERS } from '../utils/constants';
 import { KeyVal } from '../models/KeyVal.model';
+import { JsonUtils } from '../utils/json.utils';
+import { ApiRequest } from '../models/Request.model';
 
 
 @Injectable()
@@ -248,6 +250,115 @@ export class Utils {
                 }
             });
         }
+    }
+
+    static harToApicReq(harEntry): ApiRequest {
+        var harReq = harEntry.request;
+        var req = {
+            _id: apic.s12(),
+            disabled: undefined,
+            method: harReq.method,
+            url: harReq.url,
+            name: Utils.urlToReqName(harReq.method, harReq.url),
+            description: '',
+            postscript: '',
+            prescript: '',
+            Req: {
+                url_params: [],
+                headers: []
+            },
+            Body: {
+                formData: [],
+                xForms: [],
+                type: null,
+                selectedRaw: {},
+                rawData: null
+            },
+            respCodes: [],
+            savedResp: []
+        }
+
+        harReq.queryString.forEach(function (query) {
+            req.Req.url_params.push({ key: query.name, val: query.value, active: true })
+        })
+        req.Req.url_params.push({ key: "", val: "", active: true });
+
+        harReq.headers.forEach(function (header) {
+            var headerName = header.name.toUpperCase();
+            if (!RESTRICTED_HEADERS.includes(headerName) && !headerName.startsWith('SEC-') && !headerName.startsWith('PROXY-')) {
+                req.Req.headers.push({ key: header.name, val: header.value, active: true })
+            } else if (headerName === 'COOKIE' || headerName === 'COOKIE2') {
+                req.Req.headers.push({ key: header.name, val: header.value, active: true })
+            }
+        })
+        req.Req.headers.push({ key: "", val: "", active: true });
+
+        //parsing request body
+        if (harReq.postData && harReq.bodySize > 0) {
+            //x-form
+            if (harReq.postData.mimeType.indexOf('application/x-www-form-urlencoded') >= 0) {
+                req.Body.type = 'x-www-form-urlencoded';
+                harReq.postData.params.forEach(function (param) {
+                    req.Body.xForms.push({ key: param.name, val: param.value, active: true });
+                })
+            } else if (harReq.postData.mimeType.indexOf('multipart/form-data') >= 0) {
+                req.Body.type = 'form-data';
+                harReq.postData.params.forEach(function (param) {
+                    req.Body.formData.push({ key: param.name, val: param.value, active: true });
+                })
+            } else {
+                req.Body.type = 'raw';
+                req.Body.rawData = harReq.postData.text;
+                req.Body.selectedRaw = {
+                    name: harReq.postData.mimeType.toLowerCase().indexOf('json') >= 0 ? 'JSON' : harReq.postData.mimeType,
+                    val: harReq.postData.mimeType
+                }
+            }
+        }
+        req.Body.formData.push({ key: "", val: "", active: true });
+        req.Body.xForms.push({ key: "", val: "", active: true });
+
+
+        //parsing response
+        var harResp = harEntry.response;
+        if (harResp.status != 0) {
+            //populate the respCodes/schema tab data
+            var jsonResp = null;
+            try {
+                jsonResp = JSON.parse(harResp.content.text);
+                req.respCodes.push({
+                    code: harResp.status + '',
+                    data: JsonUtils.easyJsonSchema(jsonResp)
+                })
+            } catch (e) {
+                console.log('response is not in json', harResp.content.text);
+                req.respCodes.push({
+                    code: '200',
+                    data: { type: 'object' }
+                })
+            }
+
+            //save current response
+            var savedresp = {
+                status: harResp.status,
+                data: harResp.content.text,
+                time: harEntry.time,
+                size: harResp._transferSize,
+                headers: {}
+            };
+            harResp.headers.forEach(function (header) {
+                savedresp.headers[header.name] = header.value
+            })
+
+            req.savedResp.push(savedresp)
+        } else {
+            //request failed, so set an empty json schema with 200 status for the schema tab.
+            req.respCodes.push({
+                code: '200',
+                data: { type: 'object' }
+            })
+        }
+        return req;
     }
 
     //https://github.com/angus-c/just/blob/master/packages/collection-clone/index.js

@@ -3,8 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
-import { ApiRequest } from 'src/app/models/Request.model';
-import { Suite } from 'src/app/models/Suite.model';
+import { Suite, SuiteReq } from 'src/app/models/Suite.model';
 import { TestProject, TreeTestProject } from 'src/app/models/TestProject.model';
 import { User } from 'src/app/models/User.model';
 import { FileSystem } from 'src/app/services/fileSystem.service';
@@ -313,7 +312,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     }
   }
 
-  async duplicateReqInSuit(suite: Suite, req: ApiRequest, index: number) {
+  async duplicateReqInSuit(suite: Suite, req: SuiteReq, index: number) {
     try {
       await this.suiteService.duplicateReqInSuit(suite, req, index);
       this.toastr.success('Duplicate request created.');
