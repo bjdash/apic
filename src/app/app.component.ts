@@ -27,5 +27,33 @@ export class AppComponent {
   async init() {
     await this.bootstrap.init();
     this.authService.initLoggedinUser();
+
+    //for receiving messages from APIC dev tools
+    //TODO:
+    // try {
+    //   if (window.chrome && window.chrome.runtime) {
+    //     window.chrome.runtime.onMessage.addListener(function (
+    //       message,
+    //       sender,
+    //       sendResponse
+    //     ) {
+    //       console.log(message, sender, $state);
+    //       if ($state.current.name !== 'apic.home') $state.go('apic.home');
+    //       lMenuService.getAllSuits().then(function (suites) {
+    //         var selectedSuit = suites.find(
+    //           (suit) => suit._id === message.suite
+    //         );
+    //         if (!selectedSuit) {
+    //           toastr.error('Selected suite not found');
+    //           return
+    //         }
+    //         toastr.info('Importing requests');
+    //         selectedSuit.harImportReqs = message.requests;
+    //         $rootScope.$broadcast('OpenSuitTab', selectedSuit);
+    //         sendResponse({ status: "ok" });
+    //       });
+    //     });
+    //   }
+    // } catch (e) { }
   }
 }

@@ -13,6 +13,7 @@ export interface RunResponse {
     timeTakenStr: string,
     respSize: string,
     logs: string[],
-    tests: Test[]
+    tests: Test[],
+    inMemEnvs?: { [key: string]: any; }
     meta?: any // additional metadata
 }

@@ -51,7 +51,7 @@
     }
     .stop {
         width: 60px;
-        height: 600px;
+        height: 60px;
         border-radius: 5px;
         background-color: var(--error);
     }
@@ -70,6 +70,76 @@ textarea.logs {
     line-height: 1.2;
     resize: vertical;
 }
+/******* Suite result**********/
+.progress-holder {
+    background: var(--accent-shadow);
+    z-index: -1;
+    height: 10px;
+
+    .progress-bar {
+        height: 10px;
+        width: 0;
+        background-image: linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.15) 75%,
+            transparent 75%,
+            transparent
+        );
+        background-size: 40px 40px;
+        background-color: var(--accent-color);
+        animation: progress-bar-stripes 2s linear infinite;
+        transition: width 0.3s;
+    }
+}
+.td-cont {
+    width: 90px;
+    height: 90px;
+    position: relative;
+}
+.td-perc {
+    position: absolute;
+    top: 30px;
+    width: 100%;
+    font-size: 20px;
+    text-align: center;
+}
+.circular-chart {
+    display: block;
+    margin: 0;
+}
+
+.circle {
+    stroke: #4cc790;
+    fill: none;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    animation: circleAni 1s ease-out forwards;
+}
+.circle.redc {
+    stroke: #f44336;
+}
+
+@keyframes circleAni {
+    0% {
+        stroke-dasharray: 0 100;
+    }
+}
+.suit-req-sec {
+    font-size: 14px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+.s-raw {
+    word-break: break-all;
+    padding: 5px;
+    font-size: 12px;
+}
+/******* Suite result END**********/
+
 /******* Suite requests**********/
 .req-box {
     margin: 10px;
@@ -82,6 +152,24 @@ textarea.logs {
 .suit-req {
     position: relative;
     padding: 7px 10px 7px 10px;
+    &.run-res {
+        margin: 0 -10px;
+        opacity: 0.6;
+        &.complete {
+            opacity: 1;
+        }
+        .name {
+            height: 20px;
+        }
+        &:hover {
+            .name {
+                text-decoration: underline;
+            }
+        }
+        .url {
+            font-size: 12px;
+        }
+    }
     &.temp {
         padding: 7px 5px 7px 10px;
         border-bottom: 1px dashed var(--border-color);
@@ -92,14 +180,13 @@ textarea.logs {
     .run-status {
         position: absolute;
         top: 10px;
-        right: 0;
+        right: 10px;
         font-size: 12px;
         margin-top: -6px;
         color: var(--text-color);
         div {
             font-size: 16px;
-            margin-bottom: -6px;
-            text-align: right;
+            justify-content: flex-end;
         }
 
         & > span {
@@ -141,6 +228,9 @@ textarea.logs {
 .suit-req .test-result {
     font-size: 14px;
     padding: 3px;
+    .t_status {
+        width: 80px;
+    }
 }
 .suit-req .test-result:last-child {
     border-bottom: none;

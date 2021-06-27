@@ -27,6 +27,6 @@ export namespace EnvsAction {
     }
     export class PatchInMem {
         static readonly type = '[Env] PatchInMem';
-        constructor(public payload: { [key: string]: string }) { };
+        constructor(public payload: { [key: string]: any }) { };
     }
 }

@@ -7,7 +7,10 @@ import { EnvState } from '../state/envs.state';
 import apic from '../utils/apic';
 import { Utils } from './utils.service';
 
-
+export interface InterpolationOption {
+  useInMemEnv?: boolean,
+  useEnv?: ParsedEnv
+}
 interface Rule {
   match: string,
   key: string
@@ -33,19 +36,25 @@ export class InterpolationService {
     })
   }
 
-  interpolate(str: string) {
+  interpolate(str: string, option?: InterpolationOption) {
     const rules: Rule[] = this.parseRules(str);
     if (rules && rules.length > 0) {
-      let context = { ...(this.selectedEnv?.vals || {}), ...this.inMemEnv, apic };
+      let envToUse;
+      if (option?.hasOwnProperty('useEnv')) {
+        envToUse = option.useEnv
+      } else {
+        envToUse = this.selectedEnv;
+      }
+      let context = { ...(envToUse?.vals || {}), ...((option?.useInMemEnv) ? this.inMemEnv : {}), apic };
       return this.parseFromRules(str, context, rules);
     }
 
     return str;
   }
 
-  interpolateObject(obj: { [key: string]: string }): { [key: string]: string } {
+  interpolateObject(obj: { [key: string]: string }, option?: InterpolationOption): { [key: string]: string } {
     return Utils.objectEntries(obj).reduce((reduced, [key, val]) => {
-      reduced[this.interpolate(key)] = this.interpolate(val)
+      reduced[this.interpolate(key, option)] = this.interpolate(val, option)
       return reduced;
     }, {})
   }

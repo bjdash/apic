@@ -4,11 +4,16 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Select, Store } from '@ngxs/store';
 import { from, Observable, Subject } from 'rxjs';
-import { delayWhen, takeUntil } from 'rxjs/operators';
+import { delayWhen, map, take, takeUntil } from 'rxjs/operators';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
-import { Env } from 'src/app/models/Envs.model';
+import { Env, ParsedEnv } from 'src/app/models/Envs.model';
 import { ApiRequest } from 'src/app/models/Request.model';
+import { RunResult } from 'src/app/models/RunResult.model';
 import { Suite, SuiteReq } from 'src/app/models/Suite.model';
+import { AuthService } from 'src/app/services/auth.service';
+import { FileSystem } from 'src/app/services/fileSystem.service';
+import { ReporterService } from 'src/app/services/reporter.service';
+import { RequestRunnerService } from 'src/app/services/request-runner.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
@@ -23,6 +28,7 @@ import apic from 'src/app/utils/apic';
 })
 export class TabSuiteComponent implements OnInit, OnDestroy {
   @Input() suiteId: string;
+  @Input() reqToOpen: string;
   @Select(EnvState.getAll) envs$: Observable<Env[]>;
 
   selectedSuite$: Observable<Suite>;
@@ -41,7 +47,19 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     excludeOptionReq: true
   }
   run = {
-    logs: ''
+    logs: '',
+    reqCount: 0,
+    runCounter: 0, //current suite run counter
+    requestCounter: 0,//which request is currently running
+    results: [],
+    stats: {
+      testsTotal: 0,
+      testsFailed: 0,
+      testsPassed: 0,
+      reqsTotal: 0,
+      reqsPassed: 0,
+      reqsFailed: 0
+    }
   }
   private updatedInBackground: 'update' | 'delete' = null;
 
@@ -49,13 +67,16 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
   form: FormGroup;
   private _destroy: Subject<boolean> = new Subject<boolean>();
   flags = {
-    running: false,
+    running: undefined,
     editSuitName: false,
     editReq: false,
     editReqType: null,
     showReq: true,
     showHarPanel: false,
-    showLogs: true
+    showLogs: true,
+    aborted: false,
+    showResp: false,
+    wauLoading: false
   }
 
   constructor(
@@ -65,7 +86,11 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     fb: FormBuilder,
     private confirmService: ConfirmService,
     private cd: ChangeDetectorRef,
-    public utils: Utils
+    public utils: Utils,
+    private runner: RequestRunnerService,
+    private reporterService: ReporterService,
+    private fileSystem: FileSystem,
+    private authService: AuthService
   ) {
     this.form = fb.group({
       name: [''],
@@ -129,6 +154,11 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     let { name, env } = this.selectedSuite;
     if (!env) env = '';
     this.form.patchValue({ name, env });
+    if (this.reqToOpen) {
+      let index = this.suiteReqs.findIndex(r => r._id === this.reqToOpen);
+      this.reqToOpen = null;
+      this.enableSuitReqEdit(this.suiteReqs[index], index, 'suitReq');
+    }
   }
 
   async checkAndUpdateSuite(suiteToSave: Suite) {
@@ -149,6 +179,173 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       this.updateSuite(suiteToSave);
       this.reloadSuite = null;
       this.updatedInBackground = null;
+    }
+  }
+
+  async updateSuite(suiteToSave: Suite) {
+    try {
+      await this.suiteService.updateSuites([{ ...suiteToSave }]);
+      this.flags.editSuitName = false;
+      this.toaster.success('Suite updated.');
+    } catch (e) {
+      console.log('Failed to update suite', e);
+      this.toaster.error(`Failed to update suite: ${e.message}`)
+    }
+  }
+
+  async prepareAndRunSuite() {
+    this.flags.aborted = false;
+    this.flags.running = true;
+    this.flags.showResp = true;
+    this.run.results = [];
+    this.run.stats = this.resetStats();
+    this.run.reqCount = this.suiteReqs.length;
+    this.run.runCounter = 1;
+    this.resetLog();
+
+    this.addLog(`Running suite: ${this.selectedSuite.name}`);
+
+    let selectedEnv: ParsedEnv = await this.store.select(EnvState.getByIdParsed)
+      .pipe(map(filterFn => filterFn(this.form.value.env)))
+      .pipe(take(1))
+      .toPromise();
+    if (selectedEnv) {
+      this.addLog('Selected environment: ' + selectedEnv.name);
+    } else {
+      this.addLog('Selected environment: None');
+    }
+
+    let runConfig = { ...this.form.value };
+    if (runConfig.multiRun) {
+      this.addLog(`Suite run count is  ${runConfig.runCount}`);
+      if (runConfig.runCount > 1000) {
+        this.toaster.error('Currently a run upto 1000 times is supported.');
+        runConfig.runCount = 1000;
+        this.addLog('Run count was greater than 1000. Using default count 1000.');
+      }
+    } else {
+      runConfig.runCount = 1;
+    }
+    if (!runConfig.runCount || runConfig.runCount < 1) {
+      runConfig.runCount = 1;
+      this.addLog('Run count was undefined or less than 1. Using default count 1.');
+    }
+
+    this.addLog(`Total number of requests:  ${this.run.reqCount} . Disabled requests will be skipped.`);
+    for (var i = 0; i < this.run.reqCount; i++) {
+      const { _id, name, url, method, disabled } = this.suiteReqs[i];
+      this.run.results.push({ _id, name, url, method, disabled });
+    }
+
+    while (this.run.runCounter <= runConfig.runCount && !this.flags.aborted) {
+      if (runConfig.runCount > 1) {
+        this.addLog('\n╔══════════════════════════════════════╗')
+        this.addLog(`    Suite run count: ${this.run.runCounter}`);
+        this.addLog('╚══════════════════════════════════════╝')
+      }
+      for (var i = 0; i < this.suiteReqs.length; i++) {
+        if (this.flags.aborted) break;
+        try {
+          this.run.requestCounter = i;
+          this.addLog('\n─────────────────────────────────────')
+          this.addLog(`${i + 1}: ${this.suiteReqs[i].name}`)
+          this.addLog('─────────────────────────────────────')
+          let result: RunResult = await this.runner.run(this.suiteReqs[i], { useEnv: { ...selectedEnv }, useInMemEnv: runConfig.useInmemEnv, skipinMemUpdate: !runConfig.updateInmemEnv });
+          this.processResponse(result, i);
+          //if option to not update inmem env selected so get the in mem envs updated by previous request and set it to selected env
+          if (!runConfig.updateInmemEnv) {
+            if (!selectedEnv) selectedEnv = { _id: 'auto', name: 'auto', vals: {} }
+            selectedEnv.vals = { ...selectedEnv.vals, ...(result.$response.inMemEnvs || {}) }
+          }
+        } catch (e) {
+          this.addLog(`ERROR___`, true)
+          this.addLog(`Error while running request: ${this.suiteReqs[i].name}`, true)
+          this.addLog(`${e.message}`, true)
+        }
+      }
+      this.run.runCounter++;
+    }
+
+    this.flags.running = false;
+    console.log(this.run)
+  }
+
+  processResponse(result: RunResult, reqIndex: number) {
+    this.run.stats.reqsTotal++;
+    if (result.$response.logs) {
+      this.addLog('Logs from pre/post run script:')
+      result.$response.logs.forEach(log => {
+        this.addLog(`> ${log}`, true);
+      })
+    }
+    this.run.results[reqIndex].status = 'complete';
+    this.run.results[reqIndex].response = result.$response;
+    this.run.results[reqIndex].url = result.$request.url;
+    this.run.results[reqIndex].tests = {
+      cases: result.$response.tests,
+      passed: result.$response.tests.filter(test => test.success).length,
+      failed: result.$response.tests.filter(test => !test.success).length
+    };
+    this.run.results[reqIndex].tests.total = result.$response.tests.length;
+    this.run.stats.testsTotal += this.run.results[reqIndex].tests.total;
+    this.run.stats.testsFailed += this.run.results[reqIndex].tests.failed;
+    this.run.stats.testsPassed += this.run.results[reqIndex].tests.passed;
+    if (this.run.results[reqIndex].tests.failed) {
+      this.run.stats.reqsFailed++;
+    } else {
+      this.run.stats.reqsPassed++;
+    }
+
+    this.addLog('Status: ' + this.run.results[reqIndex].response.status + ' ' + this.run.results[reqIndex].response.statusText);
+    this.addLog('Time taken: ' + this.run.results[reqIndex].response.timeTakenStr);
+    this.addLog('Tests: ');
+    for (var i = 0; i < this.run.results[reqIndex].tests.cases.length; i++) {
+      this.addLog(' ■ ' + this.run.results[reqIndex].tests.cases[i].name + ' : ' + (this.run.results[reqIndex].tests.cases[i].success ? 'Passed' : 'Failed'));
+    }
+  }
+
+  abortRun() {
+    this.flags.running = false;
+    this.flags.aborted = true;
+    this.runner.abort();
+  }
+
+  addLog(msg: string, force?: boolean) {
+    if (!this.form.value.includeDebLog && !force)
+      return;
+    this.run.logs += '\r\n' + msg;
+  }
+
+  resetLog() {
+    this.run.logs = '';
+  }
+
+  resetStats() {
+    return {
+      testsTotal: 0,
+      testsFailed: 0,
+      testsPassed: 0,
+      reqsTotal: 0,
+      reqsPassed: 0,
+      reqsFailed: 0
+    }
+  }
+
+  duplicateReqInSuit(req: SuiteReq) {
+    var newReq: SuiteReq = { ...Utils.clone(req), _id: apic.s12() };
+    let duplicate = false;
+    do {
+      newReq.name = newReq.name + ' copy'
+      duplicate = this.suiteReqs.findIndex(r => r.name?.toLocaleLowerCase() == newReq.name.toLocaleLowerCase()) > -1;
+    } while (duplicate);
+
+    this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs, newReq] });
+  }
+
+  removeReqFromSuit(reqId: string, index: number) {
+    if (this.suiteReqs[index]?._id === reqId) {
+      this.suiteReqs.splice(index, 1);
+      this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs] });
     }
   }
 
@@ -176,35 +373,6 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs] });
   }
 
-  async updateSuite(suiteToSave: Suite) {
-    try {
-      await this.suiteService.updateSuites([{ ...suiteToSave }]);
-      this.flags.editSuitName = false;
-      this.toaster.success('Suite updated.');
-    } catch (e) {
-      console.log('Failed to update suite', e);
-      this.toaster.error(`Failed to update suite: ${e.message}`)
-    }
-  }
-
-  duplicateReqInSuit(req: SuiteReq) {
-    var newReq: SuiteReq = { ...Utils.clone(req), _id: apic.s12() };
-    let duplicate = false;
-    do {
-      newReq.name = newReq.name + ' copy'
-      duplicate = this.suiteReqs.findIndex(r => r.name?.toLocaleLowerCase() == newReq.name.toLocaleLowerCase()) > -1;
-    } while (duplicate);
-
-    this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs, newReq] });
-  }
-
-  removeReqFromSuit(reqId: string, index: number) {
-    if (this.suiteReqs[index]?._id === reqId) {
-      this.suiteReqs.splice(index, 1);
-      this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs] });
-    }
-  }
-
   reload() {
     this.processSelectedSuite(this.reloadSuite);
     this.reloadSuite = null;
@@ -219,6 +387,10 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
   }
   renameSuite() {
     let suiteToSave: Suite = { ...this.selectedSuite, name: this.form.value.name };
+    this.checkAndUpdateSuite(suiteToSave);
+  }
+  envChanged() {
+    let suiteToSave: Suite = { ...this.selectedSuite, env: this.form.value.env };
     this.checkAndUpdateSuite(suiteToSave);
   }
   reqStatusChange(event: MatCheckboxChange, index) {
@@ -331,8 +503,27 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: this.suiteReqs });
   }
 
-  loadWAU() {
-
+  async loadWAU() {
+    if (this.selectedSuite._id.indexOf('-demo') > 0) {
+      this.wau = 'https://apic.app/api/webAccess/APICSuite/123456abcdef-testsuite-demo?token=apic-demo-suite';
+      return;
+    }
+    if (!this.authService.isLoggedIn()) return;
+    try {
+      this.flags.wauLoading = true;
+      this.wau = await this.suiteService.loadWau(this.selectedSuite._id)
+    } catch (e) {
+      console.log(e);
+      this.toaster.error(`Failed to load web access url. ${e.error?.desc || ''}`);
+    }
+    this.flags.wauLoading = false;
+  }
+  async downloadReport() {
+    let report = await this.reporterService.suitReport(this.run, this.selectedSuite.name)
+    this.fileSystem.download(this.selectedSuite.name + "-apic_report.html", report);
+  }
+  saveResult() {
+    this.toaster.info('Coming Soon');
   }
   trackByFn(index, item) {
     return index;

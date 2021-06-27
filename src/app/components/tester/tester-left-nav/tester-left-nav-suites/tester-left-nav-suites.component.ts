@@ -34,7 +34,10 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   flags = {
     newProj: false,
     newSuite: false,
-    expanded: {}
+    expanded: {
+      "123456abcdef-testproj-demo": true,//keep demo project expanded by default
+      "123456abcdef-testsuite-demo": true
+    }
   }
   constructor(private fb: FormBuilder,
     private toastr: Toaster,
@@ -57,7 +60,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     //TODO: remove
-    this.testerTabsService.addSuiteTab("1621818079636-e5e574a3651c", "Cart");
+    this.testerTabsService.addSuiteTab("123456abcdef-testsuite-demo", "Demo");
   }
   ngOnDestroy(): void {
     this.destroy.next();
@@ -270,13 +273,10 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     }
   }
 
-  openSuite(suite: Suite) {
-    this.testerTabsService.addSuiteTab(suite._id, suite.name)
+  openSuite(suite: Suite, reqToOpen?: string) {
+    this.testerTabsService.addSuiteTab(suite._id, suite.name, reqToOpen)
   }
 
-  openSuitReq(req, suite, index) {
-
-  }
 
   async removeReqFromSuit(suite: Suite, reqId: string, index: number) {
     try {

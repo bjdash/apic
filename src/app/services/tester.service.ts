@@ -10,6 +10,9 @@ import { EnvState } from '../state/envs.state';
 import { Toaster } from './toaster.service';
 import { Utils } from './utils.service';
 
+export interface TesterOptions {
+  skipinMemUpdate?: boolean
+}
 
 @Injectable({
   providedIn: 'root'
@@ -32,11 +35,11 @@ export class TesterService {
     })
   };
 
-  runScript(script: TestScript): Promise<TestResponse> {
+  runScript(script: TestScript, options?: TesterOptions): Promise<TestResponse> {
     return new Promise((resolve, reject) => {
       if (this.sandBox?.contentWindow) {
         window.addEventListener('message', (event: MessageEvent) => {
-          this.onMessageListener(event.data, resolve);
+          this.onMessageListener(event.data, resolve, options);
         }, { once: true });
 
         script.envs = {
@@ -55,10 +58,10 @@ export class TesterService {
     })
   }
 
-  onMessageListener(event: TestResponse, resolve) {
+  onMessageListener(event: TestResponse, resolve, options: TesterOptions) {
     console.log('received response', event, this.inMemEnv);
     let updatedInMem = event.inMem;
-    if (Utils.objectEntries(this.inMemEnv).toString() !== Utils.objectEntries(updatedInMem).toString()) {
+    if (Utils.objectEntries(this.inMemEnv).toString() !== Utils.objectEntries(updatedInMem).toString() && !options?.skipinMemUpdate) {
       this.store.dispatch(new EnvsAction.SetInMem(updatedInMem))
     }
     resolve(event);

@@ -6,7 +6,7 @@ import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
 import { SyncService } from './sync.service';
 import iDB from './IndexedDB';
-import { SAVED_SETTINGS } from '../utils/constants';
+import { ApicUrls, SAVED_SETTINGS } from '../utils/constants';
 import { SuitesAction } from '../actions/suites.action';
 import { TestProject } from '../models/TestProject.model';
 import apic from '../utils/apic';
@@ -14,6 +14,7 @@ import { Suite, SuiteReq } from '../models/Suite.model';
 import { ApiRequest } from '../models/Request.model';
 import { BehaviorSubject } from 'rxjs';
 import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,7 @@ export class SuiteService {
   ajv = null;
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
 
-  constructor(private store: Store, private syncService: SyncService) {
+  constructor(private store: Store, private syncService: SyncService, private httpClient: HttpClient) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
     });
@@ -274,6 +275,11 @@ export class SuiteService {
       suiteToUpdate.reqs.splice(index, 1);
       return this.updateSuites([suiteToUpdate]);
     }
+  }
+
+  async loadWau(id: string) {
+    let response: any = await this.httpClient.get(ApicUrls.webAccess + id).toPromise();
+    return response.resp.url;
   }
 
   validateProjectImportData(importData): boolean {

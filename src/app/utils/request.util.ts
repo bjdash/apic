@@ -6,8 +6,8 @@ import apic from "./apic";
 import { METHOD_WITH_BODY } from "./constants";
 
 export class RequestUtils {
-    static checkForHTTP(url) {
-        if (url.indexOf('http') !== 0) {
+    static checkForHTTP(url: string) {
+        if (url.toLowerCase().indexOf('http') !== 0) {
             url = 'http://' + url;
         }
         return url;
@@ -19,10 +19,6 @@ export class RequestUtils {
     static getCompiledRequest(req: ApiRequest): CompiledApiRequest {
         const { _id, url, method, prescript, postscript, respCodes } = req;
         let newReq: CompiledApiRequest = { _id, url, method, prescript, postscript, respCodes };
-
-        //interpolating URL
-        newReq.url = RequestUtils.checkForHTTP(newReq.url);
-
 
         //interpolate query params
         let queryParams = req.Req.url_params

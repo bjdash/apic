@@ -137,7 +137,7 @@
 
                 <div [hidden]="!flags.expanded[suite._id]" style="padding-left: 10px;">
                     <div *ngFor="let req of suite.reqs;let i=index" class="savedReq sm"
-                        (click)="openSuitReq(req._id, suite, i)">
+                        (click)="openSuite(suite, req._id)">
                         <div class="l-sec">
                             <div class="method" [ngClass]="req.method"></div>
                         </div>

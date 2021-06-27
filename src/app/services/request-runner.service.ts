@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CompiledApiRequest } from '../models/CompiledRequest.model';
+import { ParsedEnv } from '../models/Envs.model';
 import { KeyVal } from '../models/KeyVal.model';
 import { ApiRequest } from '../models/Request.model';
 import { RunResponse } from '../models/RunResponse.model';
@@ -9,10 +10,15 @@ import { TestScript } from '../models/TestScript.model';
 import apic from '../utils/apic';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { RequestUtils } from '../utils/request.util';
-import { InterpolationService } from './interpolation.service';
-import { TesterService } from './tester.service';
+import { InterpolationOption, InterpolationService } from './interpolation.service';
+import { TesterOptions, TesterService } from './tester.service';
 import { Utils } from './utils.service';
 
+export interface RunOption {
+  useInMemEnv?: boolean,
+  skipinMemUpdate?: boolean, //always to be used with useEnv below
+  useEnv?: ParsedEnv //if specified, the specified env will be used for interpolation
+}
 
 @Injectable({
   providedIn: 'root'
@@ -30,31 +36,40 @@ export class RequestRunnerService {
     this.onreadystatechange = this.onreadystatechange.bind(this)
   }
 
-  run(req: ApiRequest): Promise<RunResult> {
+  run(req: ApiRequest, options?: RunOption): Promise<RunResult> {
     return new Promise(async (resolve, reject) => {
+      if (options?.skipinMemUpdate && !options?.hasOwnProperty('useEnv')) {
+        reject({ message: 'skipinMemUpdate should be used along with useEnv.' })
+        return;
+      }
       if (!req.url) {
         reject({ message: 'Invalid URL.' })
         return;
       }
       let $request: CompiledApiRequest = RequestUtils.getCompiledRequest(req);
       let preRunResponse: TestResponse = null;
+      const testerOption: TesterOptions = { skipinMemUpdate: options?.skipinMemUpdate }
       if (req.prescript) {
         var script: TestScript = {
           type: 'prescript',
           script: $request.prescript,
           $request
         };
-        preRunResponse = await this.tester.runScript(script);
+        preRunResponse = await this.tester.runScript(script, testerOption);
+        //if skipinMemUpdate is true then any new environment vars added wont be visible so add them to options.useEnv
+        if (options?.skipinMemUpdate) {
+          options.useEnv.vals = { ...options.useEnv.vals, ...preRunResponse.inMem }
+        }
       }
 
-      $request = this.interpolateReq($request, req);
+      $request = this.interpolateReq($request, req, options);
 
       this._xhr = new XMLHttpRequest();
       this._xhr.open($request.method, $request.url, true);
 
       this.addHeadersFromObj($request.headers);
       this._xhr.onreadystatechange = (event) => {
-        this.onreadystatechange(event, $request, preRunResponse, resolve)
+        this.onreadystatechange(event, $request, preRunResponse, resolve, testerOption)
       };
 
       this.sentTime = Date.now();
@@ -69,7 +84,7 @@ export class RequestRunnerService {
     });
   }
 
-  async onreadystatechange(event, $request: CompiledApiRequest, preRunResponse: TestResponse, resolve) {
+  async onreadystatechange(event, $request: CompiledApiRequest, preRunResponse: TestResponse, resolve, testerOption: TesterOptions) {
     if (event.target.readyState === 4) {
       //calculating time taken
       var respTime = new Date().getTime();
@@ -88,7 +103,8 @@ export class RequestRunnerService {
         timeTakenStr: Utils.formatTime(timeDiff),
         data: null,
         logs: preRunResponse?.logs || [this.defaultLogMsg],
-        tests: preRunResponse?.tests || []
+        tests: preRunResponse?.tests || [],
+        inMemEnvs: preRunResponse?.inMem || {}
       };
       $response.respSize = this.getResponseSize($response)
       //convert response to json object
@@ -106,42 +122,32 @@ export class RequestRunnerService {
           $request,
           $response
         };
-        let postRunResponse: TestResponse = await this.tester.runScript(script);
+        let postRunResponse: TestResponse = await this.tester.runScript(script, testerOption);
         $response.logs = [...$response.logs, ...postRunResponse.logs];
         $response.tests = [...$response.tests, ...postRunResponse.tests];
+        $response.inMemEnvs = { ...$response.inMemEnvs, ...postRunResponse.inMem }
       }
-      // _this.req.response = respObj;
-      // if (_this.req.postscript) {
-      //   var script = {
-      //     type: 'postscript',
-      //     req: _this.req
-      //   };
-      //   _this.listenForMessage(_this.postRunCB);
-      //   Tester.run(script);
-      // } else {
-      //   _this.req.tests = [];
-      //   _this.defer.resolve(_this.req);
-      // }
-
       resolve({ $request, $response })
     }
   }
 
 
 
-  interpolateReq($request: CompiledApiRequest, originalReq: ApiRequest): CompiledApiRequest {
+  interpolateReq($request: CompiledApiRequest, originalReq: ApiRequest, options?: RunOption): CompiledApiRequest {
+    const interpolationOpt: InterpolationOption = { useInMemEnv: options?.useInMemEnv, useEnv: options?.useEnv }
     let { url, headers, queryParams, body } = $request, bodyData;
-    headers = this.interpolationService.interpolateObject(headers);
-    queryParams = this.interpolationService.interpolateObject(queryParams);
-    url = this.interpolationService.interpolate(this.prepareQueryParams(url, queryParams || {}));
+    headers = this.interpolationService.interpolateObject(headers, interpolationOpt);
+    queryParams = this.interpolationService.interpolateObject(queryParams, interpolationOpt);
+    url = this.interpolationService.interpolate(this.prepareQueryParams(url, queryParams || {}), interpolationOpt);
+    url = RequestUtils.checkForHTTP(url);
     if (METHOD_WITH_BODY.indexOf($request.method) >= 0 && $request.bodyType) {
       switch ($request.bodyType) {
         case 'x-www-form-urlencoded':
-          body = this.interpolationService.interpolateObject(body);
+          body = this.interpolationService.interpolateObject(body, interpolationOpt);
           bodyData = Utils.getUrlEncodedXForm(body);
           break;
         case 'form-data':
-          body = this.interpolationService.interpolateObject(body);
+          body = this.interpolationService.interpolateObject(body, interpolationOpt);
           let formData = originalReq.Body.formData.filter(xf => xf.key && xf.active)
             .map(xf => {
               return {
@@ -155,7 +161,7 @@ export class RequestRunnerService {
           bodyData = Utils.getFormDataBody(formData);
           break;
         case 'raw':
-          let rawBody = this.interpolationService.interpolate(originalReq.Body.rawData);
+          let rawBody = this.interpolationService.interpolate(originalReq.Body.rawData, interpolationOpt);
           bodyData = rawBody;
           if (rawBody && originalReq.Body.selectedRaw?.val?.includes('json')) {
             try {

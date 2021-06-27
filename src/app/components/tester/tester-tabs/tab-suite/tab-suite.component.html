@@ -50,7 +50,8 @@
                             <fieldset [disabled]="flags.running">
                                 <div class="form-group">
                                     <label class="" for="suite-env">Environment</label>
-                                    <mat-select formControlName="env" name="env" id="suite-env">
+                                    <mat-select formControlName="env" name="env" id="suite-env"
+                                        (selectionChange)="envChanged()">
                                         <mat-option [value]="''">No Environment</mat-option>
                                         <mat-divider></mat-divider>
                                         <mat-option *ngFor="let env of envs$ | async " [value]="env._id">
@@ -72,11 +73,11 @@
                             </fieldset>
                         </div>
                         <div class="col-xs-5 center">
-                            <button mat-button class="big-run">
+                            <button mat-button class="big-run" (click)="prepareAndRunSuite()" *ngIf="!flags.running">
                                 <div class="run"></div>
                                 <span class="run-text">Run</span>
                             </button>
-                            <button mat-button class="big-run" *ngIf="flags.running">
+                            <button mat-button class="big-run" *ngIf="flags.running" (click)="abortRun()">
                                 <div class="stop"></div>
                                 <span class="stop-text">Stop</span>
                             </button>
@@ -100,23 +101,153 @@
                         </div>
                     </div>
 
-                    <div class="paper">
+                    <div class="paper" *ngIf="flags.showResp">
                         <h3 class="panel-title custom pointer">
                             <span>Run result</span>
                         </h3>
                         <div class="pull-right margB5 vcenter">
-                            <button mat-icon-button class="sm" title="Save">
+                            <button mat-icon-button class="sm" title="Save" (click)="saveResult()">
                                 <mat-icon>save</mat-icon>
                             </button>
-                            <button mat-icon-button class="sm" title="Download">
+                            <button mat-icon-button class="sm" title="Download report" (click)="downloadReport()">
                                 <mat-icon>vertical_align_bottom</mat-icon>
                             </button>
-                            <button mat-icon-button class="sm" title="Close">
+                            <button mat-icon-button class="sm" title="Close" (click)="flags.showResp=false">
                                 <mat-icon>close</mat-icon>
                             </button>
                         </div>
                         <div class="panel-body">
-                            Res
+                            <div class="progress-holder margV10" *ngIf="flags.running">
+                                <div class="progress-bar"
+                                    [ngStyle]="{width:((100/run.reqCount)*(run.requestCounter+1))+'%'}"></div>
+                            </div>
+                            <div *ngIf="!flags.running && !form.value.multiRun" class="margV10 row">
+                                <div class="col-sm-6 test-dash">
+                                    <div class="bold count">Test cases</div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="td-cont">
+                                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                                    <path class="circle"
+                                                        [ngStyle]="{'stroke-dasharray':(run.stats.testsPassed/run.stats.reqsTotal*100)+', 100'}"
+                                                        d="M18 2.0845
+                                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                </svg>
+                                                <svg viewBox="0 0 36 36" class="circular-chart"
+                                                    style="position: absolute;top:0; transform:scale(0.8)">
+                                                    <path class="circle redc"
+                                                        [ngStyle]="{'stroke-dasharray':(run.stats.testsFailed/run.stats.reqsTotal*100)+', 100'}"
+                                                        d="M18 2.0845
+                                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                </svg>
+                                                <div class="green td-perc">
+                                                    {{(run.stats.testsPassed/run.stats.testsTotal*100).toFixed(2)}}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div>Total tests: <span class="bold">{{run.stats.testsTotal}}</span></div>
+                                            <div>Passed: <span class="bold green">{{run.stats.testsPassed}}</span></div>
+                                            <div>Failed: <span class="bold red">{{run.stats.testsFailed}}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 test-dash">
+                                    <div class="bold count">Requests</div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="td-cont">
+                                                <svg viewBox="0 0 36 36" class="circular-chart">
+                                                    <path class="circle"
+                                                        [ngStyle]="{'stroke-dasharray':(run.stats.reqsPassed/run.stats.reqsTotal*100)+', 100'}"
+                                                        d="M18 2.0845
+                                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                </svg>
+                                                <svg viewBox="0 0 36 36" class="circular-chart"
+                                                    style="position: absolute;top:0; transform:scale(0.8)">
+                                                    <path class="circle redc"
+                                                        [ngStyle]="{'stroke-dasharray':(run.stats.reqsFailed/run.stats.reqsTotal*100)+', 100'}"
+                                                        d="M18 2.0845
+                                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                                </svg>
+                                                <div class="green td-perc">
+                                                    {{(run.stats.reqsPassed/run.stats.reqsTotal*100).toFixed(2)}}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div>Total requests: <span class="bold">{{run.stats.reqsTotal}}</span></div>
+                                            <div>Passed: <span class="bold green">{{run.stats.reqsPassed}}</span></div>
+                                            <div>Failed: <span class="bold red">{{run.stats.reqsFailed}}</span></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div *ngFor="let req of run.results; trackBy: trackByFn;" class="suit-req run-res"
+                                [ngClass]="req.status">
+                                <div class="pointer" (click)="req.showTest = !req.showTest">
+                                    <div class="name">
+                                        {{req.name}}
+                                    </div>
+                                    <div class="margTm5">
+                                        <span class="url" [ngClass]="req.method">{{req.method}} </span>
+                                        <span class="url">{{req.url}}</span>
+                                        <div class="run-status" *ngIf="req.status == 'complete'">
+                                            <div class="vcenter"><span class="green vcenter">{{req.tests.passed}}
+                                                    <mat-icon class="sm">
+                                                        check_circle</mat-icon>
+                                                </span> /
+                                                <span class="red vcenter">{{req.tests.failed}} <mat-icon class="sm">
+                                                        cancel
+                                                    </mat-icon></span>
+                                            </div>
+                                            <span><span class="status">{{req.response.status}}
+                                                    {{req.response.statusText}}</span> (<span
+                                                    class="status info">{{req.response.timeTakenStr}}</span>)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="req.showTest" class="dashed-left">
+                                    <div class="suit-req-sec vcenter">
+                                        <span class="gap">Tests:</span>
+                                        <span class="green vcenter">{{req.tests.passed}} <mat-icon class="sm">
+                                                check_circle</mat-icon></span> / <span
+                                            class="red vcenter">{{req.tests.failed}} <mat-icon class="sm">
+                                                cancel
+                                            </mat-icon></span>
+                                    </div>
+                                    <div class="test-cont">
+                                        <div *ngFor="let case of req.tests.cases; trackBy: trackByFn;"
+                                            class="test-result vcenter">
+                                            <span *ngIf="case.success" class="t_status green vcenter">
+                                                <mat-icon class="sm">check_circle</mat-icon>
+                                                <span>Passed</span>
+                                            </span>
+                                            <span *ngIf="!case.success" class=" t_status red vcenter">
+                                                <mat-icon class="sm">cancel</mat-icon>
+                                                <span>Failed</span>
+                                            </span>
+                                            <div>
+                                                {{case.name}}
+                                                <div class="red" ng-if="!case.success">{{case.reason}}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="vcenter pointer" (click)="req.hidelResp = !req.hidelResp">
+                                        <mat-icon *ngIf="!req.hidelResp">arrow_drop_down</mat-icon>
+                                        <mat-icon *ngIf="req.hidelResp">arrow_right</mat-icon>
+                                        Response:
+                                    </div>
+                                    <div class="s-raw" *ngIf="!req.hidelResp">
+                                        {{req.response.body}}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -132,13 +263,16 @@
                                 <mat-icon>content_copy</mat-icon>
                             </button>
                         </div>
-                        <button mat-stroked-button class="sm t_border" (click)="loadWAU()" title="Copy">
+                        <button mat-stroked-button class="sm t_border" *ngIf="!wau" (click)="loadWAU()"
+                            [disabled]="flags.wauLoading">
                             Get web access URL
+                            <span class="spinner" *ngIf="flags.wauLoading"></span>
                         </button>
-                        <a href="https://docs.apic.app/cicd-integration" class="btn btn-link btn-sm" target="_new">Learn
+                        <a href="https://docs.apic.app/cicd-integration" class="btn btn-link btn-sm t_color"
+                            target="_new">Learn
                             more</a>
                     </div>
-                    <div class="paper">
+                    <div class="paper" *ngIf="flags.showResp">
                         <h3 class="panel-title custom pointer" (click)="flags.showLogs = !flags.showLogs">
                             <span>Run logs</span>
                         </h3>

@@ -210,4 +210,12 @@ export class AuthService {
 
     //TODO:Change the IDs of each opened tabs
   }
+
+  isLoggedIn(): boolean {
+    return this.user != undefined
+  }
+
+  getAuthHeader() {
+    return this.user.UID + '||' + this.user?.authToken;
+  }
 }

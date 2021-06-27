@@ -131,7 +131,8 @@
                                 (ngModelChange)="addToPendingSave(inMemEnvId)" class="form-control">
                             <input style="display:inline-block" type="text" class="form-control" placeholder="Value"
                                 (ngModelChange)="addToPendingSave(inMemEnvId)" [(ngModel)]="entry.val" />
-                            <button mat-icon-button class="sm red" (click)="removeEnvVals(i)">
+                            <button mat-icon-button class="sm red"
+                                (click)="inMemEnvs.splice(i, 1);this.addToPendingSave(inMemEnvId);">
                                 <mat-icon>close</mat-icon>
                             </button>
                         </span>

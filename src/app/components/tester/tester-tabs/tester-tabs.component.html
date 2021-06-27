@@ -24,7 +24,8 @@
             <div>
                 <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data"></app-tab-request>
                 <app-tab-socket *ngSwitchCase="'ws'"></app-tab-socket>
-                <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id"></app-tab-suite>
+                <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id" [reqToOpen]="tab.data?.reqToOpen">
+                </app-tab-suite>
             </div>
         </mat-tab>
     </mat-tab-group>

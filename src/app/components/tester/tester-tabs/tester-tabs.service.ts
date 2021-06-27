@@ -25,8 +25,8 @@ export class TesterTabsService {
     this.tabsChange.next({ action: 'add', id, type: 'req', name });
   }
 
-  addSuiteTab(id: string, name: string) {
-    this.tabsChange.next({ action: 'add', id, type: 'suite', name });
+  addSuiteTab(id: string, name: string, reqToOpen?: string) {
+    this.tabsChange.next({ action: 'add', id, type: 'suite', name, data: { reqToOpen } });
   }
 
   addTab(tab: TesterTab) {

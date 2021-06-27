@@ -42,6 +42,22 @@ export class EnvState {
     }
 
     @Selector()
+    static getByIdParsed(state: EnvStateModel) {
+        return (id): ParsedEnv => {
+            const env = state.envs.find(env => env._id === id);
+            if (env) {
+                return {
+                    _id: env._id,
+                    name: env.name,
+                    vals: env?.vals.reduce((accumulator, currentValue) => { accumulator[currentValue.key] = currentValue.val; return accumulator }, {}) || {}
+                }
+            } else {
+                return null
+            }
+        };
+    }
+
+    @Selector()
     static getSelected(state: EnvStateModel): ParsedEnv {
         if (state.selectedEnv)
             return {
