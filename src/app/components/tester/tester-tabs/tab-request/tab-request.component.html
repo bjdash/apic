@@ -145,7 +145,7 @@
                                 <mat-option *ngFor="let type of RAW_BODY_TYPES" [value]="type">
                                     {{type.name+'('+type.val+')'}}</mat-option>
                             </mat-select>
-                            <mat-radio-button value="graphql" (click)="initGQLBody()">Graphql</mat-radio-button>
+                            <mat-radio-button value="graphql">Graphql</mat-radio-button>
                         </mat-radio-group>
                         <div class="xtra-opt" *ngIf="form.value.body.type=='raw'">
                             <button mat-icon-button class="sm gap" matTooltip="Beautify body" (click)="prettifyBody()">
@@ -158,7 +158,6 @@
                             </mat-menu>
                         </div>
                         <div *ngIf="form.value.body.type==='form-data'">
-                            <!--TODO: Add input type file-->
                             <app-key-value-editor formControlName="formData"
                                 [options]="{addOnFocus:true,allowToggle:true, allowFileType:true}">
                             </app-key-value-editor>
@@ -172,7 +171,10 @@
                             formControlName="rawData" [mode]="form.value.body.selectedRaw.name.toLowerCase()">
                         </apic-ace>
                         <div *ngIf="form.value.body.type ==='graphql'">
-                            TODO: Graphql
+                            <app-graphql [url]="form.value.url" [method]="form.value.method"
+                                [gqlVars]="form.value.body.gqlVars" formControlName="rawData"
+                                (onGqlVarsChange)="onGqlVarsChange($event)">
+                            </app-graphql>
                         </div>
                     </div>
 

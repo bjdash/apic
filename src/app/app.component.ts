@@ -8,6 +8,10 @@ import 'brace/mode/json';
 import 'brace/mode/yaml';
 import 'brace/mode/xml';
 import 'brace/mode/javascript';
+import 'brace/ext/searchbox';
+import 'brace/ext/language_tools';
+import './utils/mode-graphql'
+
 import { ThemesService } from './services/themes.service';
 import { RequestsService } from './services/requests.service';
 import { ReqHistoryService } from './services/reqHistory.service';

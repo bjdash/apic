@@ -17,6 +17,7 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   @Input() readOnly: boolean;
   @Input() mode: string;
   @Input() text: string;
+  @Input() options: any;
   @Output() textChange = new EventEmitter();
   @ViewChild('editor', { read: ElementRef }) editor: ElementRef;
   @ViewChild('editor') ace: AceEditorComponent;

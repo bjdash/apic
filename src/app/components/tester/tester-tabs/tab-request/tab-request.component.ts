@@ -95,8 +95,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.form = fb.group({
       name: [''],
       description: [''],
-      method: ['GET'],
-      url: [''],
+      method: ['POST'],
+      url: ['https://api.spacex.land/graphql/'],
       urlParams: [[]],
       headers: [[]],
       body: fb.group({
@@ -132,7 +132,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     if (changes.requestId?.previousValue?.includes('new_tab') && !changes.requestId?.currentValue?.includes('new_tab')) {
       this.listenForUpdate()
     }
-    if (changes.initialData.currentValue) {
+    if (changes.initialData?.currentValue) {
       this.processSelectedReq(this.initialData)
     }
   }
@@ -280,26 +280,10 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   initRawBody() {
+    //TODO:
     // request.Editor.Req.object.completers = [];
     // changeEditorMode(request.Body.selectedRaw.name, 'Req');
   }
-  initGQLBody() {
-    // request.Editor.Req.object.completers = [{
-    //     getCompletions: function (editor, session, pos, prefix, callback) {
-    //         callback(null, request.GQLSuggests);
-    //     }
-    // }]
-    // changeEditorMode('graphql', 'Req');
-    // GraphQL.loadSchema(request.URL, request.METHOD).then(function (types) {
-    //     console.log(types);
-    //     request.GQLTypes = types;
-    //     request.GQLSuggests = types.suggests;
-    //     delete types.suggests;
-    // }, function (e) {
-    //     request.GQLTypes = null;
-    // })
-  }
-
   removeAuthHeader() {
     this.form.patchValue({ headers: this.form.value.headers.filter((h: KeyVal) => h.key.toLocaleLowerCase() !== 'authorization') })
     this.toastr.info('Authorization header removed.');
@@ -548,6 +532,10 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       }
     }, 0);
 
+  }
+
+  onGqlVarsChange(value) {
+    this.form.controls['body'].patchValue({ gqlVars: value })
   }
 
   trackByFn(index, item) {

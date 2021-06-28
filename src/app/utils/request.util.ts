@@ -84,11 +84,21 @@ export class RequestUtils {
                     }
                     break;
                 case 'graphql':
-                    //TODO://interpolating graphql (key and values)
                     req.Body.type = 'raw';
-                    // newReq.bodyData = Utils.getGqlBody(req.Body.rawData, req.Body.gqlVars);
                     newReq.headers['Content-Type'] = 'application/json';
-                    //TODO: populate body to be used with $request in test
+                    newReq.body = {
+                        query: req.Body.rawData
+                    };
+                    if (req.Body.gqlVars) {
+                        try {
+                            let variables = JSON.parse(req.Body.gqlVars.trim());
+                            if (variables) {
+                                newReq.body.variables = variables;
+                            }
+                        } catch (e) {
+                            console.error('Invalid graphql variables', e);
+                        }
+                    }
                     break;
                 case 'form-data':
                     //parsing form data (key and values)

@@ -74,8 +74,6 @@ export class RequestRunnerService {
 
       this.sentTime = Date.now();
       if ($request.bodyData) {
-        //TODO
-        // req.request.body = Utils.getReqBody(BODY, req.request.bodyMeta.type);
         this._xhr.send($request.bodyData);
       } else {
         // req.request.body = {};
@@ -175,7 +173,14 @@ export class RequestRunnerService {
           }
           break;
         case 'graphql':
-        //TODO:
+          let bodyStr = JSON.stringify($request.body);
+          bodyData = this.interpolationService.interpolate(bodyStr, interpolationOpt);
+          try {
+            body = JSON.parse(bodyData);
+          } catch (e) {
+            console.error(`Unable to convert request body to json`, e);
+            body = $request.body;
+          }
       }
     }
 

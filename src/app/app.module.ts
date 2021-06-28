@@ -114,6 +114,8 @@ import { SuitesState } from './state/suites.state';
 import { TabSuiteComponent } from './components/tester/tester-tabs/tab-suite/tab-suite.component';
 import { ProjectInfoComponent } from './components/designer/api-project-detail/project-home/project-info/project-info.component';
 import { ProjectDetailRouteGuard } from './components/designer/api-project-detail/api-project-detail-route-guard';
+import { GraphqlComponent } from './components/tester/tester-tabs/tab-request/graphql/graphql.component';
+import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/graphql/gql-schema/gql-schema.component';
 
 @NgModule({
   declarations: [
@@ -172,7 +174,9 @@ import { ProjectDetailRouteGuard } from './components/designer/api-project-detai
     LogoutComponent,
     TesterLeftNavSuitesComponent,
     TabSuiteComponent,
-    ProjectInfoComponent
+    ProjectInfoComponent,
+    GraphqlComponent,
+    GqlSchemaComponent
   ],
   imports: [
     BrowserModule,

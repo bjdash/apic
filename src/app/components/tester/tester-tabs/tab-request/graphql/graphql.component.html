@@ -1,0 +1,29 @@
+<table class="relative">
+    <td class="query-td">
+        <apic-ace class="test_editor" #gqlAce [(text)]="text" [options]="options" (textChange)="onTextChange()"
+            mode="graphql">
+        </apic-ace>
+    </td>
+    <td class="schema-td">
+        <div class="btn-group toggle-group gql-opt">
+            <button type="button" mat-button class="xs" [ngClass]="flags.gqlTab==='vars'?'t_bg t_border':''"
+                (click)="flags.gqlTab='vars'">Variables</button>
+            <button type="button" mat-button class="xs" [ngClass]="flags.gqlTab==='schema'?'t_bg t_border':''"
+                (click)="flags.gqlTab='schema'">Schema</button>
+        </div>
+        <div class="scroll-cont">
+            <div *ngIf="flags.gqlTab=='schema'">
+                <div *ngIf="flags.loading" class="f18 margV10">Loading schema ...</div>
+                <gql-schema *ngIf="gqlTypes" [types]="gqlTypes" [path]="gqlPath"></gql-schema>
+                <span class="text16" *ngIf="gqlTypes === null">Could not load Graphql schema with current URL</span>
+                <button mat-icon-button class="t_color reload-gql" (click)="init()">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+            </div>
+            <div *ngIf="flags.gqlTab =='vars'">
+                <apic-ace class="test_editor" #gqlAce [(text)]="gqlVars" (textChange)="gqlVarsChanged()" mode="json">
+                </apic-ace>
+            </div>
+        </div>
+    </td>
+</table>
