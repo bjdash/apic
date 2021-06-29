@@ -20,6 +20,7 @@ import { Utils } from 'src/app/services/utils.service';
 import { EnvState } from 'src/app/state/envs.state';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import apic from 'src/app/utils/apic';
+import { TesterTabsService } from '../tester-tabs.service';
 
 @Component({
   selector: 'app-tab-suite',
@@ -90,7 +91,8 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     private runner: RequestRunnerService,
     private reporterService: ReporterService,
     private fileSystem: FileSystem,
-    private authService: AuthService
+    private authService: AuthService,
+    private tabService: TesterTabsService
   ) {
     this.form = fb.group({
       name: [''],
@@ -131,18 +133,18 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
         }
         else if (s == undefined && this.selectedSuite) {
           if (this.updatedInBackground == 'delete') {
-            //TODO:
-            // this.confirmService.alert({
-            //   id: 'Sync:Project Deleted',
-            //   confirmTitle: 'Project deleted',
-            //   confirm: 'The selected API project has been deleted by its owner.',
-            //   confirmOk: 'Ok'
-            // }).then(() => {
-            //   // this.router.navigate(['designer']);
-            //   this.updatedInBackground = null;
-            // }).catch(() => { })
+            //TODO: Instead of closing the tab, give the user an option to save it as new 
+            this.confirmService.alert({
+              id: 'Sync:Suite Deleted' + this.selectedSuite._id,
+              confirmTitle: 'Suite deleted',
+              confirm: `The test suite '${this.selectedSuite.name}' has been deleted by its owner. The opened suite tab will now close.`,
+              confirmOk: 'Ok'
+            }).then(() => {
+              this.tabService.removeTab(this.selectedSuite._id)
+              this.updatedInBackground = null;
+            }).catch(() => { })
           } else {
-            // this.router.navigate(['designer'])
+            this.tabService.removeTab(this.selectedSuite._id)
           }
         }
       })

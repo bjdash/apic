@@ -9,7 +9,7 @@ export interface TesterTab {
   originalId?: string,
   newId?: string,
   type?: 'req' | 'socket' | 'ws' | 'suite',
-  name: string,
+  name?: string,
   data?: any
 }
 
@@ -38,5 +38,9 @@ export class TesterTabsService {
 
   updateTab(id: string, newId: string, name: string) {
     this.tabsChange.next({ action: 'update', id, name, newId });
+  }
+
+  removeTab(id: string) {
+    this.tabsChange.next({ action: 'remove', id });
   }
 }

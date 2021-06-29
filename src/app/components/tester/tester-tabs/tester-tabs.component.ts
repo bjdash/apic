@@ -44,6 +44,11 @@ export class TesterTabsComponent implements OnInit {
             this.tabsService.selectedTabChange.next(tab.newId);
           }
         }
+      } else if (tab.action === 'remove') {
+        let indexIfExist = this.tabs.findIndex(t => t.id === tab.id);
+        if (indexIfExist >= 0) {
+          this.tabs.splice(indexIfExist, 1);
+        }
       }
     })
   }
