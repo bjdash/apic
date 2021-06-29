@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface TreeSelectorOptn {
   disableParent?: boolean,
-  disableChild?: boolean,
+  showChildren?: boolean,
   displayName?: string,
   childrenKey?: string,
   addRoot?: boolean
@@ -29,7 +29,7 @@ export class TreeSelectorComponent implements OnInit, ControlValueAccessor {
   propagateTouch: any = () => { };
 
   private defaultOptions: TreeSelectorOptn = {
-    disableParent: false, displayName: 'name', childrenKey: 'children', disableChild: false, addRoot: false
+    disableParent: false, displayName: 'name', childrenKey: 'children', showChildren: false, addRoot: false
   }
   selectedId: string;
   disabled = false;

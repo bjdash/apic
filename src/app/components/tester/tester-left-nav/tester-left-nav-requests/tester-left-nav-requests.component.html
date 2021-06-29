@@ -34,7 +34,7 @@
             <div style="margin: 10px 5px;">
                 <label>Select a parent folder</label>
                 <apic-tree-selector [items]="folders$ |async" formControlName="parentId"
-                    [options]="{disableChild:true, addRoot:true}"></apic-tree-selector>
+                    [options]="{showChildren:false, addRoot:true}"></apic-tree-selector>
             </div>
 
         </form>
@@ -145,7 +145,7 @@
             <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #reqManu="matMenu">
-            <button mat-menu-item (click)="$event.stopPropagation()">
+            <button mat-menu-item (click)="addRequestToSuite(req)">
                 <mat-icon>code</mat-icon> Add to test suite
             </button>
             <button mat-menu-item (click)="initCopyMove('copy', req._id, req.name)">

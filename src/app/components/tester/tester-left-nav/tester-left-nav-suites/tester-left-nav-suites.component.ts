@@ -206,6 +206,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
 
   showNewSuitForm(projId: string) {
     this.flags.newSuite = true;
+    this.flags.expanded[projId] = true;
     this.suiteForm.patchValue({ projId })
     setTimeout(() => {
       document.getElementById('newSuiteName').focus();

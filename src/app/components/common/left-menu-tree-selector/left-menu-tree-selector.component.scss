@@ -24,5 +24,7 @@
 }
 .done {
     width: 100%;
+}
+.done:first-letter {
     text-transform: capitalize;
 }

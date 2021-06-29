@@ -27,7 +27,7 @@ import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 })
 export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   @Select(RequestsStateSelector.getFoldersTree) folders$: Observable<any[]>;
-  @Select(SuitesStateSelector.getProjectsPartial) testProjects$: Observable<any[]>;
+  @Select(SuitesStateSelector.getSuitesTree) suitesTree$: Observable<any[]>;
 
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
@@ -318,7 +318,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       options: {
         title: 'Select Folder',
         doneText: type,
-        treeOptions: { disableChild: false }
+        treeOptions: { showChildren: true }
       },
       onDone: this.doCopyMove.bind(this)
     }
@@ -381,14 +381,14 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   }
 
   async convertFolderToSuite(folder: TreeReqFolder) {
-    let projects = await this.testProjects$.pipe(take(1)).toPromise();
+    let projects = await this.suitesTree$.pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
       show: true,
       items: projects,
       options: {
         title: 'Select test project',
         doneText: 'Add to selected project',
-        treeOptions: { disableChild: false }
+        treeOptions: { showChildren: false }
       },
       onDone: async (projId) => {
         var ts = Date.now();
@@ -422,6 +422,43 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           this.toastr.error(`Failed to convert folder to suite.`);
         }
         this.treeSelectorOpt.show = false;
+      }
+    }
+  }
+
+  async addRequestToSuite(partialReq: ApiRequest) {
+    if (partialReq.type === 'ws') {
+      this.toastr.error('Adding websocket requests to Test Suits is not yet supported');
+      return;
+    }
+    let projects = await this.suitesTree$.pipe(take(1)).toPromise();
+    this.treeSelectorOpt = {
+      show: true,
+      items: projects,
+      options: {
+        title: 'Select test suite',
+        doneText: 'add to selected suite',
+        treeOptions: {
+          disableParent: true,
+          showChildren: true,
+          childrenKey: 'suites'
+        }
+      },
+      onDone: (suiteId) => {
+        this.store.select(SuitesStateSelector.getSuiteByIdDynamic(suiteId))
+          .pipe(take(1))
+          .subscribe(async (suite) => {
+            let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(partialReq._id)).pipe(take(1)).toPromise();
+            let suiteToUpdate = { ...suite, reqs: [...suite.reqs, { ...request, disabled: false }] };
+            try {
+              await this.suiteService.updateSuites([suiteToUpdate]);
+              this.toastr.success(`Request added to suite ${suite.name}.`);
+            } catch (e) {
+              console.error('Failed add request to suite.', e);
+              this.toastr.error(`Failed add request to suite.`);
+            }
+            this.treeSelectorOpt.show = false;
+          })
       }
     }
   }

@@ -46,14 +46,15 @@
                 </div>
             </div>
             <div class="r-sec">
-                <button class="new-suite" mat-icon-button (click)="showNewSuitForm(project._id)" matTooltip="New suite">
+                <button class="new-suite" mat-icon-button
+                    (click)="showNewSuitForm(project._id);$event.stopPropagation()" matTooltip="New suite">
                     <mat-icon>add</mat-icon>
                 </button>
                 <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()">
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #folderMenu="matMenu">
-                    <button mat-menu-item class="sm" (click)="showNewSuitForm(project._id)">
+                    <button mat-menu-item class="sm" (click)="showNewSuitForm(project._id);">
                         <mat-icon>add</mat-icon> New Test Suite
                     </button>
                     <button mat-menu-item class="sm" (click)="importSuite(project._id)">

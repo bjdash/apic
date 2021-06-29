@@ -25,7 +25,8 @@ export interface ApiRequest {
     url: string
     _created?: number
     _id: string
-    _modified?: number
+    _modified?: number,
+    type?: 'ws'
 }
 
 export interface SavedResp {

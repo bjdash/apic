@@ -4,7 +4,7 @@
     <div *ngFor="let item of items;trackBy:trackByFn">
         <button mat-flat-button type="button" class="ts-item" (click)="select(item)" [disabled]="options.disableParent"
             [ngClass]="selectedId === item._id?'active':''">{{item[options.displayName]}}</button>
-        <div class="ts-childCont" *ngIf="!options.disableChild">
+        <div class="ts-childCont" *ngIf="options.showChildren">
             <button *ngFor="let child of item[options.childrenKey]" mat-flat-button type="button" class="ts-item"
                 (click)="select(child)"
                 [ngClass]="selectedId === child._id?'active':''">{{child[options.displayName]}}</button>
