@@ -12,7 +12,7 @@ import { TestProject } from '../models/TestProject.model';
 import apic from '../utils/apic';
 import { Suite, SuiteReq } from '../models/Suite.model';
 import { ApiRequest } from '../models/Request.model';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 import { HttpClient } from '@angular/common/http';
 
@@ -23,6 +23,8 @@ export class SuiteService {
   authUser: User;
   ajv = null;
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
+  private _initAddReq = new Subject<any>();
+  initAddReq$ = this._initAddReq.asObservable();
 
   constructor(private store: Store, private syncService: SyncService, private httpClient: HttpClient) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -143,7 +145,6 @@ export class SuiteService {
     this.store.dispatch(new SuitesAction.Suites.Delete(ids));
     return ids;
   }
-
 
   async deleteSuites(ids: string[], fromSync?: boolean) {
     let data = await iDB.deleteMany(iDB.TABLES.TEST_SUITES, ids); //data doesnt contain deleted ids
@@ -280,6 +281,10 @@ export class SuiteService {
   async loadWau(id: string) {
     let response: any = await this.httpClient.get(ApicUrls.webAccess + id).toPromise();
     return response.resp.url;
+  }
+
+  initAddReq(suite: Suite, index: number) {
+    this._initAddReq.next([suite, index]);
   }
 
   validateProjectImportData(importData): boolean {

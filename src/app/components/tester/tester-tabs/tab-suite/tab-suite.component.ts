@@ -373,6 +373,10 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs] });
   }
 
+  addSavedReq(index) {
+    this.suiteService.initAddReq(this.selectedSuite, index);
+  }
+
   reload() {
     this.processSelectedSuite(this.reloadSuite);
     this.reloadSuite = null;

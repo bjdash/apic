@@ -390,7 +390,7 @@
                         <mat-icon class="sm">add</mat-icon>
                         <span class="nt_options">
                             <button mat-button class="xs" (click)="addBlankReq(0)">Blank request</button>
-                            <button mat-button class="xs" ng-click="vm.addSavedReq(0)">Savedrequest</button>
+                            <button mat-button class="xs" (click)="addSavedReq(0)">Savedrequest</button>
                         </span>
                     </div>
                 </div>
@@ -428,7 +428,7 @@
                                 <span class="nt_options">
                                     <button mat-button class="xs" (click)="addBlankReq(i+1)">Blank
                                         request</button>
-                                    <button mat-button class="xs" ng-click="vm.addSavedReq($index+1)">Saved
+                                    <button mat-button class="xs" (click)="addSavedReq(i+1)">Saved
                                         request</button>
                                 </span>
                             </div>

@@ -72,6 +72,9 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     //TODO: remove
     this.testerTabsService.addSuiteTab("123456abcdef-testsuite-demo", "Demo");
+    this.suiteService.initAddReq$.pipe(takeUntil(this.destroy)).subscribe(([suite, index]: [Suite, number]) => {
+      this.addReqToSuite(suite, index);
+    })
   }
   ngOnDestroy(): void {
     this.destroy.next();
@@ -338,7 +341,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     this.flags.expanded[id] = !this.flags.expanded[id];
   }
 
-  async addReqToSuite(suite: Suite) {
+  async addReqToSuite(suite: Suite, index?: number) {
     this.flags.expanded[suite._id] = true;
     let reqs = await this.store.select(RequestsStateSelector.getRequests).pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
@@ -357,7 +360,12 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
         this.store.select(RequestsStateSelector.getRequestByIdDynamic(reqId))
           .pipe(take(1))
           .subscribe(async (request) => {
-            let suiteToUpdate = { ...suite, reqs: [...suite.reqs, { ...request, disabled: false }] };
+            let suiteToUpdate = { ...suite, reqs: [...suite.reqs] };
+            if (index === undefined) {
+              suiteToUpdate.reqs.push({ ...request, disabled: false })
+            } else {
+              suiteToUpdate.reqs.splice(index, 0, { ...request, disabled: false })
+            }
             try {
               await this.suiteService.updateSuites([suiteToUpdate]);
               this.toastr.success(`Request added to suite ${suite.name}.`);
