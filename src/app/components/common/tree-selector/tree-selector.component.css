@@ -14,8 +14,8 @@
 }
 
 .ts-item.active {
-    background-color: var(--accent-color);
-    color: #fff;
+    background-color: var(--accent-color) !important;
+    color: var(accent-bg-text) !important;
 }
 
 .ts-childCont {

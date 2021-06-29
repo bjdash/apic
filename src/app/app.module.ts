@@ -116,6 +116,7 @@ import { ProjectInfoComponent } from './components/designer/api-project-detail/p
 import { ProjectDetailRouteGuard } from './components/designer/api-project-detail/api-project-detail-route-guard';
 import { GraphqlComponent } from './components/tester/tester-tabs/tab-request/graphql/graphql.component';
 import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/graphql/gql-schema/gql-schema.component';
+import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tree-selector/left-menu-tree-selector.component';
 
 @NgModule({
   declarations: [
@@ -176,7 +177,8 @@ import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/
     TabSuiteComponent,
     ProjectInfoComponent,
     GraphqlComponent,
-    GqlSchemaComponent
+    GqlSchemaComponent,
+    LeftMenuTreeSelectorComponent
   ],
   imports: [
     BrowserModule,

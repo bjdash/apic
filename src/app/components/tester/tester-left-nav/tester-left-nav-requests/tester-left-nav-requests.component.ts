@@ -4,13 +4,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
+import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
 import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
+import { Suite } from 'src/app/models/Suite.model';
 import { User } from 'src/app/models/User.model';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
+import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
+import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import { UserState } from 'src/app/state/user.state';
 import apic from 'src/app/utils/apic';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
@@ -23,6 +27,7 @@ import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 })
 export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   @Select(RequestsStateSelector.getFoldersTree) folders$: Observable<any[]>;
+  @Select(SuitesStateSelector.getProjectsPartial) testProjects$: Observable<any[]>;
 
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
@@ -33,13 +38,21 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     name: ''
   }
 
-  copyMove = {
-    showTree: false,
+  copyMoveOption = {
     type: '',
     reqId: '',
-    reqName: '',
-    parent: new FormControl('')
+    reqName: ''
   }
+  treeSelectorOpt: {
+    show: boolean,
+    items: any[],
+    options?: LeftMenuTreeSelectorOptn,
+    onDone?: (any) => void,
+  } = {
+      show: false,
+      items: []
+    }
+
   flags = {
     projReqs: true,
     savedReqs: true,
@@ -52,6 +65,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     private fileSystem: FileSystem,
     private testerTabService: TesterTabsService,
     private dialog: MatDialog,
+    private suiteService: SuiteService,
     private toastr: Toaster) {
     this.newFolderForm = fb.group({
       name: ['', Validators.required],
@@ -290,24 +304,32 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       });
   }
 
-  initCopyMove(type: 'copy' | 'move', reqId: string, reqName: string) {
-    this.copyMove = {
-      ...this.copyMove,
+  async initCopyMove(type: 'copy' | 'move', reqId: string, reqName: string) {
+    this.copyMoveOption = {
+      ...this.copyMoveOption,
       type,
       reqId,
-      reqName,
-      showTree: true
+      reqName
     }
-    this.copyMove.parent.setValue('');
+    let folders = await this.folders$.pipe(take(1)).toPromise()
+    this.treeSelectorOpt = {
+      show: true,
+      items: folders,
+      options: {
+        title: 'Select Folder',
+        doneText: type,
+        treeOptions: { disableChild: false }
+      },
+      onDone: this.doCopyMove.bind(this)
+    }
   }
 
-  doCopyMove() {
-    let parent = this.copyMove.parent.value;
+  doCopyMove(parent) {
     if (!parent) {
       this.toastr.error('Please select the destination folder.');
       return;
     }
-    this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.copyMove.reqId))
+    this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.copyMoveOption.reqId))
       .pipe(take(1))
       .subscribe(originalReq => {
         if (originalReq) {
@@ -315,23 +337,23 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
             .pipe(map(filterFn => filterFn(parent)))
             .pipe(take(1))
             .subscribe(async (reqs) => {
-              let duplicate = false, reqName = this.copyMove.reqName, counter = 0;
+              let duplicate = false, reqName = this.copyMoveOption.reqName, counter = 0;
               do {
                 counter++;
                 duplicate = reqs.some(r => r.name.toLocaleLowerCase() == reqName.toLocaleLowerCase())
                 if (duplicate) {
-                  reqName = this.copyMove.reqName + ' ' + counter;
+                  reqName = this.copyMoveOption.reqName + ' ' + counter;
                 }
               } while (duplicate);
 
               let newReq = { ...originalReq, name: reqName, _parent: parent };
-              if (this.copyMove.type == 'copy') {
+              if (this.copyMoveOption.type == 'copy') {
                 await this.reqService.createRequests([newReq])
               } else {
                 await this.reqService.updateRequests([newReq])
               }
               this.toastr.success('Done');
-              this.copyMove.showTree = false;
+              this.treeSelectorOpt.show = false;
             });
         }
       })
@@ -356,5 +378,51 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
 
   loadFromSave(req: ApiRequest) {
     this.testerTabService.addReqTab(req._id, req.name);
+  }
+
+  async convertFolderToSuite(folder: TreeReqFolder) {
+    let projects = await this.testProjects$.pipe(take(1)).toPromise();
+    this.treeSelectorOpt = {
+      show: true,
+      items: projects,
+      options: {
+        title: 'Select test project',
+        doneText: 'Add to selected project',
+        treeOptions: { disableChild: false }
+      },
+      onDone: async (projId) => {
+        var ts = Date.now();
+        var suite: Suite = {
+          _id: ts + '-' + apic.s12(),
+          _created: ts,
+          _modified: ts,
+          name: folder.name,
+          projId: projId,
+          reqs: []
+        };
+
+        if (folder.requests) {
+          suite.reqs = folder.requests.map(r => { return { ...r, disabled: false } })
+        }
+
+        if (folder.children?.length > 0) {
+          for (var f = 0; f < folder.children.length; f++) {
+            var cf = folder.children[f];
+            for (var i = 0; i < cf.requests?.length; i++) {
+              suite.reqs.push({ ...cf.requests[i], disabled: false });
+            }
+          }
+        }
+        //TODO: Check for duplicate name
+        try {
+          await this.suiteService.createTestSuites([suite]);
+          this.toastr.success(`Test suite ${suite.name} created.`);
+        } catch (e) {
+          console.error('Failed to convert folder to suite.', e);
+          this.toastr.error(`Failed to convert folder to suite.`);
+        }
+        this.treeSelectorOpt.show = false;
+      }
+    }
   }
 }

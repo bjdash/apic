@@ -223,6 +223,10 @@ div.mat-menu-content {
 .mat-menu-item-submenu-trigger::after {
   color: var(--text-color);
 }
+.mat-flat-button {
+  color: var(--text-color) !important;
+  background-color: var(--content-bg) !important;
+}
 .mat-flat-button.mat-primary[disabled] {
   background-color: rgba(0, 0, 0, 0.12) !important;
 }

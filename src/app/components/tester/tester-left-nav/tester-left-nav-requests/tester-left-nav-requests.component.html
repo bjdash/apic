@@ -85,21 +85,11 @@
         </div>
     </div>
 </div>
-
-<div class="tree-select-dialog" *ngIf="copyMove.showTree">
-    <div class="heading">Select Folder
-        <button mat-icon-button class="close sm" (click)="copyMove.showTree=false">
-            <mat-icon>close</mat-icon>
-        </button>
-    </div>
-    <div class="tree">
-        <apic-tree-selector [items]="folders$ |async" [formControl]="copyMove.parent" [options]="{disableChild:false}">
-        </apic-tree-selector>
-    </div>
-    <button type="button" mat-raised-button color="primary" class="sm done"
-        (click)="doCopyMove()">{{copyMove.type}}</button>
+<div class="tree-select-dialog" *ngIf="treeSelectorOpt.show">
+    <left-menu-tree-selector [options]="treeSelectorOpt.options" [items]="treeSelectorOpt.items"
+        (onClose)="this.treeSelectorOpt.show = false" (onDone)="treeSelectorOpt.onDone($event)">
+    </left-menu-tree-selector>
 </div>
-
 <ng-template #FolderRef let-folder="folder">
     <div class="folder" (click)="toggleExpand(folder._id)" [ngClass]="flags.expanded[folder._id]?'opened':'closed'">
         <div class="l-sec">
@@ -119,7 +109,7 @@
                 <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #folderMenu="matMenu">
-                <button mat-menu-item (click)="$event.stopPropagation()">
+                <button mat-menu-item (click)="convertFolderToSuite(folder)">
                     <span class="icon bj-lab" style="margin-right: 25px;"></span> Convert to test suite
                 </button>
                 <button mat-menu-item (click)="showRename(folder)">
