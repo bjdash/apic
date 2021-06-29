@@ -205,6 +205,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     this.form.markAsPristine();
+    this.runResponse = null
   }
 
   async initReqSave(saveAs: boolean = false) {
@@ -471,6 +472,11 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       tests: [],
       meta: this.savedRespIdentifier
     };
+    try {
+      this.runResponse.data = JSON.parse(this.runResponse.body);
+    } catch (e) {
+      console.info('The response cant be converted to JSON');
+    }
 
     if (scroll) this.scrollRespIntoView()
   }

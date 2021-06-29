@@ -108,14 +108,14 @@
                         <button mat-icon-button (click)="openSuite(suite);$event.stopPropagation()" class="green">
                             <mat-icon>play_arrow</mat-icon>
                         </button>
-                        <button mat-icon-button (click)="$event.stopPropagation()">
+                        <button mat-icon-button (click)="addReqToSuite(suite)">
                             <mat-icon>add</mat-icon>
                         </button>
                         <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()">
                             <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #reqManu="matMenu">
-                            <button mat-menu-item (click)="$event.stopPropagation()">
+                            <button mat-menu-item (click)="addReqToSuite(suite)">
                                 <mat-icon>add</mat-icon> Add request
                             </button>
                             <button mat-menu-item (click)="openSuite(suite)">
@@ -172,4 +172,9 @@
             <mat-icon>add</mat-icon>New project
         </button>
     </div>
+</div>
+<div class="tree-select-dialog" *ngIf="treeSelectorOpt.show">
+    <left-menu-tree-selector [options]="treeSelectorOpt.options" [items]="treeSelectorOpt.items"
+        (onClose)="this.treeSelectorOpt.show = false" (onDone)="treeSelectorOpt.onDone($event)">
+    </left-menu-tree-selector>
 </div>

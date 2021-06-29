@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
+import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
 import { Suite, SuiteReq } from 'src/app/models/Suite.model';
 import { TestProject, TreeTestProject } from 'src/app/models/TestProject.model';
 import { User } from 'src/app/models/User.model';
@@ -11,6 +12,7 @@ import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import { EnvState } from 'src/app/state/envs.state';
+import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import { UserState } from 'src/app/state/user.state';
 import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
@@ -31,6 +33,15 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     _id: '',
     name: ''
   }
+  treeSelectorOpt: {
+    show: boolean,
+    items: any[],
+    options?: LeftMenuTreeSelectorOptn,
+    onDone?: (any) => void,
+  } = {
+      show: false,
+      items: []
+    }
   flags = {
     newProj: false,
     newSuite: false,
@@ -325,5 +336,38 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
 
   toggleExpand(id: string) {
     this.flags.expanded[id] = !this.flags.expanded[id];
+  }
+
+  async addReqToSuite(suite: Suite) {
+    this.flags.expanded[suite._id] = true;
+    let reqs = await this.store.select(RequestsStateSelector.getRequests).pipe(take(1)).toPromise();
+    this.treeSelectorOpt = {
+      show: true,
+      items: reqs,
+      options: {
+        title: 'Select request',
+        doneText: 'add selected request',
+        treeOptions: {
+          disableParent: false,
+          showChildren: false
+        }
+      },
+      onDone: (reqId) => {
+        console.log(suite, reqId)
+        this.store.select(RequestsStateSelector.getRequestByIdDynamic(reqId))
+          .pipe(take(1))
+          .subscribe(async (request) => {
+            let suiteToUpdate = { ...suite, reqs: [...suite.reqs, { ...request, disabled: false }] };
+            try {
+              await this.suiteService.updateSuites([suiteToUpdate]);
+              this.toastr.success(`Request added to suite ${suite.name}.`);
+            } catch (e) {
+              console.error('Failed add request to suite.', e);
+              this.toastr.error(`Failed add request to suite.`);
+            }
+            this.treeSelectorOpt.show = false;
+          })
+      }
+    }
   }
 }
