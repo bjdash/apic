@@ -14,6 +14,8 @@ import { ApicRxStompState, StompService } from '../../services/stomp.service';
 import { SettingsComponent } from '../settings/settings.component';
 import { environment } from 'src/environments/environment';
 import { LogoutComponent } from '../login/logout/logout.component';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'apic-header',
@@ -26,11 +28,26 @@ export class HeaderComponent implements OnInit {
   @Select(UserState.getAuthUser) loggedInUser$: Observable<User>;
 
   version = environment.VERSION;
+  moduleUrls = {
+    home: '/home',
+    designer: '/designer',
+    dashboard: '/dashboard',
+    docs: '/docs'
+  }
 
   constructor(private store: Store,
     private dialog: MatDialog,
+    router: Router,
     public stompService: StompService) {
-
+    router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        Object.keys(this.moduleUrls).forEach(key => {
+          if (event.url.startsWith(`/${key}`)) {
+            this.moduleUrls[key] = event.url;
+          }
+        })
+      })
   }
 
   test() {

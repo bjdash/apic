@@ -220,6 +220,10 @@ import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tre
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { ...new MatDialogConfig(), position: { top: '50px' } } },
+    {
+      provide: RouteReuseStrategy,
+      useClass: ApicRouteReuseStrategy,
+    },
     AppBootstrap,
     MigrationService,
     ApiProjectService,

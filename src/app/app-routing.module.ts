@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule, RouteReuseStrategy } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 import { DesignerComponent } from './components/designer/designer.component';
 import { DocsComponent } from './components/docs/docs.component';
 import { ApiProjectDetailComponent } from './components/designer/api-project-detail/api-project-detail.component';
