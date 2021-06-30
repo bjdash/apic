@@ -95,8 +95,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.form = fb.group({
       name: [''],
       description: [''],
-      method: ['POST'],
-      url: ['https://api.spacex.land/graphql/'],
+      method: ['GET'],
+      url: [''],
       urlParams: [[]],
       headers: [[]],
       body: fb.group({

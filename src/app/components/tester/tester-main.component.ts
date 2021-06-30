@@ -13,7 +13,7 @@ export class TesterMainComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.tabsService.addTab({ action: 'add', id: 'new_tab:' + apic.s8(), name: 'New tab', type: 'req' })
+      this.tabsService.addTab({ action: 'add', id: 'new_tab:' + apic.s8(), name: 'New tab', type: 'ws' })
     }, 0);
   }
 }

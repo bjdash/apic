@@ -1,0 +1,17 @@
+<label>{{label}}</label>
+<div *ngFor="let item of items; trackBy: trackByIndex; let i = index" class="vcenter">
+    <mat-checkbox class="gap" [(ngModel)]="item.isActive" (ngModelChange)="toggle(i)"></mat-checkbox>
+    <span>{{item.name}}</span>
+    <button mat-icon-button class="sm remove red" *ngIf="!item.isReadonly" (click)="remove(i)">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+<div class="input-group margV5">
+    <input type="text" class="form-control input-sm" placeholder="Add new" [(ngModel)]="newItem"
+        (keydown.enter)="add(); $event.stopPropagation();$event.preventDefault()">
+    <span class="input-group-btn">
+        <button class="sm" type="button" mat-icon-button (click)="add()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </span>
+</div>

@@ -117,6 +117,7 @@ import { ProjectDetailRouteGuard } from './components/designer/api-project-detai
 import { GraphqlComponent } from './components/tester/tester-tabs/tab-request/graphql/graphql.component';
 import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/graphql/gql-schema/gql-schema.component';
 import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tree-selector/left-menu-tree-selector.component';
+import { ApicListComponent } from './components/common/apic-list/apic-list.component';
 
 @NgModule({
   declarations: [
@@ -178,7 +179,8 @@ import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tre
     ProjectInfoComponent,
     GraphqlComponent,
     GqlSchemaComponent,
-    LeftMenuTreeSelectorComponent
+    LeftMenuTreeSelectorComponent,
+    ApicListComponent
   ],
   imports: [
     BrowserModule,
