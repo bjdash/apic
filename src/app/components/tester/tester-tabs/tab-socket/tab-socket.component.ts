@@ -6,8 +6,9 @@ import { InterpolationService } from 'src/app/services/interpolation.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import { RequestUtils } from 'src/app/utils/request.util';
-// import { io } from "socket.io-client";
+import { Client as StompSocket } from '@stomp/stompjs';
 import io from 'socket.io-client';
+import { StompSocketService, StopSocketOption } from './stomp-socket.service';
 
 interface SocketioForm {
   path: string,
@@ -25,8 +26,8 @@ interface SocketioForm {
 })
 export class TabSocketComponent implements OnInit {
   form: FormGroup;
-  messages: { type: 'auto' | 'in' | 'out' | 'error', body: any, head?: any, time: number }[] = [];
-  method: 'Websocket' | 'Stomp' | 'Socketio' | 'SSE' = 'Socketio';
+  messages: { type: 'auto' | 'in' | 'out' | 'error', body: any, head?: any, time: number, headers?: any }[] = [];
+  method: 'Websocket' | 'Stomp' | 'Socketio' | 'SSE' = 'Stomp';
   client: any;
   sseListenerFns = {};
   socketIo = {
@@ -54,7 +55,7 @@ export class TabSocketComponent implements OnInit {
     private toastr: Toaster
   ) {
     this.form = fb.group({
-      url: ['http://socketio-chat-h9jt.herokuapp.com/'],
+      url: ['http://localhost:8080/api/gs-guide-websocket'],
       sse: fb.group({
         listeners: [[{
           isActive: true,
@@ -65,9 +66,9 @@ export class TabSocketComponent implements OnInit {
       }),
       stomp: fb.group({
         subscUrl: [''],
-        vhost: [''],
-        loginId: [''],
-        psd: [''],
+        host: [''],
+        login: [''],
+        passcode: [''],
         headers: [[]],
         destQ: ['']
       }),
@@ -160,15 +161,28 @@ export class TabSocketComponent implements OnInit {
       });
       this.client.on('error', this.onError.bind(this));
       this.client.on('disconnect', this.onDisconnect.bind(this));
+    } else if (this.method === 'Stomp') {
+      this.client = new StompSocketService(
+        url,
+        this.interpolationService.interpolate(this.form.value.stomp.subscUrl),
+        this.getStompHeaders(),
+        this.onConnect.bind(this),
+        this.onDisconnect.bind(this),
+        this.onStompMessage.bind(this),
+        this.onError.bind(this)
+      );
+      this.client.connect();
     }
   }
 
   disconnect() {
     if (this.client) {
       if (this.method === 'Stomp') {
-        this.client.disconnect();
-        //TODO: Handle disconnect via event
-        this.onDisconnect();
+        if (this.client.isConnected()) {
+          this.client.disconnect();
+        } else {
+          this.onDisconnect();
+        }
       } else if (this.method === 'Socketio') {
         if (this.client.connected) {
           this.client.disconnect();
@@ -273,6 +287,20 @@ export class TabSocketComponent implements OnInit {
       time: Date.now()
     });
   }
+  onStompMessage(message) {
+    let body;
+    try {
+      body = JSON.parse(message.body);
+    } catch (e) {
+      body = message.body;
+    }
+    this.messages.push({
+      headers: message.headers,
+      type: 'in',
+      body,
+      time: Date.now()
+    });
+  }
 
   onError(e) {
     this.flags.connected = false;
@@ -287,7 +315,7 @@ export class TabSocketComponent implements OnInit {
     this.messages.push({
       type: 'error',
       body,
-      head: e.headers,
+      headers: e.headers,
       time: Date.now()
     });
   }
@@ -354,8 +382,8 @@ export class TabSocketComponent implements OnInit {
     let form = this.form.value;
     var sendData = this.interpolationService.interpolate(form.sendText);
     if (this.method === 'Stomp') {
-      // this.client.send(this.interpolationService.interpolate(this.destQ), {}, sendData);
-      // sent(sendData);
+      this.client.send(this.interpolationService.interpolate(this.form.value.stomp.destQ), {}, sendData);
+      this.sent(sendData);
     } else if (this.method === 'Socketio') {
       this.sioSaveCurrentArg();
       var argsToSend = this.socketIo.args.map((text, index) => {
@@ -430,6 +458,12 @@ export class TabSocketComponent implements OnInit {
     if (index < this.socketIo.curArg) {
       this.socketIo.curArg--;
     }
+  }
+  getStompHeaders(): { [key: string]: string } {
+    let { host, login, passcode, headers }: { host: string, login: string, passcode: string, headers: KeyVal[] } = this.form.value.stomp;
+    let sHeaders = { host, login, passcode, ...(Utils.keyValPairAsObject(headers)) };
+
+    return this.interpolationService.interpolateObject(sHeaders);
   }
 
   trackByFn(index, item) {

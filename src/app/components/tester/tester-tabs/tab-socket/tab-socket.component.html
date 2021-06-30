@@ -57,7 +57,7 @@
                             <button mat-button [ngClass]="{'active':method =='SSE'}"
                                 (click)="method ='SSE'">SSE</button>
                         </fieldset>
-                        <div class="padV5 form-horizontal" *ngIf="method =='Stomp'" formGroupName="stomp">
+                        <div class="padV5 form-horizontal" *ngIf="method === 'Stomp'" formGroupName="stomp">
                             <div class="row">
                                 <label class="col-sm-4 align-right">Subscription URL:</label>
                                 <div class="col-sm-8">
@@ -68,7 +68,7 @@
                             <div class="row">
                                 <label class="col-sm-4 align-right">Virtual Host:</label>
                                 <div class="col-sm-8">
-                                    <input type="text" value="" formControlName="vhost" class="form-control sm"
+                                    <input type="text" value="" formControlName="host" class="form-control sm"
                                         placeholder="Stomp Virtual Host name (optional)">
                                 </div>
                             </div>
@@ -76,15 +76,16 @@
                                 <div class="row">
                                     <label class="col-sm-4 align-right" for="email">Login:</label>
                                     <div class="col-sm-8 align-right">
-                                        <input type="text" value="" formControlName="loginId" class="form-control sm"
+                                        <input type="text" value="" formControlName="login" class="form-control sm"
                                             placeholder="Login Id">
                                     </div>
                                 </div>
                                 <div class="row">
                                     <label class="col-sm-4 align-right" for="pwd">Passcode:</label>
                                     <div class="col-sm-8">
-                                        <input type="{{flags.stompShowPsd?'text':'password'}}" formControlName="psd"
-                                            value="" class="form-control sm" id="pwd" placeholder="Password" />
+                                        <input type="{{flags.stompShowPsd?'text':'password'}}"
+                                            formControlName="passcode" value="" class="form-control sm" id="pwd"
+                                            placeholder="Password" />
                                         <mat-checkbox [(ngModel)]="flags.stompShowPsd"
                                             [ngModelOptions]="{standalone:true}">Show password</mat-checkbox>
                                     </div>
@@ -222,7 +223,7 @@
                 <div class="panel-body sock-resp-cont" [hidden]="!flags.showSend">
                     <div class="s-send-cont">
                         <div *ngIf="method === 'Stomp'">
-                            <div class="form-group" formGroup="stomp">
+                            <div class="form-group" formGroupName="stomp">
                                 <label>Destination Queue:</label>
                                 <input type="text" value="" formControlName="destQ" class="form-control sm"
                                     placeholder="Destination Queue URL">
@@ -238,7 +239,6 @@
                                 <div class="form-group">
                                     <label class="control-label">Arguments</label>
                                     <div>
-                                        {{socketIo|json}}
                                         <button mat-stroked-button class="sioarg"
                                             (click)="sioSaveCurrentArg();sioLoadArgVal(i)"
                                             *ngFor="let x of socketIo.args; trackBy: trackByFn;let i = index;"
