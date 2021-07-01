@@ -24,7 +24,7 @@ export class RequestsStateSelector {
 
     @Selector([RequestsStateSelector.getRequests])
     static getReqsPartial(reqs: ApiRequest[]): ApiRequest[] {
-        return reqs.map(f => (({ _id, name, _created, _modified, method, _parent, url }) => ({ _id, name, _created, _modified, method, _parent, url }))(f));
+        return reqs.map(f => (({ _id, name, _created, _modified, method, _parent, url, type }) => ({ _id, name, _created, _modified, method, _parent, url, type }))(f));
     }
 
     @Selector([RequestsState])

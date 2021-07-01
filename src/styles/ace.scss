@@ -1,13 +1,12 @@
 .suit-req-edit .ace_editor.test_editor {
     height: calc(100vh - 480px);
 }
-.test_editor .ace_editor,
-.Websocket-editor .ace_editor {
+.test_editor .ace_editor {
     min-height: 50px !important;
     height: calc(100vh - 300px);
 }
-.ace_editor.Socketio-editor {
-    height: calc(100vh - 590px);
+.socket-editor .ace_editor {
+    height: calc(100vh - 620px) !important;
 }
 .ace_editor.Stomp-editor {
     height: calc(100vh - 490px);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ApicListItem } from 'src/app/components/common/apic-list/apic-list.component';
 import { KeyVal } from 'src/app/models/KeyVal.model';
@@ -6,10 +6,20 @@ import { InterpolationService } from 'src/app/services/interpolation.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import { RequestUtils } from 'src/app/utils/request.util';
-import { Client as StompSocket } from '@stomp/stompjs';
 import io from 'socket.io-client';
 import { StompSocketService, StopSocketOption } from './stomp-socket.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
+import { ApiRequest } from 'src/app/models/Request.model';
+import { from, Observable, Subject } from 'rxjs';
+import { RequestsStateSelector } from 'src/app/state/requests.selector';
+import { Store } from '@ngxs/store';
+import { delayWhen, takeUntil } from 'rxjs/operators';
+import { TesterTabsService } from '../tester-tabs.service';
+import apic from 'src/app/utils/apic';
+import { RequestsService } from 'src/app/services/requests.service';
 
+type Method = 'Websocket' | 'Stomp' | 'Socketio' | 'SSE';
 interface SocketioForm {
   path: string,
   pooling: boolean,
@@ -24,11 +34,17 @@ interface SocketioForm {
   templateUrl: './tab-socket.component.html',
   styleUrls: ['./tab-socket.component.scss']
 })
-export class TabSocketComponent implements OnInit {
+export class TabSocketComponent implements OnInit, OnDestroy {
+  @Input() requestId: string;
   form: FormGroup;
-  messages: { type: 'auto' | 'in' | 'out' | 'error', body: any, head?: any, time: number, headers?: any }[] = [];
-  method: 'Websocket' | 'Stomp' | 'Socketio' | 'SSE' = 'Stomp';
+  selectedReq: ApiRequest;
+  selectedReq$: Observable<ApiRequest>;
+  private _destroy: Subject<boolean> = new Subject<boolean>();
+  private pendingAction: Promise<any> = Promise.resolve(null);
+  reloadRequest: ApiRequest = null;
   client: any;
+  messages: { type: 'auto' | 'in' | 'out' | 'error', body: any, head?: any, time: number, headers?: any }[] = [];
+  method: Method = 'Stomp';
   sseListenerFns = {};
   socketIo = {
     args: [''],
@@ -51,15 +67,20 @@ export class TabSocketComponent implements OnInit {
 
   constructor(
     fb: FormBuilder,
+    private dialog: MatDialog,
+    private store: Store,
     private interpolationService: InterpolationService,
-    private toastr: Toaster
+    private toastr: Toaster,
+    private tabsService: TesterTabsService,
+    private reqService: RequestsService
   ) {
     this.form = fb.group({
+      name: [''],
       url: ['http://localhost:8080/api/gs-guide-websocket'],
       sse: fb.group({
         listeners: [[{
-          isActive: true,
-          isReadonly: true,
+          active: true,
+          readonly: true,
           name: 'message'
         }]],
         withCred: [false]
@@ -84,8 +105,78 @@ export class TabSocketComponent implements OnInit {
       sendText: ['']
     })
   }
+  ngOnDestroy(): void {
+    this._destroy.next();
+    this._destroy.complete();
+  }
 
   ngOnInit(): void {
+    if (!this.requestId.includes('new_tab') && !this.requestId.includes('suit_req')) {
+      this.listenForUpdate()
+    }
+  }
+  listenForUpdate() {
+    this.selectedReq$ = this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.requestId));
+    this.selectedReq$
+      .pipe(delayWhen(() => from(this.pendingAction)))
+      .pipe(takeUntil(this._destroy))
+      // .pipe(delay(0))
+      .subscribe(req => {
+        if (req && (req._modified > this.selectedReq?._modified || !this.selectedReq)) {
+          if (this.selectedReq) {
+            //TODO: Implement a field level matching logic 
+            //so that if any non form fields are updated such as name, savedResponse etc 
+            //then directly just update the request instead of asking the user if they want to reload
+            this.reloadRequest = req;
+          } else {
+            setTimeout(() => {
+              this.processSelectedReq(req)
+            }, 0);
+          }
+        } else if (req == undefined && this.selectedReq) {
+          //tab got deleted
+          this.tabsService.updateTab(this.requestId, 'new_tab:' + apic.s8(), 'Deleted Tab: ' + this.selectedReq.name);
+        }
+      })
+  }
+
+  processSelectedReq(req: ApiRequest) {
+    this.selectedReq = req;
+    console.log('open', req);
+    const { method, name, url, message } = req;
+
+    this.method = method as Method;
+    let patch: any = { name, url, sendText: message }
+    switch (this.method) {
+      case 'SSE':
+        patch.sse = req.sse || {};
+        this.form.patchValue(patch)
+        break;
+      case 'Stomp':
+        patch.stomp = req.stomp;
+        this.form.patchValue(patch)
+        break;
+      case 'Socketio':
+        {
+          let { args, argTypes, curArg, path, listeners, headers, query, emitName, transport } = req.socketio || {};
+          this.socketIo = { ...this.socketIo, args: [...args], argTypes: [...argTypes], curArg };
+          patch.socketio = {
+            path,
+            emitName,
+            pooling: transport?.[0] || true,
+            ws: transport?.[1] || true,
+            listeners: listeners || [],
+            headers: headers || [],
+            query: query || [],
+          };
+          this.form.patchValue(patch);
+          if (args?.length > 0) {
+            this.sioLoadArgVal(0);
+          }
+        }
+        break;
+    }
+
   }
 
   connect() {
@@ -215,14 +306,14 @@ export class TabSocketComponent implements OnInit {
   onSseConnect() {
     let listeners: ApicListItem[] = this.form.value.sse.listeners;
     listeners?.forEach(l => {
-      if (l.isActive) this.wsAddListener(l, 'sse');
+      if (l.active) this.wsAddListener(l, 'sse');
     })
   }
 
   onSioConect() {
     let listeners: ApicListItem[] = this.form.value.socketio.listeners;
     listeners?.forEach(l => {
-      if (l.isActive) this.wsAddListener(l, 'socketio');
+      if (l.active) this.wsAddListener(l, 'socketio');
     })
   }
 
@@ -370,7 +461,7 @@ export class TabSocketComponent implements OnInit {
   }
 
   wsToggleListener(listener: ApicListItem, type: 'socketio' | 'sse') {
-    if (listener.isActive) this.wsAddListener(listener, type);
+    if (listener.active) this.wsAddListener(listener, type);
     else this.wsRemoveListener(listener, type);
   }
 
@@ -420,8 +511,72 @@ export class TabSocketComponent implements OnInit {
     }, 3000);
   }
 
-  initReqSave(saveas?) {
+  async initReqSave(saveAs: boolean = false) {
+    let saveData: ApiRequest = this.getReqFromForm();
+    if (this.requestId.includes('new_tab') || saveAs) {
+      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
+    } else {
+      await this.updateRequest(saveData);
+    }
+  }
 
+  getReqFromForm(): ApiRequest {
+    const type: 'ws' = 'ws';
+    const { url, sendText, name, sse, stomp, socketio } = this.form.value;
+    switch (this.method) {
+      case 'Stomp':
+        return {
+          _id: this.requestId,
+          name,
+          url,
+          type,
+          method: this.method,
+          stomp,
+          message: sendText
+        };
+      case 'Websocket':
+        return {
+          _id: this.requestId,
+          name,
+          url,
+          type,
+          method: this.method,
+          message: sendText
+        }
+      case 'Socketio':
+        this.sioSaveCurrentArg();
+        const { path, pooling, ws, listeners, headers, query, emitName } = socketio
+        return {
+          _id: this.requestId,
+          name,
+          url,
+          type,
+          method: this.method,
+          socketio: { ...Utils.clone(this.socketIo), path, listeners, headers, query, emitName, transport: [pooling, ws] }
+        }
+      case 'SSE':
+        return {
+          _id: this.requestId,
+          name,
+          url,
+          type,
+          method: this.method,
+          sse
+        }
+      // default: return null;
+    }
+  }
+  async updateRequest(updatedRequest: ApiRequest) {
+    updatedRequest = { ...this.selectedReq, ...updatedRequest }
+    this.pendingAction = this.reqService.updateRequests([updatedRequest]);
+    try {
+      this.selectedReq = (await this.pendingAction)[0];
+      this.toastr.success('Request updated.');
+      this.reloadRequest = null;
+    } catch (e) {
+      console.error(e)
+      this.toastr.error(`Failed to update request: ${e.message}`);
+    }
   }
 
   copyCompiledUrl() {
@@ -464,6 +619,10 @@ export class TabSocketComponent implements OnInit {
     let sHeaders = { host, login, passcode, ...(Utils.keyValPairAsObject(headers)) };
 
     return this.interpolationService.interpolateObject(sHeaders);
+  }
+  reload() {
+    this.processSelectedReq(this.reloadRequest)
+    this.reloadRequest = null
   }
 
   trackByFn(index, item) {

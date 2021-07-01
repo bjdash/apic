@@ -377,7 +377,11 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   }
 
   loadFromSave(req: ApiRequest) {
-    this.testerTabService.addReqTab(req._id, req.name);
+    if (req.type === 'ws') {
+      this.testerTabService.addSocketTab(req._id, req.name)
+    } else {
+      this.testerTabService.addReqTab(req._id, req.name);
+    }
   }
 
   async convertFolderToSuite(folder: TreeReqFolder) {

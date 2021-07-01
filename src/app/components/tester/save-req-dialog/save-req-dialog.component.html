@@ -20,13 +20,13 @@
                 <div *ngFor="let folder of folders$ | async ">
                     <button mat-button type="button" class="sm folder-select" (click)="selectFolder(folder)"
                         [ngClass]="{t_bg:form.value._parent==folder._id}">
-                        <mat-icon gap>folder</mat-icon>{{folder.name}}
+                        <mat-icon class="gap">folder</mat-icon>{{folder.name}}
                     </button>
                     <div class="subfolder">
                         <button mat-button type="button" class="sm folder-select"
                             *ngFor="let subfolder of folder.children" (click)="selectFolder(subfolder)"
                             [ngClass]="{t_bg:form.value._parent==subfolder._id}">
-                            <mat-icon>folder</mat-icon>
+                            <mat-icon class="gap">folder</mat-icon>
                             {{subfolder.name}}
                         </button>
                     </div>

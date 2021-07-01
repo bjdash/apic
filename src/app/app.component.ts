@@ -29,8 +29,8 @@ export class AppComponent {
   }
 
   async init() {
-    await this.bootstrap.init();
     this.authService.initLoggedinUser();
+    await this.bootstrap.init();
 
     //for receiving messages from APIC dev tools
     //TODO:

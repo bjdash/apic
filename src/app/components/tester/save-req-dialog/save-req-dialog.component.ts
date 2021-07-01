@@ -68,13 +68,12 @@ export class SaveReqDialogComponent implements OnInit {
       return;
     }
 
-
     if (!details._parent) {
       this.toaster.error('Please select a parent folder');
       return;
     }
 
-    if (this.selectedFolder.requests.find(r => r.name.toLowerCase() === details.name.toLocaleLowerCase())) {
+    if (this.selectedFolder.requests.find(r => r.name.toLowerCase() === details.name.toLocaleLowerCase() && r._id != this.data.req._id)) {
       this.toaster.error('A request with the same name already exists in the folder');
     } else {
       if (this.data.action === 'rename') {

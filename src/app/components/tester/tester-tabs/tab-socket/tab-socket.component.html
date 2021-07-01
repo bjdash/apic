@@ -28,6 +28,10 @@
                         Connection type
                     </h3>
                     <div class="pull-right margB5 vcenter">
+                        <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadRequest"
+                            matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
+                            <mat-icon>sync</mat-icon>
+                        </button>
                         <span class="btn-group accent gap">
                             <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
                                 <mat-icon>save</mat-icon> Save
@@ -49,7 +53,7 @@
                     <div class="panel-body" [hidden]="!flags.showConnection">
                         <fieldset class="controls btn-group tab-group" [disabled]="flags.connected">
                             <button mat-button [ngClass]="{'active':method == 'Websocket'}"
-                                (click)="method = 'Websocket'">URL Websocket</button>
+                                (click)="method = 'Websocket'">Websocket</button>
                             <button mat-button [ngClass]="{'active':method == 'Socketio'}"
                                 (click)="method = 'Socketio'">Socket.io</button>
                             <button mat-button [ngClass]="{'active':method =='Stomp'}"
@@ -257,7 +261,7 @@
                         </div>
 
                         <div style="flex:2">
-                            <apic-ace class="test_editor" [mode]="flags.sendMsgType" formControlName="sendText">
+                            <apic-ace class="socket-editor" [mode]="flags.sendMsgType" formControlName="sendText">
                             </apic-ace>
                         </div>
                         <button mat-raised-button color="primary" class="sm" (click)="send()">

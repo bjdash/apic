@@ -3,9 +3,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Toaster } from 'src/app/services/toaster.service';
 
 export interface ApicListItem {
-  isActive: boolean,
+  active: boolean,
   name: string,
-  isReadonly?: boolean
+  readonly?: boolean
 }
 @Component({
   selector: 'apic-list',
@@ -31,7 +31,9 @@ export class ApicListComponent implements OnInit, ControlValueAccessor {
 
   constructor(private toaster: Toaster) { }
   writeValue(obj: ApicListItem[]): void {
-    this.items = obj || [];
+    this.items = (obj || []).map((o): ApicListItem => {
+      return { ...o }
+    });
   }
   registerOnChange(fn: any): void {
     this._onChange = fn;
@@ -58,8 +60,8 @@ export class ApicListComponent implements OnInit, ControlValueAccessor {
       return;
     }
     let newItem = {
-      isActive: true,
-      isReadonly: false,
+      active: true,
+      readonly: false,
       name: this.newItem
     }
     this.newItem = ''

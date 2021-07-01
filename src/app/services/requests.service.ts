@@ -118,11 +118,6 @@ export class RequestsService {
     if (!fromSync) {
       reqs.forEach(r => {
         r._modified = Date.now();
-        if (this.authUser?.UID) {
-          r.owner = this.authUser.UID;
-        } else {
-          delete r.owner;
-        }
       });
     }
     return iDB.upsertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((updatedIds) => {

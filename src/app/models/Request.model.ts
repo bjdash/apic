@@ -26,7 +26,44 @@ export interface ApiRequest {
     _created?: number
     _id: string
     _modified?: number,
+    //ws
     type?: 'ws'
+    //websocket
+    message?: string,
+    //sse
+    sse?: {
+        listeners: {
+            active: boolean,
+            readonly?: boolean,
+            name: string
+        }[],
+        withCred: boolean
+    },
+    //Stomp
+    stomp?: {
+        subscUrl?: string,
+        host?: string,
+        login?: string,
+        passcode?: string,
+        headers?: KeyVal[],
+        destQ?: string
+    },
+    //Socketio
+    socketio?: {
+        args?: string[],
+        argTypes?: string[],
+        curArg?: number,
+        path?: string,
+        listeners?: {
+            active: boolean,
+            readonly?: boolean,
+            name: string
+        }[],
+        headers?: KeyVal[],
+        query?: KeyVal[],
+        emitName?: string,
+        transport?: boolean[]
+    }
 }
 
 export interface SavedResp {
