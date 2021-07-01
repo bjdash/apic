@@ -39,7 +39,13 @@ export class HttpService {
         }
         return throwError(errorMessage);
     }
-
+    processResponse(response: any) {
+        if (response?.status === 'ok') {
+            return response.resp;
+        } else {
+            throw new Error(response?.desc || 'Unknown error');
+        }
+    }
     getNotifications(): Observable<any[]> {
         return this.http.get(ApicUrls.notifications)
             .pipe(map((response: any) => {
@@ -51,6 +57,12 @@ export class HttpService {
 
             }), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: 'Failed to get notifications.' });
+            }))
+    }
+    getDashboard(): Observable<any> {
+        return this.http.get(ApicUrls.dashboard)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to get dashboard details.' });
             }))
     }
 }

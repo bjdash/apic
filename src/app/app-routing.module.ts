@@ -10,6 +10,10 @@ import { ProjectDetailRouteGuard } from './components/designer/api-project-detai
 import { ProjectModelsComponent } from './components/designer/api-project-detail/project-models/project-models.component';
 import { ProjectEndpointComponent } from './components/designer/api-project-detail/project-endpoint/project-endpoint.component';
 import { ProjectTraitsComponent } from './components/designer/api-project-detail/project-traits/project-traits.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { TeamsComponent } from './components/dashboard/teams/teams.component';
+import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
+import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guard';
 
 
 const routes: Routes = [
@@ -43,6 +47,19 @@ const routes: Routes = [
   {
     path: 'docs',
     component: DocsComponent
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [DashboardRouteGuard],
+    children: [
+      { path: '', component: DashboardHomeComponent, pathMatch: 'full' },
+      { path: "teams", component: TeamsComponent },
+      // { path: "models/:modelId", component: ProjectModelsComponent, canDeactivate: [ProjectDetailRouteGuard] },
+      // { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
+      // { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },
+      // { path: "api-builder", component: , canDeactivate: [] },
+    ]
   },
 ];
 

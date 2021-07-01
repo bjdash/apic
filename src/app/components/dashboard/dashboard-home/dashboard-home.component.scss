@@ -1,0 +1,58 @@
+.d-panel {
+    background: var(--content-bg);
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    min-height: 100px;
+    border-radius: 10px;
+    transition: box-shadow 0.2s ease-in;
+}
+.d-panel.danger {
+    box-shadow: 0 0px 6px 0px rgba(244, 67, 54, 0.9);
+}
+.d-panel.danger:hover {
+    box-shadow: 0 3px 12px 0 rgba(244, 67, 54, 0.5);
+}
+
+.d-panel .d-panel-sm {
+    min-height: 30px;
+}
+.d-panel:hover {
+    box-shadow: 0 3px 12px 0 var(--accent-shadow);
+}
+.d-panel.danger .d-panel-head {
+    color: #f44336;
+}
+.d-panel-head {
+    color: var(--text-color);
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+.d-panel .db-item {
+    padding: 10px;
+    position: relative;
+}
+.d-panel .db-item .val {
+    font-size: 35px;
+    line-height: 45px;
+    padding-top: 3px;
+    padding-left: 10px;
+}
+.d-panel .db-item .ico {
+    float: right;
+    font-size: 50px;
+    line-height: 30px;
+    padding: 10px;
+    border-radius: 5px;
+    color: var(--accent-bg-text);
+    position: absolute;
+    top: -15px;
+    right: 15px;
+}
+
+.d-panel-foot {
+    padding: 5px 5px;
+    font-size: 14px;
+    margin: 9px 15px;
+    border-top: 1px solid var(--border-color);
+}

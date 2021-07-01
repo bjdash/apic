@@ -14,7 +14,6 @@ export class AuthInterceptor implements HttpInterceptor {
     }
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         if (request.url.startsWith(this.urlPattern)) {
-            console.log('intercwp', request)
             // add authorization header with basic auth credentials if available
             let authHeader = this.authService.getAuthHeader();
             request = request.clone({

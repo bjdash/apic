@@ -118,6 +118,10 @@ import { GraphqlComponent } from './components/tester/tester-tabs/tab-request/gr
 import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/graphql/gql-schema/gql-schema.component';
 import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tree-selector/left-menu-tree-selector.component';
 import { ApicListComponent } from './components/common/apic-list/apic-list.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
+import { TeamsComponent } from './components/dashboard/teams/teams.component';
+import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guard';
 
 @NgModule({
   declarations: [
@@ -180,7 +184,10 @@ import { ApicListComponent } from './components/common/apic-list/apic-list.compo
     GraphqlComponent,
     GqlSchemaComponent,
     LeftMenuTreeSelectorComponent,
-    ApicListComponent
+    ApicListComponent,
+    DashboardComponent,
+    DashboardHomeComponent,
+    TeamsComponent
   ],
   imports: [
     BrowserModule,
@@ -243,7 +250,8 @@ import { ApicListComponent } from './components/common/apic-list/apic-list.compo
     TesterTabsService,
     TesterService,
     ReqHistoryService,
-    ProjectDetailRouteGuard
+    ProjectDetailRouteGuard,
+    DashboardRouteGuard
   ],
   bootstrap: [AppComponent],
 })
