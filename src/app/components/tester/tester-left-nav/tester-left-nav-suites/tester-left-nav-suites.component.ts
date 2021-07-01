@@ -360,6 +360,10 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
         this.store.select(RequestsStateSelector.getRequestByIdDynamic(reqId))
           .pipe(take(1))
           .subscribe(async (request) => {
+            if (request.type === 'ws') {
+              this.toastr.error('Websocket requests can not be added to suites.');
+              return;
+            }
             let suiteToUpdate = { ...suite, reqs: [...suite.reqs] };
             if (index === undefined) {
               suiteToUpdate.reqs.push({ ...request, disabled: false })

@@ -15,7 +15,8 @@ import { SettingsComponent } from '../settings/settings.component';
 import { environment } from 'src/environments/environment';
 import { LogoutComponent } from '../login/logout/logout.component';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, first } from 'rxjs/operators';
+import { HttpService } from 'src/app/services/http.service';
 
 @Component({
   selector: 'apic-header',
@@ -34,10 +35,12 @@ export class HeaderComponent implements OnInit {
     dashboard: '/dashboard',
     docs: '/docs'
   }
+  notifications: any[] = []
 
   constructor(private store: Store,
     private dialog: MatDialog,
     router: Router,
+    private httpService: HttpService,
     public stompService: StompService) {
     router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -54,6 +57,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getNotifications();
   }
 
   selectEnv(_id: String) {
@@ -80,6 +84,14 @@ export class HeaderComponent implements OnInit {
 
   logout() {
     this.dialog.open(LogoutComponent);
+  }
+
+  getNotifications() {
+    this.httpService.getNotifications()
+      .pipe(first())
+      .subscribe(data => {
+        this.notifications = data
+      });
   }
 
   public get ApicRxStompState() {

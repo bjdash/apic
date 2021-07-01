@@ -44,7 +44,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
   reloadRequest: ApiRequest = null;
   client: any;
   messages: { type: 'auto' | 'in' | 'out' | 'error', body: any, head?: any, time: number, headers?: any }[] = [];
-  method: Method = 'Stomp';
+  method: Method = 'Websocket';
   sseListenerFns = {};
   socketIo = {
     args: [''],
@@ -76,7 +76,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
   ) {
     this.form = fb.group({
       name: [''],
-      url: ['http://localhost:8080/api/gs-guide-websocket'],
+      url: [''],
       sse: fb.group({
         listeners: [[{
           active: true,

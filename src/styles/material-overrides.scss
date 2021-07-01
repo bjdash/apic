@@ -147,6 +147,14 @@ button.xs {
     width: 18px;
   }
 }
+a.mat-icon-button:hover,
+a.mat-icon-button:focus {
+  text-decoration: none;
+}
+.mat-badge-content {
+  color: var(--text-color);
+  background: var(--accent-shadow);
+}
 .btn-group {
   .mat-stroked-button {
     &:first-child {

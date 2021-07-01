@@ -783,6 +783,33 @@ input.input-xs {
 }
 
 /************* pulse ****************/
+/********Notofications********/
+div.mat-menu-panel.noti-panel {
+  width: 400px !important;
+  border-radius: 4px;
+  max-height: 400px;
+  padding: 5px;
+  max-width: 400px;
+  .noti-head {
+    padding: 0 5px;
+    font-family: apic-font;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .noti-body {
+    max-height: 350px;
+    overflow: auto;
+  }
+  .notification {
+    padding: 0 5px;
+    min-height: 50px;
+    background: var(--content-bg);
+    margin: 10px 2px;
+    border-radius: 3px;
+    font-size: 12px;
+    box-shadow: 1px 1px 4px rgb(0 0 0 / 30%);
+  }
+}
 .pulse {
   transform: scale(1);
   animation: pulse-anim 2s infinite;

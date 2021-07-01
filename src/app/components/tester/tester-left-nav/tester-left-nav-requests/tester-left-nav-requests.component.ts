@@ -432,7 +432,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
 
   async addRequestToSuite(partialReq: ApiRequest) {
     if (partialReq.type === 'ws') {
-      this.toastr.error('Adding websocket requests to Test Suits is not yet supported');
+      this.toastr.error('Websocket requests can not be added to suites.');
       return;
     }
     let projects = await this.suitesTree$.pipe(take(1)).toPromise();

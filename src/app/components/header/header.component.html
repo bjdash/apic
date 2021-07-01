@@ -29,7 +29,8 @@
         <div class="flex-right header-right vcenter">
             <button (click)="test()" class="gap">TEST</button>
             <div class="env-cont input-group gap">
-                <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments">
+                <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments"
+                    matTooltip="Environments">
                     <i class="icon bj-stack"></i>
                 </button>
                 <button mat-button="" class="sm" [matMenuTriggerFor]="envsList">
@@ -44,11 +45,35 @@
                         mat-menu-item>{{env.name}}</button>
                 </mat-menu>
             </div>
-
-            <button mat-icon-button (click)="openSettings()" aria-label="Settings">
+            <button mat-icon-button [matMenuTriggerFor]="notifiaction" [matBadge]="notifications.length"
+                aria-label="Donate" matTooltip="Notifications">
+                <mat-icon>notifications</mat-icon>
+            </button>
+            <mat-menu #notifiaction="matMenu" class="noti-panel">
+                <div class="noti-head">Notifications</div>
+                <div class="noti-body">
+                    <div class="" *ngIf="notifications.length==0">Nothing to show here</div>
+                    <div class="notification" *ngFor="let noti of notifications">
+                        {{noti.message}}
+                    </div>
+                </div>
+            </mat-menu>
+            <a href="https://github.com/bjdash/apic/issues" mat-icon-button aria-label="Feature request"
+                matTooltip="Feature request">
+                <i class="icon bj-ink"></i>
+            </a>
+            <button mat-icon-button [matMenuTriggerFor]="donate" aria-label="Donate" matTooltip="Donate">
+                <i class="icon bj-donate"></i>
+            </button>
+            <mat-menu #donate="matMenu">
+                <a href="https://www.paypal.me/bdash4" target="_new" mat-menu-item>PayPal</a>
+                <a href="https://www.patreon.com/apic_app" target="_new" mat-menu-item>Paetron</a>
+                <a href="https://ko-fi.com/bdash" target="_new" mat-menu-item>Buy me a coffee</a>
+            </mat-menu>
+            <button mat-icon-button (click)="openSettings()" aria-label="Settings" matTooltip="Settings">
                 <mat-icon>settings</mat-icon>
             </button>
-            <button mat-icon-button [matMenuTriggerFor]="menuOpt" aria-label="Options Menu">
+            <button mat-icon-button [matMenuTriggerFor]="menuOpt" aria-label="Options Menu" matTooltip="More options">
                 <mat-icon>reorder</mat-icon>
             </button>
             <mat-menu #menuOpt="matMenu">
@@ -61,7 +86,7 @@
                 <a href="https://apic.app/identity/#!/feedback" target="_new" mat-menu-item>
                     <mat-icon class="gap">feedback</mat-icon>Feedback
                 </a>
-                <a href="https://apic.app/identity/#!/feedback" target="_new" mat-menu-item>
+                <a href="https://github.com/bjdash/apic/issues" target="_new" mat-menu-item>
                     <mat-icon class="gap">bug_report</mat-icon>Report an issue
                 </a>
                 <button mat-menu-item>
