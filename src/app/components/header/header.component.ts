@@ -17,6 +17,7 @@ import { LogoutComponent } from '../login/logout/logout.component';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, first } from 'rxjs/operators';
 import { HttpService } from 'src/app/services/http.service';
+import LocalStore from 'src/app/services/localStore';
 
 @Component({
   selector: 'apic-header',
@@ -30,7 +31,7 @@ export class HeaderComponent implements OnInit {
 
   version = environment.VERSION;
   moduleUrls = {
-    home: '/home',
+    tester: '/tester',
     designer: '/designer',
     dashboard: '/dashboard',
     docs: '/docs'
@@ -47,13 +48,10 @@ export class HeaderComponent implements OnInit {
       .subscribe((event: NavigationEnd) => {
         Object.keys(this.moduleUrls).forEach(key => {
           if (event.url.startsWith(`/${key}`)) {
-            this.moduleUrls[key] = event.url;
+            this.moduleUrls[key] = event.url.split('?')[0];
           }
         })
       })
-  }
-
-  test() {
   }
 
   ngOnInit(): void {
@@ -92,6 +90,10 @@ export class HeaderComponent implements OnInit {
       .subscribe(data => {
         this.notifications = data
       });
+  }
+
+  saveWorkspace(workspace) {
+    LocalStore.set(LocalStore.WORKSPACE, workspace);
   }
 
   public get ApicRxStompState() {

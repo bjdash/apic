@@ -1,0 +1,85 @@
+<h4 class="head vcenter">
+    <a [routerLink]="['./']" href (click)="ngOnInit();$event.preventDefault()" class="t_color"
+        title="Click to Refresh">Published API docs</a>
+    <span class="spinner" *ngIf="flags.loading"></span>
+</h4>
+<div *ngIf="!myOutlet.isActivated">
+    <div class="paper margB25">
+        <h3 class="panel-title"><span class="vcenter">Published docs <span class="spinner wh"
+                    *ngIf="flags.loading"></span></span></h3>
+        <div class="pull-right vcenter">
+            <button mat-fab color="primary" aria-label="Create team" class="panel-fab" [matMenuTriggerFor]="projs">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <div class="panel-body">
+            <table class="table apic-table table-hover narrow" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Title</th>
+                        <th style="width: 5%">Version</th>
+                        <th style="width: 15%">Created</th>
+                        <th style="width: 15%">Last Published</th>
+                        <th style="width: 35%">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let doc of docs;trackBy: trackbyFn">
+                        <td>{{doc.title}}</td>
+                        <td>{{doc.version}}</td>
+                        <td>{{doc._created| date:'MMM dd,yyyy h:mm a'}}</td>
+                        <td>{{doc._modified| date:'MMM dd,yyyy h:mm a'}}</td>
+                        <td>
+                            <a mat-button target="_new" [href]="'https://apic.app/PublishedDocs/#!/view/'+doc.id"
+                                class="sm">
+                                View Doc <mat-icon>launch</mat-icon>
+                            </a>
+                            <a mat-button href="" [routerLink]="['/', 'designer', doc.projId]" class="sm">
+                                View project
+                            </a>
+                            <a mat-icon-button href="" [routerLink]="[doc.id]" [queryParams]="{projId: doc.projId}">
+                                <mat-icon>edit</mat-icon>
+                            </a>
+                            <button mat-icon-button class="red" confirm="Do you want to delete this published API doc?"
+                                confirmTitle="Delete Confirmation" confirmOk="Delete"
+                                (confirm-click)="deleteDoc(doc.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="docs.length==0 && !flags.loading" class="margB5">You don't have any published API docs. <button
+                    mat-flat-button class="t_color" [matMenuTriggerFor]="projs">Publish one.</button></div>
+        </div>
+    </div>
+
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-sm-3 nopad childMenu" *ngIf="myOutlet.isActivated">
+            <button mat-stroked-button class="t_border full-w margB10" [matMenuTriggerFor]="projs">Publish new
+                <mat-icon>
+                    arrow_right
+                </mat-icon>
+            </button>
+            <mat-nav-list role="list">
+                <a mat-list-item href="" [routerLinkActive]="'active'" [routerLink]="[doc.id]"
+                    [queryParams]="{projId: doc.projId}" *ngFor="let doc of docs; trackBy:trackbyFn">{{doc.title}}</a>
+            </mat-nav-list>
+            <div *ngIf="docs.length==0">No published docs</div>
+        </div>
+        <div class="col-sm-9 child-route">
+            <router-outlet #myOutlet="outlet"></router-outlet>
+        </div>
+    </div>
+</div>
+<mat-menu #projs="matMenu">
+    <div class="bold">Api Projects</div>
+    <a href="" [routerLink]="[project.publishedId?project.publishedId:'new']"
+        [queryParams]="{projId: project._id, title:project.title}" mat-menu-item
+        *ngFor="let project of projects$ | async; trackBy:trackbyFn">{{project.title}}</a>
+    <a [routerLink]="['/', 'designer']" mat-menu-item *ngIf="(projects$ | async)?.length==0">No APi
+        Projects. Create one?</a>
+</mat-menu>

@@ -16,6 +16,7 @@ export default class LocalStore {
     static RESP_TAB = 'respTab';
     static RESP_BODY_TAB = 'respBodyTab';
     static TESTER_LEFT_NAV_TAB = 'leftTab';
+    static WORKSPACE = 'workspace';//which module was last used
 
     //return object for list of keys, direct value for single key
     static get(key: string): string {

@@ -4,7 +4,7 @@ export class ApicRouteReuseStrategy implements RouteReuseStrategy {
     private storedRoutes = new Map<string, { url: string, route: DetachedRouteHandle }>();
 
     shouldDetach(route: ActivatedRouteSnapshot): boolean {
-        return route.routeConfig.path === 'home' || route.routeConfig.path.startsWith('designer');
+        return route.routeConfig.path === 'tester' || route.routeConfig.path.startsWith('designer') || route.routeConfig.path === 'dashboard';
     }
 
     store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle): void {

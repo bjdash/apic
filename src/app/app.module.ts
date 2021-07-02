@@ -123,6 +123,9 @@ import { DashboardHomeComponent } from './components/dashboard/dashboard-home/da
 import { TeamsComponent } from './components/dashboard/teams/teams.component';
 import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guard';
 import { TeamDetailsComponent } from './components/dashboard/teams/team-details/team-details.component';
+import { PublishedDocsComponent } from './components/dashboard/published-docs/published-docs.component';
+import { AccountComponent } from './components/dashboard/account/account.component';
+import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
 
 @NgModule({
   declarations: [
@@ -189,7 +192,10 @@ import { TeamDetailsComponent } from './components/dashboard/teams/team-details/
     DashboardComponent,
     DashboardHomeComponent,
     TeamsComponent,
-    TeamDetailsComponent
+    TeamDetailsComponent,
+    PublishedDocsComponent,
+    AccountComponent,
+    PublishedDocsDetailComponent
   ],
   imports: [
     BrowserModule,

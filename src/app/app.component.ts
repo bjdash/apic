@@ -15,6 +15,8 @@ import './utils/mode-graphql'
 import { ThemesService } from './services/themes.service';
 import { RequestsService } from './services/requests.service';
 import { ReqHistoryService } from './services/reqHistory.service';
+import LocalStore from './services/localStore';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -23,12 +25,17 @@ import { ReqHistoryService } from './services/reqHistory.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(private bootstrap: AppBootstrap, private authService: AuthService) {
-
+  constructor(private bootstrap: AppBootstrap, private authService: AuthService, private router: Router) {
     this.init();
   }
 
   async init() {
+    //TODO: Enable this
+    //load last used module;
+    let lastUsed = LocalStore.get(LocalStore.WORKSPACE);
+    if (lastUsed === 'Tester') this.router.navigate(['tester']);
+    else this.router.navigate(['designer']);
+
     this.authService.initLoggedinUser();
     await this.bootstrap.init();
 

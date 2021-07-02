@@ -5,29 +5,27 @@
             <span class="logo-text">apic</span>
         </div>
         <div style="width: 300px;height: 50px;">
-            <!--TODO: implement saveWorkspace-->
             <a id="designer-ico" href class="module-icon" [routerLink]="moduleUrls.designer" routerLinkActive="active"
                 aria-label="Designer" style="font-size: 38px;padding-top: 4px;padding-left:3px;"
-                matTooltipPosition="right" matTooltip="Designer">
+                matTooltipPosition="right" matTooltip="Designer" (click)="saveWorkspace('Designer')">
                 <i class="icon bj-palette"></i>
             </a>
-            <a id="tester-ico" href class="module-icon" [routerLink]="moduleUrls.home" routerLinkActive="active"
-                aria-label="Tester" ng-click="saveWorkspace('Tester')" matTooltipPosition="right" matTooltip="Tester">
+            <a id="tester-ico" href class="module-icon" [routerLink]="moduleUrls.tester" routerLinkActive="active"
+                aria-label="Tester" (click)="saveWorkspace('Tester')" matTooltipPosition="right" matTooltip="Tester">
                 <i class="icon bj-lab"></i>
             </a>
             <a id="docs-ico" href class="module-icon" [routerLink]="moduleUrls.docs" routerLinkActive="active"
-                aria-label="Docs" ng-click="saveWorkspace('Docs')" matTooltipPosition="right" matTooltip="Docs">
+                aria-label="Docs" (click)="saveWorkspace('Docs')" matTooltipPosition="right" matTooltip="Docs">
                 <i class="icon bj-book"></i>
             </a>
-            <a id="dash-ico" href class="module-icon" [routerLink]="moduleUrls.dashboard" routerLinkActive="active"
-                aria-label="Daashboard" ng-click="checkLogin($event);saveWorkspace('Dashboard')"
-                matTooltipPosition="right" matTooltip="Dashboard">
+            <a id="dash-ico" href class="module-icon" [routerLink]="[moduleUrls.dashboard]" routerLinkActive="active"
+                aria-label="Daashboard" (click)="saveWorkspace('Dashboard')" matTooltipPosition="right"
+                queryParamsHandling="preserve" matTooltip="Dashboard">
                 <i class="icon bj-dashboard"></i>
-            </a>
+            </a>{{moduleUrls|json}}
         </div>
 
         <div class="flex-right header-right vcenter">
-            <button (click)="test()" class="gap">TEST</button>
             <div class="env-cont input-group gap">
                 <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments"
                     matTooltip="Environments">

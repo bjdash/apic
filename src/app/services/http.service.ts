@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { ApicUrls } from '../utils/constants';
 import { catchError, map } from 'rxjs/operators';
 import { Team, TeamPartial } from '../models/Team.model';
+import { PublishedDocs, PublishedDocsPartial } from '../models/PublishedDoc.model';
+import apic from '../utils/apic';
 
 export interface ErrorhandlerOption {
     messagePrefix?: string,
@@ -126,6 +128,38 @@ export class HttpService {
         return this.http.post(ApicUrls.teamInvite, { data: [email] })
             .pipe(map(this.processResponse), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: 'Failed to invite user.' });
+            }))
+    }
+
+    getPublishedDocs(): Observable<PublishedDocs[]> {
+        return this.http.get(ApicUrls.publishDoc)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to docs.' });
+            }))
+    }
+    getPublishedDocsById(docId: string): Observable<PublishedDocs> {
+        return this.http.get(ApicUrls.publishDoc + '/' + docId)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to get doc.' });
+            }))
+    }
+    createPublishedDoc(doc: PublishedDocsPartial): Observable<PublishedDocs> {
+        let ts = Date.now();
+        return this.http.post(ApicUrls.publishDoc, { ...doc, _modified: ts, id: ts + '-' + apic.s12(), ts })
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to create doc.' });
+            }))
+    }
+    updatePublishedDoc(docId, partialDoc: PublishedDocsPartial) {
+        return this.http.put(ApicUrls.publishDoc + '/' + docId, { ...partialDoc, _modified: Date.now(), id: docId })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to update doc.' });
+            }))
+    }
+    deletePublishedDoc(docId): Observable<boolean> {
+        return this.http.delete(ApicUrls.publishDoc + '/' + docId)
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to delete.' });
             }))
     }
 }

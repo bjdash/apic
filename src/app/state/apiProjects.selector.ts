@@ -5,7 +5,7 @@ import { ApiProjectState, ApiProjectStateModel } from "./apiProjects.state";
 export class ApiProjectStateSelector {
     @Selector([ApiProjectState])
     static getPartial(state: ApiProjectStateModel) {
-        return state.projects.map(p => { return ({ _id: p._id, title: p.title } as ApiProject) })
+        return state.projects.map(p => { return ({ _id: p._id, title: p.title, publishedId: p.publishedId } as ApiProject) })
     }
 
     @Selector([ApiProjectState])

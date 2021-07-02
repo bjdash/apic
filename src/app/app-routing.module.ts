@@ -15,19 +15,22 @@ import { TeamsComponent } from './components/dashboard/teams/teams.component';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guard';
 import { TeamDetailsComponent } from './components/dashboard/teams/team-details/team-details.component';
+import { PublishedDocsComponent } from './components/dashboard/published-docs/published-docs.component';
+import { AccountComponent } from './components/dashboard/account/account.component';
+import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
 
 
 const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'home', pathMatch: 'full'
-  },
+  // {
+  //   path: '',
+  //   redirectTo: 'home', pathMatch: 'full'
+  // },
   {
     path: 'designer',
     component: DesignerComponent
   },
   {
-    path: 'home',
+    path: 'tester',
     component: TesterMainComponent,
     data: {
       sticky: true
@@ -62,10 +65,14 @@ const routes: Routes = [
           { path: ":teamId", component: TeamDetailsComponent }
         ]
       },
-      // { path: "models/:modelId", component: ProjectModelsComponent, canDeactivate: [ProjectDetailRouteGuard] },
-      // { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
-      // { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },
-      // { path: "api-builder", component: , canDeactivate: [] },
+      {
+        path: "puslishedDocs",
+        component: PublishedDocsComponent,
+        children: [
+          { path: ":docId", component: PublishedDocsDetailComponent }
+        ]
+      },
+      { path: "account", component: AccountComponent },
     ]
   },
 ];

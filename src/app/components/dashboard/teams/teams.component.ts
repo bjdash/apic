@@ -74,10 +74,6 @@ export class TeamsComponent implements OnInit {
       })
   }
 
-  editTeam(team: Team) {
-
-  }
-
   deleteTeam(id: string) {
     this.flags.loadingTeams = true;
     this.http.deleteTeam(id).pipe(first())

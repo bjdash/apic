@@ -5,13 +5,13 @@
                     [routerLinkActiveOptions]="{ exact: true }">
                     <mat-icon>dashboard</mat-icon> Dashboard
                 </a></li>
-            <li class="db-menu-item"><a href="">
-                    <mat-icon>cloud_upload</mat-icon> Published Docs
-                </a></li>
             <li class="db-menu-item"><a href="" [routerLink]="['teams']" routerLinkActive="active">
                     <mat-icon>groups</mat-icon>Teams
                 </a></li>
-            <li class="db-menu-item"><a href="">
+            <li class="db-menu-item"><a href="" [routerLink]="['puslishedDocs']" routerLinkActive="active">
+                    <mat-icon>cloud_upload</mat-icon> Published Docs
+                </a></li>
+            <li class="db-menu-item"><a href="" [routerLink]="['account']" routerLinkActive="active">
                     <mat-icon>person</mat-icon> Account
                 </a></li>
         </ul>

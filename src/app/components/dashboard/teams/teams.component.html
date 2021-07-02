@@ -69,8 +69,8 @@
                     </tr>
                 </tbody>
             </table>
-            <div *ngIf="teams.length==0 && flags.loadingTeams" class="margB5">You don't have any teams created. <a
-                    href="" class="t_color" ng-click="vm.showCreate()">Create one now.</a></div>
+            <div *ngIf="teams.length==0 && !flags.loadingTeams" class="margB5">You don't have any teams created. <button
+                    mat-flat-button class="t_color" (click)="showCreateTeam()">Create one now.</button></div>
         </div>
     </div>
     <div class="paper margB25">
@@ -109,7 +109,7 @@
     <div class="row">
         <div class="col-sm-3 nopad childMenu" *ngIf="myOutlet.isActivated">
             <mat-nav-list role="list">
-                <a mat-list-item href="" [routerLinkActive]="'active'" matRipple [routerLink]="[team.id]"
+                <a mat-list-item href="" [routerLinkActive]="'active'" [routerLink]="[team.id]"
                     *ngFor="let team of teams; trackBy:trackbyFn">{{team.name}}</a>
             </mat-nav-list>
         </div>
