@@ -122,6 +122,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { TeamsComponent } from './components/dashboard/teams/teams.component';
 import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guard';
+import { TeamDetailsComponent } from './components/dashboard/teams/team-details/team-details.component';
 
 @NgModule({
   declarations: [
@@ -187,7 +188,8 @@ import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guar
     ApicListComponent,
     DashboardComponent,
     DashboardHomeComponent,
-    TeamsComponent
+    TeamsComponent,
+    TeamDetailsComponent
   ],
   imports: [
     BrowserModule,

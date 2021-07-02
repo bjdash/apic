@@ -63,7 +63,7 @@
 
         <div class="content">
             <div class="paper req-box">
-                <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
+                <h3 class="panel-title pointer" (click)="flags.showReq = !flags.showReq">
                     <mat-icon *ngIf="!flags.showReq" class="sm">chevron_right</mat-icon>
                     <span>Request</span>
                 </h3>
@@ -206,7 +206,7 @@
             </div>
 
             <div class="paper resp-box" *ngIf="runResponse && !flags.running && runResponse?.status != 0">
-                <h3 class="panel-title custom pointer" (click)="flags.showResp = !flags.showResp">
+                <h3 class="panel-title pointer" (click)="flags.showResp = !flags.showResp">
                     <mat-icon *ngIf="!flags.showResp" class="sm">chevron_right</mat-icon>
                     Response
                 </h3>
@@ -326,7 +326,7 @@
             </div>
 
             <div class="paper resp-box" *ngIf="loopRunResult?.length>0">
-                <h3 class="panel-title custom pointer">Response</h3>
+                <h3 class="panel-title pointer">Response</h3>
                 <div class="panel-body">
                     <div *ngFor="let res of loopRunResult;trackBy: trackByFn;let i=index" class="loop-res">
                         <div>

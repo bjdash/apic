@@ -339,6 +339,11 @@ div.mat-menu-content {
   color: var(--text-color);
   border-bottom: 1px solid var(--border-color);
 }
+.mat-list-base .mat-list-item.active,
+.mat-list-base .mat-list-option.active {
+  color: var(--accent-bg-text);
+  background: var(--accent-color);
+}
 .mat-list-base .mat-list-item:last-child,
 .mat-list-base .mat-list-option:last-child {
   border-bottom: none;

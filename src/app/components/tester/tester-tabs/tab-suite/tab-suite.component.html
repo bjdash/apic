@@ -102,7 +102,7 @@
                     </div>
 
                     <div class="paper" *ngIf="flags.showResp">
-                        <h3 class="panel-title custom pointer">
+                        <h3 class="panel-title pointer">
                             <span>Run result</span>
                         </h3>
                         <div class="pull-right margB5 vcenter">
@@ -273,7 +273,7 @@
                             more</a>
                     </div>
                     <div class="paper" *ngIf="flags.showResp">
-                        <h3 class="panel-title custom pointer" (click)="flags.showLogs = !flags.showLogs">
+                        <h3 class="panel-title pointer" (click)="flags.showLogs = !flags.showLogs">
                             <span>Run logs</span>
                         </h3>
                         <div class="pull-right margB5 vcenter">
@@ -300,7 +300,7 @@
 
     <div *ngIf="!flags.editReq">
         <div class="paper req-box" *ngIf="flags.showHarPanel">
-            <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
+            <h3 class="panel-title pointer" (click)="flags.showReq = !flags.showReq">
                 <span>Import recorded requests</span>
             </h3>
             <div class="pull-right margB5 vcenter">
@@ -371,7 +371,7 @@
         </div>
 
         <div class="paper req-box">
-            <h3 class="panel-title custom pointer" (click)="flags.showReq = !flags.showReq">
+            <h3 class="panel-title pointer" (click)="flags.showReq = !flags.showReq">
                 <span>Requests</span>
             </h3>
             <div class="pull-right margB5 vcenter">

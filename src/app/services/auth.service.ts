@@ -214,7 +214,9 @@ export class AuthService {
   isLoggedIn(): boolean {
     return this.user != undefined
   }
-
+  getUser() {
+    return this.user;
+  }
   getAuthHeader() {
     return this.user.UID + '||' + this.user?.authToken;
   }

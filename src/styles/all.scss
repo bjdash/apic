@@ -157,6 +157,9 @@ h4.head {
 .margB10 {
   margin-bottom: 10px;
 }
+.margB25 {
+  margin-bottom: 25px;
+}
 .margB5 {
   margin-bottom: 5px;
 }
@@ -303,6 +306,32 @@ fieldset legend {
   padding: 8px;
   margin-bottom: 20px;
   border-radius: 10px;
+}
+.panel-title {
+  background: var(--accent-color);
+  box-shadow: 2px 2px 4px var(--accent-shadow);
+  color: var(--accent-bg-text);
+  margin: -5px 0 3px -15px;
+  font-size: 15px;
+  padding: 6px 15px;
+  min-width: 130px;
+  position: relative;
+  display: inline-block;
+}
+.panel-title:after {
+  content: "";
+  width: 0;
+  position: absolute;
+  height: 0;
+  border-right: 27px solid transparent;
+  right: -27px;
+  top: 0;
+  border-top: 28px solid var(--accent-color);
+}
+button.panel-fab,
+a.panel-fab {
+  position: absolute;
+  right: 20px;
 }
 .icon-sm {
   width: 30px;

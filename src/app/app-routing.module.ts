@@ -14,6 +14,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TeamsComponent } from './components/dashboard/teams/teams.component';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { DashboardRouteGuard } from './components/dashboard/dashboard-route-guard';
+import { TeamDetailsComponent } from './components/dashboard/teams/team-details/team-details.component';
 
 
 const routes: Routes = [
@@ -54,7 +55,13 @@ const routes: Routes = [
     canActivate: [DashboardRouteGuard],
     children: [
       { path: '', component: DashboardHomeComponent, pathMatch: 'full' },
-      { path: "teams", component: TeamsComponent },
+      {
+        path: "teams",
+        component: TeamsComponent,
+        children: [
+          { path: ":teamId", component: TeamDetailsComponent }
+        ]
+      },
       // { path: "models/:modelId", component: ProjectModelsComponent, canDeactivate: [ProjectDetailRouteGuard] },
       // { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
       // { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },

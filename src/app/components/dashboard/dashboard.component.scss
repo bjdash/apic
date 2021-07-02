@@ -55,5 +55,39 @@
         font-family: apic-font;
         padding-bottom: 20px;
         width: 400px;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+    .panel-title {
+        font-size: 16px;
+    }
+    .table {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+    .apic-table > thead > tr > th,
+    .apic-table > tbody > tr > td {
+        border-top: 0;
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 22px;
+    }
+    .apic-table.table-hover > tbody > tr:hover {
+        background-color: var(--main-bg);
+    }
+    .apic-table > thead > tr > th {
+        padding: 10px 15px;
+        text-align: left;
+    }
+    .apic-table.narrow > tbody > tr > td {
+        padding: 2px 15px;
+    }
+    .child-route {
+        border-left: 1px solid var(--border-color);
+    }
+    .childMenu {
+        max-width: 250px;
     }
 }
