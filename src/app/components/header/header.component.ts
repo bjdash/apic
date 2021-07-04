@@ -18,6 +18,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, first } from 'rxjs/operators';
 import { HttpService } from 'src/app/services/http.service';
 import LocalStore from 'src/app/services/localStore';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'apic-header',
@@ -40,8 +41,9 @@ export class HeaderComponent implements OnInit {
 
   constructor(private store: Store,
     private dialog: MatDialog,
-    router: Router,
+    private router: Router,
     private httpService: HttpService,
+    private authService: AuthService,
     public stompService: StompService) {
     router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -53,7 +55,10 @@ export class HeaderComponent implements OnInit {
         })
       })
   }
+  async test() {
+    console.log(this.router.url);
 
+  }
   ngOnInit(): void {
     this.getNotifications();
   }

@@ -41,6 +41,9 @@ export class UserState {
         const authUser = getState().authUser;
         patchState({
             authUser: { ...authUser, ...payload }
+        });
+        Object.keys(payload).forEach(key => {
+            LocalStore.set(key, payload[key]);
         })
     }
 

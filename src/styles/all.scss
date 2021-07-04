@@ -297,6 +297,9 @@ fieldset legend {
   margin-bottom: 15px;
   margin-top: 10px;
   overflow: auto;
+  &.danger {
+    box-shadow: 0 0px 6px 0px rgb(244 67 54 / 90%);
+  }
 }
 .paper:hover {
   box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.15);

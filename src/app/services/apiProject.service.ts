@@ -31,7 +31,7 @@ export class ApiProjectService {
         })
         this.updatedViaSync$ = new BehaviorSubject(null);
         this.ajv = new Ajv();
-        this.loadApiProjs();
+        // this.loadApiProjs();
     }
 
     addProjects(projs: ApiProject[], fromSync?: boolean): Promise<IDBValidKey> {
@@ -66,7 +66,7 @@ export class ApiProjectService {
         return this.store.select(ApiProjectStateSelector.getByIdDynamic(id))
     }
 
-    private async loadApiProjs() {
+    async loadApiProjs() {
         const projects = await iDB.read(iDB.TABLES.API_PROJECTS);
         this.store.dispatch(new ApiProjectsAction.Refresh(projects));
         return projects;

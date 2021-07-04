@@ -126,6 +126,7 @@ import { TeamDetailsComponent } from './components/dashboard/teams/team-details/
 import { PublishedDocsComponent } from './components/dashboard/published-docs/published-docs.component';
 import { AccountComponent } from './components/dashboard/account/account.component';
 import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
+import { AccountDeleteDialogComponent } from './components/dashboard/account/account-delete-dialog/account-delete-dialog.component';
 
 @NgModule({
   declarations: [
@@ -195,7 +196,8 @@ import { PublishedDocsDetailComponent } from './components/dashboard/published-d
     TeamDetailsComponent,
     PublishedDocsComponent,
     AccountComponent,
-    PublishedDocsDetailComponent
+    PublishedDocsDetailComponent,
+    AccountDeleteDialogComponent
   ],
   imports: [
     BrowserModule,

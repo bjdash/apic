@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { catchError, map, first } from 'rxjs/operators';
+import { catchError, map, first, takeUntil } from 'rxjs/operators';
 import { UserAction } from '../actions/user.action';
 import { SocialUser } from '../models/SocialUser.model';
 import { StompMessage } from '../models/StompMessage.model';
@@ -18,6 +18,8 @@ import { ApicRxStompState, StompService } from './stomp.service';
 import { SuiteService } from './suite.service';
 import { SyncService } from './sync.service';
 import iDB from './IndexedDB';
+import { RxStompState } from '@stomp/rx-stomp';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -34,12 +36,20 @@ export class AuthService {
     private reqService: RequestsService,
     private suiteService: SuiteService,
     private bootstrap: AppBootstrap,
+    private router: Router,
     private envService: EnvService) {
 
     this.store.select(UserState.getAuthUser).subscribe(user => {
       if (user?.UID && user?.authToken) {
-        if ((user.UID != this.user?.UID || user.authToken != this.user?.authToken) && !stompService.client.connected()) {
-          this.connectToSyncServer(user.UID, user.authToken);
+        // if ((user.UID != this.user?.UID || user.authToken != this.user?.authToken) && !stompService.client.connected()) {
+        if (!stompService.client.connected()) {
+          stompService.client.connectionState$
+            .pipe(takeUntil(stompService.client.connected$))
+            .subscribe((x) => {
+              if (x === RxStompState.CLOSED) {
+                this.connectToSyncServer(user.UID, user.authToken);
+              }
+            });
         }
       }
       this.user = user;
@@ -184,7 +194,6 @@ export class AuthService {
           } else {
             console.error(response?.desc || 'Unknown error');
           }
-
         }), catchError((error) => {
           return this.httpService.handleHttpError(error, { messagePrefix: 'Logout failed.', supressNotification: true });
         }))
@@ -207,6 +216,9 @@ export class AuthService {
 
     await this.bootstrap.doFirstRunIfRequired();
     await this.bootstrap.readAllDbs();
+    if (this.router.url.startsWith('/dashboard')) {
+      this.router.navigate(['designer']);
+    }
 
     //TODO:Change the IDs of each opened tabs
   }

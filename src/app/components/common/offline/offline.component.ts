@@ -22,6 +22,7 @@ export class OfflineComponent implements OnInit {
         this.offlineReason = 'UNAUTHORISED';
         this.stompService.client.deactivate()
       } else {
+        //TODO: make offline work with dashboard
         this.offlineReason = 'OFFLINE';
       }
     });

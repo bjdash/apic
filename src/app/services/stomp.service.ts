@@ -184,9 +184,14 @@ export class StompService {
         });
     }
 
-    disconnect() {
+    async disconnect() {
         if (this.client.connected()) {
-            this.client.deactivate();
+            await this.client.deactivate();
         }
+    }
+
+    async reconnect(authHeaderValue: string) {
+        await this.disconnect();
+        this.connect(authHeaderValue);
     }
 }

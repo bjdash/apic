@@ -27,14 +27,16 @@ import { Router } from '@angular/router';
 export class AppComponent {
   constructor(private bootstrap: AppBootstrap, private authService: AuthService, private router: Router) {
     this.init();
+
+    //TODO:after some time fetch user details from server and update local, this is to reflect change in name in other device
   }
 
   async init() {
     //TODO: Enable this
     //load last used module;
-    let lastUsed = LocalStore.get(LocalStore.WORKSPACE);
-    if (lastUsed === 'Tester') this.router.navigate(['tester']);
-    else this.router.navigate(['designer']);
+    // let lastUsed = LocalStore.get(LocalStore.WORKSPACE);
+    // if (lastUsed === 'Tester') this.router.navigate(['tester']);
+    // else this.router.navigate(['designer']);
 
     this.authService.initLoggedinUser();
     await this.bootstrap.init();

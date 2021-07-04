@@ -162,4 +162,23 @@ export class HttpService {
                 return this.handleHttpError(error, { messagePrefix: 'Failed to delete.' });
             }))
     }
+
+    updateAccount(name): Observable<boolean> {
+        return this.http.put(ApicUrls.accUpdate, { name })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to update account.' });
+            }))
+    }
+    changePassword(curPsd, newPsd, newPsdAgain) {
+        return this.http.post(ApicUrls.changePsd, { curPsd, newPsd, newPsdAgain })
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to change password.' });
+            }))
+    }
+    deleteAccount() {
+        return this.http.delete(ApicUrls.account)
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to change password.' });
+            }))
+    }
 }

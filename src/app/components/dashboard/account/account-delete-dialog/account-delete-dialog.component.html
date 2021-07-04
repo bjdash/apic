@@ -1,0 +1,11 @@
+<h2 mat-dialog-title class="modal-title">Delete Account</h2>
+<mat-dialog-content>
+    <p>Deleting you account will permanently delete all your data saved with APIC which includes your API Projects, API
+        requests, Test Cases, Published Docs, Teams and everything else. This action can not be undone.</p>
+    <p>To confirm delete please type in <span class="bold">confirm</span> in the text box below and click Delete</p>
+    <input class="form-control margV10" [(ngModel)]="confirm" placeholder="Type in confirm here" />
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button class="sm gap" mat-raised-button color="warn" (click)="deleteAccount()">Delete</button>
+    <button mat-button type="button" mat-dialog-close class="sm">Cancel</button>
+</mat-dialog-actions>
