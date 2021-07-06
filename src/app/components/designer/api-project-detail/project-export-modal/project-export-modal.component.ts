@@ -47,7 +47,7 @@ export class ProjectExportModalComponent implements OnInit {
   prepareForExport() {
     switch (this.data.type) {
       case 'OAS':
-        this.exportObj = this.swaggerService.exportOAS({ ...this.projToExport }, '');
+        this.exportObj = this.swaggerService.exportOAS({ ...this.projToExport }, 'object');
         break;
       case 'RAW':
         this.exportObj = this.swaggerService.exportRAW({ ...this.projToExport }, '');

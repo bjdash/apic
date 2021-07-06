@@ -1,0 +1,277 @@
+<div class="app-body" *ngIf="selectedPROJ">
+    <div class="left-nav">
+        <div class="nav nav-tabs">
+            <button type="button" [routerLink]="['/docs']" mat-button>
+                <mat-icon>keyboard_backspace</mat-icon>
+            </button>
+            <span class="workspace-title" style="vertical-align: middle;">{{selectedPROJ.title}}</span>
+        </div>
+        <div class="tab-content" *ngIf="leftTree">
+            <div *ngFor=" let item of leftTree|keyvalue" ng-init="expanded = true">
+                <div *ngIf="item.key!=='ungrouped'">
+                    <div class="doc-link">
+                        <div class="vcenter"
+                            (click)="hiddenPaths[item.value.folder?.name]=!hiddenPaths[item.value.folder?.name]">
+                            <mat-icon *ngIf="!hiddenPaths[item.value.folder?.name]">expand_more</mat-icon>
+                            <mat-icon *ngIf="hiddenPaths[item.value.folder?.name]">chevron_right</mat-icon>
+                            {{item.value.folder?.name}}
+
+                        </div>
+                    </div>
+                    <div class="sub-folder 0" [hidden]="hiddenPaths[item.value.folder?.name]">
+                        <div class="savedReq vcenter" *ngFor="let endpItem of item.value.endps|keyvalue">
+                            <span class="method" [ngClass]="endpItem.value.method.toUpperCase()"></span>
+                            <a [routerLink]="['./']"
+                                (click)="scrollInView(endpItem.value.method+'-'+endpItem.value.path.slice(1))"
+                                [fragment]="endpItem.value.method+'-'+endpItem.value.path.slice(1)">{{endpItem.value.name}}</a>
+                        </div>
+                        <div class="savedReq vcenter" *ngFor="let modelitem of item.value.models|keyvalue">
+                            <span class="method MODEL"></span>
+                            <a [routerLink]="['./']" [fragment]="'model-'+modelitem.value.name"
+                                (click)="scrollInView('model-'+modelitem.value.name)">
+                                {{modelitem.value.name}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="doc-link">
+                <div class="vcenter" (click)="hiddenPaths['Un-grouped']=!hiddenPaths['Un-grouped']">
+                    <mat-icon *ngIf="!hiddenPaths['Un-grouped']">expand_more</mat-icon>
+                    <mat-icon *ngIf="hiddenPaths['Un-grouped']">chevron_right</mat-icon>
+                    Un-grouped
+                </div>
+            </div>
+            <div [hidden]="hiddenPaths['Un-grouped']">
+                <div class="savedReq vcenter" *ngFor="let endpItem of leftTree.ungrouped.endps|keyvalue;">
+                    <span class="method" [ngClass]="endpItem.value.method.toUpperCase()"></span>
+                    <a [routerLink]="['./']"
+                        (click)="scrollInView(endpItem.value.method+'-'+endpItem.value.path.slice(1))"
+                        [fragment]="endpItem.value.method+'-'+endpItem.value.path.slice(1)">{{endpItem.value.name}}</a>
+                </div>
+                <div class="savedReq vcenter" *ngFor="let modelitem of leftTree.ungrouped.models|keyvalue">
+                    <span class="method MODEL"></span>
+                    <a [routerLink]="['./']" [fragment]="'model-'+modelitem.value.name"
+                        (click)="scrollInView('model-'+modelitem.value.name)"> {{modelitem.value.name}}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="right-cont">
+        <div class="docs-content" *ngIf="resolvedSpec">
+            <header class="info-header">
+                <h3 class="section-header t_color">{{resolvedSpec.info.title}}<span
+                        class="badge">{{resolvedSpec.info.version}}</span></h3>
+            </header>
+            <div class="submodMenu">
+                <div class="submodMenuOptn">
+                    <span class="gap">Group APIs by &nbsp;</span>
+                    <div role="group" class="pull-right btn-group toggle-group gap">
+                        <button type="button" mat-button [ngClass]="flags.groupBy == 'tags'?'t_bg t_border':''"
+                            class="xs" (click)="flags.groupBy='tags'">Tags</button>
+                        <button type="button" mat-button [ngClass]="flags.groupBy == 'url'?'t_bg t_border':''"
+                            class="xs" (click)="flags.groupBy='url'">URL</button>
+                    </div>
+                </div>
+                <div class="tip"></div>
+            </div>
+            <div class="red">{{error}}</div>
+
+            <div class="paper" id="info">
+                <div class="pointer vcenter margB10 f18" (click)="flags.hideInfo = !flags.hideInfo">
+                    <mat-icon *ngIf="!flags.hideInfo">expand_more</mat-icon>
+                    <mat-icon *ngIf="flags.hideInfo">chevron_right</mat-icon>
+                    <span class="t_color">Info</span>
+                </div>
+                <div class="" [hidden]="flags.hideInfo">
+                    <div><span class="label-xs gap t_color">Description:
+                        </span>{{resolvedSpec.info?.description||'N/A'}}</div>
+                    <div class="row" style="margin: 0">
+                        <div class="col-xs-6 nopad" *ngIf="resolvedSpec.info?.contact">
+                            <div class="label-xs t_color">Contact information</div>
+                            <div *ngIf="resolvedSpec.info.contact.name" class="">
+                                {{resolvedSpec.info.contact.name}}</div>
+                            <div *ngIf="resolvedSpec.info.contact.email" class="">
+                                <a [href]="'mailto:'+resolvedSpec.info.contact.email"
+                                    target="_blank">{{resolvedSpec.info.contact.email}}</a>
+                            </div>
+                            <div *ngIf="resolvedSpec.info.contact.url" class="">
+                                <a [href]="resolvedSpec.info.contact.utl"
+                                    target="_blank">{{resolvedSpec.info.contact.url}}</a>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div *ngIf="resolvedSpec.info.termsOfService">
+                                <div class="label-xs t_color">Terms of service</div>
+                                <div class="">
+                                    <a [href]="resolvedSpec.info.termsOfService"
+                                        target="_blank">{{resolvedSpec.info.termsOfService}}</a>
+                                </div>
+                            </div>
+                            <div *ngIf="resolvedSpec.info?.license">
+                                <div class="label-xs t_color">License</div>
+                                <div class="" *ngIf="!resolvedSpec.info.license.url">
+                                    {{resolvedSpec.info.license.name}}</div>
+                                <div class="" *ngIf="resolvedSpec.info.license.url">
+                                    <a target="_blank"
+                                        href="{{resolvedSpec.info.license.url}}">{{resolvedSpec.info.license.name}}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper">
+                <div class="pointer vcenter margB10 f18" (click)="flags.hidePaths = !flags.hidePaths">
+                    <mat-icon *ngIf="!flags.hidePaths">expand_more</mat-icon>
+                    <mat-icon *ngIf="flags.hidePaths">chevron_right</mat-icon>
+                    <a href="" class="apic-collaps-text t_color">Paths</a>
+                </div>
+                <div class="" [hidden]="flags.hidePaths" *ngIf="flags.groupBy=='url'">
+                    <div class="path" *ngFor="let pathItem of resolvedSpec.paths|keyvalue">
+                        <h3 class="apiheader vcenter" (click)="hiddenPaths[pathItem.key] = !hiddenPaths[pathItem.key]">
+                            <mat-icon *ngIf="!hiddenPaths[pathItem.key]">expand_more</mat-icon>
+                            <mat-icon *ngIf="hiddenPaths[pathItem.key]">chevron_right</mat-icon>
+                            {{pathItem.key}}
+                        </h3>
+                        <div [hidden]="hiddenPaths[pathItem.key]" class="operation"
+                            [ngClass]="operationItem.key.toLowerCase()"
+                            *ngFor="let operationItem of pathItem.value|keyvalue">
+                            <ng-container [ngTemplateOutlet]="OpRef"
+                                [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.key, pathName:pathItem.key}">
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+                <div class="" [hidden]="flags.hidePaths" *ngIf="flags.groupBy=='tags'">
+                    <div class="path" *ngFor="let pathItem of tagGroups|keyvalue">
+                        <h3 class="apiheader" ng-click="$folded = !$folded">
+                            <mat-icon *ngIf="!hiddenPaths[pathItem.key]">expand_more</mat-icon>
+                            <mat-icon *ngIf="hiddenPaths[pathItem.key]">chevron_right</mat-icon>
+                            {{pathItem.key}}
+                        </h3>
+                        <div [hidden]="hiddenPaths[pathItem.key]" class="operation"
+                            [ngClass]="operationItem.value.method.toLowerCase()"
+                            *ngFor="let operationItem of pathItem.value|keyvalue">
+                            <ng-container [ngTemplateOutlet]="OpRef"
+                                [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.value.method, pathName:pathItem.key}">
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper">
+                <div class="pointer vcenter margB10 f18" (click)="flags.hideModels = !flags.hideModels">
+                    <mat-icon *ngIf="!flags.hideModels">expand_more</mat-icon>
+                    <mat-icon *ngIf="flags.hideModels">chevron_right</mat-icon>
+                    <a href="" class="apic-collaps-text t_color">Models</a>
+                </div>
+                <div class="" [hidden]="flags.hideModels">
+                    <div class="definition" *ngFor="let modelItem of resolvedSpec.definitions|keyvalue"
+                        id="model-{{modelItem.key}}">
+                        <div class="doc-model label-sm t_color vcenter"
+                            (click)="hiddenPaths[modelItem.key] = !hiddenPaths[modelItem.key]">
+                            <mat-icon *ngIf="hiddenPaths[modelItem.key] ">chevron_right</mat-icon>
+                            {{modelItem.key}}
+                        </div>
+                        <div [hidden]="hiddenPaths[modelItem.key]">
+                            <json-schema-viewer [schema]="modelItem.value" open="3"></json-schema-viewer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #OpRef let-operation="operation" let-operationName="operationName" let-pathName="pathName">
+    <header (click)="visibleEndps[operationName+pathName] = !visibleEndps[operationName+pathName]"
+        id="{{(operationName|| operation.method)+'-'+(pathName.slice( 1 )||operation.path.slice(1))}}">
+        <span class='http-method'>{{(operationName || operation.method) | uppercase}}</span>
+        <span class="http-path"> {{pathName || operation.path}}</span>
+        <div class="http-summary">{{operation.summary}}</div>
+
+        <div class="deprecated" *ngIf="operation.deprecated">Deprecated</div>
+    </header>
+    <div class='content' [hidden]="!visibleEndps[operationName+pathName]">
+        <div class="apiTags">
+            <span class="label label-primary gap" *ngFor="let tag of operation.tags;">
+                {{tag}}
+            </span>
+        </div>
+        <section class="description" *ngIf="operation.description">
+            <h4>Description</h4>
+            <div>{{operation.description}}</div>
+        </section>
+
+        <section class="parameters">
+            <h4>Parameters</h4>
+            <div>
+                <table class="table" cellSpacing="0">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Name</th>
+                            <th style="width: 10%">Located in</th>
+                            <th style="width: 60%">Description</th>
+                            <th style="width: 10%">Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let parameter of operation.parameters;">
+                            <td>
+                                <a><span class="mono">{{parameter.name}}</span></a>
+                            </td>
+                            <td>{{parameter.in}}</td>
+                            <td>
+                                {{parameter.description}}
+                                <div class="" style="margin:10px 0 0 0">Schema</div>
+                                <!-- type:{{parameter.type|json}}
+                                <hr />
+                                schema:{{parameter.schema|json}} -->
+                                <!-- <json-formatter ng-if="false" json="{type:parameter.type}"></json-formatter> -->
+                                <!-- <json-schema-view ng-if="!parameter.type" schema="parameter.schema"></json-schema-view>
+                                <json-schema-view ng-if="parameter.type" schema="{type:parameter.type}"></json-schema-view> -->
+                                <json-schema-viewer *ngIf="!parameter.type" [schema]="parameter.schema">
+                                </json-schema-viewer>
+                                <json-schema-viewer *ngIf="parameter.type" [schema]="{type:parameter.type}">
+                                </json-schema-viewer>
+                            </td>
+                            <td>{{parameter.required ? 'Yes' : 'No'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="responses" ng-if="operation">
+            <h4>Responses</h4>
+
+            <div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Detail</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let response of operation.responses|keyvalue">
+                            <td style="width:100px">
+                                <span class="resp-code"
+                                    [ngClass]="{info:response.key.charAt(0)=='1',success:response.key.charAt(0)=='2',warning:response.key.charAt(0)=='3',error:response.key.charAt(0)=='5'||response.key.charAt(0)=='4'}">
+                                    {{response.key}}</span>
+                            </td>
+                            <td style="width:auto">
+                                <div class="resp-desc">{{response.value.description}}</div>
+                                <div class="" style="margin:10px 0 0 0">Schema</div>
+                                <json-schema-viewer [schema]="response.value.schema"></json-schema-viewer>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</ng-template>

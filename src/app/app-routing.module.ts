@@ -18,6 +18,7 @@ import { TeamDetailsComponent } from './components/dashboard/teams/team-details/
 import { PublishedDocsComponent } from './components/dashboard/published-docs/published-docs.component';
 import { AccountComponent } from './components/dashboard/account/account.component';
 import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
+import { DocsDetailComponent } from './components/docs/docs-detail/docs-detail.component';
 
 
 const routes: Routes = [
@@ -28,13 +29,6 @@ const routes: Routes = [
   {
     path: 'designer',
     component: DesignerComponent
-  },
-  {
-    path: 'tester',
-    component: TesterMainComponent,
-    data: {
-      sticky: true
-    }
   },
   {
     path: 'designer/:projectId',
@@ -49,8 +43,19 @@ const routes: Routes = [
     ]
   },
   {
+    path: 'tester',
+    component: TesterMainComponent,
+    data: {
+      sticky: true
+    }
+  },
+  {
     path: 'docs',
     component: DocsComponent
+  },
+  {
+    path: 'docs/:projectId',
+    component: DocsDetailComponent
   },
   {
     path: 'dashboard',
@@ -78,7 +83,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected' })],
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected', anchorScrolling: 'enabled' })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

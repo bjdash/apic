@@ -1,5 +1,5 @@
 import { Entity } from '../entity.interface';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -20,7 +20,13 @@ export class FieldJsonSchemaComponent {
     @Input()
     addAdditionalProp: Function;
 
+    @Output() onChange = new EventEmitter()
+
     removeAdditionalProp(entity: Entity) {
         entity._additionalProperties = [];
+    }
+
+    onChanged() {
+        this.onChange.next();
     }
 }

@@ -489,7 +489,7 @@ export class SwaggerService {
         return proj;
     }
 
-    exportOAS(proj, type) {
+    exportOAS(proj, type?: 'string' | 'object') {
         proj = Utils.clone(proj);
         var obj: any = {};
         obj.swagger = '2.0';

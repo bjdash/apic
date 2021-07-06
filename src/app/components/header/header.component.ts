@@ -50,7 +50,7 @@ export class HeaderComponent implements OnInit {
       .subscribe((event: NavigationEnd) => {
         Object.keys(this.moduleUrls).forEach(key => {
           if (event.url.startsWith(`/${key}`)) {
-            this.moduleUrls[key] = event.url.split('?')[0];
+            this.moduleUrls[key] = event.url.split('#')[0].split('?')[0];
           }
         })
       })

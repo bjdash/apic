@@ -1,11 +1,11 @@
 <div class="designer" *ngIf="selectedPROJ">
     <div class="app-body">
         <div class="left-nav">
-            <div class="nav nav-tabs">
+            <div class="nav nav-tabs vcenter">
                 <button type="button" [routerLink]="['/designer']" mat-button>
                     <mat-icon>keyboard_backspace</mat-icon>
                 </button>
-                <span class="workspace-title" style="vertical-align: middle;">{{selectedPROJ.title}}</span>
+                <span class="workspace-title">{{selectedPROJ.title}}</span>
             </div>
             <div class="tab-content" *ngIf="leftPanel.tree">
                 <div class="align-right">
@@ -13,9 +13,10 @@
                         matTooltip="Build requests to Run">
                         <i class="icon bj-wrench f18"></i>
                     </button>
-                    <button color="primary" mat-icon-button aria-label="View Docs" matTooltip="View Docs">
+                    <a href="" [routerLink]="['/', 'docs', selectedPROJ._id]" color="primary" mat-icon-button
+                        aria-label="View Docs" matTooltip="View Docs">
                         <i class="icon bj-book f18"></i>
-                    </button>
+                    </a>
                     <button type="button" color="primary" mat-icon-button aria-label="Export" matTooltip="Export"
                         [matMenuTriggerFor]="exportMenu">
                         <mat-icon>open_in_new</mat-icon>

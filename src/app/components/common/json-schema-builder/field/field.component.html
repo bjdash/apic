@@ -3,12 +3,12 @@
     <div class="form-group col-xs-12">
         <label class="model-label-x">minProperties:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minProperties" min="0"
-            placeholder=">=0" />
+            (ngModelChange)="onChanged()" placeholder=">=0" />
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">maxProperties:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxProperties" min="0"
-            placeholder=">=0" />
+            (ngModelChange)="onChanged()" placeholder=">=0" />
     </div>
     <div class="form-group col-xs-12">
         <div class="t_color">Additional Properties</div>
@@ -16,7 +16,8 @@
             <button mat-stroked-button class="sm" (click)="addAdditionalProp(entity)">Define Additional
                 properties schema</button>
             <div class="checkbox padding">
-                <label><input type="checkbox" class="small" [(ngModel)]="entity._disallowAdditional"> Disallow
+                <label><input type="checkbox" class="small" [(ngModel)]="entity._disallowAdditional"
+                        (ngModelChange)="onChanged()"> Disallow
                     Additipnal
                     Properties</label>
             </div>
@@ -46,20 +47,21 @@
     <div class="form-group col-xs-12">
         <label class="model-label-x">minLength:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minLength" min="0"
-            placeholder=">=0" />
+            (ngModelChange)="onChanged()" placeholder=">=0" />
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">maxLength:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxLength" min="0"
-            placeholder=">=0" />
+            (ngModelChange)="onChanged()" placeholder=">=0" />
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">Pattern:</label>
-        <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._pattern" min="0" />
+        <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._pattern" min="0"
+            (ngModelChange)="onChanged()" />
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">Format:</label>
-        <select class="form-control sm detail-ip" [(ngModel)]="entity._format">
+        <select class="form-control sm detail-ip" [(ngModel)]="entity._format" (ngModelChange)="onChanged()">
             <option value="">--no-format--</option>
             <option value="email">email</option>
             <option value="hostname">hostname</option>
@@ -71,8 +73,8 @@
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">Enum:</label>
-        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum"
-            placeholder="'' abcd', 1 1.5,etc"></textarea>
+        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum" (ngModelChange)="onChanged()"
+            [ngModelOptions]="{ updateOn: 'blur' }" placeholder="'' abcd', 1 1.5,etc"></textarea>
     </div>
 </div>
 
@@ -81,19 +83,20 @@
 <div *ngIf="type=='Array'">
     <div>
         <div class="checkbox padding">
-            <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems"> Allow only unique
+            <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems" (ngModelChange)="onChanged()">
+                Allow only unique
                 items?</label>
         </div>
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">minItems:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minItems" min="0"
-            placeholder=">=0" />
+            (ngModelChange)="onChanged()" placeholder=">=0" />
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">maxItems:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxItems" min="0"
-            placeholder=">=0" />
+            (ngModelChange)="onChanged()" placeholder=">=0" />
     </div>
 </div>
 
@@ -101,40 +104,43 @@
 <div *ngIf="type=='Integer'">
     <div class="form-group col-xs-12">
         <label class="model-label-x">minimum:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minimum" min="0" />
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minimum" min="0"
+            (ngModelChange)="onChanged()" />
         <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMinimum"> Exclude minimum ?</label>
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">maximum:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maximum" min="0" />
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maximum" min="0"
+            (ngModelChange)="onChanged()" />
         <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMaximum"> Exclude maximum ?</label>
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">multipleOf:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._multipleOf" min="0" />
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._multipleOf" min="0"
+            (ngModelChange)="onChanged()" />
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">Format:</label>
-        <select class="form-control sm detail-ip" [(ngModel)]="entity._format">
+        <select class="form-control sm detail-ip" [(ngModel)]="entity._format" (ngModelChange)="onChanged()">
             <option value="int32">int32</option>
             <option value="int64">int64</option>
         </select>
     </div>
     <div class="form-group col-xs-12">
         <label class="model-label-x">Enum:</label>
-        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum"
-            placeholder=" abcd, 1,1.5,etc"></textarea>
+        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum" (ngModelChange)="onChanged()"
+            [ngModelOptions]="{ updateOn: 'blur' }" placeholder=" abcd, 1,1.5,etc"></textarea>
     </div>
 </div>
 
 <div *ngIf="type=='Boolean'">
-    No validations for this type..
+    No additional validations for this type..
 </div>
 
 <div *ngIf="type=='Null'">
-    No validations for this type..
+    No additional validations for this type..
 </div>
 
 <div *ngIf="type=='refSchema'">
-    No validations for this type..
+    No additional validations for this type..
 </div>

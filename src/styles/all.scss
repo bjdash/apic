@@ -37,11 +37,6 @@ a:focus {
 .margL90 {
   margin-left: 90px;
 }
-.app-body {
-  width: 100%;
-  top: 10px;
-  bottom: 0px;
-}
 .container-fluid {
   margin-right: auto;
   margin-left: auto;
@@ -51,8 +46,12 @@ a:focus {
 .flex-right {
   margin-left: auto;
 }
+.docs .app-body {
+  overflow: auto;
+}
 .app-body {
   position: absolute;
+  width: 100%;
   background-color: var(--main-bg);
   right: 0;
   bottom: 0;
@@ -272,9 +271,7 @@ fieldset.paper2 {
   margin-bottom: 20px;
   border-radius: 10px;
 }
-.apic-collaps-cont {
-  cursor: pointer;
-}
+
 fieldset[disabled] textarea {
   cursor: not-allowed;
 }

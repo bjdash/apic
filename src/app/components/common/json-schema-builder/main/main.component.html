@@ -61,7 +61,7 @@
                 </button>
                 <mat-icon class="sm" *ngIf="entity._description" matTooltip="{{entity._description}}">description
                 </mat-icon>
-                <span *ngIf="!entity.root$$" class="vcenter gap">
+                <span *ngIf="!entity.root$$ && !entity._hideKey" class="vcenter gap">
                     <mat-checkbox [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)">Required
                     </mat-checkbox>
                     <!-- <input type="checkbox" [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)" />
@@ -92,14 +92,15 @@
                             <label class="control-label col-xs-2">Name:</label>
                             <div class="col-xs-9">
                                 <input type="text" class="form-control sm detail-ip" id="foldName"
-                                    [ngModelOptions]="{standalone: true}" placeholder="Field Name"
-                                    [(ngModel)]="entity._key" />
+                                    (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}"
+                                    placeholder="Field Name" [(ngModel)]="entity._key" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-xs-2">Desc: </label>
                             <div class="col-xs-9">
                                 <textarea class="form-control" [(ngModel)]="entity._description"
+                                    (ngModelChange)="refreshSchema($event)"
                                     [ngModelOptions]="{standalone: true}"></textarea>
                             </div>
                         </div>
@@ -107,7 +108,7 @@
                             <label class="control-label col-xs-2">Default:</label>
                             <div class="col-xs-9">
                                 <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._default"
-                                    [ngModelOptions]="{standalone: true}" />
+                                    (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}" />
                             </div>
                         </div>
                     </form>
@@ -120,14 +121,16 @@
                         <div>
                             <div class="checkbox padding">
                                 <label><input type="checkbox" class="small" [(ngModel)]="entity._required"
-                                        [ngModelOptions]="{standalone: true}" /> Required
+                                        (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}" />
+                                    Required
                                     ?</label>
                             </div>
                         </div>
                     </div>
                     <div *ngFor="let type of entity._type">
                         <div class="t_color">{{type}} Validations</div>
-                        <ng-jsonschema-field [type]="type" [entity]="entity" [addAdditionalProp]="addAdditionalProp">
+                        <ng-jsonschema-field [type]="type" [entity]="entity" (onChange)="refreshSchema($event)"
+                            [addAdditionalProp]="addAdditionalProp">
                         </ng-jsonschema-field>
                     </div>
                 </form>

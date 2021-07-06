@@ -397,6 +397,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
         this.models,
         undefined
       );
+      this.refreshSchema();
       this.emitSchemaChanged()
     }
   }

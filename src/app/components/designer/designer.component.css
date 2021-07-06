@@ -7,21 +7,27 @@
 .breadcrumb > li {
     display: inline-block;
 }
-.proj-brcmb.breadcrumb>li>a {
+.proj-brcmb.breadcrumb > li > a {
     color: var(--text-color);
     max-width: 300px;
     overflow: hidden;
     display: inline-block;
     text-overflow: ellipsis;
     vertical-align: bottom;
+    white-space: nowrap;
 }
 .breadcrumb > li + li:before {
     content: "/\00a0";
     padding: 0 5px;
     color: #cccccc;
 }
-.designer-cont{
-    overflow :auto;position :absolute;left :0;right :0;bottom :0;top :28px;
+.designer-cont {
+    overflow: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 28px;
 }
 .workspace {
     padding: 10px 20px;
@@ -29,6 +35,7 @@
 .workspace-title {
     font-family: apic-font;
     font-size: 26px;
+    white-space: nowrap;
 }
 .ic:after {
     content: "\e40a";
@@ -36,6 +43,6 @@
     font-family: apic-icon;
     bottom: 0px;
     right: 2px;
-    color: #BDBDBD;
+    color: #bdbdbd;
     font-size: 32px;
 }

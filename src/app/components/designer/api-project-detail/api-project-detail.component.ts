@@ -24,8 +24,6 @@ import apic from 'src/app/utils/apic';
     styleUrls: ['../designer.component.css', './api-project-detail.component.css']
 })
 export class ApiProjectDetailComponent implements OnInit, OnDestroy {
-    @ViewChild('traitsView') traitsView: ProjectTraitsComponent;
-
     private _destroy: Subject<boolean> = new Subject<boolean>();
     private updatedInBackground: 'update' | 'delete' = null;
 
