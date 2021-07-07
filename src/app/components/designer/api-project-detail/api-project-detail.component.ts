@@ -48,6 +48,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         private toaster: Toaster,
         private apiProjectService: ApiProjectService,
         private dialog: MatDialog) {
+        console.log('R: new Detail')
         this.route.params.subscribe(params => {
             this.selectedPROJ$ = this.apiProjectService.getApiProjectById(params.projectId);
 
@@ -70,6 +71,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
             this.selectedPROJ$
                 .pipe(takeUntil(this._destroy))
                 .subscribe(p => {
+                    //TODO: This subscription stays open even on navigating to different page
                     if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
                         if (this.updatedInBackground == 'update') {
                             //TODO: Stop children routes updating themselves before ok is clicked in parent
@@ -117,6 +119,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this._destroy.next();
         this._destroy.complete();
+        console.log('R:destroyed', this.selectedPROJ.title);
     }
     ngOnInit(): void { }
 

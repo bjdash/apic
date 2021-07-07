@@ -1,0 +1,13 @@
+<h2 mat-dialog-title class="modal-title">Share with team</h2>
+<mat-dialog-content>
+    <div class="margB10">Please select a team you want to share this {{this.data.type}} with.</div>
+    <mat-list>
+        <mat-list-item (click)="share(team)" matRipple *ngFor="let team of teams;" class="pointer"> {{team.name}}
+        </mat-list-item>
+    </mat-list>
+    <div *ngIf="flags.loading"><span class="spinner"></span> Loading...</div>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button type="button" class="sm" mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

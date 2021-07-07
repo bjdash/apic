@@ -311,12 +311,13 @@ fieldset legend {
   background: var(--accent-color);
   box-shadow: 2px 2px 4px var(--accent-shadow);
   color: var(--accent-bg-text);
-  margin: -5px 0 3px -15px;
+  margin: 0px 0 3px -15px;
   font-size: 15px;
   padding: 6px 15px;
   min-width: 130px;
   position: relative;
   display: inline-block;
+  top: -5px;
 }
 .panel-title:after {
   content: "";

@@ -181,4 +181,32 @@ export class HttpService {
                 return this.handleHttpError(error, { messagePrefix: 'Failed to change password.' });
             }))
     }
+
+    share(objId: string, teamId: string, type: 'APIProject') {
+        return this.http.post(ApicUrls.share, { objId, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to share ${type}.` });
+            }))
+    }
+
+    shareMulti(objIds: string[], teamId: string, type: 'APIProject') {
+        return this.http.post(ApicUrls.share, { objIds, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to share ${type}.` });
+            }))
+    }
+
+    unshare(objId: string, teamId: string, type: 'APIProject') {
+        return this.http.post(ApicUrls.unshare, { objId, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });
+            }))
+    }
+
+    unshareMulti(objIds: string[], teamId: string, type: 'APIProject') {
+        return this.http.post(ApicUrls.unshare, { objIds, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });
+            }))
+    }
 }

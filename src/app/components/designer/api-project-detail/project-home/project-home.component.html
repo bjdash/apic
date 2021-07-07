@@ -24,9 +24,16 @@
                 <span class="icon bj-wrench gap"></span>
                 Build Requests
             </button>
-            <button mat-stroked-button class="sm gap">
+            <button mat-stroked-button class="sm gap" *ngIf="selectedPROJ.owner === authUser.UID && !selectedPROJ.team"
+                (click)="share()">
                 <span class="icon bj-share-alt gap"></span>
                 Share
+            </button>
+            <button mat-stroked-button class="sm gap" *ngIf="selectedPROJ.team && selectedPROJ.owner === authUser.UID"
+                (click)="unshare(selectedPROJ.team,selectedPROJ._id, 'APIProject')"
+                confirm="Do you want to unshare this project?" confirm-title="Unshare Project" confirm-ok="Unshare"
+                confirm-cancel="Cancel">
+                <span class="icon bj-unshare red gap"></span> Unshare: {{teams[selectedPROJ.team]?.name}}
             </button>
             <button mat-stroked-button class="sm gap" [matMenuTriggerFor]="exportMenu">
                 <mat-icon class="sm">open_in_new</mat-icon>

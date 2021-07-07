@@ -28,7 +28,10 @@ const routes: Routes = [
   // },
   {
     path: 'designer',
-    component: DesignerComponent
+    component: DesignerComponent,
+    children: [
+
+    ]
   },
   {
     path: 'designer/:projectId',

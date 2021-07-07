@@ -14,6 +14,11 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Observable, Subject, Subscription, zip } from 'rxjs';
 import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { ApiProjectDetailService } from '../api-project-detail.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SharingComponent } from 'src/app/components/sharing/sharing.component';
+import { Team } from 'src/app/models/Team.model';
+import { SharingService } from 'src/app/services/sharing.service';
+import { Utils } from 'src/app/services/utils.service';
 
 @Component({
     selector: 'app-project-home',
@@ -23,6 +28,7 @@ import { ApiProjectDetailService } from '../api-project-detail.service';
 export class ProjectHomeComponent implements OnInit, OnDestroy {
     selectedPROJ: ApiProject;
     authUser: User;
+    teams: { [key: string]: Team } = {};
     private _destroy: Subject<boolean> = new Subject<boolean>();
     private projEnv$: Subscription;
     projEnv: Env = null; //auto generated env for this project
@@ -36,9 +42,10 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
 
     constructor(
         private toaster: Toaster,
-
+        private dialog: MatDialog,
         private store: Store,
         private router: Router,
+        private sharing: SharingService,
         private apiProjService: ApiProjectService,
         private apiProjectDetailService: ApiProjectDetailService,
         private envService: EnvService) {
@@ -70,7 +77,7 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
                 .pipe(takeUntil(this._destroy))
                 .subscribe(env => { this.projEnv = env; });
         }
-
+        this.teams = Utils.arrayToObj(this.sharing.teams, 'id');
         // this.selectedPROJEndps = getEndpoints(this.selectedPROJ);
         // vm.responses = DesignerServ.getTraitNamedResponses(this.selectedPROJ);
         // //set security definitions
@@ -126,5 +133,12 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
 
     tabContentModified(status, tab) {
         this.flags[tab] = status?.dirty;
+    }
+
+    share() {
+        this.dialog.open(SharingComponent, { data: { objId: this.selectedPROJ._id, type: 'APIProject' } });
+    }
+    unshare(teamId, objId, type) {
+
     }
 }
