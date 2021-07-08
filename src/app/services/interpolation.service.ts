@@ -124,7 +124,6 @@ export class InterpolationService {
     });
     if (!originalStr.startsWith(this.delimiterStart())) str = '\'' + str;
     if (!originalStr.endsWith(this.delimiterEnd())) str = str + '\'';
-    console.log(str)
     return str;
   }
 }

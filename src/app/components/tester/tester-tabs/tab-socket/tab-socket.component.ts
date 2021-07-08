@@ -142,7 +142,6 @@ export class TabSocketComponent implements OnInit, OnDestroy {
 
   processSelectedReq(req: ApiRequest) {
     this.selectedReq = req;
-    console.log('open', req);
     const { method, name, url, message } = req;
 
     this.method = method as Method;
@@ -294,7 +293,6 @@ export class TabSocketComponent implements OnInit, OnDestroy {
   }
 
   onConnect() {
-    console.log('connected');
     this.flags.connecting = false;
     this.flags.connected = true;
     this.messages = [{

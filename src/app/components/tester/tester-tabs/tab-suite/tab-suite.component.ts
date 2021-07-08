@@ -190,7 +190,7 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       this.flags.editSuitName = false;
       this.toaster.success('Suite updated.');
     } catch (e) {
-      console.log('Failed to update suite', e);
+      console.error('Failed to update suite', e);
       this.toaster.error(`Failed to update suite: ${e.message}`)
     }
   }
@@ -269,7 +269,6 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     }
 
     this.flags.running = false;
-    console.log(this.run)
   }
 
   processResponse(result: RunResult, reqIndex: number) {
@@ -415,7 +414,6 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
 
   onSuitReqSave(req: ApiRequest) {
     let reqToSave: SuiteReq = { ...this.selectedReq.req, ...req };
-    console.log(reqToSave)
 
     if (this.flags.editReqType === 'harReq') {
       this.har.requests[this.selectedReq.index] = reqToSave;
@@ -470,9 +468,8 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       var harData = JSON.parse(this.har.file);
       var entries = harData.log.entries;
       this.processHarEntries(entries);
-      console.log(this.har.requests);
     } catch (e) {
-      console.log("HAR import failed.", e);
+      console.error("HAR import failed.", e);
       this.toaster.error(
         "Import Failed. Please make sure you are importing a valid HAR file. " +
         e.message
@@ -487,7 +484,7 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       try {
         apicReq = { ...Utils.harToApicReq(entry), disabled: false };
       } catch (e) {
-        console.log('Failed to parse HAR request', e);
+        console.error('Failed to parse HAR request', e);
         this.toaster.error('Failed to parse one HAR request. ' + e.message);
       }
       if (apicReq) {
@@ -519,7 +516,7 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       this.flags.wauLoading = true;
       this.wau = await this.suiteService.loadWau(this.selectedSuite._id)
     } catch (e) {
-      console.log(e);
+      console.error('Failed to load web access url.', e);
       this.toaster.error(`Failed to load web access url. ${e.error?.desc || ''}`);
     }
     this.flags.wauLoading = false;

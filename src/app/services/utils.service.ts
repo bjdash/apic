@@ -331,7 +331,7 @@ export class Utils {
                     data: JsonUtils.easyJsonSchema(jsonResp)
                 })
             } catch (e) {
-                console.log('response is not in json', harResp.content.text);
+                console.error('response is not in json', harResp.content.text);
                 req.respCodes.push({
                     code: '200',
                     data: { type: 'object' }

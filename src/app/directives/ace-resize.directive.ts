@@ -28,19 +28,15 @@ export class AceResizeDirective implements OnInit, AfterViewInit {
       var moveListener = this.renderer.listen(document, 'mousemove', (e) => {
         var actualY = e.pageY;
         var diff = actualY - this.Y;
-        console.log('cahnged', diff);
         this.el.nativeElement.style.height = (this.originalHeight + diff) + 'px';
       })
 
       var upListener = this.renderer.listen(document, 'mouseup', (e) => {
-        console.log('cancelling');
         this.el.nativeElement.style.opacity = 1;
         moveListener(); //cancel the listener
         upListener();
       })
     })
-
-    console.log(this.el.nativeElement);
 
     this.renderer.appendChild(this.el.nativeElement.parentNode, handler);
   }

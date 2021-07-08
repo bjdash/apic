@@ -356,7 +356,6 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
         }
       },
       onDone: (reqId) => {
-        console.log(suite, reqId)
         this.store.select(RequestsStateSelector.getRequestByIdDynamic(reqId))
           .pipe(take(1))
           .subscribe(async (request) => {

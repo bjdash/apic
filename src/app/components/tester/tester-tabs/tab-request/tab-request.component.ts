@@ -338,7 +338,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       this.applyRunStatus(true);
       const req: ApiRequest = this.getReqFromForm();
       let result: RunResult = await this.runner.run(req);
-      console.log(result);
       this.runResponse = { ...result.$response };
       this.runRequest = result.$request;
       this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
@@ -390,7 +389,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     while (this.flags.runCountCopy > 0 && this.flags.loopRunning) {
       try {
         let result: RunResult = await this.runner.run(req);
-        console.log(result);
         this.loopRunResult.push({ ...result.$response });
         this.flags.runCountCopy--;
       } catch (e) {

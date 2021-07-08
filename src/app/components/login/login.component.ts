@@ -134,7 +134,6 @@ export class LoginComponent implements OnInit {
     //TODO: login with chrome extn and electron app
     try {
       let user: SocialUser = await this.googleAuth.signIn();
-      console.log(user);
       this.setMesssage('info', `Hi ${user.name}. Please wait a moment. We are logging you in...`);
       this.authService.googleLogin(user)
         .pipe(first())

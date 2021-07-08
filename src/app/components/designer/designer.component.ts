@@ -19,10 +19,8 @@ export class DesignerComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
 
   constructor(private apiProjectService: ApiProjectService, private toaster: Toaster, private dialog: MatDialog) {
-    console.log('R: ceating designer')
   }
   ngOnDestroy(): void {
-    console.log('R: destroying designer')
   }
 
   ngOnInit(): void {
