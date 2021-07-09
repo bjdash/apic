@@ -7,7 +7,7 @@ import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { first, map, take, takeUntil } from 'rxjs/operators';
 import { UserState } from 'src/app/state/user.state';
 import { User } from 'src/app/models/User.model';
 import { MatTabChangeEvent } from '@angular/material/tabs';
@@ -37,7 +37,8 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
         loadSecDefTab: false,
         secDefChanged: false,
         settingsChanged: false,
-        infoChanged: false
+        infoChanged: false,
+        unshare: false
     }
 
     constructor(
@@ -138,7 +139,15 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
     share() {
         this.dialog.open(SharingComponent, { data: { objId: this.selectedPROJ._id, type: 'APIProject' } });
     }
-    unshare(teamId, objId, type) {
 
+    unshare() {
+        this.flags.unshare = true;
+        this.sharing.unshare(this.selectedPROJ._id, this.selectedPROJ.team, 'APIProject').pipe(first())
+            .subscribe(teams => {
+                this.flags.unshare = false;
+                this.toaster.success(`Project un-shared with team.`);
+            }, () => {
+                this.flags.unshare = false;
+            })
     }
 }

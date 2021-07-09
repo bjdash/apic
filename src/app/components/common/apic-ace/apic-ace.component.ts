@@ -71,6 +71,7 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
       //cancel the listeners
       moveListener();
       upListener();
+      this.refresh()
     })
   }
 

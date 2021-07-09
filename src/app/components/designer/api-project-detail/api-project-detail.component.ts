@@ -17,6 +17,7 @@ import { User } from '../../../models/User.model';
 import { ApiProjectDetailService } from './api-project-detail.service';
 import apic from 'src/app/utils/apic';
 import { DetachedRouteHandlerService } from 'src/app/detached-route-handler.service';
+import { SharingService } from 'src/app/services/sharing.service';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -47,6 +48,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         private confirmService: ConfirmService,
         private apiProjectDetailService: ApiProjectDetailService,
         private toaster: Toaster,
+        private sharingService: SharingService,
         private apiProjectService: ApiProjectService,
         private dialog: MatDialog) {
         this.route.params.subscribe(params => {
@@ -83,7 +85,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                 .pipe(takeUntil(this._destroy))
                 .subscribe(p => {
                     if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
-                        if (this.updatedInBackground == 'update') {
+                        if (this.updatedInBackground == 'update' && !sharingService.isLastShared(this.selectedPROJ?._id, 'APIProject')) {
                             //TODO: Stop children routes updating themselves before ok is clicked in parent
                             this.confirmService.alert({
                                 id: 'Sync:Project Updated',

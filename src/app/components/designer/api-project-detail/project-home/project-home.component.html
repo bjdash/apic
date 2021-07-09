@@ -30,10 +30,10 @@
                 Share
             </button>
             <button mat-stroked-button class="sm gap" *ngIf="selectedPROJ.team && selectedPROJ.owner === authUser.UID"
-                (click)="unshare(selectedPROJ.team,selectedPROJ._id, 'APIProject')"
-                confirm="Do you want to unshare this project?" confirm-title="Unshare Project" confirm-ok="Unshare"
-                confirm-cancel="Cancel">
+                (confirm-click)="unshare()" confirm="Do you want to unshare this project?"
+                confirmTitle="Unshare Project" confirmOk="Unshare">
                 <span class="icon bj-unshare red gap"></span> Unshare: {{teams[selectedPROJ.team]?.name}}
+                <span class="spinner" *ngIf="flags.unshare"></span>
             </button>
             <button mat-stroked-button class="sm gap" [matMenuTriggerFor]="exportMenu">
                 <mat-icon class="sm">open_in_new</mat-icon>

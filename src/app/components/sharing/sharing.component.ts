@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 import { Team } from 'src/app/models/Team.model';
 import { HttpService } from 'src/app/services/http.service';
-import { SharingService } from 'src/app/services/sharing.service';
+import { ShareType, SharingService } from 'src/app/services/sharing.service';
 import { Toaster } from 'src/app/services/toaster.service';
 
 @Component({
@@ -22,7 +22,7 @@ export class SharingComponent implements OnInit {
     private sharing: SharingService,
     private toaster: Toaster,
     private dialogRef: MatDialogRef<SharingComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { objId: string, type: 'APIProject' }
+    @Inject(MAT_DIALOG_DATA) public data: { objId: string, type: ShareType }
   ) { }
 
   ngOnInit(): void {
@@ -47,6 +47,7 @@ export class SharingComponent implements OnInit {
         this.flags.sharing = false;
         this.dialogRef.close();
         this.toaster.success(`${this.data.type} shared with team ${team.name}`);
+        console.log('shared')
       }, () => {
         this.flags.sharing = false;
       })

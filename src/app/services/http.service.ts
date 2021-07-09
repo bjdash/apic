@@ -7,6 +7,7 @@ import { catchError, map } from 'rxjs/operators';
 import { Team, TeamPartial } from '../models/Team.model';
 import { PublishedDocs, PublishedDocsPartial } from '../models/PublishedDoc.model';
 import apic from '../utils/apic';
+import { ShareType } from './sharing.service';
 
 export interface ErrorhandlerOption {
     messagePrefix?: string,
@@ -182,28 +183,28 @@ export class HttpService {
             }))
     }
 
-    share(objId: string, teamId: string, type: 'APIProject') {
+    share(objId: string, teamId: string, type: ShareType) {
         return this.http.post(ApicUrls.share, { objId, teamId, type })
             .pipe(map(this.processResponseSuccess), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: `Failed to share ${type}.` });
             }))
     }
 
-    shareMulti(objIds: string[], teamId: string, type: 'APIProject') {
+    shareMulti(objIds: string[], teamId: string, type: ShareType) {
         return this.http.post(ApicUrls.share, { objIds, teamId, type })
             .pipe(map(this.processResponseSuccess), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: `Failed to share ${type}.` });
             }))
     }
 
-    unshare(objId: string, teamId: string, type: 'APIProject') {
+    unshare(objId: string, teamId: string, type: ShareType) {
         return this.http.post(ApicUrls.unshare, { objId, teamId, type })
             .pipe(map(this.processResponseSuccess), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });
             }))
     }
 
-    unshareMulti(objIds: string[], teamId: string, type: 'APIProject') {
+    unshareMulti(objIds: string[], teamId: string, type: ShareType) {
         return this.http.post(ApicUrls.unshare, { objIds, teamId, type })
             .pipe(map(this.processResponseSuccess), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });

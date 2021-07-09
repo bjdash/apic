@@ -2,3 +2,7 @@
     min-height: calc(100vh - 235px);
     width: 100%;
 }
+:host ::ng-deep #export-ace .apic-ace {
+    max-height: calc(65vh - 20px);
+    height: calc(100vh - 300px);
+}
