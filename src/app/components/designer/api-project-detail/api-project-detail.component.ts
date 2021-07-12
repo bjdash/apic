@@ -64,7 +64,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                 }))
                 .pipe(takeUntil(this._destroy))
                 .subscribe((notification) => {
-                    if (this.selectedPROJ && notification?.ids.includes(this.selectedPROJ._id)) {
+                    if (this.selectedPROJ && notification?.ids.includes(this.selectedPROJ._id) && !notification?.forceUpdate) {
                         this.updatedInBackground = notification.type;
                     }
                 });
@@ -97,6 +97,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                                 this.updatedInBackground = null;
                             }).catch(() => { })
                         } else {
+                            this.updatedInBackground = null;
                             this.selectedPROJ = p;
                         }
                     }
@@ -243,8 +244,8 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         return a.value.folder.name.localeCompare(b.value);
     }
 
-    run(id: string) {
-        //TODO: 
+    run(endpId: string) {
+        this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
     }
 
     async updateApiProject(proj?: ApiProject): Promise<ApiProject> {

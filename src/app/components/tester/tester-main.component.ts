@@ -12,8 +12,6 @@ export class TesterMainComponent implements OnInit {
   constructor(private tabsService: TesterTabsService) { }
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.tabsService.addTab({ action: 'add', id: 'new_tab:' + apic.s8(), name: 'New tab', type: 'ws' })
-    }, 0);
+    this.tabsService.addTab({ action: 'add', id: 'new_tab:' + apic.s8(), name: 'New tab', type: 'req' })
   }
 }

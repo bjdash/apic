@@ -87,7 +87,8 @@
                 </mat-tab>
                 <mat-tab label="Responses">
                     <div class="pad10">
-                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="responses">
+                        <response-schema-builder [onChange]="setDirty.bind(this)" [models]="selectedPROJ.models"
+                            formControlName="responses">
                         </response-schema-builder>
                     </div>
                 </mat-tab>

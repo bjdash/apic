@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { Team } from '../models/Team.model';
 import { HttpService } from './http.service';
@@ -8,7 +9,7 @@ export type ShareType = 'APIProject' | 'Suites'
   providedIn: 'root'
 })
 export class SharingService {
-  teams: Team[] = [];
+  teams$ = new BehaviorSubject<Team[]>([]);
   lastShared: { objId: string, type: ShareType } = null
   constructor(private http: HttpService) {
     this.getTeams();
@@ -17,7 +18,7 @@ export class SharingService {
   getTeams() {
     this.http.getTeams().pipe(first())
       .subscribe(teams => {
-        this.teams = teams;
+        this.teams$.next(teams);
       }, (e) => {
         console.error('Failed to load teams.', e)
       })

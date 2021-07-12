@@ -16,10 +16,11 @@
             </span>
         </div>
     </div>
-
     <div class="col-xs" [formGroup]="selectedRespForm">
         <div *ngIf="selectedResp.fromTrait">This
-            response is imported from the trait <a href="">{{selectedResp.traitName}}</a> and can't be edited
+            response is imported from the trait <a class="t_color"
+                [routerLink]="['../../', 'traits', selectedResp.traitId]">{{selectedResp.traitName}}</a> and can't be
+            edited
             here.
             <a href="">Move to traits module</a> to edit it.
             <!--TODO: open trait on click of above link-->

@@ -49,7 +49,7 @@ export interface ApiEndp {
     queryParams?: any,
     headers?: any,
     body?: {
-        type: string,
+        type: 'raw' | 'form-data' | 'x-www-form-urlencoded' | 'graphql',
         data: any
     },
     responses?: any[],

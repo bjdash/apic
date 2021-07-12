@@ -1,4 +1,5 @@
 export interface SyncModifiedNotification {
     type: 'update' | 'delete'
-    ids: string[]
+    ids: string[],
+    forceUpdate?: boolean
 }

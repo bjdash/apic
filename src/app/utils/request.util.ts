@@ -1,10 +1,14 @@
+import { ApiEndp, ApiProject } from "../models/ApiProject.model";
 import { CompiledApiRequest } from "../models/CompiledRequest.model";
 import { ApiRequest, SavedResp } from "../models/Request.model";
 import { RunResponse } from "../models/RunResponse.model";
 import { Utils } from "../services/utils.service";
 import apic from "./apic";
+import { ApiProjectUtils } from "./ApiProject.utils";
 import { METHOD_WITH_BODY } from "./constants";
+import { SchemaDref } from "./SchemaDref";
 
+declare let jsf: any
 export class RequestUtils {
     static checkForHTTP(url: string) {
         if (url.toLowerCase().indexOf('http') !== 0) {
@@ -129,5 +133,142 @@ export class RequestUtils {
             statusText: response.statusText,
             time: response.timeTaken
         }
+    }
+
+    static endpointToApiRequest(endp: ApiEndp, project: ApiProject): ApiRequest {
+        if (endp.traits) {
+            for (var i = 0; i < endp.traits.length; i++) {
+                endp = ApiProjectUtils.importTraitData(endp.traits[i]._id, { ...endp }, project);
+            }
+        }
+        let modelRefs = ApiProjectUtils.getModeldefinitions(project);
+
+        var request: ApiRequest = {
+            url: endp.path,
+            method: endp.method.toUpperCase(),
+            _id: 'new_tab' + endp._id,
+            description: endp.description,
+            name: endp.summary,
+            postscript: endp.postrun ? endp.postrun : '',
+            prescript: endp.prerun ? endp.prerun : '',
+            respCodes: [],
+            Req: {
+                headers: [],
+                url_params: []
+            },
+            Body: {}
+        };
+
+        //select an environment if we have settings(host, basePath) saved for the project
+        if (project.setting) {
+            var url = '{{scheme}}{{host}}';
+            var basePath = '';
+
+            if (project.setting.basePath) {
+                basePath = '{{basePath}}';
+                if (project.setting.basePath.indexOf('/') !== 0) {
+                    basePath = '/' + basePath;
+                }
+            }
+            var endpUrl = endp.path;
+            var params = [], rxp = /{([^}]+)}/g, curMatch;
+
+            while (curMatch = rxp.exec(endpUrl)) {
+                var match = curMatch[1];
+                endpUrl = endpUrl.replace('{' + match + '}', '{{' + match + '}}');
+            }
+            request.url = url + basePath + endpUrl;
+        } else {
+            request.url = 'http://{{host}}' + endp.path;
+        }
+
+        //copy response codes and their respective schema
+        if (endp.responses && endp.responses.length > 0) {
+            for (var j = 0; j < endp.responses.length; j++) {
+                var tmpSchema: any = { ...endp.responses[j].data };
+                tmpSchema.definitions = modelRefs;
+                //TODO:  tmpSchema.responses = {...responsesRefs};
+                try {
+                    request.respCodes.push({
+                        code: endp.responses[j].code,
+                        data: SchemaDref.parse(Utils.clone(tmpSchema))
+                    });
+                } catch (e) {
+                    console.log('Circular JSON schema reference encountered.')
+                }
+            }
+        }
+        //copy headers
+        var headers = endp.headers;
+        if (headers?.properties) {
+            Utils.objectEntries(headers.properties).forEach(([key, val]) => {
+                var h = { key: key, val: val.default ? val.default : '' };
+                request.Req.headers.push(h);
+            })
+        } else {
+            request.Req.headers.push({ key: '', val: '' });
+        }
+        //copy query params
+        var queryParams = endp.queryParams
+        if (queryParams?.properties) {
+            Utils.objectEntries(queryParams.properties).forEach(([key, val]) => {
+                request.Req.url_params.push({ key: key, val: val.default ? val.default : '' });
+            });
+        } else {
+            request.Req.url_params.push({ key: '', val: '' });
+        }
+
+        //add auth details based on selected seccurity values
+        if (endp.security?.length > 0 && project.securityDefinitions) {
+            endp.security.forEach((selectedSec) => {
+                var security = project.securityDefinitions.find(function (s) {
+                    return s.name === selectedSec.name;
+                })
+                switch (security.type) {
+                    case 'apiKey':
+                        //TODO: check for in header/query
+                        request.Req[security.apiKey.in === 'header' ? 'headers' : 'url_params'].unshift({ key: security.apiKey.name, val: '{{apiKey}}' });
+                        break;
+                    case 'basic':
+                        request.Req.headers.unshift({ key: 'Authorization', val: '{{apic.basicAuth(basicAuthUser, basicAuthPassword)}}' });
+                        break;
+                }
+            })
+        }
+
+        //prepare body
+        if (endp.body) {
+            request.Body.type = endp.body.type;
+            switch (request.Body.type) {
+                case 'raw':
+                    request.Body.selectedRaw = { name: 'JSON', val: 'application/json' };
+                    var schema = { ...endp.body.data };
+                    if (schema) {
+                        schema.definitions = modelRefs;
+                        var sampleData = {};
+                        try {
+                            sampleData = jsf(schema);
+                        } catch (e) {
+                            console.log('Failed to generate sample data', e);
+                        }
+                        request.Body.rawData = JSON.stringify(sampleData, null, '\t');
+                    }
+                    break;
+                case 'form-data':
+                    request.Body.formData = [];
+                    for (var x = 0; x < endp.body.data.length; x++) {
+                        request.Body.formData.push({ key: endp.body.data[x].key, val: '' });
+                    }
+                    break;
+                case 'x-www-form-urlencoded':
+                    request.Body.xForms = [];
+                    for (var x = 0; x < endp.body.data.length; x++) {
+                        request.Body.xForms.push({ key: endp.body.data[x].key, val: '' });
+                    }
+                    break;
+            }
+        }
+
+        return request
     }
 }

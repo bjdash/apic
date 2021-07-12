@@ -11,6 +11,7 @@ import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { ApiProjectDetailService } from '../api-project-detail.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
+import { ApiProjectUtils } from 'src/app/utils/ApiProject.utils';
 
 @Component({
   selector: 'app-project-endpoint',
@@ -93,15 +94,22 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
         this.selectedEndp = NewApiEndp;
       }
     }
-    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, body, responses, postrun, prerun } = this.selectedEndp;
-    if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
 
     this.flags.traitQP = [];
     this.flags.traitHP = [];
-    if (traits?.length > 0) {
-      traits.forEach((t: ApiTrait) => this.importTraitData(t._id, t.name))
+    let processedEndp = { ...this.selectedEndp }
+    if (this.selectedEndp.traits?.length > 0) {
+      this.selectedEndp.traits.forEach((t: ApiTrait) => {
+        processedEndp = ApiProjectUtils.importTraitData(t._id, this.selectedEndp, this.selectedPROJ);
+        this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(t._id, this.selectedPROJ)]
+        this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(t._id, this.selectedPROJ)]
+      })
     }
+
+    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
+    if (!folder) folder = '';
+    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
+
     this.addDefaultResponse();
     this.endpForm.markAsPristine();
     this.endpForm.markAsUntouched();
@@ -119,7 +127,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
 
     //remove the trait data added before we save it
     endp.traits?.forEach(t => {
-      endp = this.removeTraitData(t._id, endp);
+      endp = ApiProjectUtils.removeTraitData(t._id, endp, this.selectedPROJ);
     });
 
     var projToUpdate: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
@@ -183,107 +191,17 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
 
   }
 
-  importTraitData(traitId, name) {
-    if (!traitId) return;
-    var trait: ApiTrait = this.selectedPROJ.traits[traitId];
-    if (!trait) return;
-    //add responses from trait
-    let responses = [...this.endpForm.value.responses];
-    trait.responses?.forEach(resp => {
-      if (!resp.noneStatus) {
-        let existing = responses.findIndex(r => r.code == resp.code);
-        if (existing >= 0) {
-          responses[existing] = { ...resp, fromTrait: true, traitId, traitName: name }
-        } else {
-          responses.push({ ...resp, fromTrait: true, traitId, traitName: name })
-        }
-      }
-    })
-    this.endpForm.patchValue({ responses });
-
-    //add path params from trait
-    let currentPathParams = this.endpForm.value.pathParams;
-    this.endpForm.patchValue({
-      pathParams: {
-        ...currentPathParams,
-        properties: {
-          ...currentPathParams.properties,
-          ...trait.pathParams.properties
-        },
-        required: [...(currentPathParams.required || []), ...(trait.pathParams.required || [])]
-      }
-    });
-
-    // //add query params from trait
-    let currentQueryParams = this.endpForm.value.queryParams;
-    this.flags.traitQP = [...this.flags.traitQP, ...Utils.objectKeys(trait.queryParams.properties)]
-    this.endpForm.patchValue({
-      queryParams: {
-        ...currentQueryParams,
-        properties: {
-          ...currentQueryParams.properties,
-          ...trait.queryParams.properties
-        },
-        required: [...(currentQueryParams.required || []), ...(trait.queryParams.required || [])]
-      }
-    });
-
-    // //add headers from trait
-    let currentHeaders = this.endpForm.value.headers;
-    this.flags.traitHP = [...this.flags.traitHP, ...Utils.objectKeys(trait.headers.properties)]
-    this.endpForm.patchValue({
-      headers: {
-        ...currentHeaders,
-        properties: {
-          ...currentHeaders.properties,
-          ...trait.headers.properties
-        },
-        required: [...(currentHeaders.required || []), ...(trait.headers.required || [])]
-      }
-    });
-  }
-
-  removeTraitData(traitId: string, endpoint: ApiEndp) {
-    if (!traitId) return;
-    // if (!endpoint) {
-    //   //if endpoint is provided then remove from that otherwise remove from selected endpoint
-    //   endpoint = { ...this.endpForm.value };
-    // }
-
-    // remove responses from endpoint belonging to this trait
-    let responses = endpoint.responses.filter(resp => resp.traitId !== traitId);
-
-    var trait: ApiTrait = this.selectedPROJ.traits[traitId];
-
-    //remove path params
-    let pathParams = { ...endpoint.pathParams }
-    let traitPathParams = Utils.objectKeys(trait.pathParams?.properties);
-    traitPathParams.forEach(p => {
-      delete pathParams.properties[p];
-      pathParams.required = pathParams.required?.filter(r => r != p) || []
-    })
-
-    //remove headers
-    let headers = { ...endpoint.headers }
-    let traitHeaders = Utils.objectKeys(trait.headers?.properties);
-    traitHeaders.forEach(p => {
-      delete headers.properties[p];
-      headers.required = headers.required?.filter(r => r != p) || []
-    })
-
-    //remove query params
-    let queryParams = { ...endpoint.queryParams }
-    let traitqueryParams = Utils.objectKeys(trait.queryParams?.properties);
-    traitqueryParams.forEach(p => {
-      delete queryParams.properties[p];
-      queryParams.required = queryParams.required?.filter(r => r != p) || []
-    })
-
-    return { ...endpoint, responses, pathParams, headers, queryParams };
+  importTraitData(traitId) {
+    let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8() };
+    endp = ApiProjectUtils.importTraitData(traitId, endp, this.selectedPROJ);
+    let { pathParams, queryParams, headers, responses } = endp;
+    this.endpForm.patchValue({ pathParams, queryParams, headers, responses })
+    this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(traitId, this.selectedPROJ)]
+    this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(traitId, this.selectedPROJ)]
   }
 
   onTraitRemove(traitId: string) {
-    let { responses, pathParams, headers, queryParams } = this.removeTraitData(traitId, this.endpForm.value);
+    let { responses, pathParams, headers, queryParams } = ApiProjectUtils.removeTraitData(traitId, this.endpForm.value, this.selectedPROJ);
     this.endpForm.patchValue({ responses, pathParams, headers, queryParams });
   }
 
@@ -427,8 +345,8 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     })
   }
 
-  run(id: string) {
-    //TODO: 
+  run(endpId: string) {
+    this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
   }
 
   ngOnDestroy(): void {

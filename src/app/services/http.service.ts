@@ -8,6 +8,7 @@ import { Team, TeamPartial } from '../models/Team.model';
 import { PublishedDocs, PublishedDocsPartial } from '../models/PublishedDoc.model';
 import apic from '../utils/apic';
 import { ShareType } from './sharing.service';
+import { ApiProject } from '../models/ApiProject.model';
 
 export interface ErrorhandlerOption {
     messagePrefix?: string,
@@ -208,6 +209,19 @@ export class HttpService {
         return this.http.post(ApicUrls.unshare, { objIds, teamId, type })
             .pipe(map(this.processResponseSuccess), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });
+            }))
+    }
+
+    enableMock(projId: string): Observable<ApiProject> {
+        return this.http.get(ApicUrls.enableMock + projId)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Couldn\'t start mocked response for the project. Please try again later.` });
+            }))
+    }
+    disableMock(projId: string): Observable<ApiProject> {
+        return this.http.get(ApicUrls.disableMock + projId)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Couldn\'t disable mocked response for the project. Please try again later.` });
             }))
     }
 }

@@ -10,10 +10,6 @@ input[type="checkbox"].small:checked:before {
   width: 6px;
   height: 8px;
 }
-.vcenter {
-  display: flex;
-  align-items: center;
-}
 fieldset[disabled] button {
   cursor: not-allowed;
 }

@@ -35,7 +35,6 @@
     "rxjs": "~6.5.4",
     "socket.io-client": "^2.4.0",
     "sockjs-client": "^1.5.0",
-    "swagger-parser": "^10.0.2",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"
   },

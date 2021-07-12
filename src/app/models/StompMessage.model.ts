@@ -9,7 +9,7 @@ export interface StompMessage {
     opId?: string,
     command?: string,
     own?: boolean,//TODO: remove own, use force = true for fetch/read, force=false, update, delete
-    force?: boolean,
+    force?: boolean, //same user performing this action will not be shown background update message
     intrim?: boolean,
     since?: number,
     type?: string

@@ -97,9 +97,9 @@
                     Traits:
                 </label>
                 <div class="col-sm-8">
-                    <apic-tag-editor (onAdd)="importTraitData($event._id, $event.name)"
-                        (onRemove)="onTraitRemove($event._id)" formControlName="traits"
-                        [suggestions]="selectedPROJ.traits" key="_id" dispValue="name" type="strict">
+                    <apic-tag-editor (onAdd)="importTraitData($event._id)" (onRemove)="onTraitRemove($event._id)"
+                        formControlName="traits" [suggestions]="selectedPROJ.traits" key="_id" dispValue="name"
+                        type="strict">
                     </apic-tag-editor>
                 </div>
             </div>

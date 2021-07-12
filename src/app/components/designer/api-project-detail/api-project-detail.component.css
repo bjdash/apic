@@ -102,3 +102,53 @@ h4.head {
 .endp_more.open {
     margin-bottom: -35px;
 }
+.simKey {
+    font-size: 20px;
+    border: 1px dashed var(--border-color);
+    padding: 3px 10px;
+    text-align: center;
+}
+/***********Mocked container *******/
+.mockCont > .endp {
+    padding: 7px 10px 6px 0;
+}
+.mockCont > .endp .endpUrl {
+    font-weight: bold;
+}
+.endp .host {
+    font-weight: normal;
+    display: none;
+}
+.endp:hover .host {
+    display: inline;
+}
+.endp .host-sh {
+    font-weight: normal;
+    display: inline;
+}
+.endp:hover .host-sh {
+    display: none;
+}
+.mockCont > .endp:hover {
+    background: var(--main-bg);
+}
+.mockCont .summary {
+    font-weight: bold;
+}
+.mockCont .method {
+    display: inline-block;
+    width: 40px;
+    margin-right: 10px;
+    margin-top: 0;
+}
+.endp .mockCtrls {
+    margin-top: -5px;
+    font-size: 20px;
+}
+.endp .mockCtrls-hidden {
+    display: none;
+}
+.endp:hover .mockCtrls-hidden {
+    display: inline;
+}
+/***********Mocked container end*******/
