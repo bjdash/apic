@@ -19,7 +19,7 @@
                     <!-- : -->
                 </span>
                 <button type="button" mat-button class="model-selector" (click)="openMenu(entity,$event)">
-                    <span *ngFor="let t of entity._type">
+                    <span *ngFor="let t of entity._type;let last=last">
                         <span [ngClass]="t">{{t}}</span>
                         <span *ngIf="t==='Array' && entity._items[0]" [ngClass]="entity._items[0]._type[0]"
                             class="unspecified">[{{entity._items[0]._type[0]}}
@@ -30,11 +30,12 @@
                         <span *ngIf="t==='Array' && !entity._items[0]" ngClass="Unspecified"
                             class="unspecified">[Unspecified]
                         </span>
-                        <!-- <span *ngIf="t==='$ref'" class="faint">(#/definitions/)</span> -->
-                        <span *ngIf="t==='$ref' && models" class="faint">(#/definitions/{{models[entity._value] &&
-                            models[entity._value].nameSpace}})</span>
-                        <!-- <span *ngIf="!$last" class="faint"> or </span> -->
+                        <span
+                            *ngIf="t==='$ref' && models && models[entity._value]">(#/definitions/{{models[entity._value]?.nameSpace}})</span>
+                        <span *ngIf="t==='$ref' && (!models || !models[entity._value])"
+                            class="faint">(#/definitions/{{entity._value}})</span>
                         <mat-icon style="vertical-align: top;height:10px;">arrow_drop_down</mat-icon>
+                        <span *ngIf="!last" class="faint"> or </span>
                     </span>
                     <span class="caret"></span>
                 </button>
@@ -50,7 +51,8 @@
             </span>
             <span *ngIf="(mode == 'list' || mode == 'static') && entity.root$$">{{msg}}</span>
             <span class="vcenter js-right-cont">
-                <button type="button" mat-icon-button title="Expand $ref" class="sm" (click)="expand$ref(entity)"
+                <a href="" type="button" mat-icon-button title="Expand $ref" class="sm"
+                    (click)="$event.preventDefault();expand$ref(entity)"
                     *ngIf="entity._type.indexOf('$ref')>=0 || (entity._items && entity._items[0] && entity._items[0]._type.indexOf('$ref'))>=0">
                     <!--TODO: Use Optional chaining operator (?)-->
                     <mat-icon
@@ -58,7 +60,7 @@
                         expand</mat-icon>
                     <mat-icon *ngIf="entity._refExp || (entity._items && entity._items[0] && entity._items[0]._refExp)">
                         compress</mat-icon>
-                </button>
+                </a>
                 <mat-icon class="sm" *ngIf="entity._description" matTooltip="{{entity._description}}">description
                 </mat-icon>
                 <span *ngIf="!entity.root$$ && !entity._hideKey" class="vcenter gap">

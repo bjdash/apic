@@ -186,8 +186,8 @@
                                 (click)="resetBodyType('x-www-form-urlencoded')">x-www-form-urlencoded
                             </mat-radio-button>
                         </mat-radio-group>
-                        <ng-jsonschema *ngIf="endpForm.value.body?.type=='raw'" (onSchemaChange)="setDirty()"
-                            name="data" formControlName="data"></ng-jsonschema>
+                        <ng-jsonschema [models]="selectedPROJ.models" *ngIf="endpForm.value.body?.type=='raw'"
+                            (onSchemaChange)="setDirty()" name="data" formControlName="data"></ng-jsonschema>
                         <div *ngIf="endpForm.value.body?.type=='form-data'">
                             <app-endp-body-params formControlName="data" [options]="['string', 'file']">
                             </app-endp-body-params>
@@ -200,18 +200,19 @@
                     </div>
                 </mat-tab>
                 <mat-tab label="Query Params">
-                    <ng-jsonschema mode="list" msg="Define Query params here and reuse them with endpoints."
-                        [disabledKeys]="flags.traitQP" (onSchemaChange)="setDirty()" name="queryParams"
-                        formControlName="queryParams"></ng-jsonschema>
+                    <ng-jsonschema [models]="selectedPROJ.models" mode="list"
+                        msg="Define Query params here and reuse them with endpoints." [disabledKeys]="flags.traitQP"
+                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"></ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Headers">
-                    <ng-jsonschema mode="list" msg="Define Headers here and reuse them with endpoints."
-                        [disabledKeys]="flags.traitHP" (onSchemaChange)="setDirty()" name="headers"
-                        formControlName="headers"></ng-jsonschema>
+                    <ng-jsonschema [models]="selectedPROJ.models" mode="list"
+                        msg="Define Headers here and reuse them with endpoints." [disabledKeys]="flags.traitHP"
+                        (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Responses">
                     <div class="pad10">
-                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="responses">
+                        <response-schema-builder [models]="selectedPROJ.models" [onChange]="setDirty.bind(this)"
+                            formControlName="responses">
                         </response-schema-builder>
                     </div>
                 </mat-tab>

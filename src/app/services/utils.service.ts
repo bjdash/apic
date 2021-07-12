@@ -40,8 +40,8 @@ export class Utils {
         return obj ? (Object.entries(obj) as [string, any][]) : [];
     }
 
-    static objectValues(obj): [string, any][] {
-        return obj ? (Object.values(obj) as [string, any][]) : [];
+    static objectValues<T>(obj: { [key: string]: T }): T[] {
+        return obj ? Object.values(obj) : [];
     }
 
     static objectKeys(obj): string[] {

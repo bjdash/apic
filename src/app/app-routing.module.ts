@@ -19,6 +19,7 @@ import { PublishedDocsComponent } from './components/dashboard/published-docs/pu
 import { AccountComponent } from './components/dashboard/account/account.component';
 import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
 import { DocsDetailComponent } from './components/docs/docs-detail/docs-detail.component';
+import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
 
 
 const routes: Routes = [
@@ -47,7 +48,7 @@ const routes: Routes = [
       { path: "models/:modelId", component: ProjectModelsComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },
-      // { path: "api-builder", component: , canDeactivate: [] },
+      { path: "api-builder", component: ApiBuilderComponent, canDeactivate: [ProjectDetailRouteGuard] },
     ]
   },
   {

@@ -256,6 +256,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
       var model = this.models[obj._value] || (this.responses && this.responses.find(function (a) {
         return a.name === obj._value
       }));
+      if (!model) return;
       var schema = model.data;
       var refData = this.JsonSchema.schema2obj(schema, '', undefined, true, this.models, obj._parent + (obj._key ? ('.' + obj._key) : '')); //obj._key is blank fro Array[$ref]
       refData.refTxt = 'Expanded $ref ' + model.name;

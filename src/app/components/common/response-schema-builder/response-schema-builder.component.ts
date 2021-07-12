@@ -15,8 +15,8 @@ import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Valida
   ],
 })
 export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAccessor {
-  @Input()
-  onChange: Function;
+  @Input() onChange: Function;
+  @Input() models: any;
 
   selectedIndex: number = -1;
   responses: any[] = [];
