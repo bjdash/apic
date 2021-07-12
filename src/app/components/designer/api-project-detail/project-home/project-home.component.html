@@ -8,16 +8,24 @@
                     Enable mocked response
                 </button>
                 <a href="https://docs.apic.app/simulator" mat-stroked-button class="sm" target="_new">
-                    <mat-icon>help</mat-icon>
+                    <mat-icon class="sm">help</mat-icon>
                 </a>
             </span>
             <span class="btn-group stroked gap">
-                <button mat-stroked-button class="sm">
+                <button mat-stroked-button class="sm" *ngIf="!selectedPROJ.publishedId" (click)="publishDocs()">
                     <i class="icon bj-cloud-upload gap"></i>
                     Publish Docs
                 </button>
+                <button mat-stroked-button class="sm" *ngIf="selectedPROJ.publishedId" (click)="publishDocs()">
+                    <i class="icon bj-cloud-upload gap"></i>
+                    Re-publish
+                </button>
+                <a [href]="'https://apic.app/PublishedDocs/#!/view/'+selectedPROJ.publishedId" target="_blank"
+                    mat-stroked-button class="sm" *ngIf="selectedPROJ.publishedId">
+                    <mat-icon class="sm">open_in_new</mat-icon>
+                </a>
                 <a href="https://docs.apic.app/dashboard/published-docs" mat-stroked-button class="sm" target="_new">
-                    <mat-icon>help</mat-icon>
+                    <mat-icon class="sm">help</mat-icon>
                 </a>
             </span>
             <button mat-stroked-button class="sm gap">

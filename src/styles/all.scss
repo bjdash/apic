@@ -663,8 +663,18 @@ input.input-xs {
     }
   }
   &.stroked {
-    button {
+    button,
+    a {
       border: 1px solid var(--border-color);
+      border-radius: 0;
+      &:last-child {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+      &:first-child {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+      }
     }
   }
   &.tab-group {

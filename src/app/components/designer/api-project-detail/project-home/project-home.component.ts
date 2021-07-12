@@ -19,6 +19,7 @@ import { SharingComponent } from 'src/app/components/sharing/sharing.component';
 import { Team } from 'src/app/models/Team.model';
 import { SharingService } from 'src/app/services/sharing.service';
 import { Utils } from 'src/app/services/utils.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
     selector: 'app-project-home',
@@ -49,6 +50,7 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
         private sharing: SharingService,
         private apiProjService: ApiProjectService,
         private apiProjectDetailService: ApiProjectDetailService,
+        private authService: AuthService,
         private envService: EnvService) {
 
         this.apiProjectDetailService.onSelectedProj$
@@ -149,5 +151,17 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
             }, () => {
                 this.flags.unshare = false;
             })
+    }
+
+    publishDocs() {
+        if (this.selectedPROJ._id.includes('demo')) {
+            this.toaster.error('This is  ademo project and can\'t be published.');
+            return;
+        }
+        if (!this.authService.doIOwn(this.selectedPROJ)) {
+            this.toaster.error('You can\'t publish this project as you are not the owner of it.');
+            return;
+        }
+        this.router.navigate(['/', 'dashboard', 'puslishedDocs', this.selectedPROJ.publishedId ? this.selectedPROJ.publishedId : 'new'], { queryParams: { projId: this.selectedPROJ._id, title: this.selectedPROJ.title } })
     }
 }

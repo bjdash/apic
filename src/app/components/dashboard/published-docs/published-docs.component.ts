@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { PublishedDocs } from 'src/app/models/PublishedDoc.model';
+import { AuthService } from 'src/app/services/auth.service';
 import { HttpService } from 'src/app/services/http.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
@@ -21,7 +23,7 @@ export class PublishedDocsComponent implements OnInit {
     loading: false,
     showCreate: false
   }
-  constructor(private http: HttpService, private toaster: Toaster) { }
+  constructor(private http: HttpService, private toaster: Toaster, private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.getDocs();
@@ -52,5 +54,17 @@ export class PublishedDocsComponent implements OnInit {
 
   trackbyFn(index) {
     return index
+  }
+
+  publish(project: ApiProject) {
+    if (project._id.includes('demo')) {
+      this.toaster.error('This is  ademo project and can\'t be published.');
+      return;
+    }
+    if (!this.authService.doIOwn(project)) {
+      this.toaster.error('You can\'t publish this project as you are not the owner of it.');
+      return;
+    }
+    this.router.navigate([project.publishedId ? project.publishedId : 'new'], { relativeTo: this.route, queryParams: { projId: project._id, title: project.title } })
   }
 }
