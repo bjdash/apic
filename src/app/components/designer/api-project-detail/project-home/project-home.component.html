@@ -3,9 +3,13 @@
         <h4 class="t_color head proj-head">{{selectedPROJ.title}}</h4>
         <div class="pull-right">
             <span class="btn-group stroked gap">
-                <button mat-stroked-button class="sm">
-                    <i class="icon bj-cloud-upload gap"></i>
+                <button mat-stroked-button aria-label="Enable mocked response" class="sm" *ngIf="!selectedPROJ.simKey"
+                    (click)="enableMock()">
                     Enable mocked response
+                </button>
+                <button mat-stroked-button aria-label="Disable mocked response" class="sm" *ngIf="selectedPROJ.simKey"
+                    (click)="disableMock()">
+                    Disable mocked response
                 </button>
                 <a href="https://docs.apic.app/simulator" mat-stroked-button class="sm" target="_new">
                     <mat-icon class="sm">help</mat-icon>
@@ -153,12 +157,12 @@
                 <span class="spinner wh" *ngIf="flags.mocking"></span>
             </h3>
             <div class="pull-right vcenter">
-                <button mat-stroked-button aria-label="Create team" class="t_border sm gap" *ngIf="!selectedPROJ.simKey"
-                    (click)="enableMock()">
+                <button mat-stroked-button aria-label="Enable mocked response" class="t_border sm gap"
+                    *ngIf="!selectedPROJ.simKey" (click)="enableMock()">
                     Enable mocked response
                 </button>
-                <button mat-stroked-button aria-label="Create team" class="t_border sm gap" *ngIf="selectedPROJ.simKey"
-                    (click)="disableMock()">
+                <button mat-stroked-button aria-label="Disable mocked response" class="t_border sm gap"
+                    *ngIf="selectedPROJ.simKey" (click)="disableMock()">
                     Disable mocked response
                 </button>
                 <button mat-icon-button class="sm gap" (click)="flags.mockHelp = !flags.mockHelp">

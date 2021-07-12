@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
 import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
 import { Utils } from './utils.service';
+import { METHOD_WITH_BODY } from '../utils/constants';
 
 @Injectable()
 export class SwaggerService {
@@ -676,7 +677,6 @@ export class SwaggerService {
             for (var j = 0; j < endp.responses.length; j++) {
                 let code = endp.responses[j].code;
                 reqObj.responses[code] = {};
-                //var schema = JsonSchema.obj2schema(endp.responses[j].data, proj.models);
                 var schema = endp.responses[j].data;
                 reqObj.responses[code].schema = schema;
                 //TODO: Add description
@@ -686,7 +686,6 @@ export class SwaggerService {
             reqObj.parameters = [];
             //add query parameters
             for (const [key, schema] of Utils.objectEntries(endp.queryParams.properties)) {
-                // angular.forEach(endp.queryParams.properties, function (schema, key) {
                 let param = {
                     name: key,
                     in: 'query',
@@ -699,32 +698,28 @@ export class SwaggerService {
             };
 
             for (const [key, schema] of Utils.objectEntries(endp.headers.properties)) {
-                // angular.forEach(endp.headers.properties, function (schema, key) {
                 let param = {
                     name: key,
                     in: 'header',
                     description: schema.description ? schema.description : '',
                     required: endp.headers.required && endp.headers.required.indexOf(key) >= 0 ? true : false
                 };
-                //var paramExtra = getParam(schema);
                 param = Object.assign(param, schema);
                 reqObj.parameters.push(param);
             };
 
             for (const [key, schema] of Utils.objectEntries(endp.pathParams.properties)) {
-                // angular.forEach(endp.pathParams.properties, function (schema, key) {
                 let param = {
                     name: key,
                     in: 'path',
                     description: schema.description ? schema.description : '',
                     required: endp.pathParams.required && endp.pathParams.required.indexOf(key) >= 0 ? true : false
                 };
-                //var paramExtra = getParam(schema);
                 param = Object.assign(param, schema);
                 reqObj.parameters.push(param);
             };
 
-            if (endp.body) { //if the trait has body add body params
+            if (METHOD_WITH_BODY.includes(endp.method) && endp.body) { //if the trait has body add body params
                 switch (endp.body.type) {
                     case 'raw':
                         let param = {
