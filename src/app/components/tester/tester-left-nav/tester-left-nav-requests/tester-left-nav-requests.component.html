@@ -48,12 +48,12 @@
         <div *ngIf="flags.projReqs">
             <div *ngFor="let project of projectsTree$ |async">
                 <ng-container [ngTemplateOutlet]="FolderRef"
-                    [ngTemplateOutletContext]="{folder: project, type:'project'}">
+                    [ngTemplateOutletContext]="{folder: project, type:'project', projId:project._id}">
                 </ng-container>
                 <div class="sub-folder" [hidden]="!flags.expanded[project._id]">
                     <div *ngFor="let subfolder of project.children">
                         <ng-container [ngTemplateOutlet]="FolderRef"
-                            [ngTemplateOutletContext]="{folder: subfolder, type:'project'}">
+                            [ngTemplateOutletContext]="{folder: subfolder, type:'project', projId:project._id}">
                         </ng-container>
                         <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id]">
                             <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple
@@ -121,7 +121,7 @@
     </left-menu-tree-selector>
 </div>
 
-<ng-template #FolderRef let-folder="folder" let-type="type">
+<ng-template #FolderRef let-folder="folder" let-type="type" let-projId="projId">
     <div class="folder" (click)="toggleExpand(folder._id)" [ngClass]="flags.expanded[folder._id]?'opened':'closed'">
         <div class="l-sec">
             <i class="icon  bj-folder" [ngClass]="flags.expanded[folder._id]?'bj-folder-open':'bj-folder'"></i>
@@ -142,7 +142,7 @@
             </button>
             <mat-menu #folderMenu="matMenu">
                 <div *ngIf="type=='saved'">
-                    <button mat-menu-item (click)="convertFolderToSuite(folder)">
+                    <button mat-menu-item (click)="convertFolderToSuite(folder, type)">
                         <span class="icon bj-lab" style="margin-right: 25px;"></span> Convert to test suite
                     </button>
                     <button mat-menu-item (click)="showRename(folder)">
@@ -164,7 +164,7 @@
                     </button>
                 </div>
                 <div *ngIf="type=='project'">
-                    <button mat-menu-item (click)="convertFolderToSuite(folder)">
+                    <button mat-menu-item (click)="convertFolderToSuite(folder, type, projId)">
                         <span class="icon bj-lab" style="margin-right: 25px;"></span> Convert to test suite
                     </button>
                     <button mat-menu-item (click)="downloadFolder(folder._id)">

@@ -5,9 +5,10 @@ import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
+import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
-import { Suite } from 'src/app/models/Suite.model';
+import { Suite, SuiteReq } from 'src/app/models/Suite.model';
 import { User } from 'src/app/models/User.model';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
@@ -398,11 +399,11 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async convertFolderToSuite(folder: TreeReqFolder) {
-    let projects = await this.suitesTree$.pipe(take(1)).toPromise();
+  async convertFolderToSuite(folder: TreeReqFolder, reqIsFrom: ReqIsFrom, projectId?: string) {
+    let testProjects = await this.suitesTree$.pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
       show: true,
-      items: projects,
+      items: testProjects,
       options: {
         title: 'Select test project',
         doneText: 'Add to selected project',
@@ -418,16 +419,33 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           projId: projId,
           reqs: []
         };
-
+        let apiProject: ApiProject;
+        if (reqIsFrom == 'project') {
+          apiProject = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+        }
         if (folder.requests) {
-          suite.reqs = folder.requests.map(r => { return { ...r, disabled: false } })
+          suite.reqs = await Promise.all(folder.requests.map(async (r): Promise<SuiteReq> => {
+            if (reqIsFrom == 'project') {
+              let endpoint = apiProject.endpoints?.[r._id];
+              return { ...RequestUtils.endpointToApiRequest(endpoint, apiProject), disabled: false }
+            } else {
+              let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(r._id)).pipe(take(1)).toPromise();
+              return { ...request, disabled: false }
+            }
+          }));
         }
 
         if (folder.children?.length > 0) {
           for (var f = 0; f < folder.children.length; f++) {
             var cf = folder.children[f];
             for (var i = 0; i < cf.requests?.length; i++) {
-              suite.reqs.push({ ...cf.requests[i], disabled: false });
+              if (reqIsFrom == 'project') {
+                let endpoint = apiProject.endpoints?.[cf.requests[i]._id];
+                suite.reqs.push({ ...RequestUtils.endpointToApiRequest(endpoint, apiProject), disabled: false });
+              } else {
+                let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(cf.requests[i]._id)).pipe(take(1)).toPromise();
+                suite.reqs.push({ ...request, disabled: false });
+              }
             }
           }
         }
@@ -449,10 +467,10 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       this.toastr.error('Websocket requests can not be added to suites.');
       return;
     }
-    let projects = await this.suitesTree$.pipe(take(1)).toPromise();
+    let testProjects = await this.suitesTree$.pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
       show: true,
-      items: projects,
+      items: testProjects,
       options: {
         title: 'Select test suite',
         doneText: 'add to selected suite',
@@ -468,9 +486,9 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           .subscribe(async (suite) => {
             let request: ApiRequest;
             if (reqIsFrom == 'project') {
-              let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
-              let endpoint = project.endpoints?.[partialReq._id];
-              request = RequestUtils.endpointToApiRequest(endpoint, project);
+              let apiProject = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+              let endpoint = apiProject.endpoints?.[partialReq._id];
+              request = RequestUtils.endpointToApiRequest(endpoint, apiProject);
             } else {
               request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(partialReq._id)).pipe(take(1)).toPromise();
             }
