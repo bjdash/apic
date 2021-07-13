@@ -1,11 +1,11 @@
 import { ProjectTraitsComponent } from './project-traits/project-traits.component';
 import { ApiProjectService } from './../../../services/apiProject.service';
-import { from, Observable, Subject, Subscription } from 'rxjs';
+import { asapScheduler, BehaviorSubject, from, NEVER, Observable, Subject, Subscription } from 'rxjs';
 import { ApiModel, ApiProject, ApiTrait } from './../../../models/ApiProject.model';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, Event as NavigationEvent, NavigationStart, NavigationEnd } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, observeOn, skipWhile, switchMap, takeUntil, takeWhile } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectExportModalComponent } from './project-export-modal/project-export-modal.component';
 import { ConfirmService } from '../../../directives/confirm.directive';
@@ -16,6 +16,8 @@ import { UserState } from '../../../state/user.state';
 import { User } from '../../../models/User.model';
 import { ApiProjectDetailService } from './api-project-detail.service';
 import apic from 'src/app/utils/apic';
+import { DetachedRouteHandlerService } from 'src/app/detached-route-handler.service';
+import { SharingService } from 'src/app/services/sharing.service';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -27,11 +29,11 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     private _destroy: Subject<boolean> = new Subject<boolean>();
     private updatedInBackground: 'update' | 'delete' = null;
 
-
     private _selectedPROJ: ApiProject;
     selectedPROJ$: Observable<ApiProject>;
     authUser: User;
 
+    paused$ = new BehaviorSubject(false);
     leftPanel = {
         expanded: { ungrouped: true }, //list of expanded folders
         tree: null
@@ -40,38 +42,50 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         stage: 'Dashboard'
     }
 
-    constructor(private route: ActivatedRoute,
+    constructor(private detachedRouteHandlesService: DetachedRouteHandlerService, private route: ActivatedRoute,
         private store: Store,
         private router: Router,
         private confirmService: ConfirmService,
         private apiProjectDetailService: ApiProjectDetailService,
         private toaster: Toaster,
+        private sharingService: SharingService,
         private apiProjectService: ApiProjectService,
         private dialog: MatDialog) {
         this.route.params.subscribe(params => {
-            this.selectedPROJ$ = this.apiProjectService.getApiProjectById(params.projectId);
-
             this.store.select(ApiProjectStateSelector.getLeftTree(params.projectId)).pipe(takeUntil(this._destroy)).subscribe(leftTree => {
                 this.leftPanel.tree = leftTree;
             });
             this.store.select(UserState.getAuthUser).pipe(takeUntil(this._destroy)).subscribe(user => {
                 this.authUser = user;
             });
-            this.apiProjectService.updatedViaSync$.subscribe((notification) => {
-                if (this.selectedPROJ && notification?.ids.includes(this.selectedPROJ._id)) {
-                    this.updatedInBackground = notification.type;
-                }
-            });
+            this.paused$
+                .pipe(switchMap(paused => {
+                    return paused ? NEVER : this.apiProjectService.updatedViaSync$
+                }))
+                .pipe(takeUntil(this._destroy))
+                .subscribe((notification) => {
+                    if (this.selectedPROJ && notification?.ids.includes(this.selectedPROJ._id) && !notification?.forceUpdate) {
+                        this.updatedInBackground = notification.type;
+                    }
+                });
             this.apiProjectDetailService.onExportProj$
                 .pipe(takeUntil(this._destroy))
                 .subscribe(([type, id]) => {
                     this.openExportModal(type, id);
                 })
-            this.selectedPROJ$
+
+            this.selectedPROJ$ = this.apiProjectService.getApiProjectById(params.projectId);
+            // this.selectedPROJ$
+            this.paused$
+                .pipe(
+                    switchMap(paused => {
+                        return paused ? NEVER : this.selectedPROJ$
+                    })
+                )
                 .pipe(takeUntil(this._destroy))
                 .subscribe(p => {
                     if (p && (p._modified > this.selectedPROJ?._modified || !this.selectedPROJ)) {
-                        if (this.updatedInBackground == 'update') {
+                        if (this.updatedInBackground == 'update' && !sharingService.isLastShared(this.selectedPROJ?._id, 'APIProject')) {
                             //TODO: Stop children routes updating themselves before ok is clicked in parent
                             this.confirmService.alert({
                                 id: 'Sync:Project Updated',
@@ -83,6 +97,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                                 this.updatedInBackground = null;
                             }).catch(() => { })
                         } else {
+                            this.updatedInBackground = null;
                             this.selectedPROJ = p;
                         }
                     }
@@ -118,7 +133,23 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this._destroy.next();
         this._destroy.complete();
     }
-    ngOnInit(): void { }
+    ngOnInit(): void {
+        this.detachedRouteHandlesService.changes$
+            .pipe(
+                observeOn(asapScheduler)
+            ).subscribe(changes => {
+                if (changes.for == this.route.component) {
+                    if (changes.store.has(this.route.component)) {
+                        //route unloaded
+                        this.paused$.next(true);
+                    } else {
+                        //route loaded
+                        this.selectedPROJ = null;
+                        this.paused$.next(false)
+                    }
+                }
+            });
+    }
 
     get selectedPROJ() {
         return this._selectedPROJ;
@@ -213,8 +244,8 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         return a.value.folder.name.localeCompare(b.value);
     }
 
-    run(id: string) {
-        //TODO: 
+    run(endpId: string) {
+        this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
     }
 
     async updateApiProject(proj?: ApiProject): Promise<ApiProject> {

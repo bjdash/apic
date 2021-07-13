@@ -32,7 +32,8 @@
                 <ng-jsonschema-main [mode]="mode" [msg]="msg" [refreshSchema]="refreshSchema.bind(this)"
                     [models]="models" [addNewProp]="addNewProp.bind(this)" [removeEntity]="removeEntity.bind(this)"
                     [openMenu]="displaySelectorModal.bind(this)" [entity]="entity" [expand$ref]="expand$ref.bind(this)"
-                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp.bind(this)">
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)" [disabledKeys]="disabledKeys"
+                    [addAdditionalProp]="addAdditionalProp.bind(this)">
                 </ng-jsonschema-main>
             </div>
             <div *ngIf="showSelectorModal" [style.left.px]="selectorModalPosition.x"

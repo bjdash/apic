@@ -3,5 +3,6 @@ export interface TestBuilderOption {
     key: string,
     val: any,
     showRun?: boolean,
-    show: boolean
+    show: boolean,
+    top: number//CSS top
 }

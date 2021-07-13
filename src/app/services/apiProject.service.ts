@@ -97,16 +97,16 @@ export class ApiProjectService {
     }
 
     //Update the API projects when received via sync message
-    async updateSyncedProjects(projects: ApiProject[]) {
+    async updateSyncedProjects(projects: ApiProject[], force: boolean) {
         let updatedIds = await iDB.upsertMany(iDB.TABLES.API_PROJECTS, projects);
-        this.updatedViaSync$.next({ type: 'update', ids: updatedIds as string[] });
+        this.updatedViaSync$.next({ type: 'update', ids: updatedIds as string[], forceUpdate: force });
         this.store.dispatch(new ApiProjectsAction.Update(projects));
         return updatedIds;
     }
 
-    async deleteSyncedProjects(ids: string[]) {
+    async deleteSyncedProjects(ids: string[], force: boolean) {
         await iDB.deleteMany(iDB.TABLES.API_PROJECTS, ids);
-        this.updatedViaSync$.next({ type: 'delete', ids });
+        this.updatedViaSync$.next({ type: 'delete', ids, forceUpdate: force });
         this.store.dispatch(new ApiProjectsAction.Delete(ids));
         return ids;
     }
@@ -116,15 +116,15 @@ export class ApiProjectService {
 
         if (message.apiProjects?.length > 0) {
             if (message.action === 'add' || message.action === 'update') {
-                const resp = await this.updateSyncedProjects(message.apiProjects);
+                const resp = await this.updateSyncedProjects(message.apiProjects, message.force);
                 console.info('Sync: added/updated API project', resp)
             }
         } else if (message.idList?.length > 0 && message.action === 'delete') {
-            const resp = await this.deleteSyncedProjects(message.idList);
+            const resp = await this.deleteSyncedProjects(message.idList, message.force);
             console.info('Sync: deleted API project', resp)
         }
         if (message.nonExistant?.apiProjects?.length > 0) {
-            const resp = await this.deleteSyncedProjects(message.nonExistant?.apiProjects);
+            const resp = await this.deleteSyncedProjects(message.nonExistant?.apiProjects, message.force);
             console.info('Sync: deleted API project', resp)
         }
 

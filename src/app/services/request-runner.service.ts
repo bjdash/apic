@@ -132,7 +132,11 @@ export class RequestRunnerService {
 
 
   interpolateReq($request: CompiledApiRequest, originalReq: ApiRequest, options?: RunOption): CompiledApiRequest {
-    const interpolationOpt: InterpolationOption = { useInMemEnv: options?.useInMemEnv, useEnv: options?.useEnv }
+    const interpolationOpt: InterpolationOption = {}
+    if (options?.hasOwnProperty('useInMemEnv')) interpolationOpt.useInMemEnv = options.useInMemEnv;
+    if (options?.hasOwnProperty('useEnv')) interpolationOpt.useEnv = options.useEnv;
+
+
     let { url, headers, queryParams, body } = $request, bodyData;
     headers = this.interpolationService.interpolateObject(headers, interpolationOpt);
     queryParams = this.interpolationService.interpolateObject(queryParams, interpolationOpt);

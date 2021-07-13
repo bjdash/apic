@@ -3,30 +3,49 @@
         <h4 class="t_color head proj-head">{{selectedPROJ.title}}</h4>
         <div class="pull-right">
             <span class="btn-group stroked gap">
-                <button mat-stroked-button class="sm">
-                    <i class="icon bj-cloud-upload gap"></i>
+                <button mat-stroked-button aria-label="Enable mocked response" class="sm" *ngIf="!selectedPROJ.simKey"
+                    (click)="enableMock()">
                     Enable mocked response
                 </button>
+                <button mat-stroked-button aria-label="Disable mocked response" class="sm" *ngIf="selectedPROJ.simKey"
+                    (click)="disableMock()">
+                    Disable mocked response
+                </button>
                 <a href="https://docs.apic.app/simulator" mat-stroked-button class="sm" target="_new">
-                    <mat-icon>help</mat-icon>
+                    <mat-icon class="sm">help</mat-icon>
                 </a>
             </span>
             <span class="btn-group stroked gap">
-                <button mat-stroked-button class="sm">
+                <button mat-stroked-button class="sm" *ngIf="!selectedPROJ.publishedId" (click)="publishDocs()">
                     <i class="icon bj-cloud-upload gap"></i>
                     Publish Docs
                 </button>
+                <button mat-stroked-button class="sm" *ngIf="selectedPROJ.publishedId" (click)="publishDocs()">
+                    <i class="icon bj-cloud-upload gap"></i>
+                    Re-publish
+                </button>
+                <a [href]="'https://apic.app/PublishedDocs/#!/view/'+selectedPROJ.publishedId" target="_blank"
+                    mat-stroked-button class="sm" *ngIf="selectedPROJ.publishedId">
+                    <mat-icon class="sm">open_in_new</mat-icon>
+                </a>
                 <a href="https://docs.apic.app/dashboard/published-docs" mat-stroked-button class="sm" target="_new">
-                    <mat-icon>help</mat-icon>
+                    <mat-icon class="sm">help</mat-icon>
                 </a>
             </span>
             <button mat-stroked-button class="sm gap">
                 <span class="icon bj-wrench gap"></span>
                 Build Requests
             </button>
-            <button mat-stroked-button class="sm gap">
+            <button mat-stroked-button class="sm gap" *ngIf="selectedPROJ.owner === authUser.UID && !selectedPROJ.team"
+                (click)="share()">
                 <span class="icon bj-share-alt gap"></span>
                 Share
+            </button>
+            <button mat-stroked-button class="sm gap" *ngIf="selectedPROJ.team && selectedPROJ.owner === authUser.UID"
+                (confirm-click)="unshare()" confirm="Do you want to unshare this project?"
+                confirmTitle="Unshare Project" confirmOk="Unshare">
+                <span class="icon bj-unshare red gap"></span> Unshare: {{teams[selectedPROJ.team]?.name}}
+                <span class="spinner" *ngIf="flags.unshare"></span>
             </button>
             <button mat-stroked-button class="sm gap" [matMenuTriggerFor]="exportMenu">
                 <mat-icon class="sm">open_in_new</mat-icon>
@@ -85,7 +104,7 @@
     </div>
 
     <div class="content">
-        <div class="content paper">
+        <div class="content paper margB25">
             <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" class="sm">
                 <!----Settings tab------>
                 <mat-tab>
@@ -130,6 +149,68 @@
                     </app-project-info>
                 </mat-tab>
             </mat-tab-group>
+        </div>
+
+        <div class="paper">
+            <h3 class="panel-title vcenter" (click)="flags.hideMocks = !flags.hideMocks">
+                Mocked response
+                <span class="spinner wh" *ngIf="flags.mocking"></span>
+            </h3>
+            <div class="pull-right vcenter">
+                <button mat-stroked-button aria-label="Enable mocked response" class="t_border sm gap"
+                    *ngIf="!selectedPROJ.simKey" (click)="enableMock()">
+                    Enable mocked response
+                </button>
+                <button mat-stroked-button aria-label="Disable mocked response" class="t_border sm gap"
+                    *ngIf="selectedPROJ.simKey" (click)="disableMock()">
+                    Disable mocked response
+                </button>
+                <button mat-icon-button class="sm gap" (click)="flags.mockHelp = !flags.mockHelp">
+                    <mat-icon>help</mat-icon>
+                </button>
+                <button mat-icon-button class="sm" (click)="flags.hideMocks = !flags.hideMocks">
+                    <mat-icon *ngIf="flags.hideMocks">expand_less</mat-icon>
+                    <mat-icon *ngIf="!flags.hideMocks">expand_more</mat-icon>
+                </button>
+            </div>
+
+            <div [hidden]="flags.hideMocks" class="mockCont">
+                <div style="padding: 15px;" *ngIf="flags.mockHelp">
+                    Enabling mocked response allows APIC to simulate responses for the endpoints
+                    based on the schema defined for diffrerent status code. This helps your UI
+                    team to work in parallel with Backend team.
+                    <br />
+                    Your API endpoint can be mocked at https://apic.app/mock/<span
+                        class="bold">&lt;simkey&gt;/&lt;api-endpoint&gt;?statusCode=&lt;statuscode&gt;</span>
+                    <br />
+                    You can tell APIC which status code to simulate by sending header <span class="bold">StatusCode:
+                        200</span> or the query param <span class="bold">?statusCode=400</span>
+                    <div class="simKey">
+                        simKey = <span class="t_color">{{selectedPROJ.simKey}}</span></div>
+                </div>
+
+                <div *ngFor="let endp of selectedPROJ.endpoints |keyvalue" class="endp"
+                    [matTooltip]="endp.value.summary">
+                    <span class="method" [ngClass]="endp.value.method.toUpperCase()"></span>
+                    <span class="endpUrl pointer" (click)="runMockedEndp(endp.key)">
+                        <span class="host-sh" *ngIf="selectedPROJ.simKey">https://apic.app/mock/... </span>
+                        <span class="host"
+                            *ngIf="selectedPROJ.simKey">https://apic.app/mock/{{selectedPROJ.simKey}}</span>{{selectedPROJ.setting?.basePath+endp.value.path}}
+                    </span>
+                    <span class="pull-right mockCtrls" *ngIf="selectedPROJ.simKey">
+                        <span class="mockCtrls-hidden">
+                            <button mat-icon-button class="sm gap" title="Copy URL"
+                                (click)="copy('https://apic.app/mock/'+selectedPROJ.simKey+selectedPROJ.setting?.basePath+endp.value.path)">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </span>
+                        <button mat-icon-button class="sm green" title="Run" (click)="runMockedEndp(endp.key)">
+                            <mat-icon>play_arrow</mat-icon>
+                        </button>
+                    </span>
+                </div>
+            </div>
+
         </div>
     </div>
 

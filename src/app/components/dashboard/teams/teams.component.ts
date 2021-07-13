@@ -24,6 +24,7 @@ export class TeamsComponent implements OnInit {
     showCreate: false,
     creating: false
   }
+  expanded = {}
   constructor(private http: HttpService, private authService: AuthService, private toaster: Toaster, fb: FormBuilder) {
     this.newForm = fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]]

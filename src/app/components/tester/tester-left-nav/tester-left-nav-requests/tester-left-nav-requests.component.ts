@@ -261,8 +261,6 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       console.error('Failed to delete folder', e);
       this.toastr.error(`Failed to delete folder ${e.message}`);
     }
-
-    console.log(folder, reqsToDelete, foldersToDelete)
   }
 
   async deleteRequest(id: string, name: string) {

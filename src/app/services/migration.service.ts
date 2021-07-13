@@ -28,7 +28,6 @@ export class MigrationService {
             let migrated = allReqs.filter(r => {
                 return r.type == 'ws' && r.method == 'Stomp'
             }).map(r => {
-                console.log('old', r);
                 let newReq = { ...r };
                 let stomp = {
                     subscUrl: r.connection.subscUrl,
@@ -42,7 +41,6 @@ export class MigrationService {
                 delete newReq.destQ;
                 delete newReq.connection;
                 newReq.stomp = stomp;
-                console.log('new', newReq);
                 return newReq;
             })
             await this.requestsService.updateRequests(migrated);
@@ -56,11 +54,11 @@ export class MigrationService {
     async migrate(newVesrion: string, oldVersion: string) {
         this.newVersion = newVesrion;
         this.oldVersion = oldVersion;
-        console.log('Migrating');
+        console.debug('Migrating');
         let migrations = [], promises = [];
 
         this.migrations.forEach(m => {
-            console.log(`Running migration: ${m.name}`);
+            console.debug(`Running migration: ${m.name}`);
 
             let conditions = m.conditions;
             let isApplicable = conditions.map(c => {
@@ -76,7 +74,7 @@ export class MigrationService {
         })
 
         await Promise.all(promises);
-        console.log('Migration completed');
+        console.debug('Migration completed');
 
         //TODO:
         this.onDone(newVesrion, this.oldVersion);

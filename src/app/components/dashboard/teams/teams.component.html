@@ -41,16 +41,34 @@
                 <thead>
                     <tr>
                         <th style="width: 40%">Team Name</th>
-                        <th style="width: 5%">Members</th>
-                        <th style="width: 20%">Created</th>
-                        <th style="width: 20%">Last Modified</th>
+                        <th style="width: 25%">Members</th>
+                        <th style="width: 10%">Created</th>
+                        <th style="width: 10%">Last Modified</th>
                         <th style="width: 25%">&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let team of teams;trackBy: trackbyFn">
                         <td>{{team.name}}</td>
-                        <td>{{team.members.length}}</td>
+                        <td>
+                            <div *ngIf="!expanded[team.id]" class="vcenter">
+                                {{team.members.length}}
+                                <button mat-icon-button class="" (click)="expanded[team.id]=true"
+                                    matTooltip="Show all members">
+                                    <mat-icon>unfold_more</mat-icon>
+                                </button>
+                            </div>
+                            <div *ngIf="expanded[team.id]" class="members-list">
+                                <div class="bold">
+                                    Member emails: ({{team.members.length}})
+                                    <button mat-icon-button class="" (click)="expanded[team.id]=false"
+                                        matTooltip="Hide members">
+                                        <mat-icon>unfold_less</mat-icon>
+                                    </button>
+                                </div>
+                                <div *ngFor="let member of team.members">{{member.email}}</div>
+                            </div>
+                        </td>
                         <td>{{team.created| date:'MMM dd,yyyy h:mm a'}}</td>
                         <td>{{team.modified| date:'MMM dd,yyyy h:mm a'}}</td>
                         <td>

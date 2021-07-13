@@ -169,7 +169,6 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
       const file = event.target.files[0];
       let value: KeyVal = this.keyValueForm.at(index).value;
       this.keyValueForm.at(index).setValue({ ...value, val: '', meta: file });
-      console.log(file, index);
     }
   }
 

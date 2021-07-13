@@ -10,18 +10,22 @@ import { Utils } from 'src/app/services/utils.service';
 import { TEST_BUILDER_OPS } from 'src/app/utils/constants';
 
 interface Test { str: string, val: string, status: any, error?: string }
-
+export interface TestBuilderSave {
+  tests: string,
+  autoSave: boolean
+}
 @Component({
   selector: 'json-test-builder',
   templateUrl: './json-test-builder.component.html',
   styleUrls: ['./json-test-builder.component.scss']
 })
 export class JsonTestBuilderComponent implements OnInit {
-  @Input() save;
+  // @Input() save;
   @Input() options: TestBuilderOption;
   @Input() $request: CompiledApiRequest;
   @Input() $response: RunResponse;
 
+  @Output() onSave = new EventEmitter<TestBuilderSave>();
   @Output() close = new EventEmitter<any>();
 
   ops = TEST_BUILDER_OPS;
@@ -49,6 +53,7 @@ export class JsonTestBuilderComponent implements OnInit {
   constructor(private utils: Utils, private toaster: Toaster, private tester: TesterService) { }
 
   ngOnInit(): void {
+    console.log(this.options)
     if (typeof this.options.val != 'object') this.models.input = this.options.val;
     else {
       this.models.input = JSON.stringify(this.options.val);
@@ -168,9 +173,9 @@ export class JsonTestBuilderComponent implements OnInit {
     // this.testError = runResponse.error //TODO:
   }
 
-  saveTests(saveRequest = false) {
+  saveTests(autoSave = false) {
     var tests = this.tests.reduce((acc, t) => { return acc + t.val + '\n' }, '')
-    this.save(tests, saveRequest);
+    this.onSave.next({ tests, autoSave })
     this.flags.saved = true;
     this.tests = []
   }

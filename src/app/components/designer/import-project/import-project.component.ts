@@ -44,6 +44,7 @@ export class ImportProjectComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  //TODO: Resize of ace editor not visible
   async onSubmit() {
     const formValue = { ...this.form.value };
     if (formValue.type === 'file' && !formValue.file) {

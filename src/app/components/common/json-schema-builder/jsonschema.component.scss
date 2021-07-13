@@ -10,11 +10,10 @@ input[type="checkbox"].small:checked:before {
   width: 6px;
   height: 8px;
 }
-.vcenter {
-  display: flex;
-  align-items: center;
-}
 fieldset[disabled] button {
+  cursor: not-allowed;
+}
+fieldset[disabled] .mat-checkbox {
   cursor: not-allowed;
 }
 .json-schema {
@@ -266,6 +265,9 @@ button[disabled] {
 
 .Object {
   color: #2196f3 !important;
+}
+.\$ref {
+  color: rgb(0, 204, 106);
 }
 
 fieldset.js-fieldset {

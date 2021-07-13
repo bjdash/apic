@@ -59,6 +59,6 @@ export class ReqHistoryService {
         const validate = ajv.compile(schema);
         const valid = validate(importData);
         if (!valid) console.error(validate.errors);
-        return valid;
+        return valid as boolean;
     }
 }

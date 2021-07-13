@@ -129,6 +129,8 @@ import { PublishedDocsDetailComponent } from './components/dashboard/published-d
 import { AccountDeleteDialogComponent } from './components/dashboard/account/account-delete-dialog/account-delete-dialog.component';
 import { DocsDetailComponent } from './components/docs/docs-detail/docs-detail.component';
 import { JsonSchemaViewerComponent } from './components/common/json-schema-viewer/json-schema-viewer.component';
+import { SharingComponent } from './components/sharing/sharing.component';
+import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
 
 @NgModule({
   declarations: [
@@ -201,7 +203,9 @@ import { JsonSchemaViewerComponent } from './components/common/json-schema-viewe
     PublishedDocsDetailComponent,
     AccountDeleteDialogComponent,
     DocsDetailComponent,
-    JsonSchemaViewerComponent
+    JsonSchemaViewerComponent,
+    SharingComponent,
+    ApiBuilderComponent
   ],
   imports: [
     BrowserModule,

@@ -76,10 +76,9 @@
     </div>
 </div>
 <mat-menu #projs="matMenu">
-    <div class="bold">Api Projects</div>
-    <a href="" [routerLink]="[project.publishedId?project.publishedId:'new']"
-        [queryParams]="{projId: project._id, title:project.title}" mat-menu-item
-        *ngFor="let project of projects$ | async; trackBy:trackbyFn">{{project.title}}</a>
+    <div class="bold center">Api Projects</div>
+    <button mat-menu-item *ngFor="let project of projects$ | async; trackBy:trackbyFn"
+        (click)="publish(project)">{{project.title}}</button>
     <a [routerLink]="['/', 'designer']" mat-menu-item *ngIf="(projects$ | async)?.length==0">No APi
         Projects. Create one?</a>
 </mat-menu>

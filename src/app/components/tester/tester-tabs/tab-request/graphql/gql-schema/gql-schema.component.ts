@@ -13,7 +13,6 @@ export class GqlSchemaComponent implements OnInit {
   ngOnInit(): void {
   }
   select(type, $event) {
-    console.log(type);
     $event.preventDefault()
     if (this.path.indexOf(type) < 0) {
       this.path.push(type);

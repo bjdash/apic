@@ -6,6 +6,7 @@ import { Store } from '@ngxs/store';
 import { from, Observable, Subject } from 'rxjs';
 import { delayWhen, takeUntil } from 'rxjs/operators';
 import { ApicAceComponent } from 'src/app/components/common/apic-ace/apic-ace.component';
+import { TestBuilderSave } from 'src/app/components/common/json-test-builder/json-test-builder.component';
 import { Segment } from 'src/app/components/common/json-viewer/json-viewer.component';
 import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
 import { KeyVal } from 'src/app/models/KeyVal.model';
@@ -338,7 +339,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       this.applyRunStatus(true);
       const req: ApiRequest = this.getReqFromForm();
       let result: RunResult = await this.runner.run(req);
-      console.log(result);
       this.runResponse = { ...result.$response };
       this.runRequest = result.$request;
       this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['Content-Type'], this.runResponse.body);
@@ -390,7 +390,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     while (this.flags.runCountCopy > 0 && this.flags.loopRunning) {
       try {
         let result: RunResult = await this.runner.run(req);
-        console.log(result);
         this.loopRunResult.push({ ...result.$response });
         this.flags.runCountCopy--;
       } catch (e) {
@@ -485,19 +484,21 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.runResponse.logs[index] = Beautifier.json(this.runResponse.logs[index], '  ')
   }
 
-  onTestBuilder(segment: Segment) {
+  onTestBuilder({ segment, top }: { segment: Segment, top: number }) {
+    let scrlTop = document.querySelector('.test-tabs>.mat-tab-body-wrapper>.mat-tab-body.mat-tab-body-active>.mat-tab-body-content').scrollTop;
     this.testBuilderOpt = {
       parent: segment.parent,
       key: segment.key,
       val: segment.value,
       showRun: true,
-      show: true
+      show: true,
+      top: top + scrlTop - 400
     }
   }
 
-  saveBuilderTests(tests: string, autoSaveReq: boolean) {
+  saveBuilderTests({ tests, autoSave }: TestBuilderSave) {
     this.form.patchValue({ postscript: this.form.value.postscript + '\n' + tests });
-    if (autoSaveReq) {
+    if (autoSave) {
       this.initReqSave();
     } else {
       this.toastr.info('Test added to postrun scripts.')

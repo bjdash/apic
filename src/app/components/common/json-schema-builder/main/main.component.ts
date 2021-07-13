@@ -37,6 +37,12 @@ export class MainJsonSchemaComponent implements OnInit {
     expand$ref: Function;
 
     @Input()
+    buildTest: Function
+
+    @Input()
+    showTestBuilder: boolean
+
+    @Input()
     addAdditionalProp: Function;
 
     @Input()

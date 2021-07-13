@@ -59,7 +59,6 @@ export class TesterService {
   }
 
   onMessageListener(event: TestResponse, resolve, options: TesterOptions) {
-    console.log('received response', event, this.inMemEnv);
     let updatedInMem = event.inMem;
     if (Utils.objectEntries(this.inMemEnv).toString() !== Utils.objectEntries(updatedInMem).toString() && !options?.skipinMemUpdate) {
       this.store.dispatch(new EnvsAction.SetInMem(updatedInMem))

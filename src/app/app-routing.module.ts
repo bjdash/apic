@@ -19,6 +19,7 @@ import { PublishedDocsComponent } from './components/dashboard/published-docs/pu
 import { AccountComponent } from './components/dashboard/account/account.component';
 import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
 import { DocsDetailComponent } from './components/docs/docs-detail/docs-detail.component';
+import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
 
 
 const routes: Routes = [
@@ -28,25 +29,33 @@ const routes: Routes = [
   // },
   {
     path: 'designer',
-    component: DesignerComponent
+    component: DesignerComponent,
+    data: {
+      reuse: true
+    }
   },
   {
     path: 'designer/:projectId',
     component: ApiProjectDetailComponent,
+    data: {
+      //TODO: Enable reuse for this. Current issue: Designer->ProjectDetail->Endpoints->Designer (skipping ProjectDetail)
+      //Now opening any project errors as new route is designer/:id and last saved was designer/:id/endpoints
+      reuse: false
+    },
     children: [
       { path: '', component: ProjectHomeComponent, pathMatch: 'full' },
       { path: "folders/:folderId", component: ProjectFolderComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "models/:modelId", component: ProjectModelsComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },
-      // { path: "api-builder", component: , canDeactivate: [] },
+      { path: "api-builder", component: ApiBuilderComponent, canDeactivate: [ProjectDetailRouteGuard] },
     ]
   },
   {
     path: 'tester',
     component: TesterMainComponent,
     data: {
-      sticky: true
+      reuse: true
     }
   },
   {

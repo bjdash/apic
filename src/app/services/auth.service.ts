@@ -232,4 +232,7 @@ export class AuthService {
   getAuthHeader() {
     return this.user.UID + '||' + this.user?.authToken;
   }
+  doIOwn(item: any): boolean {
+    return this.user && this.user.UID === item?.owner;
+  }
 }

@@ -1,5 +1,5 @@
 import { Toaster } from './../../../services/toaster.service';
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 
 @Component({
@@ -15,8 +15,10 @@ import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Valida
   ],
 })
 export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAccessor {
-  @Input()
-  onChange: Function;
+  @Input() onChange: Function;
+  @Input() models: any;
+  @Output()
+  onTestBuilder = new EventEmitter<number>()
 
   selectedIndex: number = -1;
   responses: any[] = [];
@@ -118,5 +120,9 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
 
   trackByFn(index, item) {
     return item.code;
+  }
+
+  openTestBuilder($event) {
+    this.onTestBuilder.next($event)
   }
 }

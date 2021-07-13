@@ -7,6 +7,8 @@ import { catchError, map } from 'rxjs/operators';
 import { Team, TeamPartial } from '../models/Team.model';
 import { PublishedDocs, PublishedDocsPartial } from '../models/PublishedDoc.model';
 import apic from '../utils/apic';
+import { ShareType } from './sharing.service';
+import { ApiProject } from '../models/ApiProject.model';
 
 export interface ErrorhandlerOption {
     messagePrefix?: string,
@@ -179,6 +181,47 @@ export class HttpService {
         return this.http.delete(ApicUrls.account)
             .pipe(map(this.processResponseSuccess), catchError((error) => {
                 return this.handleHttpError(error, { messagePrefix: 'Failed to change password.' });
+            }))
+    }
+
+    share(objId: string, teamId: string, type: ShareType) {
+        return this.http.post(ApicUrls.share, { objId, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to share ${type}.` });
+            }))
+    }
+
+    shareMulti(objIds: string[], teamId: string, type: ShareType) {
+        return this.http.post(ApicUrls.share, { objIds, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to share ${type}.` });
+            }))
+    }
+
+    unshare(objId: string, teamId: string, type: ShareType) {
+        return this.http.post(ApicUrls.unshare, { objId, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });
+            }))
+    }
+
+    unshareMulti(objIds: string[], teamId: string, type: ShareType) {
+        return this.http.post(ApicUrls.unshare, { objIds, teamId, type })
+            .pipe(map(this.processResponseSuccess), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Failed to unshare ${type}.` });
+            }))
+    }
+
+    enableMock(projId: string): Observable<ApiProject> {
+        return this.http.get(ApicUrls.enableMock + projId)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Couldn\'t start mocked response for the project. Please try again later.` });
+            }))
+    }
+    disableMock(projId: string): Observable<ApiProject> {
+        return this.http.get(ApicUrls.disableMock + projId)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: `Couldn\'t disable mocked response for the project. Please try again later.` });
             }))
     }
 }

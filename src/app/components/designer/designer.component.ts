@@ -2,7 +2,7 @@ import { NewApiProjectModal } from './newApiProject/newApiProject.modal.componen
 import { Toaster } from '../../services/toaster.service';
 import { ApiProject } from './../../models/ApiProject.model';
 import { ApiProjectService } from './../../services/apiProject.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Select } from '@ngxs/store';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,10 +15,13 @@ import { ApiProjectStateSelector } from '../../state/apiProjects.selector';
   templateUrl: './designer.component.html',
   styleUrls: ['./designer.component.css']
 })
-export class DesignerComponent implements OnInit {
+export class DesignerComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
 
-  constructor(private apiProjectService: ApiProjectService, private toaster: Toaster, private dialog: MatDialog) { }
+  constructor(private apiProjectService: ApiProjectService, private toaster: Toaster, private dialog: MatDialog) {
+  }
+  ngOnDestroy(): void {
+  }
 
   ngOnInit(): void {
   }
