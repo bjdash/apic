@@ -375,6 +375,31 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       })
   }
 
+  async downloadProjectFolder(folder, projId: string) {
+    let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projId)).pipe(first()).toPromise();
+    let toExport = { ...folder };
+    toExport.requests = folder.requests.map(r => {
+      let endpoint = project.endpoints?.[r._id];
+      return RequestUtils.endpointToApiRequest(endpoint, project);
+    })
+
+    if (folder.children?.length > 0) {
+      toExport.children = folder.children.map(childFolder => {
+        return {
+          ...childFolder, requests: childFolder.requests.map(r => {
+            let endpoint = project.endpoints?.[r._id];
+            return RequestUtils.endpointToApiRequest(endpoint, project);
+          })
+        }
+      })
+    }
+    let exportData = {
+      TYPE: 'Folder',
+      value: toExport
+    }
+    this.fileSystem.download(toExport.name + '.folder.apic.json', JSON.stringify(exportData, null, '\t'));
+  }
+
   toggleExpand(id: string) {
     this.flags.expanded[id] = !this.flags.expanded[id];
   }
