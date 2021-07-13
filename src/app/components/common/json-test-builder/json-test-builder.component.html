@@ -1,4 +1,4 @@
-<div class="tbh_cont">
+<div class="tbh_cont" [style]="{top:options.top+'px'}">
     <div class="tbh_h fullwidth">{{options.parent}}{{getKey(options.key)}}
         <a href="" class="icon bj-files-empty" title="Copy"
             (click)="copyToClipboard(options.parent+'.'+options.key)"></a>
@@ -142,7 +142,7 @@
             </div>
             <div class="tbh_b">
                 <div class="bold">Tests</div>
-                <div *ngFor="let k of tests;let i=index" class="">
+                <div *ngFor="let k of tests;let i=index" class="vcenter">
                     <button mat-icon-button class="sm red" (click)="delTest(i)">
                         <mat-icon class="">remove_circle</mat-icon>
                     </button>
@@ -157,7 +157,7 @@
                 </div>
                 <div *ngIf="tests?.length === 0">No tests added yet</div>
                 <div class="tbh_fbtn">
-                    <button mat-raised-button ng-hide="cfg.hideRun" type="button" class="sm green gap"
+                    <button mat-raised-button *ngIf="options.showRun" type="button" class="sm green gap"
                         (click)="runTests()">
                         <mat-icon class="sm gap">play_arrow</mat-icon> Run All
                     </button>

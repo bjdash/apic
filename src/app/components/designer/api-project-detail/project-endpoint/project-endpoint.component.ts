@@ -3,7 +3,7 @@ import { ApiEndp, ApiProject, ApiTrait, NewApiEndp } from 'src/app/models/ApiPro
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Toaster } from 'src/app/services/toaster.service';
-import { MIMEs } from 'src/app/utils/constants';
+import { METHOD_WITH_BODY, MIMEs } from 'src/app/utils/constants';
 import { Utils } from 'src/app/services/utils.service';
 import apic from 'src/app/utils/apic';
 import { Subject } from 'rxjs';
@@ -12,6 +12,8 @@ import { ApiProjectDetailService } from '../api-project-detail.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { ApiProjectUtils } from 'src/app/utils/ApiProject.utils';
+import { TestBuilderOption } from 'src/app/models/TestBuilderOption.model';
+import { TestBuilderSave } from 'src/app/components/common/json-test-builder/json-test-builder.component';
 
 @Component({
   selector: 'app-project-endpoint',
@@ -23,9 +25,11 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   selectedEndp: ApiEndp;
   endpForm: FormGroup;
   private _destroy: Subject<boolean> = new Subject<boolean>();
+  testBuilderOpt: TestBuilderOption = null;
 
   schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
   MIMEs = MIMEs;
+  METHOD_WITH_BODY = METHOD_WITH_BODY;
   flags = {
     allOptn: true,
     more: true,
@@ -347,6 +351,34 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
 
   run(endpId: string) {
     this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
+  }
+
+  openTestBuilder(entity) {
+    let top = document.querySelector('.designer-cont').scrollTop;
+    console.log(top)
+    this.testBuilderOpt = {
+      parent: entity._parent,
+      key: entity._key,
+      val: entity._default,
+      showRun: false,
+      show: true,
+      top: entity.top + top - 100
+    }
+  }
+
+  saveBuilderTests({ tests, autoSave }: TestBuilderSave) {
+    this.endpForm.patchValue({ postrun: this.endpForm.value.postrun + '\n' + tests });
+    this.testBuilderOpt.show = false;
+    // if (METHOD_WITH_BODY.includes(this.endpForm.value.method.toUpperCase())) {
+    //   this.selectedTab.setValue(5)
+    // } else {
+    //   this.selectedTab.setValue(4)
+    // }
+    if (autoSave) {
+      this.createEndp();
+    } else {
+      this.toaster.info('Test added to postrun scripts.')
+    }
   }
 
   ngOnDestroy(): void {

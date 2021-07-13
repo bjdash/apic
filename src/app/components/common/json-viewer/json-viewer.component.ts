@@ -23,7 +23,7 @@ export class JsonViewerComponent implements OnChanges, OnInit {
   @Input() parent = ''
   @Input() _currentDepth = -1;
 
-  @Output() showTestBuilder = new EventEmitter<Segment>();
+  @Output() showTestBuilder = new EventEmitter<{ segment: Segment, top: number }>();
 
   segments: Segment[] = [];
 
@@ -121,7 +121,7 @@ export class JsonViewerComponent implements OnChanges, OnInit {
 
   showBuilder(event, segment: Segment) {
     event.stopPropagation();
-    this.showTestBuilder.emit(segment)
+    this.showTestBuilder.emit({ segment, top: event.clientY })
   }
 
   // https://github.com/douglascrockford/JSON-js/blob/master/cycle.js

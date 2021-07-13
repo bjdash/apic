@@ -51,7 +51,7 @@
             </span>
             <span *ngIf="(mode == 'list' || mode == 'static') && entity.root$$">{{msg}}</span>
             <span class="vcenter js-right-cont">
-                <a href="" type="button" mat-icon-button title="Expand $ref" class="sm"
+                <a href="" mat-icon-button title="Expand $ref" class="sm"
                     (click)="$event.preventDefault();expand$ref(entity)"
                     *ngIf="entity._type.indexOf('$ref')>=0 || (entity._items && entity._items[0] && entity._items[0]._type.indexOf('$ref'))>=0">
                     <!--TODO: Use Optional chaining operator (?)-->
@@ -60,6 +60,11 @@
                         expand</mat-icon>
                     <mat-icon *ngIf="entity._refExp || (entity._items && entity._items[0] && entity._items[0]._refExp)">
                         compress</mat-icon>
+                </a>
+                <a href="" mat-icon-button title="Open test builder" class="sm"
+                    *ngIf="showTestBuilder && !entity.root$$ && !entity._hideKey"
+                    (click)="$event.preventDefault();buildTest(entity, $event)">
+                    <mat-icon>science</mat-icon>
                 </a>
                 <mat-icon class="sm" *ngIf="entity._description" matTooltip="{{entity._description}}">description
                 </mat-icon>
@@ -143,12 +148,14 @@
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
                     [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
                     [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
                     [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
             </div>
             <div *ngFor="let prop of entity._additionalProperties" class="propCont">
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
                     [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
                     [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
                     [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
             </div>
 
@@ -160,6 +167,7 @@
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
                     [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
                     [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
                     [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
             </div>
         </div>
@@ -167,12 +175,14 @@
             <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
                 [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._refExp" [mode]="mode"
                 [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
                 [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
         </div>
         <div *ngIf="entity._items && entity._items[0] && entity._items[0]._refExp" class="expanded-ref">
             <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
                 [disabledKeys]="disabledKeys" [removeEntity]="removeEntity" [openMenu]="openMenu"
                 [entity]="entity._items[0]._refExp" [mode]="mode" [addAdditionalProp]="addAdditionalProp"
+                [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
                 [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
         </div>
 

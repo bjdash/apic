@@ -171,12 +171,7 @@
             </div>
 
             <mat-tab-group class="margV10" animationDuration="0ms">
-                <mat-tab label="Path Params">
-                    <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
-                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
-                    </ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Request body" *ngIf="endpForm.value.method !== 'get'">
+                <mat-tab label="Request body" *ngIf="METHOD_WITH_BODY.includes(endpForm.value.method.toUpperCase())">
                     <div class="pad10" formGroupName="body">
                         <mat-radio-group aria-label="Select an option" formControlName="type">
                             <mat-radio-button value="raw" (click)="resetBodyType('raw')">raw</mat-radio-button>
@@ -199,6 +194,11 @@
                         </div>
                     </div>
                 </mat-tab>
+                <mat-tab label="Path Params">
+                    <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
+                    </ng-jsonschema>
+                </mat-tab>
                 <mat-tab label="Query Params">
                     <ng-jsonschema [models]="selectedPROJ.models" mode="list"
                         msg="Define Query params here and reuse them with endpoints." [disabledKeys]="flags.traitQP"
@@ -212,7 +212,7 @@
                 <mat-tab label="Responses">
                     <div class="pad10">
                         <response-schema-builder [models]="selectedPROJ.models" [onChange]="setDirty.bind(this)"
-                            formControlName="responses">
+                            (onTestBuilder)="openTestBuilder($event)" formControlName="responses">
                         </response-schema-builder>
                     </div>
                 </mat-tab>
@@ -223,5 +223,8 @@
                 </mat-tab>
             </mat-tab-group>
         </form>
+        <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt" (close)="testBuilderOpt.show=false"
+            (onSave)="saveBuilderTests($event)">
+        </json-test-builder>
     </div>
 </div>

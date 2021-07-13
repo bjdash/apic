@@ -26,7 +26,8 @@
             <!--TODO: open trait on click of above link-->
         </div>
         <fieldset [disabled]="selectedResp.fromTrait">
-            <ng-jsonschema [models]="models" (onSchemaChange)="onSchemaUpdate()" name="data" formControlName="data">
+            <ng-jsonschema [models]="models" (onSchemaChange)="onSchemaUpdate()" name="data" formControlName="data"
+                [showTestBuilder]="true" (onTestBuilder)="openTestBuilder($event)">
             </ng-jsonschema>
             <label>Description</label>
             <textarea class="form-control" formControlName="desc"></textarea>

@@ -287,10 +287,6 @@
                             <apic-json-viewer (showTestBuilder)="onTestBuilder($event)" *ngIf="runResponse.data"
                                 [json]="runResponse.data" parent="$response.data">
                             </apic-json-viewer>
-                            <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt"
-                                [$request]="runRequest" [$response]="runResponse" [save]="saveBuilderTests.bind(this)"
-                                (close)="testBuilderOpt.show=false">
-                            </json-test-builder>
                             <div class="red margV10" *ngIf="!runResponse.data">Can't use test builder as response is
                                 not a json.</div>
                         </div>
@@ -397,3 +393,6 @@
         </div>
     </form>
 </div>
+<json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt" [$request]="runRequest"
+    [$response]="runResponse" (onSave)="saveBuilderTests($event)" (close)="testBuilderOpt.show=false">
+</json-test-builder>
