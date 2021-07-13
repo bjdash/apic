@@ -19,6 +19,7 @@ import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import { UserState } from 'src/app/state/user.state';
 import apic from 'src/app/utils/apic';
+import { CustomFilter } from 'src/app/utils/filter.pipe';
 import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
 import { TesterTab, TesterTabsService } from '../../tester-tabs/tester-tabs.service';
@@ -62,7 +63,10 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     projReqs: true,
     savedReqs: true,
     newFolder: false,
-    expanded: {}
+    showSearch: false,
+    searchModel: '',
+    expanded: {},
+    expandAll: false
   }
   constructor(fb: FormBuilder,
     private store: Store,
@@ -532,5 +536,11 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           })
       }
     }
+  }
+
+  showSearch() {
+    this.flags.showSearch = true;
+    this.flags.expandAll = true;
+    document.getElementById('req-search')?.focus();
   }
 }

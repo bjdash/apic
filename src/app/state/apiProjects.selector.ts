@@ -148,7 +148,8 @@ export class ApiProjectStateSelector {
                 let request = {
                     _id: endpoint._id,
                     method: endpoint.method.toUpperCase(),
-                    name: endpoint.summary
+                    name: endpoint.summary,
+                    url: endpoint.path
                 }
                 // var formattedEndp = DesignerServ.formatEndpForRun(endpoint, proj);
                 // var runObj = DataBuilder.endpointToReqTab(formattedEndp, proj, true);

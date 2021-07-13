@@ -350,13 +350,14 @@ a.panel-fab {
   height: 44px;
   padding: 0 3px 0 6px;
   cursor: pointer;
-  /* background-color: burlywood; */
+  transition: height 0.3s;
 }
 .savedReq {
   display: flex;
   height: 40px;
   padding: 0 3px 0 6px;
   cursor: pointer;
+  transition: height 0.3s;
   &.sm {
     height: 30px;
   }
@@ -865,5 +866,29 @@ div.mat-menu-panel.noti-panel {
 
   100% {
     transform: rotate(-360deg);
+  }
+}
+
+/************* Tester left nav *******/
+.search-box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: 10px;
+  top: -40px;
+  z-index: 1;
+  background: var(--content-bg);
+  transition: top 0.3s;
+
+  &.visible {
+    top: 5px;
+  }
+
+  &.input-group {
+    input.form-control:first-child {
+      border-right: 1px solid var(--border-color);
+      border-top-right-radius: 5px !important;
+      border-bottom-right-radius: 5px !important;
+    }
   }
 }

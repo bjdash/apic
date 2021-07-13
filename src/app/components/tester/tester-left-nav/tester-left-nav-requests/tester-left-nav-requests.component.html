@@ -8,8 +8,16 @@
             matTooltipPosition="left">
             <mat-icon>create_new_folder</mat-icon>
         </button>
-        <button mat-icon-button class="t_color" matTooltip="Search" matTooltipPosition="left">
+        <button mat-icon-button class="t_color" matTooltip="Search" matTooltipPosition="left" (click)="showSearch()">
             <mat-icon>search</mat-icon>
+        </button>
+    </div>
+    <div class="input-group search-box req-search" [ngClass]="{'visible':flags.showSearch}">
+        <input type="search" placeholder="Search history" id="req-search" class="form-control sm"
+            [(ngModel)]="flags.searchModel">
+        <button mat-icon-button class="red sm"
+            (click)="flags.showSearch = false;flags.searchModel='';flags.expandAll=false">
+            <mat-icon>highlight_off</mat-icon>
         </button>
     </div>
     <div class="new-folder" *ngIf="flags.newFolder;">
@@ -39,7 +47,7 @@
 
         </form>
     </div>
-    <div class="">
+    <div [ngClass]="{searching:flags.showSearch}">
         <div class="c_color reqSection" (click)="flags.projReqs = !flags.projReqs">
             Requests from API Projects
             <mat-icon *ngIf="flags.projReqs" class="pull-right">expand_more</mat-icon>
@@ -50,29 +58,31 @@
                 <ng-container [ngTemplateOutlet]="FolderRef"
                     [ngTemplateOutletContext]="{folder: project, type:'project', projId:project._id}">
                 </ng-container>
-                <div class="sub-folder" [hidden]="!flags.expanded[project._id]">
+                <div class="sub-folder" [hidden]="!flags.expanded[project._id] && !flags.expandAll">
                     <div *ngFor="let subfolder of project.children">
                         <ng-container [ngTemplateOutlet]="FolderRef"
                             [ngTemplateOutletContext]="{folder: subfolder, type:'project', projId:project._id}">
                         </ng-container>
-                        <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id]">
-                            <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple
-                                (click)="openProjectRequest(req._id, project._id)"
+                        <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id] && !flags.expandAll">
+                            <div *ngFor="let req of subfolder.requests|filter:flags.searchModel:['name', 'url']"
+                                class="savedReq" matRipple (click)="openProjectRequest(req._id, project._id)"
                                 [ngClass]="{active:req._id === selectedTabId}">
                                 <ng-container [ngTemplateOutlet]="ReqRef"
                                     [ngTemplateOutletContext]="{req: req, type:'project', projId:project._id}">
                                 </ng-container>
                             </div>
-                            <span *ngIf="subfolder.requests?.length == 0">empty folder</span>
+                            <span *ngIf="subfolder.requests?.length == 0" class="empty">empty folder</span>
                         </div>
                     </div>
-                    <div *ngFor="let req of project.requests" (click)="openProjectRequest(req._id, project._id)"
-                        class="savedReq" matRipple [ngClass]="{active:req._id === selectedTabId}">
+                    <div *ngFor="let req of project.requests|filter:flags.searchModel:['name', 'url']"
+                        (click)="openProjectRequest(req._id, project._id)" class="savedReq" matRipple
+                        [ngClass]="{active:req._id === selectedTabId}">
                         <ng-container [ngTemplateOutlet]="ReqRef"
                             [ngTemplateOutletContext]="{req: req, type:'project', projId:project._id}">
                         </ng-container>
                     </div>
-                    <span *ngIf="project.requests?.length == 0 && project.children?.length == 0">empty folder</span>
+                    <span *ngIf="project.requests?.length == 0 && project.children?.length == 0" class="empty">empty
+                        folder</span>
                 </div>
             </div>
         </div>
@@ -86,27 +96,30 @@
                 <ng-container [ngTemplateOutlet]="FolderRef" [ngTemplateOutletContext]="{folder: folder, type:'saved'}">
                 </ng-container>
 
-                <div class="sub-folder" [hidden]="!flags.expanded[folder._id]">
+                <div class="sub-folder" [hidden]="!flags.expanded[folder._id] && !flags.expandAll">
                     <div *ngFor="let subfolder of folder.children">
                         <ng-container [ngTemplateOutlet]="FolderRef"
                             [ngTemplateOutletContext]="{folder: subfolder, type:'saved'}">
                         </ng-container>
-                        <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id]">
-                            <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple
-                                (click)="openSavedRequest(req)" [ngClass]="{active:req._id === selectedTabId}">
+                        <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id] && !flags.expandAll">
+                            <div *ngFor="let req of subfolder.requests|filter:flags.searchModel:['name', 'url']"
+                                class="savedReq" matRipple (click)="openSavedRequest(req)"
+                                [ngClass]="{active:req._id === selectedTabId}">
                                 <ng-container [ngTemplateOutlet]="ReqRef"
                                     [ngTemplateOutletContext]="{req: req, type:'saved'}">
                                 </ng-container>
                             </div>
-                            <span *ngIf="subfolder.requests?.length == 0">empty folder</span>
+                            <span *ngIf="subfolder.requests?.length == 0" class="empty">empty folder</span>
                         </div>
                     </div>
-                    <div *ngFor="let req of folder.requests" (click)="openSavedRequest(req)" class="savedReq" matRipple
+                    <div *ngFor="let req of folder.requests|filter:flags.searchModel:['name', 'url']"
+                        (click)="openSavedRequest(req)" class="savedReq" matRipple
                         [ngClass]="{active:req._id === selectedTabId}">
                         <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req, type:'saved'}">
                         </ng-container>
                     </div>
-                    <span *ngIf="folder.requests?.length == 0 && folder.children?.length == 0">empty folder</span>
+                    <span *ngIf="folder.requests?.length == 0 && folder.children?.length == 0" class="empty">empty
+                        folder</span>
                 </div>
             </div>
             <div class="msg" *ngIf="(folders$ |async)?.length == 0">Nothing saved.<br />Please <a class="t_color" href
@@ -122,9 +135,11 @@
 </div>
 
 <ng-template #FolderRef let-folder="folder" let-type="type" let-projId="projId">
-    <div class="folder" (click)="toggleExpand(folder._id)" [ngClass]="flags.expanded[folder._id]?'opened':'closed'">
+    <div class="folder" (click)="toggleExpand(folder._id)"
+        [ngClass]="(flags.expanded[folder._id] || flags.expandAll)?'opened':'closed'">
         <div class="l-sec">
-            <i class="icon  bj-folder" [ngClass]="flags.expanded[folder._id]?'bj-folder-open':'bj-folder'"></i>
+            <i class="icon  bj-folder"
+                [ngClass]="(flags.expanded[folder._id] || flags.expandAll)?'bj-folder-open':'bj-folder'"></i>
         </div>
         <div class="folder-name m-sec">
             <div class="f-name">
@@ -137,7 +152,7 @@
         </div>
         <div class="r-sec ">
             <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()"
-                [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
+                [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger" *ngIf="!flags.showSearch">
                 <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #folderMenu="matMenu">

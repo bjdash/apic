@@ -43,25 +43,3 @@
         padding: 3px 10px;
     }
 }
-.search-box {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-left: 10px;
-    top: -40px;
-    z-index: 1;
-    background: var(--content-bg);
-    transition: top 0.3s;
-
-    &.visible {
-        top: 5px;
-    }
-
-    &.input-group {
-        input.form-control:first-child {
-            border-right: 1px solid var(--border-color);
-            border-top-right-radius: 5px !important;
-            border-bottom-right-radius: 5px !important;
-        }
-    }
-}
