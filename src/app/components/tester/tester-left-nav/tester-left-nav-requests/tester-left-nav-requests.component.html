@@ -60,7 +60,7 @@
                                 (click)="openProjectRequest(req._id, project._id)"
                                 [ngClass]="{active:req._id === selectedTabId}">
                                 <ng-container [ngTemplateOutlet]="ReqRef"
-                                    [ngTemplateOutletContext]="{req: req, type:'project'}">
+                                    [ngTemplateOutletContext]="{req: req, type:'project', projId:project._id}">
                                 </ng-container>
                             </div>
                             <span *ngIf="subfolder.requests?.length == 0">empty folder</span>
@@ -69,7 +69,7 @@
                     <div *ngFor="let req of project.requests" (click)="openProjectRequest(req._id, project._id)"
                         class="savedReq" matRipple [ngClass]="{active:req._id === selectedTabId}">
                         <ng-container [ngTemplateOutlet]="ReqRef"
-                            [ngTemplateOutletContext]="{req: req, type:'project'}">
+                            [ngTemplateOutletContext]="{req: req, type:'project', projId:project._id}">
                         </ng-container>
                     </div>
                     <span *ngIf="project.requests?.length == 0 && project.children?.length == 0">empty folder</span>
@@ -176,7 +176,7 @@
     </div>
 </ng-template>
 
-<ng-template #ReqRef let-req="req" let-type="type">
+<ng-template #ReqRef let-req="req" let-type="type" let-projId="projId">
     <div class="l-sec">
         <div class="method" [ngClass]="req.method"></div>
     </div>
@@ -190,7 +190,7 @@
         </button>
         <mat-menu #reqManu="matMenu">
             <div *ngIf="type=='saved'">
-                <button mat-menu-item (click)="addRequestToSuite(req)">
+                <button mat-menu-item (click)="addRequestToSuite(req, type)">
                     <mat-icon>code</mat-icon> Add to test suite
                 </button>
                 <button mat-menu-item (click)="initCopyMove('copy', req._id, req.name)">
@@ -211,7 +211,7 @@
                 </button>
             </div>
             <div *ngIf="type=='project'">
-                <button mat-menu-item (click)="addRequestToSuite(req)">
+                <button mat-menu-item (click)="addRequestToSuite(req, type, projId)">
                     <mat-icon>code</mat-icon> Add to test suite
                 </button>
             </div>

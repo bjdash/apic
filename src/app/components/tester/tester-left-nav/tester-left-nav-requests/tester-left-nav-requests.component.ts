@@ -22,6 +22,7 @@ import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
 import { TesterTab, TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 
+type ReqIsFrom = 'saved' | 'project'
 @Component({
   selector: 'app-tester-left-nav-requests',
   templateUrl: './tester-left-nav-requests.component.html',
@@ -443,7 +444,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addRequestToSuite(partialReq: ApiRequest) {
+  async addRequestToSuite(partialReq: ApiRequest, reqIsFrom: ReqIsFrom, projectId?: string) {
     if (partialReq.type === 'ws') {
       this.toastr.error('Websocket requests can not be added to suites.');
       return;
@@ -465,7 +466,17 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
         this.store.select(SuitesStateSelector.getSuiteByIdDynamic(suiteId))
           .pipe(take(1))
           .subscribe(async (suite) => {
-            let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(partialReq._id)).pipe(take(1)).toPromise();
+            let request: ApiRequest;
+            if (reqIsFrom == 'project') {
+              let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+              let endpoint = project.endpoints?.[partialReq._id];
+              request = RequestUtils.endpointToApiRequest(endpoint, project);
+            } else {
+              request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(partialReq._id)).pipe(take(1)).toPromise();
+            }
+            if (!request) {
+              this.toastr.error('Request not found.'); return;
+            }
             let suiteToUpdate = { ...suite, reqs: [...suite.reqs, { ...request, disabled: false }] };
             try {
               await this.suiteService.updateSuites([suiteToUpdate]);
