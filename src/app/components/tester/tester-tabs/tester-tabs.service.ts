@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ApiRequest } from 'src/app/models/Request.model';
 import { Toaster } from 'src/app/services/toaster.service';
 import apic from 'src/app/utils/apic';
 
@@ -10,7 +11,8 @@ export interface TesterTab {
   newId?: string,
   type?: 'req' | 'socket' | 'ws' | 'suite',
   name?: string,
-  data?: any
+  data?: any,
+  projId?: string
 }
 
 @Injectable({
@@ -26,6 +28,12 @@ export class TesterTabsService {
   }
   addSocketTab(id: string, name: string) {
     this.tabsChange.next({ action: 'add', id, type: 'ws', name });
+  }
+  addEndpointReqTab(request: ApiRequest, projId) {
+    let tab: TesterTab = {
+      action: 'add', type: 'req', name: request.name, data: request, id: request._id, projId
+    };
+    this.tabsChange.next(tab);
   }
 
   addSuiteTab(id: string, name: string, reqToOpen?: string) {

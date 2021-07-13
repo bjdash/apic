@@ -50,7 +50,8 @@
                     (click)="showNewSuitForm(project._id);$event.stopPropagation()" matTooltip="New suite">
                     <mat-icon>add</mat-icon>
                 </button>
-                <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()">
+                <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()"
+                    [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
                     <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #folderMenu="matMenu">
@@ -111,7 +112,8 @@
                         <button mat-icon-button (click)="addReqToSuite(suite)">
                             <mat-icon>add</mat-icon>
                         </button>
-                        <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()">
+                        <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
+                            [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
                             <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #reqManu="matMenu">
@@ -144,7 +146,8 @@
                         </div>
                         <div class="name m-sec" ng-click="vm.openSuitReq(req._id, suit, $index)">{{req.name}}</div>
                         <div class="r-sec">
-                            <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()">
+                            <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
+                                [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
                                 <mat-icon>more_vert</mat-icon>
                             </button>
                             <mat-menu #reqManu="matMenu">

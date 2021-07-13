@@ -42,6 +42,9 @@ div {
 .mat-tooltip {
   font-size: 14px !important;
 }
+.warn-tooltip {
+  background: var(--warn);
+}
 .mat-flat-button.mat-primary {
   background-color: var(--accent-color) !important;
 }

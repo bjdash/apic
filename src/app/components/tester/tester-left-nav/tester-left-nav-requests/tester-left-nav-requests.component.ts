@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
 import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
@@ -13,12 +13,14 @@ import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
+import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import { UserState } from 'src/app/state/user.state';
 import apic from 'src/app/utils/apic';
+import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
-import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
+import { TesterTab, TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 
 @Component({
   selector: 'app-tester-left-nav-requests',
@@ -28,6 +30,7 @@ import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   @Select(RequestsStateSelector.getFoldersTree) folders$: Observable<any[]>;
   @Select(SuitesStateSelector.getSuitesTree) suitesTree$: Observable<any[]>;
+  @Select(ApiProjectStateSelector.getTesterTree) projectsTree$: Observable<any[]>
 
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
@@ -374,11 +377,23 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     this.flags.expanded[id] = !this.flags.expanded[id];
   }
 
-  loadFromSave(req: ApiRequest) {
+  openSavedRequest(req: ApiRequest) {
     if (req.type === 'ws') {
       this.testerTabService.addSocketTab(req._id, req.name)
     } else {
       this.testerTabService.addReqTab(req._id, req.name);
+    }
+  }
+
+  async openProjectRequest(endpId: string, projectId: string) {
+    let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+    let endpoint = project.endpoints?.[endpId];
+    if (endpoint && project) {
+      console.log(project, endpoint);
+      let request: ApiRequest = RequestUtils.endpointToApiRequest(endpoint, project);
+      this.testerTabService.addEndpointReqTab(request, projectId)
+    } else {
+      this.toastr.error('Request doesn\'t exist.');
     }
   }
 

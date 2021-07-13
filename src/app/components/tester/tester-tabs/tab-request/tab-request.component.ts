@@ -15,6 +15,7 @@ import { ApiRequest, SavedResp } from 'src/app/models/Request.model';
 import { RunResponse } from 'src/app/models/RunResponse.model';
 import { RunResult } from 'src/app/models/RunResult.model';
 import { TestBuilderOption } from 'src/app/models/TestBuilderOption.model';
+import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import LocalStore from 'src/app/services/localStore';
 import { ReqHistoryService } from 'src/app/services/reqHistory.service';
@@ -40,6 +41,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
   @Input() initialData: ApiRequest;
   @Input() suitRequest: boolean;
+  @Input() projId: string; //The id of the project if the request is an endpoint 
 
   @Output() onSuitReqSave = new EventEmitter();
 
@@ -92,6 +94,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     private runner: RequestRunnerService,
     public interpolationService: InterpolationService,
     private historyServ: ReqHistoryService,
+    private apiProjService: ApiProjectService,
     private toastr: Toaster) {
     this.form = fb.group({
       name: [''],
@@ -144,8 +147,10 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    if (!this.requestId.includes('new_tab') && !this.requestId.includes('suit_req')) {
+    if (!this.requestId.includes('new_tab') && !this.suitRequest && !this.projId) {
       this.listenForUpdate()
+    } else {
+
     }
     if (this.initialData) {
       this.processSelectedReq(this.initialData)
@@ -210,16 +215,25 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async initReqSave(saveAs: boolean = false) {
-    // if(fromProject?){
-    //   update the endpoint with prerun and postrun
-    // }
-    let saveData: ApiRequest = this.getReqFromForm();
-    if (this.suitRequest) {
-      this.onSuitReqSave.next(saveData);
-    } else if (this.requestId.includes('new_tab') || saveAs) {
-      this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
+    if (this.projId) {
+      //this is an endpoint opened from left menu, so only update its scripts
+      let { prescript, postscript } = this.form.value;
+      try {
+        await this.apiProjService.updateEndpoint(this.requestId, this.projId, { prerun: prescript, postrun: postscript });
+        this.toastr.success('Test scripts updated for project endpoint.')
+      } catch (e) {
+        console.error('Failed to update scripts for project endpoint.', e)
+        this.toastr.error(`Failed to update endpoint:${e}`)
+      }
     } else {
-      await this.updateRequest(saveData);
+      let saveData: ApiRequest = this.getReqFromForm();
+      if (this.suitRequest) {
+        this.onSuitReqSave.next(saveData);
+      } else if (this.requestId.includes('new_tab') || saveAs) {
+        this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
+      } else {
+        await this.updateRequest(saveData);
+      }
     }
   }
 

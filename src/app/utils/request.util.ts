@@ -146,7 +146,7 @@ export class RequestUtils {
         var request: ApiRequest = {
             url: endp.path,
             method: endp.method.toUpperCase(),
-            _id: 'new_tab' + endp._id,
+            _id: endp._id,
             description: endp.description,
             name: endp.summary,
             postscript: endp.postrun ? endp.postrun : '',
@@ -194,7 +194,7 @@ export class RequestUtils {
                         data: SchemaDref.parse(Utils.clone(tmpSchema))
                     });
                 } catch (e) {
-                    console.log('Circular JSON schema reference encountered.')
+                    console.error('Circular JSON schema reference encountered.', e)
                 }
             }
         }
@@ -249,7 +249,7 @@ export class RequestUtils {
                         try {
                             sampleData = jsf(schema);
                         } catch (e) {
-                            console.log('Failed to generate sample data', e);
+                            console.error('Failed to generate sample data', e);
                         }
                         request.Body.rawData = JSON.stringify(sampleData, null, '\t');
                     }

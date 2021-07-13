@@ -46,7 +46,35 @@
             <mat-icon *ngIf="!flags.projReqs" class="pull-right">chevron_right</mat-icon>
         </div>
         <div *ngIf="flags.projReqs">
-            <!--TODO-->
+            <div *ngFor="let project of projectsTree$ |async">
+                <ng-container [ngTemplateOutlet]="FolderRef"
+                    [ngTemplateOutletContext]="{folder: project, type:'project'}">
+                </ng-container>
+                <div class="sub-folder" [hidden]="!flags.expanded[project._id]">
+                    <div *ngFor="let subfolder of project.children">
+                        <ng-container [ngTemplateOutlet]="FolderRef"
+                            [ngTemplateOutletContext]="{folder: subfolder, type:'project'}">
+                        </ng-container>
+                        <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id]">
+                            <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple
+                                (click)="openProjectRequest(req._id, project._id)"
+                                [ngClass]="{active:req._id === selectedTabId}">
+                                <ng-container [ngTemplateOutlet]="ReqRef"
+                                    [ngTemplateOutletContext]="{req: req, type:'project'}">
+                                </ng-container>
+                            </div>
+                            <span *ngIf="subfolder.requests?.length == 0">empty folder</span>
+                        </div>
+                    </div>
+                    <div *ngFor="let req of project.requests" (click)="openProjectRequest(req._id, project._id)"
+                        class="savedReq" matRipple [ngClass]="{active:req._id === selectedTabId}">
+                        <ng-container [ngTemplateOutlet]="ReqRef"
+                            [ngTemplateOutletContext]="{req: req, type:'project'}">
+                        </ng-container>
+                    </div>
+                    <span *ngIf="project.requests?.length == 0 && project.children?.length == 0">empty folder</span>
+                </div>
+            </div>
         </div>
         <div class="c_color reqSection" (click)="flags.savedReqs = !flags.savedReqs">
             Saved Requests
@@ -55,25 +83,27 @@
         </div>
         <div *ngIf="flags.savedReqs">
             <div *ngFor="let folder of folders$ |async">
-                <ng-container [ngTemplateOutlet]="FolderRef" [ngTemplateOutletContext]="{folder: folder}">
+                <ng-container [ngTemplateOutlet]="FolderRef" [ngTemplateOutletContext]="{folder: folder, type:'saved'}">
                 </ng-container>
 
                 <div class="sub-folder" [hidden]="!flags.expanded[folder._id]">
                     <div *ngFor="let subfolder of folder.children">
-                        <ng-container [ngTemplateOutlet]="FolderRef" [ngTemplateOutletContext]="{folder: subfolder}">
+                        <ng-container [ngTemplateOutlet]="FolderRef"
+                            [ngTemplateOutletContext]="{folder: subfolder, type:'saved'}">
                         </ng-container>
                         <div class="sub-folder" [hidden]="!flags.expanded[subfolder._id]">
                             <div *ngFor="let req of subfolder.requests" class="savedReq" matRipple
-                                (click)="loadFromSave(req)" [ngClass]="{active:req._id === selectedTabId}">
-                                <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req}">
+                                (click)="openSavedRequest(req)" [ngClass]="{active:req._id === selectedTabId}">
+                                <ng-container [ngTemplateOutlet]="ReqRef"
+                                    [ngTemplateOutletContext]="{req: req, type:'saved'}">
                                 </ng-container>
                             </div>
                             <span *ngIf="subfolder.requests?.length == 0">empty folder</span>
                         </div>
                     </div>
-                    <div *ngFor="let req of folder.requests" (click)="loadFromSave(req)" class="savedReq" matRipple
+                    <div *ngFor="let req of folder.requests" (click)="openSavedRequest(req)" class="savedReq" matRipple
                         [ngClass]="{active:req._id === selectedTabId}">
-                        <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req}">
+                        <ng-container [ngTemplateOutlet]="ReqRef" [ngTemplateOutletContext]="{req: req, type:'saved'}">
                         </ng-container>
                     </div>
                     <span *ngIf="folder.requests?.length == 0 && folder.children?.length == 0">empty folder</span>
@@ -90,7 +120,8 @@
         (onClose)="this.treeSelectorOpt.show = false" (onDone)="treeSelectorOpt.onDone($event)">
     </left-menu-tree-selector>
 </div>
-<ng-template #FolderRef let-folder="folder">
+
+<ng-template #FolderRef let-folder="folder" let-type="type">
     <div class="folder" (click)="toggleExpand(folder._id)" [ngClass]="flags.expanded[folder._id]?'opened':'closed'">
         <div class="l-sec">
             <i class="icon  bj-folder" [ngClass]="flags.expanded[folder._id]?'bj-folder-open':'bj-folder'"></i>
@@ -105,35 +136,47 @@
             </div>
         </div>
         <div class="r-sec ">
-            <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()">
+            <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()"
+                [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
                 <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #folderMenu="matMenu">
-                <button mat-menu-item (click)="convertFolderToSuite(folder)">
-                    <span class="icon bj-lab" style="margin-right: 25px;"></span> Convert to test suite
-                </button>
-                <button mat-menu-item (click)="showRename(folder)">
-                    <mat-icon>edit</mat-icon> Rename
-                </button>
-                <button mat-menu-item (click)="$event.stopPropagation()">
-                    <mat-icon>topic</mat-icon> View/Edit folder detail
-                </button>
-                <button mat-menu-item (click)="$event.stopPropagation()">
-                    <mat-icon>share</mat-icon> Share
-                </button>
-                <button mat-menu-item (click)="downloadFolder(folder._id)">
-                    <mat-icon>download</mat-icon> Export
-                </button>
-                <button mat-menu-item confirm="Do you want to delete this folder, all subfolders and requests under it?"
-                    confirmTitle="Delete Confirmation" confirmOk="Delete" (confirm-click)="deleteFolder(folder);">
-                    <mat-icon class="red">delete</mat-icon> Delete
-                </button>
+                <div *ngIf="type=='saved'">
+                    <button mat-menu-item (click)="convertFolderToSuite(folder)">
+                        <span class="icon bj-lab" style="margin-right: 25px;"></span> Convert to test suite
+                    </button>
+                    <button mat-menu-item (click)="showRename(folder)">
+                        <mat-icon>edit</mat-icon> Rename
+                    </button>
+                    <button mat-menu-item (click)="$event.stopPropagation()">
+                        <mat-icon>topic</mat-icon> View/Edit folder detail
+                    </button>
+                    <button mat-menu-item (click)="$event.stopPropagation()">
+                        <mat-icon>share</mat-icon> Share
+                    </button>
+                    <button mat-menu-item (click)="downloadFolder(folder._id)">
+                        <mat-icon>download</mat-icon> Export
+                    </button>
+                    <button mat-menu-item
+                        confirm="Do you want to delete this folder, all subfolders and requests under it?"
+                        confirmTitle="Delete Confirmation" confirmOk="Delete" (confirm-click)="deleteFolder(folder);">
+                        <mat-icon class="red">delete</mat-icon> Delete
+                    </button>
+                </div>
+                <div *ngIf="type=='project'">
+                    <button mat-menu-item (click)="convertFolderToSuite(folder)">
+                        <span class="icon bj-lab" style="margin-right: 25px;"></span> Convert to test suite
+                    </button>
+                    <button mat-menu-item (click)="downloadFolder(folder._id)">
+                        <mat-icon>download</mat-icon> Export
+                    </button>
+                </div>
             </mat-menu>
         </div>
     </div>
 </ng-template>
 
-<ng-template #ReqRef let-req="req">
+<ng-template #ReqRef let-req="req" let-type="type">
     <div class="l-sec">
         <div class="method" [ngClass]="req.method"></div>
     </div>
@@ -141,29 +184,37 @@
         {{req.name}}
     </div>
     <div class="r-sec">
-        <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()">
+        <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
+            [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
             <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #reqManu="matMenu">
-            <button mat-menu-item (click)="addRequestToSuite(req)">
-                <mat-icon>code</mat-icon> Add to test suite
-            </button>
-            <button mat-menu-item (click)="initCopyMove('copy', req._id, req.name)">
-                <mat-icon>file_copy</mat-icon> Copy to
-            </button>
-            <button mat-menu-item (click)="initCopyMove('move', req._id, req.name)">
-                <mat-icon>content_cut</mat-icon> Move to
-            </button>
-            <button mat-menu-item (click)="duplicateReq(req._id)">
-                <mat-icon>content_copy</mat-icon> Duplicate
-            </button>
-            <button mat-menu-item (click)="editReq(req._id)">
-                <mat-icon>edit</mat-icon> Edit
-            </button>
-            <button mat-menu-item confirm="Do you want to delete this Request?" confirmTitle="Delete Confirmation"
-                confirmOk="Delete" (confirm-click)="deleteRequest(req._id, req.name)">
-                <mat-icon class="red">delete</mat-icon> Delete
-            </button>
+            <div *ngIf="type=='saved'">
+                <button mat-menu-item (click)="addRequestToSuite(req)">
+                    <mat-icon>code</mat-icon> Add to test suite
+                </button>
+                <button mat-menu-item (click)="initCopyMove('copy', req._id, req.name)">
+                    <mat-icon>file_copy</mat-icon> Copy to
+                </button>
+                <button mat-menu-item (click)="initCopyMove('move', req._id, req.name)">
+                    <mat-icon>content_cut</mat-icon> Move to
+                </button>
+                <button mat-menu-item (click)="duplicateReq(req._id)">
+                    <mat-icon>content_copy</mat-icon> Duplicate
+                </button>
+                <button mat-menu-item (click)="editReq(req._id)">
+                    <mat-icon>edit</mat-icon> Edit
+                </button>
+                <button mat-menu-item confirm="Do you want to delete this Request?" confirmTitle="Delete Confirmation"
+                    confirmOk="Delete" (confirm-click)="deleteRequest(req._id, req.name)">
+                    <mat-icon class="red">delete</mat-icon> Delete
+                </button>
+            </div>
+            <div *ngIf="type=='project'">
+                <button mat-menu-item (click)="addRequestToSuite(req)">
+                    <mat-icon>code</mat-icon> Add to test suite
+                </button>
+            </div>
         </mat-menu>
     </div>
 </ng-template>

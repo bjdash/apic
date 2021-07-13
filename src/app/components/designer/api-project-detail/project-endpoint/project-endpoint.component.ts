@@ -355,7 +355,6 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
 
   openTestBuilder(entity) {
     let top = document.querySelector('.designer-cont').scrollTop;
-    console.log(top)
     this.testBuilderOpt = {
       parent: entity._parent,
       key: entity._key,

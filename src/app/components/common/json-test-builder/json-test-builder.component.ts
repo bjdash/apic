@@ -53,7 +53,6 @@ export class JsonTestBuilderComponent implements OnInit {
   constructor(private utils: Utils, private toaster: Toaster, private tester: TesterService) { }
 
   ngOnInit(): void {
-    console.log(this.options)
     if (typeof this.options.val != 'object') this.models.input = this.options.val;
     else {
       this.models.input = JSON.stringify(this.options.val);

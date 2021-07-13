@@ -22,7 +22,8 @@
                 </div>
             </ng-template>
             <div>
-                <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data"></app-tab-request>
+                <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data"
+                    [projId]="tab.projId"></app-tab-request>
                 <app-tab-socket *ngSwitchCase="'ws'" [requestId]="tab.id"></app-tab-socket>
                 <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id" [reqToOpen]="tab.data?.reqToOpen">
                 </app-tab-suite>
