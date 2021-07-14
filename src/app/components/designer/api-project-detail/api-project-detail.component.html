@@ -9,9 +9,9 @@
             </div>
             <div class="tab-content" *ngIf="leftPanel.tree">
                 <div class="align-right">
-                    <button color="primary" mat-icon-button aria-label="Build requests"
+                    <button color="primary" mat-icon-button aria-label="Build requests" (click)="buildRequests()"
                         matTooltip="Build requests to Run">
-                        <i class="icon bj-wrench f18"></i>
+                        <mat-icon class="sm">build</mat-icon>
                     </button>
                     <a href="" [routerLink]="['/', 'docs', selectedPROJ._id]" color="primary" mat-icon-button
                         aria-label="View Docs" matTooltip="View Docs">
