@@ -73,7 +73,7 @@ export class ProjectFolderComponent implements OnInit, OnDestroy {
         this.folderForm.markAsUntouched();
     }
 
-    createFolder() {
+    async createFolder() {
         if (!this.folderForm.valid) return;
 
         const folder: ApiFolder = { _id: this.isEditing() ? this.selectedFolder._id : new Date().getTime() + apic.s8(), ...this.folderForm.value };
@@ -84,7 +84,8 @@ export class ProjectFolderComponent implements OnInit, OnDestroy {
         }
 
         var projToUpdate: ApiProject = { ...this.selectedPROJ, folders: { ...this.selectedPROJ.folders, [folder._id]: folder } };
-        this.apiProjService.updateAPIProject(projToUpdate).then((data) => {
+        try {
+            await this.apiProjService.updateAPIProject(projToUpdate)
             this.folderForm.markAsPristine();
             this.folderForm.markAsUntouched();
             if (this.isEditing()) {
@@ -94,37 +95,11 @@ export class ProjectFolderComponent implements OnInit, OnDestroy {
                 this.router.navigate(['../', folder._id], { relativeTo: this.route })
                 this.toaster.success('Folder created.');
             }
-        }, (e) => {
+        } catch (e) {
             console.error('Failed to create/update folder', e, folder)
-            this.toaster.error(`Failed to create/update folder: ${e.message}`);
-        });
+            this.toaster.error(`Failed to create/update folder: ${e?.message || e || ''}`);
+        }
     }
-
-    // openNewFolder() {
-    //     this.openFolder(NewApiFolder);
-    // }
-
-    // openFolderById(folderIdToOpen: string) {
-    //     const folderToOpen: ApiFolder = this.selectedPROJ?.folders?.[folderIdToOpen] || NewApiFolder;
-    //     this.openFolder(folderToOpen)
-    // }
-
-    // private openFolder(folderToOpen: ApiFolder) {
-    //     if (this.folderForm.dirty) {
-    //         this.confirmService.confirm({
-    //             confirmTitle: 'Unsaved data !',
-    //             confirm: 'The Folders view has some unsaved data. Do you want to replace it with your current selection?',
-    //             confirmOk: 'Replace',
-    //             confirmCancel: 'No, let me save'
-    //         }).then(() => {
-    //             this.handleFolderSelect(folderToOpen);
-    //         }).catch(() => {
-    //             console.info('Selected to keep the changes');
-    //         })
-    //     } else {
-    //         this.handleFolderSelect(folderToOpen);
-    //     }
-    // }
 
     deleteFolder(id: string) {
         if (!id || !this.selectedPROJ.folders)
@@ -138,7 +113,7 @@ export class ProjectFolderComponent implements OnInit, OnDestroy {
             confirm: `Do you want to delete the folder '${this.selectedPROJ.folders[id].name}'?`,
             confirmOk: 'Delete',
             confirmCancel: 'Cancel'
-        }).then(() => {
+        }).then(async () => {
 
             delete project.folders[id];
             if (project.endpoints) {
@@ -161,14 +136,15 @@ export class ProjectFolderComponent implements OnInit, OnDestroy {
                 project = { ...project, traits: Utils.arrayToObj(updatedTraits, '_id') };
             }
 
-            this.apiProjService.updateAPIProject(project).then(() => {
+            try {
+                await this.apiProjService.updateAPIProject(project)
                 this.toaster.success('Folder deleted.');
                 this.folderForm.markAsPristine();
                 this.router.navigate(['../', 'new'], { relativeTo: this.route })
-            }, (e) => {
+            } catch (e) {
                 console.error('Failed to delete folder', e);
-                this.toaster.error(`Failed to delete folder: ${e.message}`);
-            });
+                this.toaster.error(`Failed to delete folder: ${e?.message || e || ''}`);
+            }
         })
 
     }

@@ -119,8 +119,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     this.endpForm.markAsUntouched();
   }
 
-  createEndp(allowDup?: boolean) {
-
+  async createEndp(allowDup?: boolean) {
     if (!this.endpForm.valid) return;
     let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8(), };
 
@@ -135,7 +134,8 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     });
 
     var projToUpdate: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
-    this.apiProjService.updateAPIProject(projToUpdate).then(() => {
+    try {
+      await this.apiProjService.updateAPIProject(projToUpdate)
       this.endpForm.markAsPristine();
       this.endpForm.markAsUntouched();
 
@@ -146,12 +146,11 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
         this.toaster.success('Endpoint created.');
         this.router.navigate(['../', endp._id], { relativeTo: this.route })
       }
-    }, (e) => {
-      console.error('Failed to create/update endpoint', e, endp);
-      this.toaster.error(`Failed to create/update endpoint: ${e.message}`);
-    }
-    );
 
+    } catch (e) {
+      console.error('Failed to create/update endpoint', e, endp);
+      this.toaster.error(`Failed to create/update endpoint: ${e?.message || e || ''}`);
+    }
   }
 
   checkForPathParams() {
@@ -209,7 +208,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     this.endpForm.patchValue({ responses, pathParams, headers, queryParams });
   }
 
-  duplicateEndp(id: string) {
+  async duplicateEndp(id: string) {
     var toCopy: ApiEndp = { ...this.selectedPROJ.endpoints[id] };
     toCopy._id = apic.s12();
     while (this.checkExistingEndp(toCopy.summary)) {
@@ -229,9 +228,12 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
         counter;
     }
     let project: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [toCopy._id]: toCopy } }
-    this.apiProjService.updateAPIProject(project).then(() => {
+    try {
+      await this.apiProjService.updateAPIProject(project)
       this.toaster.success('Duplicate endpoint ' + toCopy.summary + ' created.');
-    });
+    } catch (e) {
+      this.toaster.error(`Failed to duplicate: ${e?.message || e || ''}`);
+    }
   }
 
   deleteEndp(endpId: string) {
@@ -247,19 +249,18 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
         confirmOk: 'Delete',
         confirmCancel: 'Cancel',
       })
-      .then(() => {
+      .then(async () => {
         delete project.endpoints[endpId];
-        this.apiProjService.updateAPIProject(project).then(
-          () => {
-            this.toaster.success('Endpoint deleted.');
-            this.endpForm.markAsPristine();
-            this.router.navigate(['../', 'new'], { relativeTo: this.route })
-          },
-          (e) => {
-            console.error('Failed to delete endpoint', e);
-            this.toaster.error(`Failed to delete endpoint: ${e.message}`);
-          }
-        );
+        try {
+          await this.apiProjService.updateAPIProject(project)
+          this.toaster.success('Endpoint deleted.');
+          this.endpForm.markAsPristine();
+          this.router.navigate(['../', 'new'], { relativeTo: this.route })
+        } catch (e) {
+          console.error('Failed to delete endpoint', e);
+          this.toaster.error(`Failed to delete endpoint: ${e?.message || e || ''}`);
+
+        }
       });
   }
 

@@ -43,12 +43,17 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
 
-  generateApis() {
+  async generateApis() {
     if (this.form.invalid) {
       return;
     }
     //create folder with name
     let formValue: { name: string, path: string, input: any, output: any } = this.form.value
+    if (!formValue.path.startsWith('/')) {
+      this.toaster.error('path should start with a /');
+      return
+    }
+
     let folder = this.generateFolder(formValue.name);
     let inpModel = this.generateModel(folder._id, formValue.name, formValue.input, 'Input');
     let outModel = this.generateModel(folder._id, formValue.name, formValue.output, 'Output');
@@ -60,16 +65,15 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
       models: { ...this.selectedPROJ.models, [inpModel._id]: inpModel, [outModel._id]: outModel },
       endpoints: { ...this.selectedPROJ.endpoints, ...endps }
     }
-    this.apiProjService.updateAPIProject(projToUpdate).then((data) => {
+    try {
+      await this.apiProjService.updateAPIProject(projToUpdate)
       this.form.markAsPristine();
       this.form.markAsUntouched();
       this.toaster.success('APIs generated.')
-    },
-      (e) => {
-        console.error('Failed to generate APIs', e, projToUpdate);
-        this.toaster.error(`Failed to create/update model: ${e.message}`);
-      }
-    );
+    } catch (e) {
+      console.error('Failed to generate APIs', e, projToUpdate);
+      this.toaster.error(`Failed to create/update model: ${e?.message || e || ''}`);
+    }
 
   }
 
@@ -224,7 +228,7 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
 
   getPathFromName() {
     if (!this.form.controls['path'].dirty) {
-      this.form.patchValue({ path: this.form.value.name + 's' })
+      this.form.patchValue({ path: `/${this.form.value.name}s` })
     }
   }
   canDeactivate() {

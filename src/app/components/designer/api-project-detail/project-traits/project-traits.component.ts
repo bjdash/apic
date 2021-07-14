@@ -75,7 +75,7 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
         this.addDefaultResponse();
     }
 
-    createTrait(allowDup?: boolean) {
+    async createTrait(allowDup?: boolean) {
         if (!this.traitForm.valid) return;
         const trait: ApiTrait = { ...this.traitForm.value, _id: this.isEditing() ? this.selectedTrait._id : new Date().getTime() + apic.s8(), };
 
@@ -86,7 +86,8 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
 
         var projToUpdate: ApiProject = { ...this.selectedPROJ, traits: { ...this.selectedPROJ.traits, [trait._id]: trait } };
 
-        this.apiProjService.updateAPIProject(projToUpdate).then(() => {
+        try {
+            await this.apiProjService.updateAPIProject(projToUpdate)
             this.traitForm.markAsPristine();
             this.traitForm.markAsUntouched();
 
@@ -97,11 +98,10 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
                 this.toaster.success('Trait created');
                 this.router.navigate(['../', trait._id], { relativeTo: this.route })
             }
-        }, (e) => {
+        } catch (e) {
             console.error('Failed to create/update trait', e, trait);
-            this.toaster.error(`Failed to create/update trait: ${e.message}`);
+            this.toaster.error(`Failed to create/update trait: ${e?.message || e || ''}`);
         }
-        );
     }
 
     deleteTrait(traitId: string) {
@@ -117,19 +117,17 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
                 confirmOk: 'Delete',
                 confirmCancel: 'Cancel',
             })
-            .then(() => {
+            .then(async () => {
                 delete project.traits[traitId];
-                this.apiProjService.updateAPIProject(project).then(
-                    () => {
-                        this.toaster.success('Trait deleted.');
-                        this.traitForm.markAsPristine();
-                        this.router.navigate(['../', 'new'], { relativeTo: this.route })
-                    },
-                    (e) => {
-                        console.error('Failed to delete trait', e);
-                        this.toaster.error(`Failed to delete trait: ${e.message}`);
-                    }
-                );
+                try {
+                    await this.apiProjService.updateAPIProject(project)
+                    this.toaster.success('Trait deleted.');
+                    this.traitForm.markAsPristine();
+                    this.router.navigate(['../', 'new'], { relativeTo: this.route })
+                } catch (e) {
+                    console.error('Failed to delete trait', e);
+                    this.toaster.error(`Failed to delete trait: ${e?.message || e || ''}`);
+                }
             });
     }
 

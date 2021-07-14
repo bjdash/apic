@@ -36,8 +36,8 @@ export class Utils {
             .reduce((obj, item: KeyVal) => Object.assign(obj, { [item.key]: item.val }), {});
     }
 
-    static objectEntries(obj): [string, any][] {
-        return obj ? (Object.entries(obj) as [string, any][]) : [];
+    static objectEntries<T>(obj: { [key: string]: T }): [string, T | any][] {
+        return obj ? (Object.entries(obj)) : [];
     }
 
     static objectValues<T>(obj: { [key: string]: T }): T[] {

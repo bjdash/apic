@@ -70,7 +70,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
 
     this.tagGroups = { Untagged: [] }
     Utils.objectKeys(this.resolvedSpec.paths).forEach(path => {
-      Utils.objectEntries(this.resolvedSpec.paths[path]).forEach(([method, endp]) => {
+      Utils.objectEntries(this.resolvedSpec.paths[path] as { [key: string]: any }).forEach(([method, endp]) => {
         if (endp.tags && endp.tags.length > 0) {
           endp.tags.forEach((tag) => {
             if (!this.tagGroups[tag]) this.tagGroups[tag] = [];

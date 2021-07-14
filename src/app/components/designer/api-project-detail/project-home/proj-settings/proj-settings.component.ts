@@ -91,7 +91,7 @@ export class ProjSettingsComponent implements OnInit, OnChanges {
       this.toaster.success('Settings Saved');
     } catch (e) {
       console.error('Failed to save setting', e);
-      this.toaster.error(`Failed to save setting: ${e.message}`);
+      this.toaster.error(`Failed to save setting: ${e?.message || e || ''}`);
     }
   }
 

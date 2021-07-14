@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { KVEditorOptn } from 'src/app/components/common/key-value-editor/key-value-editor.component';
-import { ApiProject, SecurityDef } from 'src/app/models/ApiProject.model';
+import { ApiEndp, ApiProject, SecurityDef } from 'src/app/models/ApiProject.model';
 import { Toaster } from 'src/app/services/toaster.service';
+import { Utils } from 'src/app/services/utils.service';
 
 @Component({
   selector: 'app-security-def',
@@ -93,16 +94,20 @@ export class SecurityDefComponent implements OnInit, OnChanges {
       }
       return;
     }
-    //TODO: Handle already selected secdefs in endpoint, remove them too
-    var prevSecDef = this.SelectedPROJ.securityDefinitions;
-    var updatedProj = { ...this.SelectedPROJ, securityDefinitions: this.sanitizeSecDef(this.secDefForm.controls.secDefs.value) }
+    //Handle already selected secdefs in endpoint, remove them too
+    var updatedProj = { ...this.SelectedPROJ, securityDefinitions: this.sanitizeSecDef(this.secDefForm.controls.secDefs.value) };
+    let secDefNames = updatedProj.securityDefinitions.map(def => def.name);
+    let endpoints: { [key: string]: ApiEndp } = {}
+    Utils.objectEntries(this.SelectedPROJ.endpoints).forEach(([id, endpoint]) => {
+      endpoints[id] = { ...endpoint, security: endpoint.security.filter(s => secDefNames.includes(s.name)) }
+    })
+    updatedProj = { ...updatedProj, endpoints }
     try {
       await this.updateApiProject(updatedProj);
       this.toaster.success('Security definitions Saved');
       this.onChange.next({ dirty: false });
     } catch (e) {
-      this.toaster.error('Failed to save Security definitions.');
-      this.SelectedPROJ.securityDefinitions = prevSecDef;
+      this.toaster.error(`Failed to save Security definitions.${e?.message || e || ''}`);
     }
   }
 

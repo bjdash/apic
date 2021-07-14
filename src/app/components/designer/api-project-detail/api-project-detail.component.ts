@@ -163,7 +163,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.apiProjectDetailService.selectProj(proj);
     }
 
-    duplicateItem(id: string, type: 'models' | 'traits' | 'endpoints') {
+    async duplicateItem(id: string, type: 'models' | 'traits' | 'endpoints') {
         var toCopy = { ...this.selectedPROJ[type][id] };
         toCopy._id = apic.s12();
         let nameProperty = this.getNameProperty(type);
@@ -193,9 +193,12 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
             }
         }
         let project: ApiProject = { ...this.selectedPROJ, [type]: { ...this.selectedPROJ[type], [toCopy._id]: toCopy } }
-        this.updateApiProject(project).then(() => {
+        try {
+            await this.updateApiProject(project);
             this.toaster.success(`Duplicate ${type.substring(0, type.length - 1)} '${toCopy[nameProperty]}' created.`);
-        });
+        } catch (e) {
+            this.toaster.error(`Failed to duplicate. ${e?.message || e || ''}`);
+        }
     }
 
     deleteItem(id: string, type: 'models' | 'traits' | 'endpoints') {
@@ -212,17 +215,15 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                 confirmOk: 'Delete',
                 confirmCancel: 'Cancel',
             })
-            .then(() => {
+            .then(async () => {
                 delete project[type][id];
-                this.updateApiProject(project).then(
-                    () => {
-                        this.toaster.success(`Selected ${type.substring(0, type.length - 1)} deleted.`);
-                    },
-                    (e) => {
-                        console.error(`Failed to delete ${type.substring(0, type.length - 1)}`, e);
-                        this.toaster.error(`Failed to delete ${type.substring(0, type.length - 1)}: ${e.message}`);
-                    }
-                );
+                try {
+                    await this.updateApiProject(project);
+                    this.toaster.success(`Selected ${type.substring(0, type.length - 1)} deleted.`);
+                } catch (e) {
+                    console.error(`Failed to delete ${type.substring(0, type.length - 1)}`, e);
+                    this.toaster.error(`Failed to delete ${type.substring(0, type.length - 1)}: ${e?.message || e || ''}`);
+                }
             }).catch(() => { });
     }
 

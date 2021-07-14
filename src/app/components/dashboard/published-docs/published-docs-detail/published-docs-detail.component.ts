@@ -102,7 +102,6 @@ export class PublishedDocsDetailComponent implements OnInit {
           .pipe(take(1)).toPromise();
         if (apiProj) {
           await this.projService.updateAPIProject({ ...apiProj, publishedId: newDoc.id });
-
         }
         this.router.navigate(['../', newDoc.id], { relativeTo: this.route })
         this.toaster.success('Doc created.');

@@ -34,55 +34,67 @@ export class ApiProjectService {
         // this.loadApiProjs();
     }
 
-    addProjects(projs: ApiProject[], fromSync?: boolean): Promise<IDBValidKey> {
-        if (!fromSync) {
-            var ts = new Date().getTime();
-            projs.forEach(proj => {
-                proj._id = ts + '-' + apic.s12();
-                proj._created = ts;
-                proj._modified = ts;
-                if (this.authUser?.UID) {
-                    proj.owner = this.authUser.UID;
-                }
-            })
-        }
-        return iDB.insertMany(iDB.TABLES.API_PROJECTS, projs).then((data: string[]) => {
-            if (!fromSync && this.authUser?.UID) {
-                this.syncService.prepareAndSync('addAPIProject', projs);
-            }
-            this.store.dispatch(new ApiProjectsAction.Add(projs));
-
-            //TODO:
-            // $rootScope.$emit('refreshProjectReqs', {type:'add', projId:proj._id});
-            return data;
-        });
-    }
-
-    getApiProjects(): Observable<ApiProject[]> {
-        return this.store.select(ApiProjectStateSelector.getPartial)
-    }
-
-    getApiProjectById(id): Observable<ApiProject> {
-        return this.store.select(ApiProjectStateSelector.getByIdDynamic(id))
-    }
-
     async loadApiProjs() {
         const projects = await iDB.read(iDB.TABLES.API_PROJECTS);
         this.store.dispatch(new ApiProjectsAction.Refresh(projects));
         return projects;
     }
 
-    async deleteAPIProjects(ids: string[], fromSync?: boolean) {
-        return iDB.deleteMany(iDB.TABLES.API_PROJECTS, ids).then((data) => { //data doesnt contain deleted ids
-            if (!fromSync && this.authUser?.UID) {
-                this.syncService.prepareAndSync('deleteAPIProject', ids);
+    getApiProjectById(id): Observable<ApiProject> {
+        return this.store.select(ApiProjectStateSelector.getByIdDynamic(id))
+    }
+
+    async addProject(proj: ApiProject, addWithSuffix?: boolean): Promise<ApiProject> {
+        let allProjs = await this.store.select(ApiProjectStateSelector.getPartial).pipe(first()).toPromise();
+        if (addWithSuffix) {
+            let duplicate = false
+            do {
+                duplicate = allProjs.some(r => r.title.toLocaleLowerCase() == proj.title.toLocaleLowerCase())
+                if (duplicate) {
+                    proj.title += ` ${apic.s4()}`
+                }
+            } while (duplicate);
+        } else if (allProjs.find(p => p.title.toLowerCase() === proj.title.toLowerCase())) {
+            throw new Error('A project with the same name already exists.')
+        }
+        var ts = new Date().getTime();
+        proj._id = ts + '-' + apic.s12();
+        proj._created = ts;
+        proj._modified = ts;
+        if (this.authUser?.UID) {
+            proj.owner = this.authUser.UID;
+        } else {
+            delete proj.owner
+        }
+
+        return iDB.insert(iDB.TABLES.API_PROJECTS, proj).then((data: string[]) => {
+            if (this.authUser?.UID) {
+                this.syncService.prepareAndSync('addAPIProject', proj);
             }
-            this.store.dispatch(new ApiProjectsAction.Delete(ids));
+            this.store.dispatch(new ApiProjectsAction.Add([proj]));
+            return proj;
+        });
+    }
+
+
+    async deleteAPIProject(id: string, owner: string) {
+        if (owner && this.authUser?.UID !== owner) {
+            throw new Error('You can\'t delete this Project as you are not the owner. If you have permission you can edit it though.');
+        }
+        return iDB.delete(iDB.TABLES.API_PROJECTS, id).then((data) => { //data doesnt contain deleted ids
+            if (this.authUser?.UID) {
+                this.syncService.prepareAndSync('deleteAPIProject', [id]);
+            }
+            this.store.dispatch(new ApiProjectsAction.Delete([id]));
             return data;
         });
     }
 
     async updateAPIProject(project: ApiProject): Promise<ApiProject> {
+        let allProjs = await this.store.select(ApiProjectStateSelector.getPartial).pipe(first()).toPromise();
+        if (allProjs.find(p => p.title.toLowerCase() === project.title.toLowerCase() && p._id != project._id)) {
+            throw new Error('A project with the same name already exists.')
+        }
         project._modified = Date.now();
         let data = await iDB.upsert('ApiProjects', project);
         if (data && this.authUser?.UID) {
@@ -210,13 +222,7 @@ export class ApiProjectService {
 
     }
     //TODO
-    // updateAPIProjects: updateAPIProjects,
-    // getAPIProjectById: getAPIProjectById,
-    // enableMock: enableMock,
-    // disableMock: disableMock,
     // formatEndpForRun: formatEndpForRun,
-    // importTraitData: importTraitData,
-    // updateEndp: updateEndp,
     // getTraitNamedResponses: getTraitNamedResponses,
     // getTraitNamedResponsesObj: getTraitNamedResponsesObj
 }
