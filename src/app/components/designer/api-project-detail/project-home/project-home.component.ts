@@ -215,4 +215,7 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
             })
     }
 
+    buildRequests() {
+        this.apiProjectDetailService.buildRequests(this.selectedPROJ);
+    }
 }

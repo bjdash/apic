@@ -1,5 +1,6 @@
 import { createSelector, Selector } from "@ngxs/store";
 import { ApiProject } from "../models/ApiProject.model";
+import { Utils } from "../services/utils.service";
 import { ApiProjectState, ApiProjectStateModel } from "./apiProjects.state";
 
 export class ApiProjectStateSelector {
@@ -104,6 +105,67 @@ export class ApiProjectStateSelector {
             }
         );
     };
+
+    @Selector([ApiProjectStateSelector.getAll])
+    static getTesterTree(projects: ApiProject[]) {
+        return projects.map(proj => {
+            var foldersObj = {};
+            var project = {
+                name: proj.title,
+                children: [],
+                desc: '',
+                parentId: null,
+                requests: [],
+                _created: proj._created,
+                _id: proj._id,
+                _modified: proj._modified
+            };
+            foldersObj[project._id] = project;
+            var subfolders = [];
+
+            if (proj.folders) {
+                subfolders = Utils.objectKeys(proj.folders);
+            }
+            if (subfolders.length > 0) {
+                subfolders.forEach((folderKey) => {
+                    var f = proj.folders[folderKey];
+                    var subFolder = {
+                        name: f.name,
+                        children: [],
+                        desc: f.desc,
+                        parentId: project._id,
+                        requests: [],
+                        _created: proj._created,
+                        _id: f._id,
+                        _modified: proj._modified
+                    }
+                    foldersObj[subFolder._id] = subFolder;
+                    project.children.push(subFolder);
+                })
+            }
+            //format endpoints
+            Utils.objectValues(proj.endpoints).forEach(endpoint => {
+                let request = {
+                    _id: endpoint._id,
+                    method: endpoint.method.toUpperCase(),
+                    name: endpoint.summary,
+                    url: endpoint.path
+                }
+                // var formattedEndp = DesignerServ.formatEndpForRun(endpoint, proj);
+                // var runObj = DataBuilder.endpointToReqTab(formattedEndp, proj, true);
+                // runObj.fromProject = {
+                //     projId: project._id,
+                //     endpId: endpoint._id
+                // };
+                if (endpoint.folder && foldersObj[endpoint.folder]) {
+                    foldersObj[endpoint.folder].requests.push(request);
+                } else {
+                    project.requests.push(request);
+                }
+            })
+            return project;
+        })
+    }
 
     @Selector([ApiProjectStateSelector.getAll])
     static getByTitle(projects: ApiProject[]) {

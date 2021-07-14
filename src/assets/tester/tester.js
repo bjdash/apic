@@ -29,7 +29,6 @@ function sendResponseBack(msg) {
  * @param {Object} data.envs.inMem
  */
 function onMessageReceived(data) {
-    console.log('received test script', data);
     TEST_RUN_CONTEXT = {
         envs: data.envs,
         logs: [],
@@ -48,7 +47,7 @@ function onMessageReceived(data) {
     try {
         eval(code);
     } catch (e) {
-        console.log('error', e);
+        console.error('error', e);
         log(`Error: ${e.message}`)
     }
     // reqObj.tests = TESTSX.concat(convertToTestX(TESTS));

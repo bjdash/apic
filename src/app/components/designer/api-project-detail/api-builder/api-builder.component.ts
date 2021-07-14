@@ -60,7 +60,6 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
       models: { ...this.selectedPROJ.models, [inpModel._id]: inpModel, [outModel._id]: outModel },
       endpoints: { ...this.selectedPROJ.endpoints, ...endps }
     }
-    console.log(projToUpdate);
     this.apiProjService.updateAPIProject(projToUpdate).then((data) => {
       this.form.markAsPristine();
       this.form.markAsUntouched();

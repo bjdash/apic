@@ -3,23 +3,28 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
+import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
-import { Suite } from 'src/app/models/Suite.model';
+import { Suite, SuiteReq } from 'src/app/models/Suite.model';
 import { User } from 'src/app/models/User.model';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
+import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
 import { UserState } from 'src/app/state/user.state';
 import apic from 'src/app/utils/apic';
+import { CustomFilter } from 'src/app/utils/filter.pipe';
+import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
-import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
+import { TesterTab, TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 
+type ReqIsFrom = 'saved' | 'project'
 @Component({
   selector: 'app-tester-left-nav-requests',
   templateUrl: './tester-left-nav-requests.component.html',
@@ -28,6 +33,7 @@ import { TesterTabsService } from '../../tester-tabs/tester-tabs.service';
 export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   @Select(RequestsStateSelector.getFoldersTree) folders$: Observable<any[]>;
   @Select(SuitesStateSelector.getSuitesTree) suitesTree$: Observable<any[]>;
+  @Select(ApiProjectStateSelector.getTesterTree) projectsTree$: Observable<any[]>
 
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
@@ -57,7 +63,10 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     projReqs: true,
     savedReqs: true,
     newFolder: false,
-    expanded: {}
+    showSearch: false,
+    searchModel: '',
+    expanded: {},
+    expandAll: false
   }
   constructor(fb: FormBuilder,
     private store: Store,
@@ -370,11 +379,36 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       })
   }
 
+  async downloadProjectFolder(folder, projId: string) {
+    let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projId)).pipe(first()).toPromise();
+    let toExport = { ...folder };
+    toExport.requests = folder.requests.map(r => {
+      let endpoint = project.endpoints?.[r._id];
+      return RequestUtils.endpointToApiRequest(endpoint, project);
+    })
+
+    if (folder.children?.length > 0) {
+      toExport.children = folder.children.map(childFolder => {
+        return {
+          ...childFolder, requests: childFolder.requests.map(r => {
+            let endpoint = project.endpoints?.[r._id];
+            return RequestUtils.endpointToApiRequest(endpoint, project);
+          })
+        }
+      })
+    }
+    let exportData = {
+      TYPE: 'Folder',
+      value: toExport
+    }
+    this.fileSystem.download(toExport.name + '.folder.apic.json', JSON.stringify(exportData, null, '\t'));
+  }
+
   toggleExpand(id: string) {
     this.flags.expanded[id] = !this.flags.expanded[id];
   }
 
-  loadFromSave(req: ApiRequest) {
+  openSavedRequest(req: ApiRequest) {
     if (req.type === 'ws') {
       this.testerTabService.addSocketTab(req._id, req.name)
     } else {
@@ -382,11 +416,23 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async convertFolderToSuite(folder: TreeReqFolder) {
-    let projects = await this.suitesTree$.pipe(take(1)).toPromise();
+  async openProjectRequest(endpId: string, projectId: string) {
+    let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+    let endpoint = project.endpoints?.[endpId];
+    if (endpoint && project) {
+      console.log(project, endpoint);
+      let request: ApiRequest = RequestUtils.endpointToApiRequest(endpoint, project);
+      this.testerTabService.addEndpointReqTab(request, projectId)
+    } else {
+      this.toastr.error('Request doesn\'t exist.');
+    }
+  }
+
+  async convertFolderToSuite(folder: TreeReqFolder, reqIsFrom: ReqIsFrom, projectId?: string) {
+    let testProjects = await this.suitesTree$.pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
       show: true,
-      items: projects,
+      items: testProjects,
       options: {
         title: 'Select test project',
         doneText: 'Add to selected project',
@@ -402,16 +448,33 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           projId: projId,
           reqs: []
         };
-
+        let apiProject: ApiProject;
+        if (reqIsFrom == 'project') {
+          apiProject = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+        }
         if (folder.requests) {
-          suite.reqs = folder.requests.map(r => { return { ...r, disabled: false } })
+          suite.reqs = await Promise.all(folder.requests.map(async (r): Promise<SuiteReq> => {
+            if (reqIsFrom == 'project') {
+              let endpoint = apiProject.endpoints?.[r._id];
+              return { ...RequestUtils.endpointToApiRequest(endpoint, apiProject), disabled: false }
+            } else {
+              let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(r._id)).pipe(take(1)).toPromise();
+              return { ...request, disabled: false }
+            }
+          }));
         }
 
         if (folder.children?.length > 0) {
           for (var f = 0; f < folder.children.length; f++) {
             var cf = folder.children[f];
             for (var i = 0; i < cf.requests?.length; i++) {
-              suite.reqs.push({ ...cf.requests[i], disabled: false });
+              if (reqIsFrom == 'project') {
+                let endpoint = apiProject.endpoints?.[cf.requests[i]._id];
+                suite.reqs.push({ ...RequestUtils.endpointToApiRequest(endpoint, apiProject), disabled: false });
+              } else {
+                let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(cf.requests[i]._id)).pipe(take(1)).toPromise();
+                suite.reqs.push({ ...request, disabled: false });
+              }
             }
           }
         }
@@ -428,15 +491,15 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addRequestToSuite(partialReq: ApiRequest) {
+  async addRequestToSuite(partialReq: ApiRequest, reqIsFrom: ReqIsFrom, projectId?: string) {
     if (partialReq.type === 'ws') {
       this.toastr.error('Websocket requests can not be added to suites.');
       return;
     }
-    let projects = await this.suitesTree$.pipe(take(1)).toPromise();
+    let testProjects = await this.suitesTree$.pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
       show: true,
-      items: projects,
+      items: testProjects,
       options: {
         title: 'Select test suite',
         doneText: 'add to selected suite',
@@ -450,7 +513,17 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
         this.store.select(SuitesStateSelector.getSuiteByIdDynamic(suiteId))
           .pipe(take(1))
           .subscribe(async (suite) => {
-            let request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(partialReq._id)).pipe(take(1)).toPromise();
+            let request: ApiRequest;
+            if (reqIsFrom == 'project') {
+              let apiProject = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
+              let endpoint = apiProject.endpoints?.[partialReq._id];
+              request = RequestUtils.endpointToApiRequest(endpoint, apiProject);
+            } else {
+              request = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(partialReq._id)).pipe(take(1)).toPromise();
+            }
+            if (!request) {
+              this.toastr.error('Request not found.'); return;
+            }
             let suiteToUpdate = { ...suite, reqs: [...suite.reqs, { ...request, disabled: false }] };
             try {
               await this.suiteService.updateSuites([suiteToUpdate]);
@@ -463,5 +536,11 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           })
       }
     }
+  }
+
+  showSearch() {
+    this.flags.showSearch = true;
+    this.flags.expandAll = true;
+    document.getElementById('req-search')?.focus();
   }
 }

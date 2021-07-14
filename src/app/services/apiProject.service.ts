@@ -12,7 +12,7 @@ import { StompMessage } from '../models/StompMessage.model';
 import { SAVED_SETTINGS } from '../utils/constants';
 import { ApiProjectStateSelector } from '../state/apiProjects.selector';
 import { BehaviorSubject, from, Observable } from 'rxjs';
-import { delay, delayWhen } from 'rxjs/operators';
+import { delay, delayWhen, first } from 'rxjs/operators';
 import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 
 @Injectable()
@@ -84,7 +84,6 @@ export class ApiProjectService {
 
     async updateAPIProject(project: ApiProject): Promise<ApiProject> {
         project._modified = Date.now();
-
         let data = await iDB.upsert('ApiProjects', project);
         if (data && this.authUser?.UID) {
             var projsToSync = apic.removeDemoItems(project); //returns list
@@ -94,6 +93,12 @@ export class ApiProjectService {
         }
         this.store.dispatch(new ApiProjectsAction.Update([project]));
         return project;
+    }
+
+    async updateEndpoint(endpId, projId, delta) {
+        let proj = await this.getApiProjectById(projId).pipe(first()).toPromise();
+        let updated: ApiProject = { ...proj, endpoints: { ...proj.endpoints, [endpId]: { ...proj.endpoints[endpId], ...delta } } };
+        return await this.updateAPIProject(updated);
     }
 
     //Update the API projects when received via sync message

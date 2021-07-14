@@ -27,3 +27,17 @@
     background: var(--content-bg);
     padding: 0 10px;
 }
+.searching {
+    .folder {
+        height: 20px;
+    }
+    .empty {
+        display: none;
+    }
+    .l-sec .bj-folder {
+        font-size: 15px;
+    }
+    .savedReq {
+        height: 25px;
+    }
+}

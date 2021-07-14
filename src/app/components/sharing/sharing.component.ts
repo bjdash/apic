@@ -47,7 +47,6 @@ export class SharingComponent implements OnInit {
         this.flags.sharing = false;
         this.dialogRef.close();
         this.toaster.success(`${this.data.type} shared with team ${team.name}`);
-        console.log('shared')
       }, () => {
         this.flags.sharing = false;
       })

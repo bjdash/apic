@@ -65,6 +65,27 @@ export class RequestsService {
     });
   }
 
+  //TODO: Use this and depricate above
+  // createFolders2(foldersToCreate: ReqFolderPartial[], fromSync?: boolean) {
+  //   if (!fromSync) {
+  //     var time = new Date().getTime();
+  //     let folders:ReqFolder[] = foldersToCreate.map(f => {
+  //       let folder:ReqFolder = {...f, _created:time, _modified:time,_id:time+ '-' + apic.s12()}
+  //       if (this.authUser?.UID) {
+  //         folder.owner = this.authUser.UID;
+  //       }
+  //       return folder;
+  //     })
+  //   }
+  //   return iDB.insertMany(iDB.TABLES.FOLDERS, folders).then((data) => {
+  //     if (!fromSync && this.authUser?.UID) {//added successfully
+  //       this.syncService.prepareAndSync('addFolder', foldersToCreate);
+  //     }
+  //     this.store.dispatch(new RequestsAction.Folder.Add(foldersToCreate));
+  //     return foldersToCreate;
+  //   });
+  // }
+
   updateFolders(folders: ReqFolder[], fromSync?: boolean) {
     if (!fromSync) {
       folders.forEach(f => f._modified = Date.now());

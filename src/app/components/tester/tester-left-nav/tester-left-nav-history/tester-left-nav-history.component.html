@@ -18,8 +18,7 @@
 
     <div class="input-group search-box req-search" [ngClass]="{'visible':flags.showSearch}">
         <input type="search" placeholder="Search history" id="history-search" class="form-control sm"
-            [(ngModel)]="flags.searchModel"
-            ng-change="vm.filteredHistory = (vm.historyUrls | objFilterOfArray:vm.search:'url')">
+            [(ngModel)]="flags.searchModel">
         <button mat-icon-button class="red sm" (click)="flags.showSearch = false;flags.searchModel=''">
             <mat-icon>highlight_off</mat-icon>
         </button>

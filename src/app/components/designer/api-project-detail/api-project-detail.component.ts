@@ -1,16 +1,14 @@
-import { ProjectTraitsComponent } from './project-traits/project-traits.component';
 import { ApiProjectService } from './../../../services/apiProject.service';
-import { asapScheduler, BehaviorSubject, from, NEVER, Observable, Subject, Subscription } from 'rxjs';
-import { ApiModel, ApiProject, ApiTrait } from './../../../models/ApiProject.model';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router, Event as NavigationEvent, NavigationStart, NavigationEnd } from '@angular/router';
+import { asapScheduler, BehaviorSubject, NEVER, Observable, Subject } from 'rxjs';
+import { ApiProject } from './../../../models/ApiProject.model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, Event as NavigationEvent, NavigationEnd } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { filter, observeOn, skipWhile, switchMap, takeUntil, takeWhile } from 'rxjs/operators';
+import { filter, observeOn, switchMap, takeUntil, takeWhile } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectExportModalComponent } from './project-export-modal/project-export-modal.component';
 import { ConfirmService } from '../../../directives/confirm.directive';
 import { ApiProjectStateSelector } from '../../../state/apiProjects.selector';
-import { EnvService } from '../../../services/env.service';
 import { Toaster } from '../../../services/toaster.service';
 import { UserState } from '../../../state/user.state';
 import { User } from '../../../models/User.model';
@@ -18,6 +16,10 @@ import { ApiProjectDetailService } from './api-project-detail.service';
 import apic from 'src/app/utils/apic';
 import { DetachedRouteHandlerService } from 'src/app/detached-route-handler.service';
 import { SharingService } from 'src/app/services/sharing.service';
+import { Utils } from 'src/app/services/utils.service';
+import { ApiRequest } from 'src/app/models/Request.model';
+import { ReqFolder } from 'src/app/models/ReqFolder.model';
+import { RequestUtils } from 'src/app/utils/request.util';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -42,13 +44,14 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         stage: 'Dashboard'
     }
 
-    constructor(private detachedRouteHandlesService: DetachedRouteHandlerService, private route: ActivatedRoute,
+    constructor(private detachedRouteHandlesService: DetachedRouteHandlerService,
+        private route: ActivatedRoute,
         private store: Store,
         private router: Router,
         private confirmService: ConfirmService,
         private apiProjectDetailService: ApiProjectDetailService,
         private toaster: Toaster,
-        private sharingService: SharingService,
+        sharingService: SharingService,
         private apiProjectService: ApiProjectService,
         private dialog: MatDialog) {
         this.route.params.subscribe(params => {
@@ -220,7 +223,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                         this.toaster.error(`Failed to delete ${type.substring(0, type.length - 1)}: ${e.message}`);
                     }
                 );
-            });
+            }).catch(() => { });
     }
 
     checkExistingItem(nameProperty: string, nameValue: string, type: 'models' | 'traits' | 'endpoints'): boolean {
@@ -260,5 +263,9 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
 
     openExportModal(type, id) {
         this.dialog.open(ProjectExportModalComponent, { data: { type, id }, width: '1100px' });
+    }
+
+    async buildRequests() {
+        this.apiProjectDetailService.buildRequests(this.selectedPROJ);
     }
 }
