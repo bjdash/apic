@@ -62,6 +62,8 @@
                 [(ngModel)]="modelRef">
                 <option *ngFor="let id of keys(models)" value="{{id}}">#/definitions/{{models[id].nameSpace}}
                     ({{models[id].name}})</option>
+                <option *ngFor="let resp of responses" [value]="'#/responses/'+resp.name">#/responses/{{resp.name}}
+                    ({{resp.name}})</option>
             </select>
 
             <span *ngIf="!models">No models found</span>

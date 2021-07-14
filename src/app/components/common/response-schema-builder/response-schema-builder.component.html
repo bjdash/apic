@@ -22,16 +22,17 @@
                 [routerLink]="['../../', 'traits', selectedResp.traitId]">{{selectedResp.traitName}}</a> and can't be
             edited
             here.
-            <a href="">Move to traits module</a> to edit it.
-            <!--TODO: open trait on click of above link-->
+            <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
+                module</a> to edit it.
         </div>
         <fieldset [disabled]="selectedResp.fromTrait">
-            <ng-jsonschema [models]="models" (onSchemaChange)="onSchemaUpdate()" name="data" formControlName="data"
-                [showTestBuilder]="true" (onTestBuilder)="openTestBuilder($event)">
+            <ng-jsonschema [models]="models" [responses]="responsesModels" (onSchemaChange)="onSchemaUpdate()"
+                name="data" formControlName="data" [showTestBuilder]="true" (onTestBuilder)="openTestBuilder($event)">
             </ng-jsonschema>
             <label>Description</label>
             <textarea class="form-control" formControlName="desc"></textarea>
         </fieldset>
+        {{selectedRespForm.value|json}}
         <span *ngIf="selectedRespForm.value.noneStatus">
             <i class="icon bj-alert warning"></i>This response won't be
             auto imported when this trait is added to an endpoint as it

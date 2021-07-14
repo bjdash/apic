@@ -40,8 +40,9 @@
                 [style.bottom.px]="selectorModalPosition.y" class="model-type-selector" id="model-type-selector">
                 <ng-jsonschema-selectschema [refreshSchema]="refreshSchema.bind(this)" [mode]="mode"
                     [selectedEntity]="selectedEntity" [openMenu]="displaySelectorModal.bind(this)" [models]="models"
-                    [setArrayType]="setArrayType.bind(this)" [modelChangesCallback]="modelChangesCallback.bind(this)"
-                    [modelRef]="modelRef" [configs]="configs"></ng-jsonschema-selectschema>
+                    [responses]="responses" [setArrayType]="setArrayType.bind(this)"
+                    [modelChangesCallback]="modelChangesCallback.bind(this)" [modelRef]="modelRef" [configs]="configs">
+                </ng-jsonschema-selectschema>
             </div>
         </fieldset>
     </div>

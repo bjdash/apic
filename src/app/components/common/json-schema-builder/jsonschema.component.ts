@@ -289,13 +289,14 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   }
 
   // callback after the model changed
-  modelChangesCallback(entity) {
+  modelChangesCallback(entity, suppressEmmit = false) {
     this.configs.currModelType = entity._type;
     this.selectedEntity = entity;
+    this.configs.extraArrayOptn = false;
     if (entity._type.indexOf('Array') >= 0) {
       this.configs.showMoreOptn = 'array';
-      if (entity._type.indexOf('$ref') >= 0) {
-        this.configs.showMoreOptn = 'Array$ref';
+      if (entity._items?.[0]?._type?.indexOf('$ref') >= 0) {
+        this.configs.extraArrayOptn = true;
         this.modelRef = '';
       }
     } else if (entity._type.indexOf('$ref') >= 0) {
@@ -304,8 +305,9 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
     } else {
       this.configs.showMoreOptn = '';
     }
-    this.configs.extraArrayOptn = false;
-    this.emitSchemaChanged();
+    if (!suppressEmmit) {
+      this.emitSchemaChanged();
+    }
   }
 
   setArrayType(type, entity, e) {
@@ -413,7 +415,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
 
   displaySelectorModal(entity = null, e: MouseEvent = null) {
     if (entity) {
-      this.modelChangesCallback(entity);
+      this.modelChangesCallback(entity, true);
     }
 
     if (e) {

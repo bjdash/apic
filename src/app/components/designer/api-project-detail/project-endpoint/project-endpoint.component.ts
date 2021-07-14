@@ -26,6 +26,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   endpForm: FormGroup;
   private _destroy: Subject<boolean> = new Subject<boolean>();
   testBuilderOpt: TestBuilderOption = null;
+  traitResponses = [];
 
   schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
   MIMEs = MIMEs;
@@ -104,7 +105,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     let processedEndp = { ...this.selectedEndp }
     if (this.selectedEndp.traits?.length > 0) {
       this.selectedEndp.traits.forEach((t: ApiTrait) => {
-        processedEndp = ApiProjectUtils.importTraitData(t._id, this.selectedEndp, this.selectedPROJ);
+        processedEndp = ApiProjectUtils.importTraitData(t._id, processedEndp, this.selectedPROJ);
         this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(t._id, this.selectedPROJ)]
         this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(t._id, this.selectedPROJ)]
       })
@@ -117,6 +118,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     this.addDefaultResponse();
     this.endpForm.markAsPristine();
     this.endpForm.markAsUntouched();
+    this.traitResponses = ApiProjectUtils.getTraitNamedResponses(this.selectedPROJ)
   }
 
   async createEndp(allowDup?: boolean) {

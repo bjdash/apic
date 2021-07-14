@@ -142,6 +142,7 @@ export class RequestUtils {
             }
         }
         let modelRefs = ApiProjectUtils.getModeldefinitions(project);
+        let responseRefs = ApiProjectUtils.getTraitNamedResponsesObj(project)
 
         var request: ApiRequest = {
             url: endp.path,
@@ -187,7 +188,7 @@ export class RequestUtils {
             for (var j = 0; j < endp.responses.length; j++) {
                 var tmpSchema: any = { ...endp.responses[j].data };
                 tmpSchema.definitions = modelRefs;
-                //TODO:  tmpSchema.responses = {...responsesRefs};
+                tmpSchema.responses = { ...responseRefs };
                 try {
                     request.respCodes.push({
                         code: endp.responses[j].code,

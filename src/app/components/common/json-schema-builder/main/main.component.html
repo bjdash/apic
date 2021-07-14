@@ -24,16 +24,19 @@
                         <span *ngIf="t==='Array' && entity._items[0]" [ngClass]="entity._items[0]._type[0]"
                             class="unspecified">[{{entity._items[0]._type[0]}}
                             <span *ngIf="entity._items[0]._type[0]=='$ref'">
-                                (#/definitions/{{(entity._items && entity._items[0]) ?
-                                models[entity._items[0]._value].nameSpace : ''}})</span>]
+                                {{entity._items[0]._path}}
+                                <span
+                                    *ngIf="models[entity._items[0]._value]">{{models[entity._items[0]._value].nameSpace}}</span>
+                                <span *ngIf="!models[entity._items[0]._value]">{{entity._items[0]._value}}</span>
+                            </span>]
                         </span>
                         <span *ngIf="t==='Array' && !entity._items[0]" ngClass="Unspecified"
                             class="unspecified">[Unspecified]
                         </span>
-                        <span
-                            *ngIf="t==='$ref' && models && models[entity._value]">(#/definitions/{{models[entity._value]?.nameSpace}})</span>
-                        <span *ngIf="t==='$ref' && (!models || !models[entity._value])"
-                            class="faint">(#/definitions/{{entity._value}})</span>
+                        <span *ngIf="t==='$ref' && models && models[entity._value]">({{entity._path
+                            +models[entity._value]?.nameSpace}})</span>
+                        <span *ngIf="t==='$ref' && (!models || !models[entity._value])" class="faint">({{entity._path +
+                            entity._value}})</span>
                         <mat-icon style="vertical-align: top;height:10px;">arrow_drop_down</mat-icon>
                         <span *ngIf="!last" class="faint"> or </span>
                     </span>
