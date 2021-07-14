@@ -186,12 +186,12 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
 
   async updateSuite(suiteToSave: Suite) {
     try {
-      await this.suiteService.updateSuites([{ ...suiteToSave }]);
+      await this.suiteService.updateSuite({ ...suiteToSave });
       this.flags.editSuitName = false;
       this.toaster.success('Suite updated.');
     } catch (e) {
       console.error('Failed to update suite', e);
-      this.toaster.error(`Failed to update suite: ${e.message}`)
+      this.toaster.error(`Failed to update suite: ${e?.message || e || ''}`)
     }
   }
 

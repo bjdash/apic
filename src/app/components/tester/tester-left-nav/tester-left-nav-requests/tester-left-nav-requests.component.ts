@@ -478,13 +478,12 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
             }
           }
         }
-        //TODO: Check for duplicate name
         try {
-          await this.suiteService.createTestSuites([suite]);
+          await this.suiteService.createTestSuite(suite, true);
           this.toastr.success(`Test suite ${suite.name} created.`);
         } catch (e) {
           console.error('Failed to convert folder to suite.', e);
-          this.toastr.error(`Failed to convert folder to suite.`);
+          this.toastr.error(`Failed to convert folder to suite.${e?.message || e || ''}`);
         }
         this.treeSelectorOpt.show = false;
       }
@@ -526,11 +525,11 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
             }
             let suiteToUpdate = { ...suite, reqs: [...suite.reqs, { ...request, disabled: false }] };
             try {
-              await this.suiteService.updateSuites([suiteToUpdate]);
+              await this.suiteService.updateSuite(suiteToUpdate);
               this.toastr.success(`Request added to suite ${suite.name}.`);
             } catch (e) {
               console.error('Failed add request to suite.', e);
-              this.toastr.error(`Failed add request to suite.`);
+              this.toastr.error(`Failed add request to suite.${e?.message || e || ''}`);
             }
             this.treeSelectorOpt.show = false;
           })

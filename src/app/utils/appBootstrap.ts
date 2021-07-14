@@ -163,8 +163,8 @@ export class AppBootstrap {
             this.reqService.getFolders(),
             this.reqService.getRequests(),
             this.reqHistoryService.refresh(),
-            this.suiteService.getTestProjects(),
-            this.suiteService.getTestSuites()
+            this.suiteService.loadTestProjects(),
+            this.suiteService.loadTestSuites()
         ])
 
     }
