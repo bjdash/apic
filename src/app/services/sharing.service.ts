@@ -7,7 +7,7 @@ import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
 import { HttpService } from './http.service';
 
-export type ShareType = 'APIProject' | 'Suites'
+export type ShareType = 'APIProject' | 'Suites' | 'TestCaseProjects'
 @Injectable({
   providedIn: 'root'
 })

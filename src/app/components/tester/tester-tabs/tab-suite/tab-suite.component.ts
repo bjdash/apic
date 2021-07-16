@@ -14,6 +14,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { ReporterService } from 'src/app/services/reporter.service';
 import { RequestRunnerService } from 'src/app/services/request-runner.service';
+import { SharingService } from 'src/app/services/sharing.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
@@ -92,7 +93,8 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
     private reporterService: ReporterService,
     private fileSystem: FileSystem,
     private authService: AuthService,
-    private tabService: TesterTabsService
+    private tabService: TesterTabsService,
+    private shareingService: SharingService
   ) {
     this.form = fb.group({
       name: [''],
@@ -103,9 +105,6 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       useInmemEnv: [true],
       updateInmemEnv: [true]
     });
-    // this.harForm = fb.group({
-
-    // });
 
     this.suiteService.updatedViaSync$.subscribe((notification) => {
       if (this.selectedSuite && notification?.ids.includes(this.selectedSuite._id)) {
@@ -125,10 +124,11 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._destroy))
       .subscribe(s => {
         if (s && (s._modified > this.selectedSuite?._modified || !this.selectedSuite)) {
-          if (this.updatedInBackground == 'update') {
+          if (this.updatedInBackground == 'update' && !this.shareingService.isLastShared(this.selectedSuite?.projId, 'TestCaseProjects')) {
             this.reloadSuite = s;
           } else {
             this.processSelectedSuite(s);
+            this.updatedInBackground = null;
           }
         }
         else if (s == undefined && this.selectedSuite) {
@@ -144,7 +144,8 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
               this.updatedInBackground = null;
             }).catch(() => { })
           } else {
-            this.tabService.removeTab(this.selectedSuite._id)
+            this.tabService.removeTab(this.selectedSuite._id);
+            this.updatedInBackground = null;
           }
         }
       })

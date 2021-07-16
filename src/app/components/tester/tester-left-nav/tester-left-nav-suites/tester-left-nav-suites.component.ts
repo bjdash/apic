@@ -1,13 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
+import { SharingComponent } from 'src/app/components/sharing/sharing.component';
 import { Suite, SuiteReq } from 'src/app/models/Suite.model';
+import { Team } from 'src/app/models/Team.model';
 import { TestProject, TreeTestProject } from 'src/app/models/TestProject.model';
 import { User } from 'src/app/models/User.model';
+import { AuthService } from 'src/app/services/auth.service';
 import { FileSystem } from 'src/app/services/fileSystem.service';
+import { SharingService } from 'src/app/services/sharing.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
@@ -28,6 +33,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   suiteForm: FormGroup;
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
+  teams: { [key: string]: Team } = {};
 
   rename = {
     _id: '',
@@ -45,6 +51,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   flags = {
     newProj: false,
     newSuite: false,
+    unsharingId: '',//ID of the unsharing project
     expanded: {
       "123456abcdef-testproj-demo": true,//keep demo project expanded by default
       "123456abcdef-testsuite-demo": true
@@ -55,10 +62,18 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     private suiteService: SuiteService,
     private fileSystem: FileSystem,
     private testerTabsService: TesterTabsService,
+    private authService: AuthService,
+    private toaster: Toaster,
+    private dialog: MatDialog,
+    private sharing: SharingService,
     private store: Store) {
     this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
       this.authUser = user;
     });
+    this.sharing.teams$
+      .subscribe(teams => {
+        this.teams = Utils.arrayToObj(teams, 'id');
+      })
 
     this.newProjForm = fb.group({
       name: ['']
@@ -246,8 +261,22 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
       })
   }
 
-  shareProject(p) {
-
+  shareProject(project: TestProject) {
+    if (!this.authService.isLoggedIn()) {
+      this.toaster.error('You need to login to apic to use this feature.');
+      return;
+    }
+    this.dialog.open(SharingComponent, { data: { objId: project._id, type: 'TestCaseProjects' } });
+  }
+  unshareProject(project: TestProject) {
+    this.flags.unsharingId = project._id;
+    this.sharing.unshare(project._id, project.team, 'TestCaseProjects').pipe(first())
+      .subscribe(teams => {
+        this.flags.unsharingId = '';
+        this.toaster.success(`Project un-shared with team.`);
+      }, () => {
+        this.flags.unsharingId = '';
+      })
   }
 
   async deleteProject(project: TreeTestProject) {
@@ -365,5 +394,9 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
           })
       }
     }
+  }
+
+  shareSuite() {
+    this.toastr.warn('Sharing of individual suite is not possible. Please share the entire test project.')
   }
 }
