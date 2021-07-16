@@ -359,7 +359,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   openTestBuilder(entity) {
     let top = document.querySelector('.designer-cont').scrollTop;
     this.testBuilderOpt = {
-      parent: entity._parent,
+      parent: entity._parent.replace('##ROOT##', 'data'),
       key: entity._key,
       val: entity._default,
       showRun: false,
@@ -389,6 +389,4 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void { }
-
-  //TODO: Add option to add test from  response schema builder: open test builder
 }

@@ -7,8 +7,9 @@
         <div style="width: 300px;height: 50px;">
             <a id="designer-ico" href class="module-icon" [routerLink]="moduleUrls.designer" routerLinkActive="active"
                 aria-label="Designer" style="font-size: 38px;padding-top: 4px;padding-left:3px;"
-                matTooltipPosition="right" matTooltip="Designer" (click)="saveWorkspace('Designer')">
-                <i class="icon bj-palette"></i>
+                matTooltipPosition="right" matTooltip="API Designer" (click)="saveWorkspace('Designer')">
+                <!-- <i class="icon bj-palette"></i> -->
+                <mat-icon class="designer-ico">architecture</mat-icon>
             </a>
             <a id="tester-ico" href class="module-icon" [routerLink]="moduleUrls.tester" routerLinkActive="active"
                 aria-label="Tester" (click)="saveWorkspace('Tester')" matTooltipPosition="right" matTooltip="Tester">

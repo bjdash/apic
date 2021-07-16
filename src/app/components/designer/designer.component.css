@@ -37,12 +37,19 @@
     font-size: 26px;
     white-space: nowrap;
 }
-.ic:after {
-    content: "\e40a";
+.ic::after {
+    content: "\ea3b";
     position: absolute;
-    font-family: apic-icon;
-    bottom: 0px;
-    right: 2px;
-    color: #bdbdbd;
-    font-size: 32px;
+    font-family: "Material Icons" !important;
+    bottom: -13px;
+    right: -30px;
+    color: var(--text-color);
+    font-size: 100px;
+    opacity: 0.1;
+}
+.shared {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--accent-color);
 }

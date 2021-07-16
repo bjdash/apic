@@ -224,7 +224,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return this.user != undefined
+    return !!this.user;
   }
   getUser() {
     return this.user;

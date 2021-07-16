@@ -32,7 +32,6 @@
             <label>Description</label>
             <textarea class="form-control" formControlName="desc"></textarea>
         </fieldset>
-        {{selectedRespForm.value|json}}
         <span *ngIf="selectedRespForm.value.noneStatus">
             <i class="icon bj-alert warning"></i>This response won't be
             auto imported when this trait is added to an endpoint as it

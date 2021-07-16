@@ -4,10 +4,12 @@ import { ApiProject } from './../../models/ApiProject.model';
 import { ApiProjectService } from './../../services/apiProject.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Select } from '@ngxs/store';
+import { Select, Store } from '@ngxs/store';
 import { MatDialog } from '@angular/material/dialog';
 import { ImportProjectComponent } from './import-project/import-project.component';
 import { ApiProjectStateSelector } from '../../state/apiProjects.selector';
+import { User } from 'src/app/models/User.model';
+import { UserState } from 'src/app/state/user.state';
 
 
 @Component({
@@ -17,8 +19,12 @@ import { ApiProjectStateSelector } from '../../state/apiProjects.selector';
 })
 export class DesignerComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
+  authUser: User;
 
-  constructor(private apiProjectService: ApiProjectService, private toaster: Toaster, private dialog: MatDialog) {
+  constructor(private store: Store, private dialog: MatDialog) {
+    this.store.select(UserState.getAuthUser).subscribe(user => {
+      this.authUser = user;
+    });
   }
   ngOnDestroy(): void {
   }

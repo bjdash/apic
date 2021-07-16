@@ -174,6 +174,9 @@ export class TabSocketComponent implements OnInit, OnDestroy {
           }
         }
         break;
+      case 'Websocket':
+        this.form.patchValue(patch);
+        break;
     }
 
   }

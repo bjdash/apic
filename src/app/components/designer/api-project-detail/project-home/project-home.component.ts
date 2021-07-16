@@ -146,6 +146,10 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
     }
 
     share() {
+        if (!this.authService.isLoggedIn()) {
+            this.toaster.error('You need to login to apic to use this feature.');
+            return;
+        }
         this.dialog.open(SharingComponent, { data: { objId: this.selectedPROJ._id, type: 'APIProject' } });
     }
 
