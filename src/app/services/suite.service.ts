@@ -114,6 +114,9 @@ export class SuiteService {
     return suites;
   }
   async createTestSuite(suite: Suite, addWithSuffix?: boolean): Promise<Suite> {
+    if (suite.projId?.includes('demo')) {
+      throw new Error('Suites can\'t be added to a demo project');
+    }
     let suites = await this.store.select(SuitesStateSelector.getSuitesPartial).pipe(first()).toPromise();
     if (addWithSuffix) {
       let duplicate = false

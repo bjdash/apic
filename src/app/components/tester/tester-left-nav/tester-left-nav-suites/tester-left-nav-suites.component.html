@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class="r-sec">
-                <button class="new-suite" mat-icon-button
+                <button class="new-suite" mat-icon-button *ngIf="!project._id.includes('demo')"
                     (click)="showNewSuitForm(project._id);$event.stopPropagation()" matTooltip="New suite">
                     <mat-icon>add</mat-icon>
                 </button>

@@ -7,7 +7,9 @@
     }
     &:hover {
         > .r-sec {
-            flex: 0 0 80px;
+            flex: inherit;
+            flex-wrap: wrap;
+            width: auto;
         }
         .new-suite {
             display: inline-block;
