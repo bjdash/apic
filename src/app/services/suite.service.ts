@@ -46,19 +46,6 @@ export class SuiteService {
   }
 
   async createTestProject(project: TestProject, addWithSuffix = false): Promise<TestProject> {
-    let allProjs = await this.store.select(SuitesStateSelector.getProjectsPartial).pipe(first()).toPromise();
-    if (addWithSuffix) {
-      let duplicate = false
-      do {
-        duplicate = allProjs.some(r => r.name.toLocaleLowerCase() == project.name.toLocaleLowerCase())
-        if (duplicate) {
-          project.name += ` ${apic.s4()}`
-        }
-      } while (duplicate);
-    } else if (allProjs.find(p => p.name.toLowerCase() === project.name.toLowerCase())) {
-      throw new Error('A project with the same name already exists.')
-    }
-
     var time = new Date().getTime();
     project._id = time + '-' + apic.s12();
     project._created = time;
@@ -68,6 +55,21 @@ export class SuiteService {
     } else {
       delete project.owner;
     }
+
+    //owner detail has to be set first before this check
+    let allProjs = await this.store.select(SuitesStateSelector.getProjectsPartial).pipe(first()).toPromise();
+    if (addWithSuffix) {
+      let duplicate = false
+      do {
+        duplicate = allProjs.some(p => p.name.toLocaleLowerCase() == project.name.toLocaleLowerCase() && p.owner === project.owner)
+        if (duplicate) {
+          project.name += ` ${apic.s4()}`
+        }
+      } while (duplicate);
+    } else if (allProjs.find(p => p.name.toLowerCase() === project.name.toLowerCase() && p.owner === project.owner)) {
+      throw new Error('A project with the same name already exists.')
+    }
+
     let data = await iDB.insert(iDB.TABLES.TEST_PROJECTS, project);
     if (this.authUser?.UID) {//added successfully
       this.syncService.prepareAndSync('addTestProj', [project]);

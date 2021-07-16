@@ -45,18 +45,6 @@ export class ApiProjectService {
     }
 
     async addProject(proj: ApiProject, addWithSuffix?: boolean): Promise<ApiProject> {
-        let allProjs = await this.store.select(ApiProjectStateSelector.getPartial).pipe(first()).toPromise();
-        if (addWithSuffix) {
-            let duplicate = false
-            do {
-                duplicate = allProjs.some(r => r.title.toLocaleLowerCase() == proj.title.toLocaleLowerCase())
-                if (duplicate) {
-                    proj.title += ` ${apic.s4()}`
-                }
-            } while (duplicate);
-        } else if (allProjs.find(p => p.title.toLowerCase() === proj.title.toLowerCase())) {
-            throw new Error('A project with the same name already exists.')
-        }
         var ts = new Date().getTime();
         proj._id = ts + '-' + apic.s12();
         proj._created = ts;
@@ -65,6 +53,20 @@ export class ApiProjectService {
             proj.owner = this.authUser.UID;
         } else {
             delete proj.owner
+        }
+
+        //owner detail has to be set first before this check
+        let allProjs = await this.store.select(ApiProjectStateSelector.getPartial).pipe(first()).toPromise();
+        if (addWithSuffix) {
+            let duplicate = false
+            do {
+                duplicate = allProjs.some(p => p.title.toLocaleLowerCase() == proj.title.toLocaleLowerCase() && p.owner === proj.owner)
+                if (duplicate) {
+                    proj.title += ` ${apic.s4()}`
+                }
+            } while (duplicate);
+        } else if (allProjs.find(p => p.title.toLowerCase() === proj.title.toLowerCase() && p.owner === proj.owner)) {
+            throw new Error('A project with the same name already exists.')
         }
 
         return iDB.insert(iDB.TABLES.API_PROJECTS, proj).then((data: string[]) => {
