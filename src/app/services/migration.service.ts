@@ -43,7 +43,10 @@ export class MigrationService {
                 newReq.stomp = stomp;
                 return newReq;
             })
-            await this.requestsService.updateRequests(migrated);
+            await Promise.all(migrated.map(async (req) => {
+                await this.requestsService.updateRequest(req);
+            }));
+
         }
     }];
     newVersion: string;

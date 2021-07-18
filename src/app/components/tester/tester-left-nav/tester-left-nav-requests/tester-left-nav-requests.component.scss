@@ -41,3 +41,19 @@
         height: 25px;
     }
 }
+.l-sec {
+    position: relative;
+
+    .shared {
+        position: absolute;
+        font-size: 12px;
+        width: 16px;
+        height: 16px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        right: -2px;
+        bottom: -5px;
+        color: var(--accent-bg-text);
+        padding: 2px 1px;
+    }
+}

@@ -83,12 +83,11 @@ export class ApiProjectDetailService {
         try {
             var folder = {
                 name: 'Project: ' + proj.title,
-                desc: proj.description,
-                _id: null
+                desc: proj.description
             };
 
             //create parent folder
-            let parentFolder = (await this.requestsService.createFolders([folder]))[0];
+            let parentFolder = await this.requestsService.createFolder(folder, true);
 
             //create subfolders if it contains an endpoint & endpoint itself
             let requests: ApiRequest[] = [];
@@ -101,10 +100,9 @@ export class ApiProjectDetailService {
                     var subFolder: ReqFolder = {
                         name: f.name,
                         desc: f.desc,
-                        parentId: parentFolder._id,
-                        _id: null
+                        parentId: parentFolder._id
                     };
-                    let createdFolder = (await this.requestsService.createFolders([subFolder]))[0];
+                    let createdFolder = await this.requestsService.createFolder(subFolder, true);
                     subFolders[f._id] = createdFolder;
                 }
                 let req: ApiRequest = RequestUtils.endpointToApiRequest(endp, proj);
@@ -116,11 +114,13 @@ export class ApiProjectDetailService {
                 requests.push(req);
             }
 
-            await this.requestsService.createRequests(requests);
+            await Promise.all(requests.map(async (req) => {
+                return await this.requestsService.createRequest(req);
+            }));
             this.toaster.success('Requests built. Head to tester section to run the saved request.')
         } catch (e) {
             console.error('Failed to build.', e);
-            this.toaster.error(`Failed to build requests: ${e}`)
+            this.toaster.error(`Failed to build requests: ${e?.message || e || ''}`)
         }
 
     }

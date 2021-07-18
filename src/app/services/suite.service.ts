@@ -80,7 +80,7 @@ export class SuiteService {
 
   async updateTestProject(project: TestProject): Promise<TestProject> {
     let allProjs = await this.store.select(SuitesStateSelector.getProjectsPartial).pipe(first()).toPromise();
-    if (allProjs.find(p => p.name.toLowerCase() === project.name.toLowerCase() && p._id != project._id)) {
+    if (allProjs.find(p => p.name.toLowerCase() === project.name.toLowerCase() && p._id != project._id && p.owner === project.owner)) {
       throw new Error('A project with the same name already exists.')
     }
     project._modified = Date.now();

@@ -94,7 +94,7 @@ export class ApiProjectService {
 
     async updateAPIProject(project: ApiProject): Promise<ApiProject> {
         let allProjs = await this.store.select(ApiProjectStateSelector.getPartial).pipe(first()).toPromise();
-        if (allProjs.find(p => p.title.toLowerCase() === project.title.toLowerCase() && p._id != project._id)) {
+        if (allProjs.find(p => p.title.toLowerCase() === project.title.toLowerCase() && p._id != project._id && p.owner === project.owner)) {
             throw new Error('A project with the same name already exists.')
         }
         project._modified = Date.now();

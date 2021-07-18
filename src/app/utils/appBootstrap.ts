@@ -160,8 +160,8 @@ export class AppBootstrap {
         return await Promise.all([
             this.apiProjectService.loadApiProjs(),
             this.envService.getAllEnvs(),
-            this.reqService.getFolders(),
-            this.reqService.getRequests(),
+            this.reqService.loadFolders(),
+            this.reqService.loadRequests(),
             this.reqHistoryService.refresh(),
             this.suiteService.loadTestProjects(),
             this.suiteService.loadTestSuites()

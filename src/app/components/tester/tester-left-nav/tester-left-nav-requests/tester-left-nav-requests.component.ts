@@ -5,15 +5,20 @@ import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
+import { SharingComponent } from 'src/app/components/sharing/sharing.component';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
 import { Suite, SuiteReq } from 'src/app/models/Suite.model';
+import { Team } from 'src/app/models/Team.model';
 import { User } from 'src/app/models/User.model';
+import { AuthService } from 'src/app/services/auth.service';
 import { FileSystem } from 'src/app/services/fileSystem.service';
 import { RequestsService } from 'src/app/services/requests.service';
+import { SharingService } from 'src/app/services/sharing.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
+import { Utils } from 'src/app/services/utils.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import { SuitesStateSelector } from 'src/app/state/suites.selector';
@@ -39,6 +44,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   private destroy: Subject<boolean> = new Subject<boolean>();
   selectedTabId: string;
   newFolderForm: FormGroup;
+  teams: { [key: string]: Team } = {};
   rename = {
     _id: '',
     name: ''
@@ -60,13 +66,14 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
 
   flags = {
-    projReqs: true,
+    projReqs: false,//todo:
     savedReqs: true,
     newFolder: false,
     showSearch: false,
     searchModel: '',
     expanded: {},
-    expandAll: false
+    expandAll: false,
+    unsharingId: ''
   }
   constructor(fb: FormBuilder,
     private store: Store,
@@ -75,6 +82,8 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     private testerTabService: TesterTabsService,
     private dialog: MatDialog,
     private suiteService: SuiteService,
+    private authService: AuthService,
+    private sharing: SharingService,
     private toastr: Toaster) {
     this.newFolderForm = fb.group({
       name: ['', Validators.required],
@@ -86,7 +95,10 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       this.authUser = user;
     });
     this.testerTabService.selectedTabChange.pipe(takeUntil(this.destroy)).subscribe(id => this.selectedTabId = id);
-
+    this.sharing.teams$
+      .subscribe(teams => {
+        this.teams = Utils.arrayToObj(teams, 'id');
+      })
   }
   ngOnDestroy(): void {
     this.destroy.next();
@@ -102,7 +114,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       document.getElementById('newFolderName').focus();
     }, 0);
   }
-  createFolder() {
+  async createFolder() {
     var newFolder = this.newFolderForm.value;
     if (newFolder.parentId === undefined) {
       this.toastr.error('Please select a parent folder.');
@@ -112,27 +124,16 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       newFolder.parentId = null;
     }
 
-    this.folders$.pipe(take(1)).subscribe(async (folders: any[]) => {
-      let siblings = newFolder.parentId ?
-        folders.find(f => f._id === newFolder.parentId).children : folders;
-
-      if (siblings.find(s => s.name === newFolder.name)) {
-        this.toastr.error('Folder already exists');
-        document.getElementById('newFolderName').focus();
-      } else {
-        try {
-          await this.reqService.createFolders([newFolder])
-          this.toastr.success('Folder "' + newFolder.name + '" created');
-          this.newFolderForm.reset();
-        } catch (e) {
-          console.error('Failed to createfolder', e, newFolder)
-          this.toastr.error(`Failed to create folder: ${e.message}`);
-          document.getElementById('newFolderName').focus();
-
-        }
-
-      }
-    });
+    try {
+      await this.reqService.createFolder(newFolder)
+      this.toastr.success('Folder "' + newFolder.name + '" created');
+      this.newFolderForm.reset();
+      this.flags.newFolder = false;
+    } catch (e) {
+      console.error('Failed to createfolder', e, newFolder)
+      this.toastr.error(`Failed to create folder: ${e.message}`);
+      document.getElementById('newFolderName').focus();
+    }
   }
 
   showRename(folder: ReqFolder) {
@@ -150,8 +151,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
         if (f) {
           const toSave: ReqFolder = { ...f, name: this.rename.name };
           try {
-            //TODO:Check duplicate
-            await this.reqService.updateFolders([toSave]);
+            await this.reqService.updateFolder(toSave);
             this.toastr.success('Folder renamed');
             this.rename._id = ''
           } catch (e) {
@@ -176,10 +176,8 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
 
     if (data.TYPE === 'Folder') {
       if (this.reqService.validateImportData(data) === true) {
-        let importFolderData = this.processImportedFolder(data.value, true);
         try {
-          await this.reqService.createFolders(importFolderData.folders);
-          await this.reqService.createRequests(importFolderData.reqs);
+          await this.processImportedFolder(data.value, null);
           this.toastr.success('Import Complete.');
         } catch (e) {
           this.toastr.error(`Failed to import. ${e.message}`);
@@ -192,42 +190,32 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private processImportedFolder(folder, isParent: boolean) {
-    var time = new Date().getTime();
-    let importFolderData = {
-      folders: [],
-      reqs: []
-    };
-    var folderToAdd = {
-      _id: time + '-' + apic.s12(),
+  private async processImportedFolder(folder, parentId: string) {
+    var folderToAdd: ReqFolder = {
       name: folder.name,
       desc: folder.desc,
-      parentId: isParent ? null : folder.parentId
+      parentId
     };
-    importFolderData.folders.push(folderToAdd);
+    let createdFolder = await this.reqService.createFolder(folderToAdd, true);
 
-    if (folder.children && folder.children.length > 0) {
+    if (folder.children?.length > 0) {
       for (var i = 0; i < folder.children.length; i++) {
-        folder.children[i].parentId = folderToAdd._id;
-        let childImport = this.processImportedFolder(folder.children[i], false);
-        importFolderData.folders = [...importFolderData.folders, ...childImport.folders]
-        importFolderData.reqs = [...importFolderData.reqs, ...childImport.reqs]
+        this.processImportedFolder(folder.children[i], createdFolder._id);
       }
     }
     if (folder.requests && folder.requests.length > 0) {
       for (var i = 0; i < folder.requests.length; i++) {
         var req = folder.requests[i];
-        var reqToAdd;
+        var reqToAdd: ApiRequest;
         if (['Stomp', 'Websocket'].indexOf(req.method) >= 0) {
+          //TODO: Check these fields
           reqToAdd = {
             url: req.url,
             method: req.method,
             name: req.name,
             description: req.description,
-            _parent: folderToAdd._id,
-            type: req.type,
-            connection: req.connection,
-            destQ: req.destQ
+            _parent: createdFolder._id,
+            type: req.type
 
           };
         } else {
@@ -238,19 +226,17 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
             postscript: req.postscript,
             name: req.name,
             description: req.description,
-            _parent: folderToAdd._id,
+            _parent: createdFolder._id,
             Req: req.Req,
             Body: req.Body,
             respCodes: req.respCodes,
             savedResp: req.savedResp
           };
         }
-
-        importFolderData.reqs.push(reqToAdd);
+        await this.reqService.createRequest(reqToAdd, true);
       }
     }
 
-    return importFolderData;
   }
 
   async deleteFolder(folder: TreeReqFolder) {
@@ -263,8 +249,8 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }) || [];
     foldersToDelete.push(folder._id);
     try {
-      await this.reqService.deleteRequests(reqsToDelete);
-      await this.reqService.deleteFolders(foldersToDelete);
+      await this.reqService.deleteRequests(reqsToDelete, folder.owner);
+      await this.reqService.deleteFolders(foldersToDelete, folder.owner);
       this.toastr.success('Folder deleted');
     } catch (e) {
       console.error('Failed to delete folder', e);
@@ -272,9 +258,9 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteRequest(id: string, name: string) {
+  async deleteRequest(id: string, name: string, owner: string) {
     try {
-      await this.reqService.deleteRequests([id]);
+      await this.reqService.deleteRequests([id], owner);
       this.toastr.success('Request deleted');
       this.testerTabService.updateTab(id, 'new_tab:' + apic.s8(), 'Deleted Tab: ' + name);
     } catch (e) {
@@ -355,9 +341,9 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
 
               let newReq = { ...originalReq, name: reqName, _parent: parent };
               if (this.copyMoveOption.type == 'copy') {
-                await this.reqService.createRequests([newReq])
+                await this.reqService.createRequest(newReq)
               } else {
-                await this.reqService.updateRequests([newReq])
+                await this.reqService.updateRequest(newReq)
               }
               this.toastr.success('Done');
               this.treeSelectorOpt.show = false;
@@ -541,5 +527,32 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     this.flags.showSearch = true;
     this.flags.expandAll = true;
     document.getElementById('req-search')?.focus();
+  }
+
+  shareFolder(folder: ReqFolder) {
+    if (!!folder.parentId) {
+      this.toastr.error('You can\'t share a subfolder. Please share it\'s parent');
+      return;
+    }
+    if (!this.authService.isLoggedIn()) {
+      this.toastr.error('You need to login to apic to use this feature.');
+      return;
+    }
+    this.dialog.open(SharingComponent, { data: { objId: folder._id, type: 'Folders' } });
+  }
+
+  unshareFolder(folder: ReqFolder) {
+    if (!!folder.parentId) {
+      this.toastr.error('You can\'t unshare a subfolder. Please unshare it\'s parent');
+      return;
+    }
+    this.flags.unsharingId = folder._id;
+    this.sharing.unshare(folder._id, folder.team, 'Folders').pipe(first())
+      .subscribe(teams => {
+        this.flags.unsharingId = '';
+        this.toastr.success(`Project un-shared with team.`);
+      }, () => {
+        this.flags.unsharingId = '';
+      })
   }
 }

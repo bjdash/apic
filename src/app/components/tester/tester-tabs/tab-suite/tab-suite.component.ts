@@ -126,6 +126,7 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
         if (s && (s._modified > this.selectedSuite?._modified || !this.selectedSuite)) {
           if (this.updatedInBackground == 'update' && !this.shareingService.isLastShared(this.selectedSuite?.projId, 'TestCaseProjects')) {
             this.reloadSuite = s;
+            this.updatedInBackground = null;
           } else {
             this.processSelectedSuite(s);
             this.updatedInBackground = null;
