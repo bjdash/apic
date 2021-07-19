@@ -180,13 +180,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
             this.processSelectedReq(req)
             this.updatedInBackground = null;
           }
-          // if (this.selectedReq) {
-          //   this.reloadRequest = req;
-          // } else {
-          //   setTimeout(() => {
-          //     this.processSelectedReq(req)
-          //   }, 0);
-          // }
         } else if (req == undefined && this.selectedReq) {
           //tab got deleted
           this.tabsService.updateTab(this.requestId, 'new_tab:' + apic.s8(), 'Deleted Tab: ' + this.selectedReq.name);

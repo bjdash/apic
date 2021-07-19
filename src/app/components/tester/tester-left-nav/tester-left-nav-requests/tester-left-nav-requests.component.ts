@@ -206,27 +206,44 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     if (folder.requests && folder.requests.length > 0) {
       for (var i = 0; i < folder.requests.length; i++) {
         var req = folder.requests[i];
-        var reqToAdd: ApiRequest;
-        if (['Stomp', 'Websocket'].indexOf(req.method) >= 0) {
-          //TODO: Check these fields
+        var reqToAdd: ApiRequest = {
+          url: req.url,
+          method: req.method,
+          name: req.name,
+          description: req.description,
+          _parent: createdFolder._id,
+        }
+        if (req.type === 'ws') {
           reqToAdd = {
-            url: req.url,
-            method: req.method,
-            name: req.name,
-            description: req.description,
-            _parent: createdFolder._id,
-            type: req.type
-
+            ...reqToAdd,
+            type: req.type,
+            message: req.message
           };
+          if (req.method === 'Websocket') {
+            reqToAdd = {
+              ...reqToAdd,
+            };
+          } else if (req.method === 'Stomp') {
+            reqToAdd = {
+              ...reqToAdd,
+              stomp: req.stomp
+            };
+          } else if (req.method === 'SSE') {
+            reqToAdd = {
+              ...reqToAdd,
+              sse: req.sse
+            };
+          } else if (req.method === 'Socketio') {
+            reqToAdd = {
+              ...reqToAdd,
+              socketio: req.socketio
+            };
+          }
         } else {
           reqToAdd = {
-            url: req.url,
-            method: req.method,
+            ...reqToAdd,
             prescript: req.prescript,
             postscript: req.postscript,
-            name: req.name,
-            description: req.description,
-            _parent: createdFolder._id,
             Req: req.Req,
             Body: req.Body,
             respCodes: req.respCodes,
