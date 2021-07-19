@@ -22,7 +22,7 @@ export class SharingComponent implements OnInit {
     private sharing: SharingService,
     private toaster: Toaster,
     private dialogRef: MatDialogRef<SharingComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { objId: string, type: ShareType }
+    @Inject(MAT_DIALOG_DATA) public data: { objId?: string, type: ShareType, objIds?: string[] }
   ) { }
 
   ngOnInit(): void {
@@ -42,7 +42,11 @@ export class SharingComponent implements OnInit {
 
   share(team: Team) {
     this.flags.sharing = true;
-    this.sharing.share(this.data.objId, team.id, this.data.type).pipe(first())
+    // this.sharing.share(this.data.objId, team.id, this.data.type)
+    (this.data.objId ?
+      this.sharing.share(this.data.objId, team.id, this.data.type) :
+      this.sharing.shareMulti(this.data.objIds, team.id, this.data.type))
+      .pipe(first())
       .subscribe(teams => {
         this.flags.sharing = false;
         this.dialogRef.close();

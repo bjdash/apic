@@ -66,7 +66,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
 
   flags = {
-    projReqs: false,//todo:
+    projReqs: true,
     savedReqs: true,
     newFolder: false,
     showSearch: false,

@@ -13,6 +13,8 @@ import { StompMessage } from '../models/StompMessage.model';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
 import { SAVED_SETTINGS } from '../utils/constants';
+import { EnvState } from '../state/envs.state';
+import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -55,63 +57,57 @@ export class EnvService {
     });
   }
 
-  addEnv(newEnv: Env, fromSync?: boolean) {
-    if (!fromSync) {
-      const ts = Date.now();
-      if (!newEnv.vals) newEnv.vals = [];
-      newEnv._created = ts;
-      newEnv._modified = ts;
-      newEnv._id = ts + '-' + apic.s12();
-      if (this.authUser?.UID) {
-        newEnv.owner = this.authUser.UID;
-      }
+  async addEnv(newEnv: Env, addWithSuffix = false): Promise<Env> {
+    const ts = Date.now();
+    if (!newEnv.vals) newEnv.vals = [];
+    newEnv._created = ts;
+    newEnv._modified = ts;
+    newEnv._id = ts + '-' + apic.s12();
+    if (this.authUser?.UID) {
+      newEnv.owner = this.authUser.UID;
+    } else {
+      delete newEnv.owner;
     }
+
+    //owner detail has to be set first before this check
+    let allEnvs = await this.store.select(EnvState.getPartial).pipe(first()).toPromise();
+    if (addWithSuffix) {
+      let duplicate = false
+      do {
+        duplicate = allEnvs.some(p => p.name.toLocaleLowerCase() == newEnv.name.toLocaleLowerCase() && p.owner === newEnv.owner)
+        if (duplicate) {
+          newEnv.name += ` ${apic.s4()}`
+        }
+      } while (duplicate);
+    } else if (allEnvs.find(p => p.name.toLowerCase() === newEnv.name.toLowerCase() && p.owner === newEnv.owner)) {
+      throw new Error('An environment with the same name already exists.')
+    }
+
     return iDB.insert('Environments', newEnv).then((data) => {
-      if (data[0] && this.authUser?.UID && !fromSync) {//added successfully
-        this.syncService.prepareAndSync('addEnv', newEnv);
+      if (data[0] && this.authUser?.UID) {//added successfully
+        this.syncService.prepareAndSync('addEnv', [newEnv]);
       }
       this.store.dispatch(new EnvsAction.Add([newEnv]));
       //returns id of newly added env
-      return data;
+      return newEnv;
     });
   }
 
-  addEnvs(envs: Env[], fromSync?: boolean) {
-    if (!fromSync) {
-      const ts = Date.now();
-      envs.forEach(newEnv => {
-        if (!newEnv.vals) newEnv.vals = [];
-        newEnv._created = ts;
-        newEnv._modified = ts;
-        newEnv._id = ts + '-' + apic.s12();
-      })
+  async updateEnv(env: Env): Promise<Env> {
+    let allEnvs = await this.store.select(EnvState.getPartial).pipe(first()).toPromise();
+    if (allEnvs.find(p => p.name.toLowerCase() === env.name.toLowerCase() && p._id != env._id && p.owner === env.owner)) {
+      throw new Error('An environment with the same name already exists.')
     }
-
-    return iDB.insertMany('Environments', envs).then((data) => {
-      if (data[0] && this.authUser?.UID && !fromSync) {//added successfully
-        this.syncService.prepareAndSync('addEnv', envs);
-      }
-      this.store.dispatch(new EnvsAction.Add(envs));
-      //returns id of newly added env
-      return data;
-    });
-  }
-
-  updateEnv(env: Env, fromSync?: boolean) {
     env._modified = Date.now();
     return iDB.upsert('Environments', env).then((data) => {
-      if (data && !fromSync && this.authUser?.UID) {
+      if (data && this.authUser?.UID) {
         var envsToSync = apic.removeDemoItems(env); //returns a list
         if (envsToSync.length > 0) {
           this.syncService.prepareAndSync('updateEnv', envsToSync);
         }
       }
       this.store.dispatch(new EnvsAction.Update([env]));
-
-      //TODO
-      // $rootScope.$emit('envUpdated');
-      // this.stateTracker.next({ env });
-      return data;
+      return env;
     });
   }
 

@@ -67,6 +67,12 @@
             margin-right: 10px;
         }
     }
+    .shared {
+        font-size: 18px;
+        margin-left: 5px;
+        color: var(--accent-color);
+        height: 18px;
+    }
     .env-optn {
         display: none;
         position: absolute;
@@ -83,5 +89,13 @@
     }
     .cdk-overlay-pane {
         max-height: calc(100% - 50px);
+    }
+}
+
+:host ::ng-deep {
+    .mat-list-base .mat-list-item .mat-list-text,
+    .mat-list-base .mat-list-option .mat-list-text {
+        flex-direction: row !important;
+        align-items: center;
     }
 }

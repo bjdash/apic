@@ -71,7 +71,7 @@ export class ApiProjectService {
 
         return iDB.insert(iDB.TABLES.API_PROJECTS, proj).then((data: string[]) => {
             if (this.authUser?.UID) {
-                this.syncService.prepareAndSync('addAPIProject', proj);
+                this.syncService.prepareAndSync('addAPIProject', [proj]);
             }
             this.store.dispatch(new ApiProjectsAction.Add([proj]));
             return proj;

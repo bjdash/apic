@@ -70,12 +70,12 @@ export class ProjSettingsComponent implements OnInit, OnChanges {
       readOnly: true
     }];
 
-    let updatedEnvId;
+    let updatedEnv: Env;
     try {
       if (action === 'add') {
-        updatedEnvId = await this.createNewEnv(settingEnvVals);
+        updatedEnv = await this.createNewEnv(settingEnvVals);
       } else {
-        updatedEnvId = await this.updateEnv(settingEnvVals);
+        updatedEnv = await this.updateEnv(settingEnvVals);
       }
 
       let projToUpdate: ApiProject = {
@@ -83,7 +83,7 @@ export class ProjSettingsComponent implements OnInit, OnChanges {
           host: settings.host,
           basePath: settings.basePath,
           protocol: settings.protocol,
-          envId: updatedEnvId
+          envId: updatedEnv._id
         }
       }
 

@@ -16,7 +16,7 @@ import { ThemesService } from './services/themes.service';
 import { RequestsService } from './services/requests.service';
 import { ReqHistoryService } from './services/reqHistory.service';
 import LocalStore from './services/localStore';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 @Component({
@@ -25,23 +25,16 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(private bootstrap: AppBootstrap, private authService: AuthService, private router: Router) {
+  constructor(private bootstrap: AppBootstrap, private authService: AuthService) {
     this.init();
-
     //TODO:after some time fetch user details from server and update local, this is to reflect change in name in other device
   }
 
-  //TODO: For each create calls (folders, reqs, projects, suites etc) move the duplicate check logic to create method itself, with an option to create with suffix such as "ApiProj 2"
+  //TODO: For each create calls for envs, move the duplicate check logic to create method itself, with an option to create with suffix such as "Env 2"
   //TODO: refactor each create type to use a parital object with minimum field. Eg: Folders should only take name, desc & parent
   //TODO: Use different methode for update from sync
 
   async init() {
-    //TODO: Enable this
-    //load last used module;
-    // let lastUsed = LocalStore.get(LocalStore.WORKSPACE);
-    // if (lastUsed === 'Tester') this.router.navigate(['tester']);
-    // else this.router.navigate(['designer']);
-
     this.authService.initLoggedinUser();
     await this.bootstrap.init();
 

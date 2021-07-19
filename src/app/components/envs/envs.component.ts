@@ -15,6 +15,12 @@ import { UserState } from '../../state/user.state';
 import { KeyVal } from '../../models/KeyVal.model';
 import { Utils } from '../../services/utils.service';
 import { EnvsAction } from '../../actions/envs.action';
+import { AuthService } from 'src/app/services/auth.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SharingComponent } from '../sharing/sharing.component';
+import { ConfirmService } from 'src/app/directives/confirm.directive';
+import { Team } from 'src/app/models/Team.model';
+import { SharingService } from 'src/app/services/sharing.service';
 
 @Component({
   selector: 'app-envs',
@@ -35,7 +41,8 @@ export class EnvsComponent implements OnInit, OnDestroy {
   inMemEnvs: KeyVal[];
   selectedEnvId: string[] = [this.inMemEnvId];
   selectedEnv: Env = null;
-  pendingSave: string[] = [];
+  teams: { [key: string]: Team } = {};
+
   bulkSelectIds = {
     export: []
   };
@@ -45,42 +52,75 @@ export class EnvsComponent implements OnInit, OnDestroy {
     unshare: false
   };
 
-  showAddEnv: boolean = false;
-  selectedEnthisodified: boolean = false;
   newEnvNameModel: string = '';
   editEnvNameModel: string = '';
 
   flags = {
     editName: false,
-    pendingSave: false
+    pendingSave: false,
+    unsharingId: '',
+    showAddEnv: false
   }
 
-  constructor(private store: Store, private toaster: Toaster, private envService: EnvService, private fileSystem: FileSystem) {
+  constructor(
+    private store: Store,
+    private toaster: Toaster,
+    private envService: EnvService,
+    private fileSystem: FileSystem,
+    private authService: AuthService,
+    private confirmService: ConfirmService,
+    private sharing: SharingService,
+    private dialog: MatDialog) {
     this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
       this.authUser = user;
     });
+    this.sharing.teams$
+      .subscribe(teams => {
+        this.teams = Utils.arrayToObj(teams, 'id');
+      })
   }
 
   ngOnInit(): void {
-    this.envs$.pipe(take(1)).subscribe(envs => {
-      // this.envsList = envs.map(env => JSON.parse(JSON.stringify(env)))
-      this.envsList = JSON.parse(JSON.stringify(envs))
-    });
-    this.inMem$.pipe(take(1)).subscribe(envsObj => {
-      this.inMemEnvs = Utils.objectEntries(envsObj).map(([key, val]) => {
-        return { key, val };
+    this.envs$
+      .pipe(takeUntil(this.destroy))
+      .subscribe(envs => {
+        this.envsList = envs;
+        if (this.selectedEnv?._id) {
+          this.onEnvSelected()
+        }
+      });
+    this.inMem$
+      .pipe(take(1))
+      .subscribe(envsObj => {
+        this.inMemEnvs = Utils.objectEntries(envsObj).map(([key, val]) => {
+          return { key, val };
+        })
       })
-    })
   }
   ngOnDestroy(): void {
     this.destroy.next();
     this.destroy.complete();
   }
 
+  selectEnv(env: Env, autoSelect = false) {
+    this.selectedEnv = { ...env, vals: [...env.vals.map(val => { return { ...val } })] };
+    if (autoSelect) {
+      this.selectedEnvId = [env._id];
+    }
+  }
+
+  onEnvSelected() {
+    if (this.selectedEnvId[0] === this.inMemEnvId) {
+
+    } else {
+      this.selectEnv(this.envsList.find(env => env._id === this.selectedEnvId[0]));
+    }
+  }
+
   showAddEnvBox() {
-    this.showAddEnv = !this.showAddEnv;
+    this.flags.showAddEnv = !this.flags.showAddEnv;
     this.newEnvNameModel = '';
-    if (this.showAddEnv) {
+    if (this.flags.showAddEnv) {
       setTimeout(() => {
         (this.addEnvInput.nativeElement as HTMLInputElement).focus();
       })
@@ -98,142 +138,121 @@ export class EnvsComponent implements OnInit, OnDestroy {
     if (!data)
       return;
 
-    if (data.TYPE === 'Environment') {
-      if (this.envService.validateImportData(data) === true) {
-        var ts = new Date().getTime();
-        if (data.value.length > 0) {//collectn of envs
-          data.value.forEach((env: Env) => {
-            delete env.owner;
-            delete env.team;
-            delete env.proj;
-            env.vals?.forEach(v => delete v.readOnly);
-          });
-          const ids = await this.envService.addEnvs(data.value);
-          ids.forEach(id => this.refreshEnvFromStore(id));
+    try {
+      if (data.TYPE === 'Environment') {
+        if (this.envService.validateImportData(data) === true) {
+          if (data.value.length > 0) {//collectn of envs
+            let envs: Env[] = data.value.map(e => {
+              return {
+                name: e.name,
+                vals: e.vals
+              }
+            })
+            await Promise.all(envs.map(async (env) => {
+              return await this.envService.addEnv(env, true);
+            }));
+          }
+        } else {
+          this.toaster.error('Selected file doesn\'t contain valid environment information');
         }
       } else {
         this.toaster.error('Selected file doesn\'t contain valid environment information');
       }
-    } else {
-      this.toaster.error('Selected file doesn\'t contain valid environment information');
+    } catch (e) {
+      this.toaster.error(`Failed to import Environment. ${e?.message || e || ''}`);
+      console.error('Failed to import env', e)
     }
+
   }
 
-  createNewEnv() {
-    this.saveNewEnv(this.newEnvNameModel, [], true);
+  async createNewEnv() {
+    await this.saveNewEnv(this.newEnvNameModel, []);
+    this.flags.showAddEnv = false;
   }
 
-  async saveNewEnv(newEnvName: string, vals: any[], isCopying: boolean) {
+  async saveNewEnv(newEnvName: string, vals: any[]): Promise<Env> {
     if (!newEnvName) return;
-    for (var i = 0; i < this.envsList.length; i++) {
-      if (this.envsList[i].name.toLowerCase() === newEnvName.toLowerCase()) {
-        if (isCopying) {
-          newEnvName = newEnvName + ' Copy';
-          i = -1;
-        } else {
-          this.toaster.error(`Environment with name "${newEnvName}" already exists.`);
-          return;
-        }
-      }
-    }
 
     var toSave: Env = {
       _id: null, name: newEnvName, vals: [], _created: null, _modified: null
     }
     if (vals) {
       toSave.vals = vals.map(val => Object.assign({}, val));
-      if (isCopying) {
-        toSave.vals.forEach(val => delete val.readOnly);
-      }
+      toSave.vals.forEach(val => delete val.readOnly);
     }
-    var newEnvId = await this.envService.addEnv(toSave);
-    this.toaster.success("Environment created.");
-    this.refreshEnvFromStore(newEnvId, true);
-    // if (!this.validateKeys())
-    //   return;
-    // this.flags.showType = 'env';
-    // if ($scope.envDetailForm.$dirty) {
-    //   this.selectedEnv._modified = new Date().getTime();
-    // }
-    // this.selectedEnv = env;
-    // discardEdit();
-    // $scope.envDetailForm.$setPristine();
+    try {
+      let newEnv = await this.envService.addEnv(toSave);
+      this.toaster.success("Environment created.");
+      return newEnv;
+    } catch (e) {
+      this.toaster.error(`Failed to create Environment. ${e?.message || e || ''}`);
+      console.error('Failed to create env', e)
+    }
   }
 
-  refreshEnvFromStore(id, select?: boolean) {
-    this.store.select(EnvState.getById)
-      .pipe(map(filterFn => filterFn(id)))
-      .pipe(take(1))
-      .subscribe(newEnv => {
-        this.envsList.unshift({ ...newEnv, vals: [...newEnv.vals] });
-        if (select) {
-          this.selectedEnvId = [newEnv._id];
-          this.onEnvSelected(null);
-        }
-      });
-  }
 
-  startEnvEdit() {
+  startEnvNameEdit() {
     this.flags.editName = true;
+    this.editEnvNameModel = this.selectedEnv.name;
     setTimeout(() => {
       (this.editEnvInput.nativeElement as HTMLInputElement).focus();
     })
   }
 
-  saveEnvEdit() {
+  async saveEnvNameEdit() {
     if (this.selectedEnv.name !== this.editEnvNameModel) {
-      if (this.doesEnvWithSameNameExist(this.editEnvNameModel)) {
-        this.toaster.error(`Environment "${this.editEnvNameModel}" is already there.`);
-        this.flags.editName = false;
-        this.editEnvNameModel = this.selectedEnv.name;
-        return;
+      let toUpdate: Env = {
+        ...this.selectedEnv,
+        name: this.editEnvNameModel
       }
-      this.addToPendingSave(this.selectedEnv._id);
-      this.selectedEnv.name = this.editEnvNameModel;
+      try {
+        await this.envService.updateEnv(toUpdate);
+        this.toaster.success('Environment renamed.')
+      } catch (e) {
+        this.toaster.error(`Failed to update Environment. ${e?.message || e || ''}`);
+        console.error('Failed to update env', e)
+      }
     }
     this.flags.editName = false;
   }
 
-  onEnvSelected(event: MatSelectionListChange) {
-    if (this.selectedEnvId[0] === this.inMemEnvId) {
-
-    } else {
-      this.selectedEnv = this.envsList.find(env => env._id === this.selectedEnvId[0]);
-      this.editEnvNameModel = this.selectedEnv.name;
-    }
-  }
-
-  addToPendingSave(envId: string) {
-    if (this.pendingSave.indexOf(envId) < 0) this.pendingSave.push(envId);
-  }
-
-  async saveEnvs() {
-    let envsToUpdate = this.envsList.filter(env => this.pendingSave.indexOf(env._id) >= 0);
-    if (envsToUpdate.length > 0) {
-      try {
-        const updatedIds = await this.envService.updateEnvs(envsToUpdate);
-        //update inmem envs in state
-        this.store.dispatch(new EnvsAction.PatchInMem(Utils.keyValPairAsObject(this.inMemEnvs, true)))
-        this.toaster.success('Environments updated.');
-      } catch (e) {
-        console.error('Failed to update env', e);
-        this.toaster.error(`Failed to update enviroment: ${e.message}`);
+  addNewEnvValue() {
+    this.selectedEnv.vals.push({ key: '', val: '' });
+    setTimeout(() => {
+      let nodes = document.querySelectorAll('#envValsCont .envValsKey');
+      if (nodes) {
+        (nodes[nodes.length - 1] as HTMLElement).focus()
       }
-    } else {
-      this.store.dispatch(new EnvsAction.SetInMem(Utils.keyValPairAsObject(this.inMemEnvs, true)))
-      this.toaster.success('Environments updated.');
-    }
-    this.pendingSave = [];
+    }, 0);
   }
 
+  onEnvValueChange($event?) {
+    if ($event && $event.target.classList.contains('unchanged-input')) {
+      return;
+    }
+    this.updateSelectedEnv();
+  }
+
+  async updateSelectedEnv() {
+    let toUpdate: Env = { ...this.selectedEnv };
+    try {
+      await this.envService.updateEnv(toUpdate);
+    } catch (e) {
+      this.toaster.error(`Failed to update Environment. ${e?.message || e || ''}`);
+      console.error('Failed to update env', e)
+    }
+  }
+
+  updateInMemEnv($event?) {
+    if ($event && $event.target.classList.contains('unchanged-input')) {
+      return;
+    }
+    this.store.dispatch(new EnvsAction.SetInMem(Utils.keyValPairAsObject(this.inMemEnvs, true)))
+  }
 
   removeEnvVals(index: number) {
     this.selectedEnv.vals.splice(index, 1);
-    this.addToPendingSave(this.selectedEnv._id);
-  }
-
-  doesEnvWithSameNameExist(name: String): boolean {
-    return this.envsList.find(env => env.name === name) ? true : false
+    this.updateSelectedEnv()
   }
 
   async deleteEnv(env, index) {
@@ -250,28 +269,22 @@ export class EnvsComponent implements OnInit, OnDestroy {
   }
 
   deleteEnvById(envId: string, index: number) {
+    var envName = this.envsList[index].name;
     this.envService.deleteEnvs([envId]).then(() => {
-      var envName = this.envsList[index].name;
       this.toaster.success(`Environment "${envName}" deleted.`);
       this.envsList.splice(index, 1);
       if (this.envsList.length === 0) {
         this.selectedEnv = null;
       } else if (this.selectedEnv.name.toLowerCase() === envName.toLowerCase()) {
         if (index === 0) {
-          this.autoSelectEnv(this.envsList[0]);
+          this.selectEnv(this.envsList[0], true);
         } else {
-          this.autoSelectEnv(this.envsList[index - 1]);
+          this.selectEnv(this.envsList[index - 1], true);
         }
-
       }
     }, () => {
       this.toaster.error('Failed to delete environment');
     });
-  }
-
-  autoSelectEnv(env: Env) {
-    this.selectedEnv = env;
-    this.selectedEnvId = [env._id];
   }
 
   downloadMultiple() {
@@ -330,5 +343,42 @@ export class EnvsComponent implements OnInit, OnDestroy {
 
   stopPropagation(event) {
     event.stopPropagation();
+  }
+
+  shareEnv(env: Env) {
+    if (!this.authService.isLoggedIn()) {
+      this.toaster.error('You need to login to apic to use this feature.');
+      return;
+    }
+    if (env.proj && env.proj.id) {
+      this.confirmService.alert({
+        id: 'Share:Env',
+        confirmTitle: 'Share Environment',
+        confirm: 'This environment is automatically shared when the API project it belongs to is also shared. To share this environment just share the API Project it belongs to.',
+        confirmOk: 'Ok'
+      });
+    } else {
+      this.dialog.open(SharingComponent, { data: { objIds: [env._id], type: 'Envs' } });
+    }
+  }
+
+  unshareEnv(env: Env) {
+    if (env.proj && env.proj.id) {
+      this.confirmService.alert({
+        id: 'Share:Env',
+        confirmTitle: 'Share Environment',
+        confirm: 'This environment is automatically un-shared when the API project it belongs to is also un-shared. To un-share this environment you need to un-share the API Project it belongs to.',
+        confirmOk: 'Ok'
+      });
+      return;
+    }
+    this.flags.unsharingId = env._id;
+    this.sharing.unshare(env._id, env.team, 'Envs').pipe(first())
+      .subscribe(teams => {
+        this.flags.unsharingId = '';
+        this.toaster.success(`Environment un-shared with team.`);
+      }, () => {
+        this.flags.unsharingId = '';
+      })
   }
 }
