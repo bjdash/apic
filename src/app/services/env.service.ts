@@ -20,7 +20,6 @@ import { first } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class EnvService {
-  private stateTracker = new BehaviorSubject<any>({});//TODO: is this required?
   private ajv;
   authUser: User;
 
@@ -33,10 +32,6 @@ export class EnvService {
     this.syncService.onEnvMessage$.subscribe(async message => {
       this.onSyncMessage(message);
     })
-  }
-
-  getState(): Observable<any> {
-    return this.stateTracker.asObservable();
   }
 
   async getAllEnvs() {

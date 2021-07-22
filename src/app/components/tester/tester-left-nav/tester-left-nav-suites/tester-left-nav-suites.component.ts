@@ -85,8 +85,6 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    //TODO: remove
-    this.testerTabsService.addSuiteTab("123456abcdef-testsuite-demo", "Demo");
     this.suiteService.initAddReq$.pipe(takeUntil(this.destroy)).subscribe(([suite, index]: [Suite, number]) => {
       this.addReqToSuite(suite, index);
     })

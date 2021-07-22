@@ -135,7 +135,7 @@ export class RequestUtils {
         }
     }
 
-    static endpointToApiRequest(endp: ApiEndp, project: ApiProject): ApiRequest {
+    static endpointToApiRequest(endp: ApiEndp, project: ApiProject, mocking = false): ApiRequest {
         if (endp.traits) {
             for (var i = 0; i < endp.traits.length; i++) {
                 endp = ApiProjectUtils.importTraitData(endp.traits[i]._id, { ...endp }, project);
@@ -160,28 +160,37 @@ export class RequestUtils {
             Body: {}
         };
 
-        //select an environment if we have settings(host, basePath) saved for the project
-        if (project.setting) {
-            var url = '{{scheme}}{{host}}';
-            var basePath = '';
-
-            if (project.setting.basePath) {
-                basePath = '{{basePath}}';
-                if (project.setting.basePath.indexOf('/') !== 0) {
-                    basePath = '/' + basePath;
-                }
-            }
-            var endpUrl = endp.path;
-            var params = [], rxp = /{([^}]+)}/g, curMatch;
-
-            while (curMatch = rxp.exec(endpUrl)) {
-                var match = curMatch[1];
-                endpUrl = endpUrl.replace('{' + match + '}', '{{' + match + '}}');
-            }
-            request.url = url + basePath + endpUrl;
+        if (mocking) {
+            request.url = 'https://apic.app/mock/' + project.simKey + (project.setting?.basePath || '') + endp.path;
+            //replace {pathParams} in url with {{envVars}}
+            Utils.objectEntries(endp.pathParams?.properties).forEach(([key, val]) => {
+                request.url = request.url.replace(`{${key}}`, `{{${key}}}`)
+            });
         } else {
-            request.url = 'http://{{host}}' + endp.path;
+            //select an environment if we have settings(host, basePath) saved for the project
+            if (project.setting) {
+                var url = '{{scheme}}{{host}}';
+                var basePath = '';
+
+                if (project.setting.basePath) {
+                    basePath = '{{basePath}}';
+                    if (project.setting.basePath.indexOf('/') !== 0) {
+                        basePath = '/' + basePath;
+                    }
+                }
+                var endpUrl = endp.path;
+                var params = [], rxp = /{([^}]+)}/g, curMatch;
+
+                while (curMatch = rxp.exec(endpUrl)) {
+                    var match = curMatch[1];
+                    endpUrl = endpUrl.replace('{' + match + '}', '{{' + match + '}}');
+                }
+                request.url = url + basePath + endpUrl;
+            } else {
+                request.url = 'http://{{host}}' + endp.path;
+            }
         }
+
 
         //copy response codes and their respective schema
         if (endp.responses && endp.responses.length > 0) {

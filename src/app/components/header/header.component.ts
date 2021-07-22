@@ -19,6 +19,7 @@ import { filter, first } from 'rxjs/operators';
 import { HttpService } from 'src/app/services/http.service';
 import LocalStore from 'src/app/services/localStore';
 import { AuthService } from 'src/app/services/auth.service';
+import { SyncService } from 'src/app/services/sync.service';
 
 @Component({
   selector: 'apic-header',
@@ -43,7 +44,7 @@ export class HeaderComponent implements OnInit {
     private dialog: MatDialog,
     private router: Router,
     private httpService: HttpService,
-    private authService: AuthService,
+    private syncService: SyncService,
     public stompService: StompService) {
     router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -56,8 +57,7 @@ export class HeaderComponent implements OnInit {
       })
   }
   async test() {
-    console.log(this.router.url);
-
+    this.syncService.fetch('Fetch:ApiProject');
   }
   ngOnInit(): void {
     this.getNotifications();

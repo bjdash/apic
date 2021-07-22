@@ -78,7 +78,6 @@ import { JsonSchemaComponent } from './components/common/json-schema-builder/jso
 import { MainJsonSchemaComponent } from './components/common/json-schema-builder/main/main.component';
 import { SelectSchemaJsonSchemaComponent } from './components/common/json-schema-builder/field/selectschema.component';
 import { FieldJsonSchemaComponent } from './components/common/json-schema-builder/field/field.component';
-import { JsonSchemaStateService } from './components/common/json-schema-builder/schemaState.service';
 import { EndpBodyParamsComponent } from './components/designer/api-project-detail/project-endpoint/endp-body-params/endp-body-params.component';
 import { ApicAceComponent } from './components/common/apic-ace/apic-ace.component';
 import { AceResizeDirective } from './directives/ace-resize.directive';
@@ -220,6 +219,9 @@ import { CustomFilter } from './utils/filter.pipe';
       selectorOptions: {
         suppressErrors: false,
         injectContainerState: false
+      },
+      compatibility: {
+        strictContentSecurityPolicy: true
       }
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
@@ -256,7 +258,6 @@ import { CustomFilter } from './utils/filter.pipe';
     AppBootstrap,
     MigrationService,
     ApiProjectService,
-    JsonSchemaStateService,
     EnvService,
     Toaster,
     Utils,

@@ -43,12 +43,12 @@ export class ApiProjectDetailService {
 
     async runEndp(endpId: string, project: ApiProject, mock = false) {
         let endp: ApiEndp = project.endpoints[endpId];
-        let request: ApiRequest = RequestUtils.endpointToApiRequest(endp, project);
+        let request: ApiRequest = RequestUtils.endpointToApiRequest(endp, project, mock);
         let tabName = 'Endpoint: '
         if (mock) {
-            request.url = 'https://apic.app/mock/' + project.simKey + (project.setting?.basePath || '') + endp.path;
             tabName = 'Mock: '
         }
+
         let tab: TesterTab = {
             action: 'add', type: 'req', name: tabName + endp.summary, data: request, id: 'new_tab:' + apic.s8()
         };

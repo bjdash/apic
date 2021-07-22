@@ -152,8 +152,6 @@ export class AuthService {
         this.reqService.syncReqs();
         this.suiteService.syncTestProjects();
         this.suiteService.syncTestSuites();
-        //TODO: add for others
-
       })
     this.stompService.connect(UID + '||' + authToken);
   }
