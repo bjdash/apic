@@ -93,7 +93,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected', anchorScrolling: 'enabled' })],
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected', anchorScrolling: 'enabled', useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

@@ -65,7 +65,6 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
   }
   private updatedInBackground: 'update' | 'delete' = null;
 
-  private pendingAction: Promise<any> = Promise.resolve(null);
   form: FormGroup;
   private _destroy: Subject<boolean> = new Subject<boolean>();
   flags = {
@@ -148,6 +147,16 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
             this.tabService.removeTab(this.selectedSuite._id);
             this.updatedInBackground = null;
           }
+        }
+      })
+
+    this.suiteService.initDevtoolsImport$.pipe(takeUntil(this._destroy))
+      .subscribe(({ suiteId, harReqs }) => {
+        if (suiteId == this.selectedSuite?._id) {
+          this.flags.showHarPanel = true;
+          this.har.importType = 'auto';
+          this.processHarEntries(harReqs);
+          this.toaster.success('Requests imorted from devtools.')
         }
       })
   }

@@ -27,6 +27,8 @@ export class SuiteService {
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
   private _initAddReq = new Subject<any>();
   initAddReq$ = this._initAddReq.asObservable();
+  private _initDevtoolsImport = new Subject<any>();
+  initDevtoolsImport$ = this._initDevtoolsImport.asObservable();
 
   constructor(private store: Store, private syncService: SyncService, private httpClient: HttpClient) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -332,6 +334,10 @@ export class SuiteService {
 
   initAddReq(suite: Suite, index: number) {
     this._initAddReq.next([suite, index]);
+  }
+
+  initDevtoolsImport(suiteId: string, harReqs: any) {
+    this._initDevtoolsImport.next({ suiteId, harReqs });
   }
 
   validateProjectImportData(importData): boolean {
