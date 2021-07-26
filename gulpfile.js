@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     del = require('del'),
     zip = require('gulp-zip'),
     gulpGit = require('gulp-git'),
+    textTransformation = require('gulp-text-simple'),
     run = require('gulp-run');
 
 
@@ -58,6 +59,28 @@ var buildExtn = {
 }
 //END: Build chrome extension
 
+//Electron
+let updateBase = textTransformation(function (s) {
+    s = s.replace('<base href="/">', '<base href="./">');
+    return s;
+}, {})
+var electron = {
+    cleanElectron: function () {
+        return del(['./dist/win']);
+    },
+    copyJs: function () {
+        return gulp.src(['./platform_files/electron/*.*'])
+            .pipe(gulp.dest('./dist/win'))
+    },
+    updateBase: function () {
+        return gulp.src(['./dist/win/index.html'])
+            .pipe(updateBase())
+            .pipe(gulp.dest('./dist/win'))
+    },
+
+}
+//END: Electtron
+
 var devTools = {
     cleanDevTools: function () {
         return del(['./dist/devtools-temp']);
@@ -91,6 +114,14 @@ exports.buildExtn = gulp.series(
     buildExtn.copyDevtoolsSrc,
     devTools.cleanDevTools
 );
+
+exports.cleanElectron = gulp.series(
+    electron.cleanElectron
+)
+exports.buildElectron = gulp.series(
+    electron.copyJs,
+    electron.updateBase
+)
 
 // exports.extnLocal = gulp.series(
 //     buildExtnLocal.clean,

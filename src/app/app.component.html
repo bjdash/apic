@@ -1,6 +1,6 @@
 <apic-header></apic-header>
-<div class="fixed app-body" ng-class="appInfo.type==='ELECTRON'?'frameless':''">
-  <div class="container-fluid" style="height: 100%;overflow: auto;padding: 0">
+<div class="fixed app-body" [ngClass]="platform==='ELECTRON'?'frameless':''">
+  <div class="container-fluid">
     <router-outlet></router-outlet>
   </div>
 </div>

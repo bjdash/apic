@@ -23,6 +23,7 @@ import { first } from 'rxjs/operators';
 import { Toaster } from './services/toaster.service';
 import { TesterTabsService } from './components/tester/tester-tabs/tester-tabs.service';
 import { SuiteService } from './services/suite.service';
+import { environment } from 'src/environments/environment';
 
 declare global {
   interface Window {
@@ -35,6 +36,8 @@ declare global {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  platform = environment.PLATFORM;
+
   constructor(
     private bootstrap: AppBootstrap,
     private authService: AuthService,

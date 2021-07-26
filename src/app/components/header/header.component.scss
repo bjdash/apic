@@ -187,3 +187,52 @@
         box-shadow: 0 0 1px #f9250f;
     }
 }
+
+.win-bar {
+    /* display: none; */
+    height: 24px;
+    background: var(--header-bg);
+    cursor: move;
+    -webkit-app-region: drag;
+    -webkit-user-select: none;
+}
+.win-title-bar-btns {
+    margin-top: -24px;
+    cursor: default;
+    -webkit-app-region: no-drag;
+}
+.win-btn {
+    background-color: var(--header-bg);
+    border: none;
+    width: 40px;
+    color: var(--text-color);
+    padding-top: 4px;
+}
+.win-min-btn:hover,
+.win-max-btn:hover {
+    background-color: var(--content-bg);
+}
+.win-close-btn:hover {
+    background-color: #f9250f;
+    color: white;
+}
+.mac-title-bar-btns {
+    position: absolute;
+    padding: 3px;
+}
+.mac-btn {
+    border: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    text-align: center;
+}
+.mac-btn.mac-max-btn {
+    background: #33c949;
+}
+.mac-btn.mac-min-btn {
+    background: #fdbd41;
+}
+.mac-btn.mac-close-btn {
+    background: #fd5652;
+}

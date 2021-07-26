@@ -20,7 +20,13 @@ import { HttpService } from 'src/app/services/http.service';
 import LocalStore from 'src/app/services/localStore';
 import { AuthService } from 'src/app/services/auth.service';
 import { SyncService } from 'src/app/services/sync.service';
+import { ElectronHandlerService } from 'src/app/services/electron-handler.service';
 
+declare global {
+  interface Window {
+    apicElectron: any;
+  }
+}
 @Component({
   selector: 'apic-header',
   templateUrl: './header.component.html',
@@ -32,6 +38,9 @@ export class HeaderComponent implements OnInit {
   @Select(UserState.getAuthUser) loggedInUser$: Observable<User>;
 
   version = environment.VERSION;
+  platform = environment.PLATFORM;
+  os = window.apicElectron?.osType;
+
   moduleUrls = {
     tester: '/tester',
     designer: '/designer',
@@ -45,6 +54,7 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     private httpService: HttpService,
     private syncService: SyncService,
+    private electronHandler: ElectronHandlerService,
     public stompService: StompService) {
     router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -103,5 +113,20 @@ export class HeaderComponent implements OnInit {
 
   public get ApicRxStompState() {
     return ApicRxStompState;
+  }
+
+  winClose() {
+    window.apicElectron.winClose();
+  }
+
+  winMinimize() {
+    window.apicElectron.winMinimize();
+  }
+
+  winMaximize() {
+    window.apicElectron.winMaximize()
+  }
+  openDevTools() {
+    this.electronHandler.sendMessage('open-devtools');
   }
 }

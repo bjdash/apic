@@ -1,7 +1,26 @@
+<div class="win-bar" *ngIf="platform==='ELECTRON'">
+    <div class="mac-title-bar-btns" style="display: inline;" *ngIf="os!=='Windows_NT'">
+        <button (click)="winClose()" class="mac-btn mac-close-btn"></button>
+        <button (click)="winMinimize()" class="mac-btn mac-min-btn"></button>
+        <button (click)="winMaximize()" class="mac-btn mac-max-btn"></button>
+    </div>
+    <div class="win-title center"><span class="bold">APIC</span> - The complete API solution</div>
+    <div class="win-title-bar-btns pull-right" *ngIf="os==='Windows_NT'">
+        <button (click)="winMinimize()" class="win-btn win-min-btn">
+            <mat-icon>remove</mat-icon>
+        </button>
+        <button (click)="winMaximize()" class="win-btn win-max-btn">
+            <mat-icon>crop_16_9</mat-icon>
+        </button>
+        <button (click)="winClose()" class="win-btn win-close-btn">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+</div>
 <div class="header">
     <div class="header-cont">
         <div class="logo">
-            <img src="../../assets/images/apic-logo.svg" class="logo-img" alt="Logo" />
+            <img src="assets/images/apic-logo.svg" class="logo-img" alt="Logo" />
             <span class="logo-text">apic</span>
         </div>
         <div style="width: 300px;height: 50px;">
@@ -72,6 +91,10 @@
             </mat-menu>
             <button mat-icon-button (click)="openSettings()" aria-label="Settings" matTooltip="Settings">
                 <mat-icon>settings</mat-icon>
+            </button>
+            <button mat-icon-button (click)="openDevTools()" aria-label="Open devtools" matTooltip="Open devtools"
+                *ngIf="platform==='ELECTRON'">
+                <i class="icon bj-terminal" style="font-size: 24px;"></i>
             </button>
             <button mat-icon-button [matMenuTriggerFor]="menuOpt" aria-label="Options Menu" matTooltip="More options">
                 <mat-icon>reorder</mat-icon>
