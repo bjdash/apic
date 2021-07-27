@@ -44,7 +44,6 @@
                 <i class="icon bj-dashboard"></i>
             </a>
         </div>
-
         <div class="flex-right header-right vcenter">
             <div class="env-cont input-group gap">
                 <button type="button" class="gap" (click)="test()">Test</button>
@@ -116,6 +115,15 @@
                     <mat-icon class="gap">dvr</mat-icon>Intro Screen
                 </button>
                 <mat-divider></mat-divider>
+                <button mat-menu-item (click)="checkForUpdate()" *ngIf="flags.update=='idle'">
+                    <mat-icon class="gap">system_update_alt</mat-icon>Check for update
+                </button>
+                <button mat-menu-item *ngIf="flags.update=='downloading'">
+                    <mat-icon class="gap">system_update_alt</mat-icon>Downloaded: {{flags.downloadPercent}}%
+                </button>
+                <button mat-menu-item (click)="restart()" *ngIf="flags.update=='downloaded'" class="t_bg">
+                    <mat-icon class="gap t_bg">restart_alt</mat-icon>Restart
+                </button>
                 <button mat-menu-item class="align-right"> Version: {{version}}</button>
             </mat-menu>
 

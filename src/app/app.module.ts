@@ -131,6 +131,8 @@ import { JsonSchemaViewerComponent } from './components/common/json-schema-viewe
 import { SharingComponent } from './components/sharing/sharing.component';
 import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
 import { CustomFilter } from './utils/filter.pipe';
+import { AppUpdateComponent } from './components/dialogs/app-update/app-update.component';
+import { UpdateDownloadedComponent } from './components/dialogs/update-downloaded/update-downloaded.component';
 
 @NgModule({
   declarations: [
@@ -206,7 +208,9 @@ import { CustomFilter } from './utils/filter.pipe';
     JsonSchemaViewerComponent,
     SharingComponent,
     ApiBuilderComponent,
-    CustomFilter
+    CustomFilter,
+    AppUpdateComponent,
+    UpdateDownloadedComponent
   ],
   imports: [
     BrowserModule,

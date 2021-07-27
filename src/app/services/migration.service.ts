@@ -56,7 +56,7 @@ export class MigrationService {
 
     async migrate(newVesrion: string, oldVersion: string) {
         this.newVersion = newVesrion;
-        this.oldVersion = oldVersion;
+        this.oldVersion = oldVersion || '0.0.0';
         console.debug('Migrating');
         let migrations = [], promises = [];
 
@@ -65,7 +65,7 @@ export class MigrationService {
 
             let conditions = m.conditions;
             let isApplicable = conditions.map(c => {
-                return this[c.check].call(this, this[c.on], c.value)
+                return MigrationService[c.check].call(this, this[c.on], c.value)
             }).every(e => e);
             if (isApplicable) {
                 migrations.push(m.action);
@@ -84,17 +84,17 @@ export class MigrationService {
     }
 
     onDone(newVesrion: string, oldVersion: string) {
-        if (this.oldVersion && this.isVersionHigher(newVesrion, oldVersion)) {
+        if (this.oldVersion && MigrationService.isVersionHigher(newVesrion, oldVersion)) {
             Utils.notify('APIC Updated', 'Apic has been updated to a new version (' + newVesrion + ').', 'https://apic.app/changelog.html');
         }
         LocalStore.set(LocalStore.VERSION, newVesrion);
     }
 
-    isVersionEqual(version: string, toCompare: string): boolean {
+    static isVersionEqual(version: string, toCompare: string): boolean {
         return version === toCompare;
     }
 
-    isVersionLower(version: string, toCompare: string): boolean {
+    static isVersionLower(version: string, toCompare: string): boolean {
         if (!version) return false;
         var v1parts = version.split('.').map(Number),
             v2parts = toCompare.split('.').map(Number);
@@ -122,7 +122,7 @@ export class MigrationService {
         return false;
     }
 
-    isVersionHigher(version: string, toCompare: string): boolean {
+    static isVersionHigher(version: string, toCompare: string): boolean {
         return !this.isVersionEqual(version, toCompare) && !this.isVersionLower(version, toCompare);
     }
 }

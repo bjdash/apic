@@ -134,6 +134,9 @@
 .mat-menu-item {
     text-decoration: none;
 }
+.mat-menu-item.t_bg:hover {
+    background: var(--accent-color) !important;
+}
 .greet {
     color: var(--accent-color);
     padding: 2px 12px 0px;

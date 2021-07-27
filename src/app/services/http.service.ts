@@ -9,6 +9,8 @@ import { PublishedDocs, PublishedDocsPartial } from '../models/PublishedDoc.mode
 import apic from '../utils/apic';
 import { ShareType } from './sharing.service';
 import { ApiProject } from '../models/ApiProject.model';
+import { environment } from 'src/environments/environment';
+import LocalStore from './localStore';
 
 export interface ErrorhandlerOption {
     messagePrefix?: string,
@@ -38,6 +40,8 @@ export class HttpService {
         }
         if (!options.supressNotification) {
             this.toaster.error(errorMessage)
+        } else {
+            console.error(errorMessage)
         }
         if (options.throwActualError) {
             return throwError(error);
@@ -59,11 +63,34 @@ export class HttpService {
         }
     }
 
-
+    addDummyUser() {
+        const userId = LocalStore.get(LocalStore.USER_ID);
+        var body = {
+            id: userId ?? apic.uuid(),
+            platform: environment.PLATFORM,
+            existing: !!userId
+        }
+        return this.http.post(ApicUrls.registerDummy, body)
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to add dummy user.', supressNotification: true });
+            }))
+    }
     getNotifications(): Observable<any[]> {
         return this.http.get(ApicUrls.notifications)
             .pipe(map(this.processResponse), catchError((error) => {
-                return this.handleHttpError(error, { messagePrefix: 'Failed to get notifications.' });
+                return this.handleHttpError(error, { messagePrefix: 'Failed to get notifications.', supressNotification: true });
+            }))
+    }
+    checkForUpdate() {
+        return this.http.get(ApicUrls.checkUpdate, {
+            params: {
+                noCache: `${Math.random()}`,
+                oldVersion: environment.VERSION,
+                platform: window.apicElectron?.osType || environment.PLATFORM
+            }
+        })
+            .pipe(map(this.processResponse), catchError((error) => {
+                return this.handleHttpError(error, { messagePrefix: 'Failed to check for updates.' });
             }))
     }
     getDashboard(): Observable<any> {

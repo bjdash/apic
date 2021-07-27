@@ -21,6 +21,9 @@ import LocalStore from 'src/app/services/localStore';
 import { AuthService } from 'src/app/services/auth.service';
 import { SyncService } from 'src/app/services/sync.service';
 import { ElectronHandlerService } from 'src/app/services/electron-handler.service';
+import { Toaster } from 'src/app/services/toaster.service';
+import { AppUpdateComponent } from '../dialogs/app-update/app-update.component';
+import { UpdateDownloadedComponent } from '../dialogs/update-downloaded/update-downloaded.component';
 
 declare global {
   interface Window {
@@ -47,11 +50,16 @@ export class HeaderComponent implements OnInit {
     dashboard: '/dashboard',
     docs: '/docs'
   }
-  notifications: any[] = []
+  notifications: any[] = [];
+  flags: { update: 'idle' | 'downloading' | 'downloaded', downloadPercent: number } = {
+    update: 'idle',
+    downloadPercent: 0
+  }
 
   constructor(private store: Store,
     private dialog: MatDialog,
     private router: Router,
+    private toaster: Toaster,
     private httpService: HttpService,
     private syncService: SyncService,
     private electronHandler: ElectronHandlerService,
@@ -71,6 +79,36 @@ export class HeaderComponent implements OnInit {
   }
   ngOnInit(): void {
     this.getNotifications();
+
+    //checkfor update
+    this.checkForUpdate();
+
+    this.electronHandler.onElectronMessage$.subscribe(data => {
+      switch (data.type) {
+        case 'checking-for-update':
+          console.info('checking-for-update');
+          break;
+        case 'update-not-available':
+          this.toaster.info('Hooray!!! You are using the latest version of apic');
+          break;
+        case 'update-error':
+          this.toaster.error('Couldn\'t check for update. Please try again later.');
+          break;
+        case 'update-available':
+          console.info('Downloading update');
+          break;
+        case 'update-downloaded':
+          setTimeout(() => {
+            this.flags.update = 'downloaded';
+            this.dialog.open(UpdateDownloadedComponent);
+          }, 100);
+          break;
+        case 'download-progress':
+          this.flags.update = 'downloading';
+          this.flags.downloadPercent = data.data.percent.toFixed(2);
+          break;
+      }
+    })
   }
 
   selectEnv(_id: String) {
@@ -111,8 +149,26 @@ export class HeaderComponent implements OnInit {
     LocalStore.set(LocalStore.WORKSPACE, workspace);
   }
 
+  checkForUpdate() {
+    this.httpService.checkForUpdate()
+      .pipe(first())
+      .subscribe(response => {
+        if (response) {//update found
+          this.dialog.open(AppUpdateComponent, { data: { newVer: response.version, changeLog: response.changeLog } });
+        } else {//no update
+          this.toaster.info("You are already using the latest version of apic.");
+        }
+
+      });
+
+  }
+
   public get ApicRxStompState() {
     return ApicRxStompState;
+  }
+
+  restart() {
+    this.electronHandler.sendMessage('restart-apic');
   }
 
   winClose() {
