@@ -1,14 +1,34 @@
+<div class="win-bar" *ngIf="platform==='ELECTRON'">
+    <div class="mac-title-bar-btns" style="display: inline;" *ngIf="os!=='Windows_NT'">
+        <button (click)="winClose()" class="mac-btn mac-close-btn"></button>
+        <button (click)="winMinimize()" class="mac-btn mac-min-btn"></button>
+        <button (click)="winMaximize()" class="mac-btn mac-max-btn"></button>
+    </div>
+    <div class="win-title center"><span class="bold">APIC</span> - The complete API solution</div>
+    <div class="win-title-bar-btns pull-right" *ngIf="os==='Windows_NT'">
+        <button (click)="winMinimize()" class="win-btn win-min-btn">
+            <mat-icon>remove</mat-icon>
+        </button>
+        <button (click)="winMaximize()" class="win-btn win-max-btn">
+            <mat-icon>crop_16_9</mat-icon>
+        </button>
+        <button (click)="winClose()" class="win-btn win-close-btn">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+</div>
 <div class="header">
     <div class="header-cont">
         <div class="logo">
-            <img src="../../assets/images/apic-logo.svg" class="logo-img" alt="Logo" />
+            <img src="assets/images/apic-logo.svg" class="logo-img" alt="Logo" />
             <span class="logo-text">apic</span>
         </div>
         <div style="width: 300px;height: 50px;">
             <a id="designer-ico" href class="module-icon" [routerLink]="moduleUrls.designer" routerLinkActive="active"
                 aria-label="Designer" style="font-size: 38px;padding-top: 4px;padding-left:3px;"
-                matTooltipPosition="right" matTooltip="Designer" (click)="saveWorkspace('Designer')">
-                <i class="icon bj-palette"></i>
+                matTooltipPosition="right" matTooltip="API Designer" (click)="saveWorkspace('Designer')">
+                <!-- <i class="icon bj-palette"></i> -->
+                <mat-icon class="designer-ico">architecture</mat-icon>
             </a>
             <a id="tester-ico" href class="module-icon" [routerLink]="moduleUrls.tester" routerLinkActive="active"
                 aria-label="Tester" (click)="saveWorkspace('Tester')" matTooltipPosition="right" matTooltip="Tester">
@@ -19,15 +39,14 @@
                 <i class="icon bj-book"></i>
             </a>
             <a id="dash-ico" href class="module-icon" [routerLink]="[moduleUrls.dashboard]" routerLinkActive="active"
-                aria-label="Daashboard" (click)="saveWorkspace('Dashboard')" matTooltipPosition="right"
-                queryParamsHandling="preserve" matTooltip="Dashboard">
+                aria-label="Daashboard" matTooltipPosition="right" queryParamsHandling="preserve"
+                matTooltip="Dashboard">
                 <i class="icon bj-dashboard"></i>
             </a>
         </div>
-
         <div class="flex-right header-right vcenter">
             <div class="env-cont input-group gap">
-                <button (click)="test()">Test</button>
+                <button type="button" class="gap" (click)="test()">Test</button>
                 <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments"
                     matTooltip="Environments">
                     <i class="icon bj-stack"></i>
@@ -72,6 +91,10 @@
             <button mat-icon-button (click)="openSettings()" aria-label="Settings" matTooltip="Settings">
                 <mat-icon>settings</mat-icon>
             </button>
+            <button mat-icon-button (click)="openDevTools()" aria-label="Open devtools" matTooltip="Open devtools"
+                *ngIf="platform==='ELECTRON'">
+                <i class="icon bj-terminal" style="font-size: 24px;"></i>
+            </button>
             <button mat-icon-button [matMenuTriggerFor]="menuOpt" aria-label="Options Menu" matTooltip="More options">
                 <mat-icon>reorder</mat-icon>
             </button>
@@ -92,6 +115,15 @@
                     <mat-icon class="gap">dvr</mat-icon>Intro Screen
                 </button>
                 <mat-divider></mat-divider>
+                <button mat-menu-item (click)="checkForUpdate()" *ngIf="flags.update=='idle'">
+                    <mat-icon class="gap">system_update_alt</mat-icon>Check for update
+                </button>
+                <button mat-menu-item *ngIf="flags.update=='downloading'">
+                    <mat-icon class="gap">system_update_alt</mat-icon>Downloaded: {{flags.downloadPercent}}%
+                </button>
+                <button mat-menu-item (click)="restart()" *ngIf="flags.update=='downloaded'" class="t_bg">
+                    <mat-icon class="gap t_bg">restart_alt</mat-icon>Restart
+                </button>
                 <button mat-menu-item class="align-right"> Version: {{version}}</button>
             </mat-menu>
 

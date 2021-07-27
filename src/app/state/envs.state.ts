@@ -25,7 +25,7 @@ export class EnvStateModel {
 export class EnvState {
     @Selector()
     static getPartial(state: EnvStateModel) {
-        return state.envs.map(p => { return { _id: p._id, name: p.name } })
+        return state.envs.map(p => { return { _id: p._id, name: p.name, owner: p.owner, team: p.team } })
     }
 
     @Selector()

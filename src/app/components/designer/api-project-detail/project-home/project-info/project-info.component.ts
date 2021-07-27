@@ -60,7 +60,7 @@ export class ProjectInfoComponent implements OnInit, OnChanges {
     this.resetProjInfoEdit()
   }
 
-  saveProjEdit() {
+  async saveProjEdit() {
     if (!this.projDetailForm.valid) return;
     const formValue = this.projDetailForm.value;
     let envUpdateRequired = false;
@@ -69,7 +69,8 @@ export class ProjectInfoComponent implements OnInit, OnChanges {
 
     var toSave: ApiProject = { ...this.selectedPROJ, ...formValue };
 
-    this.apiProjService.updateAPIProject(toSave).then(() => {
+    try {
+      await this.apiProjService.updateAPIProject(toSave)
       this.flags.editProj = false;
       this.toaster.success('Project details updated');
       this.onChange.next({ dirty: false });
@@ -77,7 +78,9 @@ export class ProjectInfoComponent implements OnInit, OnChanges {
         const envToUpdate: Env = { ...this.projEnv, name: toSave.title + '-env', proj: { ...this.projEnv.proj, name: toSave.title } }
         this.envService.updateEnv(envToUpdate);
       }
-    });
+    } catch (e) {
+      this.toaster.error(`Update failed. ${e?.message || e || ''}`)
+    }
   }
 
   resetProjInfoEdit() {

@@ -33,7 +33,10 @@ export class SelectSchemaJsonSchemaComponent {
     mode;
 
     @Input()
-    models;
+    models; //#/definitions
+
+    @Input()
+    responses;//#/responses
 
     @Input()
     entity

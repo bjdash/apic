@@ -84,48 +84,48 @@ export class SyncService {
         this.stompService.syncUnsynced();
     }
 
-    prepareAndSync(action, data?) {
+    prepareAndSync(action, data?: any[]) {
         var outData;
         switch (action) {
             case 'addEnv':
             case 'updateEnv':
                 outData = {
-                    envs: data instanceof Array ? data : [data]
+                    envs: data
                 };
                 this.execute(action, outData);
                 break;
             case 'addAPIProject':
             case 'updateAPIProject':
                 outData = {
-                    apiProjects: data instanceof Array ? data : [data]
+                    apiProjects: data
                 };
                 this.execute(action, outData);
                 break;
             case 'addFolder':
             case 'updateFolder':
                 outData = {
-                    folders: data instanceof Array ? data : [data]
+                    folders: data
                 };
                 this.execute(action, outData);
                 break;
             case 'addAPIReq':
             case 'updateAPIReq':
                 outData = {
-                    apiRequests: data instanceof Array ? data : [data]
+                    apiRequests: data
                 };
                 this.execute(action, outData);
                 break;
             case 'addTestProj':
             case 'updateTestProj':
                 outData = {
-                    testCaseProjects: data instanceof Array ? data : [data]
+                    testCaseProjects: data
                 };
                 this.execute(action, outData);
                 break;
             case 'addTestSuit':
             case 'updateTestSuit':
                 outData = {
-                    testSuits: data instanceof Array ? data : [data]
+                    testSuits: data
                 };
                 this.execute(action, outData);
                 break;
@@ -136,7 +136,7 @@ export class SyncService {
             case 'deleteTestProj':
             case 'deleteTestSuit':
                 outData = {
-                    idList: data instanceof Array ? data : [data]
+                    idList: data
                 };
                 this.execute(action, outData);
                 break;

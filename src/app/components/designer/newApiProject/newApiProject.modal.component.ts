@@ -43,15 +43,15 @@ export class NewApiProjectModal {
             ...this.form.value
         }
         try {
-            const id: string[] = await this.apiProjectService.addProjects([newProject]) as string[];
-            if (id?.length > 0) {
+            const projs = await this.apiProjectService.addProject(newProject);
+            if (!!projs) {
                 this.toaster.success('Project created.');
                 this.dialogRef.close();
             } else {
                 this.toaster.error(`Failed to create project.`);
             }
         } catch (error) {
-            this.toaster.error(`Failed to create project: ${error.mesage}`);
+            this.toaster.error(`Failed to create project: ${error?.message || error || ''}`);
         }
     }
 }

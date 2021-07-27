@@ -1,0 +1,16 @@
+.ic::after {
+    content: "\e920";
+    position: absolute;
+    font-family: "apic-icon" !important;
+    bottom: 1px;
+    right: -4px;
+    color: var(--text-color);
+    font-size: 60px;
+    opacity: 0.1;
+}
+.shared {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--accent-color);
+}

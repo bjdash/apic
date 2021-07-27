@@ -36,8 +36,8 @@ export class Utils {
             .reduce((obj, item: KeyVal) => Object.assign(obj, { [item.key]: item.val }), {});
     }
 
-    static objectEntries(obj): [string, any][] {
-        return obj ? (Object.entries(obj) as [string, any][]) : [];
+    static objectEntries<T>(obj: { [key: string]: T }): [string, T | any][] {
+        return obj ? (Object.entries(obj)) : [];
     }
 
     static objectValues<T>(obj: { [key: string]: T }): T[] {
@@ -219,7 +219,7 @@ export class Utils {
 
     static notify(title, content, link, image?) {
         if (!image)
-            image = '/img/logo-tmp.png';
+            image = '/assets/logo192.png';
         if (typeof window['chrome'] !== "undefined" && window['chrome'].notifications && window['chrome'].notifications.create) {
             var optn = {
                 type: "basic",
@@ -331,7 +331,7 @@ export class Utils {
                     data: JsonUtils.easyJsonSchema(jsonResp)
                 })
             } catch (e) {
-                console.error('response is not in json', harResp.content.text);
+                console.warn('response is not in json', harResp.content.text);
                 req.respCodes.push({
                     code: '200',
                     data: { type: 'object' }

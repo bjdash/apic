@@ -11,7 +11,7 @@ export class SuitesStateSelector {
 
     @Selector([SuitesStateSelector.getProjects])
     static getProjectsPartial(projects: TestProject[]): TestProject[] {
-        return projects.map(f => (({ _id, name, _created, _modified }) => ({ _id, name, _created, _modified }))(f));
+        return projects.map(f => (({ _id, name, _created, _modified, owner, team }) => ({ _id, name, _created, _modified, owner, team }))(f));
     }
 
     @Selector([SuitesStateSelector.getProjects])
@@ -28,7 +28,7 @@ export class SuitesStateSelector {
 
     @Selector([SuitesStateSelector.getSuites])
     static getSuitesPartial(suites: Suite[]): Suite[] {
-        return suites.map(f => (({ _id, name, _created, _modified, projId, reqs }) => ({ _id, name, _created, _modified, projId, reqs }))(f));
+        return suites.map(f => (({ _id, name, _created, _modified, projId, reqs, owner, team }) => ({ _id, name, _created, _modified, projId, reqs, owner, team }))(f));
     }
 
     @Selector([SuitesStateSelector.getSuites])
@@ -88,6 +88,8 @@ export class SuitesStateSelector {
             return {
                 _id: p._id,
                 name: p.name,
+                owner: p.owner,
+                team: p.team,
                 suites: suiteMap[p._id] || []
             }
         })

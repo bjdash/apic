@@ -19,15 +19,20 @@ export class OnlyAlphaNumericInputDirective {
 
   @HostListener('focus') onFocus() {
     this.initialValue = this.el.nativeElement.value;
+    this.el.nativeElement.classList.remove('unchanged-input')
     this.validate();
   }
 
   @HostListener('blur') onBlur() {
-    if (this.el.nativeElement.classList.contains('invalid-input')) {
+    console.log('validating')
+    if (this.el.nativeElement.value == this.initialValue) {
+      this.el.nativeElement.classList.add('unchanged-input');
+    } else if (this.el.nativeElement.classList.contains('invalid-input')) {
       this.el.nativeElement.classList.remove('invalid-input');
       this.el.nativeElement.value = this.initialValue;
+      this.el.nativeElement.classList.add('unchanged-input');
       this.toaser.warn('An alphanumeric input had invalid value. Previous valid value was restored.')
-    }
+    } ``
   }
 
   validate() {
@@ -41,7 +46,7 @@ export class OnlyAlphaNumericInputDirective {
     } else {
       if (!this.el.nativeElement.classList.contains('invalid-input')) {
         this.el.nativeElement.classList.add('invalid-input');
-        this.el.nativeElement.title = 'This input should only contain alpha numeric value and start with an alphabet.'
+        this.el.nativeElement.title = 'This input should only contain alpha numeric value and start with an alphabet or _(underscore).'
       }
     }
   }

@@ -15,6 +15,8 @@ import { ApiRequest } from '../models/Request.model';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 import { HttpClient } from '@angular/common/http';
+import { SuitesStateSelector } from '../state/suites.selector';
+import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +27,8 @@ export class SuiteService {
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
   private _initAddReq = new Subject<any>();
   initAddReq$ = this._initAddReq.asObservable();
+  private _initDevtoolsImport = new Subject<any>();
+  initDevtoolsImport$ = this._initDevtoolsImport.asObservable();
 
   constructor(private store: Store, private syncService: SyncService, private httpClient: HttpClient) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
@@ -37,122 +41,167 @@ export class SuiteService {
     this.ajv = new Ajv();
   }
 
-  async getTestProjects(): Promise<TestProject[]> {
+  async loadTestProjects(): Promise<TestProject[]> {
     const projects: TestProject[] = await iDB.read(iDB.TABLES.TEST_PROJECTS);
     this.store.dispatch(new SuitesAction.Project.Refresh(projects));
     return projects;
   }
 
-  async createTestProjects(projects: TestProject[], fromSync?: boolean) {
-    if (!fromSync) {
-      var time = new Date().getTime();
-      projects.forEach(project => {
-        if (this.authUser?.UID) {
-          project.owner = this.authUser.UID;
-        } else {
-          delete project.owner;
+  async createTestProject(project: TestProject, addWithSuffix = false): Promise<TestProject> {
+    var time = new Date().getTime();
+    project._id = time + '-' + apic.s12();
+    project._created = time;
+    project._modified = time;
+    if (this.authUser?.UID) {
+      project.owner = this.authUser.UID;
+    } else {
+      delete project.owner;
+    }
+
+    //owner detail has to be set first before this check
+    let allProjs = await this.store.select(SuitesStateSelector.getProjectsPartial).pipe(first()).toPromise();
+    if (addWithSuffix) {
+      let duplicate = false
+      do {
+        duplicate = allProjs.some(p => p.name.toLocaleLowerCase() == project.name.toLocaleLowerCase() && p.owner === project.owner)
+        if (duplicate) {
+          project.name += ` ${apic.s4()}`
         }
-        project._id = time + '-' + apic.s12();
-        project._created = time;
-        project._modified = time;
-      })
+      } while (duplicate);
+    } else if (allProjs.find(p => p.name.toLowerCase() === project.name.toLowerCase() && p.owner === project.owner)) {
+      throw new Error('A project with the same name already exists.')
     }
-    let data = await iDB.insertMany(iDB.TABLES.TEST_PROJECTS, projects);
-    if (!fromSync && this.authUser?.UID) {//added successfully
-      this.syncService.prepareAndSync('addTestProj', projects);
+
+    let data = await iDB.insert(iDB.TABLES.TEST_PROJECTS, project);
+    if (this.authUser?.UID) {//added successfully
+      this.syncService.prepareAndSync('addTestProj', [project]);
     }
-    this.store.dispatch(new SuitesAction.Project.Add(projects));
-    return projects;
+    this.store.dispatch(new SuitesAction.Project.Add([project]));
+    return project;
   }
 
-  async updateTestProject(projects: TestProject[], fromSync?: boolean) {
-    if (!fromSync) {
-      projects.forEach(f => f._modified = Date.now());
+  async updateTestProject(project: TestProject): Promise<TestProject> {
+    let allProjs = await this.store.select(SuitesStateSelector.getProjectsPartial).pipe(first()).toPromise();
+    if (allProjs.find(p => p.name.toLowerCase() === project.name.toLowerCase() && p._id != project._id && p.owner === project.owner)) {
+      throw new Error('A project with the same name already exists.')
     }
-    return iDB.upsertMany(iDB.TABLES.TEST_PROJECTS, projects).then((updatedIds) => {
-      if (updatedIds && !fromSync && this.authUser?.UID) {
-        var projectsToSync = apic.removeDemoItems(projects); //returns a list
+    project._modified = Date.now();
+    return iDB.upsert(iDB.TABLES.TEST_PROJECTS, project).then((updatedIds) => {
+      if (updatedIds && this.authUser?.UID) {
+        var projectsToSync = apic.removeDemoItems([project]); //returns a list
         if (projectsToSync.length > 0) {
           this.syncService.prepareAndSync('updateTestProj', projectsToSync);
         }
       }
-      this.store.dispatch(new SuitesAction.Project.Update(projects));
-      return updatedIds;
+      this.store.dispatch(new SuitesAction.Project.Update([project]));
+      return project;
     });
   }
 
-  async deleteTestprojects(ids: string[], fromSync?: boolean) {
-    let data = await iDB.deleteMany(iDB.TABLES.TEST_PROJECTS, ids); //data doesnt contain deleted ids
-    if (!fromSync && this.authUser?.UID) {
-      this.syncService.prepareAndSync('deleteTestProj', ids);
+  async deleteTestproject(id: string, owner: string) {
+    if (owner && this.authUser?.UID !== owner) {
+      throw new Error('You can\'t delete this Project as you are not the owner.');
     }
-    this.store.dispatch(new SuitesAction.Project.Delete(ids));
+    let data = await iDB.delete(iDB.TABLES.TEST_PROJECTS, id); //data doesnt contain deleted ids
+    if (this.authUser?.UID) {
+      this.syncService.prepareAndSync('deleteTestProj', [id]);
+    }
+    this.store.dispatch(new SuitesAction.Project.Delete([id]));
     return data;
   }
 
-  async getTestSuites() {
+  async loadTestSuites() {
     const suites = await iDB.read(iDB.TABLES.TEST_SUITES);
     this.store.dispatch(new SuitesAction.Suites.Refresh(suites));
     return suites;
   }
-  async createTestSuites(suites: Suite[], fromSync?: boolean) {
-    if (!fromSync) {
-      var time = new Date().getTime();
-      suites.forEach(suite => {
-        if (this.authUser?.UID) {
-          suite.owner = this.authUser.UID;
-        } else {
-          delete suite.owner;
+  async createTestSuite(suite: Suite, addWithSuffix?: boolean): Promise<Suite> {
+    if (suite.projId?.includes('demo')) {
+      throw new Error('Suites can\'t be added to a demo project');
+    }
+    let suites = await this.store.select(SuitesStateSelector.getSuitesPartial).pipe(first()).toPromise();
+    if (addWithSuffix) {
+      let duplicate = false
+      do {
+        duplicate = suites.some(s => s.name.toLocaleLowerCase() == suite.name.toLocaleLowerCase() && s.projId === suite.projId)
+        if (duplicate) {
+          suite.name += ` ${apic.s4()}`
         }
-        suite._id = time + '-' + apic.s12();
-        suite._created = time;
-        suite._modified = time;
-      })
+      } while (duplicate);
+    } else if (suites.find(s => s.name.toLowerCase() === suite.name.toLowerCase() && s.projId === suite.projId)) {
+      throw new Error('A suite with the same name already exists.')
     }
-    let data = await iDB.insertMany(iDB.TABLES.TEST_SUITES, suites);
-    if (!fromSync && this.authUser?.UID) {//added successfully
-      this.syncService.prepareAndSync('addTestSuit', suites);
+    var time = new Date().getTime();
+    suite._id = time + '-' + apic.s12();
+    suite._created = time;
+    suite._modified = time;
+    if (this.authUser?.UID) {
+      suite.owner = this.authUser.UID;
+    } else {
+      delete suite.owner;
     }
-    this.store.dispatch(new SuitesAction.Suites.Add(suites));
-    return suites;
-  }
-  async updateSuites(suites: Suite[]) {
-    suites.forEach(f => f._modified = Date.now());
 
-    return iDB.upsertMany(iDB.TABLES.TEST_SUITES, suites).then((updatedIds) => {
+    let data = await iDB.insert(iDB.TABLES.TEST_SUITES, suite);
+    if (this.authUser?.UID) {//added successfully
+      this.syncService.prepareAndSync('addTestSuit', [suite]);
+    }
+    this.store.dispatch(new SuitesAction.Suites.Add([suite]));
+    return suite;
+  }
+  async updateSuite(suite: Suite): Promise<Suite> {
+    let allSuites = await this.store.select(SuitesStateSelector.getSuitesPartial).pipe(first()).toPromise();
+    if (allSuites.find(s => s.name.toLowerCase() === suite.name.toLowerCase() && s.projId === suite.projId && s._id != suite._id)) {
+      throw new Error('A suite with the same name already exists.')
+    }
+
+    suite._modified = Date.now();
+    return iDB.upsert(iDB.TABLES.TEST_SUITES, suite).then((updatedIds) => {
       if (updatedIds && this.authUser?.UID) {
-        var projectsToSync = apic.removeDemoItems(suites); //returns a list
-        if (projectsToSync.length > 0) {
-          this.syncService.prepareAndSync('updateTestSuit', projectsToSync);
+        var suitesToSync = apic.removeDemoItems(suite); //returns a list
+        if (suitesToSync.length > 0) {
+          this.syncService.prepareAndSync('updateTestSuit', suitesToSync);
         }
       }
-      this.store.dispatch(new SuitesAction.Suites.Update(suites));
-      return updatedIds;
+      this.store.dispatch(new SuitesAction.Suites.Update([suite]));
+      return suite;
     });
   }
 
-  //Update the API projects when received via sync message
+  async deleteSuite(id: string, owner: string) {
+    if (owner && this.authUser?.UID !== owner) {
+      throw new Error('You can\'t delete this suite as you are not the owner.');
+    }
+    let data = await iDB.delete(iDB.TABLES.TEST_SUITES, id); //data doesnt contain deleted ids
+    if (this.authUser?.UID) {
+      this.syncService.prepareAndSync('deleteTestSuit', [id]);
+    }
+    this.store.dispatch(new SuitesAction.Suites.Delete([id]));
+    return data;
+  }
+
+  //Update the projects & suites when received via sync message
+  async updateSyncedProject(projects: TestProject[]) {
+    let updatedIds = await iDB.upsertMany(iDB.TABLES.TEST_PROJECTS, projects);
+    this.store.dispatch(new SuitesAction.Project.Update(projects));
+    return updatedIds;
+  }
+  async deleteSyncedProjects(ids: string[]) {
+    await iDB.deleteMany(iDB.TABLES.TEST_PROJECTS, ids);
+    this.store.dispatch(new SuitesAction.Project.Delete(ids));
+    return ids;
+  }
+
   async updateSyncedSuites(suites: Suite[]) {
     let updatedIds = await iDB.upsertMany(iDB.TABLES.TEST_SUITES, suites);
     this.updatedViaSync$.next({ type: 'update', ids: updatedIds as string[] });
     this.store.dispatch(new SuitesAction.Suites.Update(suites));
     return updatedIds;
   }
-
-  async deleteSyncedProjects(ids: string[]) {
+  async deleteSyncedSuites(ids: string[]) {
     await iDB.deleteMany(iDB.TABLES.TEST_SUITES, ids);
     this.updatedViaSync$.next({ type: 'delete', ids });
     this.store.dispatch(new SuitesAction.Suites.Delete(ids));
     return ids;
-  }
-
-  async deleteSuites(ids: string[], fromSync?: boolean) {
-    let data = await iDB.deleteMany(iDB.TABLES.TEST_SUITES, ids); //data doesnt contain deleted ids
-    if (!fromSync && this.authUser?.UID) {
-      this.syncService.prepareAndSync('deleteTestSuit', ids);
-    }
-    this.store.dispatch(new SuitesAction.Suites.Delete(ids));
-    return data;
   }
 
   async onSyncMessage(message: StompMessage) {
@@ -161,16 +210,16 @@ export class SuiteService {
     if (message.type == 'TestCaseProjects' || message.type === 'Fetch:TestCaseProjects') {
       if ((message.testCaseProjects?.length > 0)) {
         if (message.action === 'update' || message.action === 'add') {
-          let testCaseProjects = await this.updateTestProject(message.testCaseProjects, true);
+          let testCaseProjects = await this.updateSyncedProject(message.testCaseProjects);
           console.info('Sync: added/updated testCaseProjects', testCaseProjects)
         }
       } else if (message.idList?.length > 0 && message.action === 'delete') {
-        const resp = await this.deleteTestprojects(message.idList, true);
+        const resp = await this.deleteSyncedProjects(message.idList);
         console.info('Sync: deleted testCaseProjects', resp)
       }
 
       if (message.nonExistant?.testCaseProjects?.length > 0) {
-        const resp = await this.deleteTestprojects(message.nonExistant?.testCaseProjects, true);
+        const resp = await this.deleteSyncedProjects(message.nonExistant?.testCaseProjects);
         console.info('Sync: deleted testCaseProjects', resp)
       }
 
@@ -187,12 +236,12 @@ export class SuiteService {
           console.info('Sync: added/updated testSuits', reqs)
         }
       } else if (message.idList?.length > 0 && message.action === 'delete') {
-        const resp = await this.deleteSyncedProjects(message.idList);
+        const resp = await this.deleteSyncedSuites(message.idList);
         console.info('Sync: deleted testSuits', resp)
       }
 
       if (message.nonExistant?.testSuits?.length > 0) {
-        const resp = await this.deleteSyncedProjects(message.nonExistant?.testSuits);
+        const resp = await this.deleteSyncedSuites(message.nonExistant?.testSuits);
         console.info('Sync: deleted testSuits', resp)
       }
 
@@ -267,14 +316,14 @@ export class SuiteService {
     let suiteToUpdate: Suite = { ...suite, reqs: [...suite.reqs] }
     let newReq: SuiteReq = { ...req, name: req.name + ' copy' };
     suiteToUpdate.reqs.splice(index + 1, 0, newReq)
-    return this.updateSuites([suiteToUpdate]);
+    return this.updateSuite(suiteToUpdate);
   }
 
   removeReqFromSuit(suite: Suite, reqId: string, index: number) {
     if (suite.reqs[index]?._id === reqId) {
       let suiteToUpdate: Suite = { ...suite, reqs: [...suite.reqs] }
       suiteToUpdate.reqs.splice(index, 1);
-      return this.updateSuites([suiteToUpdate]);
+      return this.updateSuite(suiteToUpdate);
     }
   }
 
@@ -285,6 +334,10 @@ export class SuiteService {
 
   initAddReq(suite: Suite, index: number) {
     this._initAddReq.next([suite, index]);
+  }
+
+  initDevtoolsImport(suiteId: string, harReqs: any) {
+    this._initDevtoolsImport.next({ suiteId, harReqs });
   }
 
   validateProjectImportData(importData): boolean {

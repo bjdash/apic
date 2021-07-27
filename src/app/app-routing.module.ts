@@ -20,13 +20,14 @@ import { AccountComponent } from './components/dashboard/account/account.compone
 import { PublishedDocsDetailComponent } from './components/dashboard/published-docs/published-docs-detail/published-docs-detail.component';
 import { DocsDetailComponent } from './components/docs/docs-detail/docs-detail.component';
 import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
+import LocalStore from './services/localStore';
 
 
 const routes: Routes = [
-  // {
-  //   path: '',
-  //   redirectTo: 'home', pathMatch: 'full'
-  // },
+  {
+    path: '',
+    redirectTo: LocalStore.get(LocalStore.WORKSPACE)?.toLowerCase() || 'designer', pathMatch: 'full'
+  },
   {
     path: 'designer',
     component: DesignerComponent,
@@ -92,7 +93,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected', anchorScrolling: 'enabled' })],
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'corrected', anchorScrolling: 'enabled', useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

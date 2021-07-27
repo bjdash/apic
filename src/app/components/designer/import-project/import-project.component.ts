@@ -44,7 +44,6 @@ export class ImportProjectComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  //TODO: Resize of ace editor not visible
   async onSubmit() {
     const formValue = { ...this.form.value };
     if (formValue.type === 'file' && !formValue.file) {
@@ -71,24 +70,20 @@ export class ImportProjectComponent implements OnInit {
     var project: ApiProject;
     if (importData.TYPE === 'APIC Api Project') {
       if (this.apiProjectService.validateImportData(importData)) {
-        project = await this.sanitizeProjImport(importData.value);
+        project = this.sanitizeProjImport(importData.value);
       } else {
         this.toaster.error('Selected file doesn\'t contain valid Project information');
         return;
       }
     } else if (importData.swagger === '2.0') {
-      project = await this.sanitizeProjImport(this.swaggerService.importOAS2(importData, { groupby: formValue.groupby }));
-
+      project = this.sanitizeProjImport(this.swaggerService.importOAS2(importData, { groupby: formValue.groupby }));
     } else {
       this.toaster.error('Selected file doesn\'t contain valid Project information');
       return;
     }
-
-    // var ts = new Date().getTime();
-    // project._id = ts + '-' + apic.s12();
     if (!project.setting) project.setting = {};
 
-    const newProjIds: string[] = await this.apiProjectService.addProjects([project]) as string[];
+    const newProj = await this.apiProjectService.addProject(project, true);
 
     var newEnv: Env = {
       name: project.title + '-env',
@@ -101,37 +96,30 @@ export class ImportProjectComponent implements OnInit {
       }],
       _id: null, _created: null, _modified: null,
       proj: {
-        id: (newProjIds[0]),
+        id: (newProj._id),
         name: project.title
       }
     };
     const newEnvId = await this.envService.addEnv(newEnv);
     project = { ...project, setting: { ...project.setting, envId: newEnvId } }
-    await this.apiProjectService.updateAPIProject(project);
-    this.toaster.success(`Project "${project.title}" imported`);
-    this.dialogRef.close();
+    try {
+      await this.apiProjectService.updateAPIProject(project);
+      this.toaster.success(`Project "${newProj.title}" imported`);
+      this.dialogRef.close();
+    } catch (e) {
+      this.toaster.error(`Import failed.${e?.message || e || ''}`);
+    }
   }
 
-  sanitizeProjImport(project: ApiProject): Promise<ApiProject> {
-    return new Promise(resolve => {
-      delete project.owner;
-      delete project.team;
-      delete project.simKey;
-      delete project.publishedId;
-      if (project.setting) {
-        delete project.setting.envId
-      }
-
-      this.store.select(ApiProjectStateSelector.getByTitle)
-        .pipe(map(filterFn => filterFn(project.title)))
-        .pipe(take(1))
-        .subscribe(existingProj => {
-          if (existingProj) {
-            project.title = project.title + '-' + helpers.getRandomStr(8);
-          }
-          resolve(project);
-        });
-    })
+  sanitizeProjImport(project: ApiProject): ApiProject {
+    delete project.owner;
+    delete project.team;
+    delete project.simKey;
+    delete project.publishedId;
+    if (project.setting) {
+      delete project.setting.envId
+    }
+    return project;
   }
 
   onFileChange(event) {

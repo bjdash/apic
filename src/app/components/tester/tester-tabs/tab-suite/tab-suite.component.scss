@@ -71,30 +71,6 @@ textarea.logs {
     resize: vertical;
 }
 /******* Suite result**********/
-.progress-holder {
-    background: var(--accent-shadow);
-    z-index: -1;
-    height: 10px;
-
-    .progress-bar {
-        height: 10px;
-        width: 0;
-        background-image: linear-gradient(
-            45deg,
-            rgba(255, 255, 255, 0.15) 25%,
-            transparent 25%,
-            transparent 50%,
-            rgba(255, 255, 255, 0.15) 50%,
-            rgba(255, 255, 255, 0.15) 75%,
-            transparent 75%,
-            transparent
-        );
-        background-size: 40px 40px;
-        background-color: var(--accent-color);
-        animation: progress-bar-stripes 2s linear infinite;
-        transition: width 0.3s;
-    }
-}
 .td-cont {
     width: 90px;
     height: 90px;
@@ -144,7 +120,7 @@ textarea.logs {
 .req-box {
     margin: 10px;
     .panel-body {
-        margin: 14px -10px;
+        margin: 10px -10px;
         position: relative;
         padding-bottom: 5px;
     }
@@ -174,7 +150,8 @@ textarea.logs {
         padding: 7px 5px 7px 10px;
         border-bottom: 1px dashed var(--border-color);
         mat-checkbox {
-            margin-left: 10px;
+            margin-left: 5px;
+            margin-right: 10px;
         }
     }
     .run-status {

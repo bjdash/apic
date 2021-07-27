@@ -12,7 +12,7 @@ export class RequestsStateSelector {
 
     @Selector([RequestsStateSelector.getFolders])
     static getFoldersPartial(folders: ReqFolder[]): ReqFolder[] {
-        return folders.map(f => (({ _id, name, _created, _modified, parentId }) => ({ _id, name, _created, _modified, parentId }))(f));
+        return folders.map(f => (({ _id, name, _created, _modified, parentId, team, owner }) => ({ _id, name, _created, _modified, parentId, team, owner }))(f));
     }
 
     @Selector([RequestsStateSelector.getFolders])
@@ -24,7 +24,7 @@ export class RequestsStateSelector {
 
     @Selector([RequestsStateSelector.getRequests])
     static getReqsPartial(reqs: ApiRequest[]): ApiRequest[] {
-        return reqs.map(f => (({ _id, name, _created, _modified, method, _parent, url, type }) => ({ _id, name, _created, _modified, method, _parent, url, type }))(f));
+        return reqs.map(f => (({ _id, name, _created, _modified, method, _parent, url, type, team, owner }) => ({ _id, name, _created, _modified, method, _parent, url, type, team, owner }))(f));
     }
 
     @Selector([RequestsState])

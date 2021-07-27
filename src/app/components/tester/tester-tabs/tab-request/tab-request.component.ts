@@ -21,6 +21,7 @@ import LocalStore from 'src/app/services/localStore';
 import { ReqHistoryService } from 'src/app/services/reqHistory.service';
 import { RequestRunnerService } from 'src/app/services/request-runner.service';
 import { RequestsService } from 'src/app/services/requests.service';
+import { SharingService } from 'src/app/services/sharing.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
@@ -51,7 +52,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
 
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
-  private pendingAction: Promise<any> = Promise.resolve(null);
 
   httpMethods = HTTP_METHODES;
   RAW_BODY_TYPES = RAW_BODY_TYPES;
@@ -84,6 +84,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   savedRespIdentifier = 'SAVED_RESPONSE'
   errorIdentifier = '"Error';
   testBuilderOpt: TestBuilderOption = null;
+  private updatedInBackground: 'update' | 'delete' = null;
 
   constructor(private fb: FormBuilder,
     private store: Store,
@@ -95,6 +96,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     public interpolationService: InterpolationService,
     private historyServ: ReqHistoryService,
     private apiProjService: ApiProjectService,
+    private sharingService: SharingService,
     private toastr: Toaster) {
     this.form = fb.group({
       name: [''],
@@ -126,7 +128,11 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       .subscribe((value: KeyVal[]) => {
         this.flags.headersCount = value.filter(v => v.key).length;
       })
-
+    this.reqService.updatedViaSync$.subscribe((notification) => {
+      if (this.selectedReq && notification?.ids.includes(this.selectedReq._id)) {
+        this.updatedInBackground = notification.type;
+      }
+    });
     //load last layout
     this.flags.reqTab = LocalStore.getOrDefault(LocalStore.REQ_TAB, 'ReqParam');
     this.flags.respTab = LocalStore.getOrDefault(LocalStore.RESP_TAB, 'Body');
@@ -160,20 +166,19 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   listenForUpdate() {
     this.selectedReq$ = this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.requestId));
     this.selectedReq$
-      .pipe(delayWhen(() => from(this.pendingAction)))
+      // .pipe(delayWhen(() => from(this.pendingAction)))
       .pipe(takeUntil(this._destroy))
-      // .pipe(delay(0))
       .subscribe(req => {
         if (req && (req._modified > this.selectedReq?._modified || !this.selectedReq)) {
-          if (this.selectedReq) {
-            //TODO: Implement a field level matching logic 
-            //so that if any non form fields are updated such as name, savedResponse etc 
-            //then directly just update the request instead of asking the user if they want to reload
+          //TODO: Implement a field level matching logic 
+          //so that if any non form fields are updated such as name, savedResponse etc 
+          //then directly just update the request instead of asking the user if they want to reload
+          if (this.updatedInBackground == 'update' && !this.sharingService.isLastShared(this.selectedReq?._parent, 'Folders')) {
             this.reloadRequest = req;
+            this.updatedInBackground = null;
           } else {
-            setTimeout(() => {
-              this.processSelectedReq(req)
-            }, 0);
+            this.processSelectedReq(req)
+            this.updatedInBackground = null;
           }
         } else if (req == undefined && this.selectedReq) {
           //tab got deleted
@@ -239,9 +244,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
 
   async updateRequest(updatedRequest: ApiRequest) {
     updatedRequest = { ...this.selectedReq, ...updatedRequest }
-    this.pendingAction = this.reqService.updateRequests([updatedRequest]);
     try {
-      this.selectedReq = (await this.pendingAction)[0];
+      this.selectedReq = await this.reqService.updateRequest(updatedRequest);
       this.toastr.success('Request updated');
       this.reloadRequest = null;
     } catch (e) {

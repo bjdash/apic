@@ -9,7 +9,11 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "extnLocal": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
+    "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
+    "electron": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
+    "electronLocal": "gulp cleanElectron && ng build --configuration=electronLocal --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64"
   },
   "private": true,
   "dependencies": {
@@ -47,6 +51,13 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.20.15",
     "codelyzer": "^6.0.0",
+    "electron": "^13.1.7",
+    "electron-builder": "^22.11.7",
+    "gulp": "^4.0.2",
+    "gulp-git": "^2.10.1",
+    "gulp-run": "^1.7.1",
+    "gulp-text-simple": "^0.5.5",
+    "gulp-zip": "^5.1.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.1.1",
@@ -58,5 +69,40 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~4.1.5"
+  },
+  "build": {
+    "appId": "bj.apic.app",
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://apic.app/download/"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "zip",
+        "dmg"
+      ]
+    },
+    "nsis": {
+      "perMachine": true,
+      "allowElevation": true,
+      "deleteAppDataOnUninstall": true,
+      "oneClick": false
+    },
+    "win": {
+      "target": "nsis",
+      "verifyUpdateCodeSignature": false
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Development"
+    },
+    "directories": {
+      "buildResources": "platform_files/electron/resources",
+      "app": "dist/win/",
+      "output": "dist/native"
+    }
   }
 }

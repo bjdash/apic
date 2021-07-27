@@ -33,12 +33,15 @@
     <div *ngFor="let project of testProjects$ |async">
         <div class="folder project" (click)="toggleExpand(project._id)"
             [ngClass]="flags.expanded[project._id]?'opened':'closed'">
-            <div class="l-sec">
+            <div class="l-sec vcenter">
                 <mat-icon>fact_check</mat-icon>
+                <mat-icon class="shared" *ngIf="!!project.owner && project.owner!=authUser?.UID"
+                    matTooltip="Shared with you">share</mat-icon>
             </div>
             <div class="folder-name m-sec">
                 <div class="f-name">
                     <span *ngIf="rename._id !== project._id">{{project.name}}</span>
+                    <span *ngIf="flags.unsharingId == project._id" class="spinner"></span>
                     <span *ngIf="rename._id == project._id">
                         <input id="proj_{{project._id}}" class="form-control" (keydown.escape)="rename._id=''"
                             (keydown.enter)="saveProjectRename()" [(ngModel)]="rename.name"
@@ -46,7 +49,7 @@
                 </div>
             </div>
             <div class="r-sec">
-                <button class="new-suite" mat-icon-button
+                <button class="new-suite" mat-icon-button *ngIf="!project._id.includes('demo')"
                     (click)="showNewSuitForm(project._id);$event.stopPropagation()" matTooltip="New suite">
                     <mat-icon>add</mat-icon>
                 </button>
@@ -64,11 +67,15 @@
                     <button mat-menu-item class="sm" (click)="showRename(project)">
                         <mat-icon>edit</mat-icon> Rename
                     </button>
-                    <button mat-menu-item class="sm" (click)="shareProject(project)">
+                    <button mat-menu-item class="sm" (click)="shareProject(project)"
+                        *ngIf="project.owner == authUser?.UID && !project.team">
                         <mat-icon>share</mat-icon> Share
                     </button>
-                    <button mat-menu-item class="sm" (click)="$event.stopPropagation()">
-                        <span class="icon bj-unshare f18" style="margin-right: 22px;"></span> Unshare
+                    <button mat-menu-item class="sm" *ngIf="project.team && project.owner === authUser?.UID"
+                        (confirm-click)="unshareProject(project)" confirm="Do you want to unshare this project?"
+                        confirmTitle="Unshare Project" confirmOk="Unshare">
+                        <span class="icon bj-unshare f18 red" style="margin-right: 22px;"></span> Unshare:
+                        {{teams[project.team]?.name}}
                     </button>
                     <button mat-menu-item class="sm" (click)="exportProject(project)">
                         <mat-icon>download</mat-icon> Export
@@ -101,6 +108,8 @@
                 <div class="savedReq" (click)="toggleExpand(suite._id)">
                     <div class="l-sec">
                         <mat-icon>receipt_long</mat-icon>
+                        <mat-icon class="shared" *ngIf="!!suite.owner && suite.owner!=authUser?.UID"
+                            matTooltip="Shared with you">share</mat-icon>
                     </div>
                     <div class="m-sec name">
                         {{suite.name}}
@@ -129,9 +138,12 @@
                             <button mat-menu-item (click)="exportSuite(suite, true)">
                                 <mat-icon>download</mat-icon> Export Suite with environment
                             </button>
+                            <button mat-menu-item (click)="shareSuite()">
+                                <mat-icon>add</mat-icon> Share/Unshare
+                            </button>
                             <button mat-menu-item confirm="Do you want to delete this test suite?"
                                 confirmTitle="Delete Confirmation" confirmOk="Delete"
-                                (confirm-click)="deleteSuite(suite._id)">
+                                (confirm-click)="deleteSuite(suite._id, suite.owner)">
                                 <mat-icon class="red">delete</mat-icon> Delete
                             </button>
                         </mat-menu>

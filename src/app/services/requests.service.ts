@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
 import Ajv from 'ajv';
+import { BehaviorSubject } from 'rxjs';
+import { first } from 'rxjs/operators';
 import { RequestsAction } from '../actions/requests.action';
 import { ReqFolder } from '../models/ReqFolder.model';
 import { ApiRequest } from '../models/Request.model';
 import { StompMessage } from '../models/StompMessage.model';
+import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 import { User } from '../models/User.model';
+import { RequestsStateSelector } from '../state/requests.selector';
 import { UserState } from '../state/user.state';
 import apic from '../utils/apic';
 import { SAVED_SETTINGS } from '../utils/constants';
@@ -19,6 +23,8 @@ export class RequestsService {
   authUser: User;
   ajv = null;
 
+  updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = new BehaviorSubject(null);;
+
   constructor(private store: Store, private syncService: SyncService) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
@@ -29,82 +35,78 @@ export class RequestsService {
     this.ajv = new Ajv();
   }
 
-  async getRequests() {
+  async loadRequests() {
     const reqs = await iDB.read(iDB.TABLES.SAVED_REQUESTS);
     this.store.dispatch(new RequestsAction.Req.Refresh(reqs));
     return reqs;
   }
-  async getFolders() {
+  async loadFolders() {
     const folders = await iDB.read(iDB.TABLES.FOLDERS);
     this.store.dispatch(new RequestsAction.Folder.Refresh(folders));
     return folders;
   }
 
-  createFolders(folders: ReqFolder[], fromSync?: boolean) {
-    if (!fromSync) {
-      var time = new Date().getTime();
-      folders.forEach(folder => {
-        if (this.authUser?.UID) {
-          folder.owner = this.authUser.UID;
-        } else {
-          delete folder.owner;
-        }
-        if (!folder._id) {//TODO: fix this
-          folder._id = folder._id ? folder._id : time + '-' + apic.s12();
-        }
-        folder._created = folder._created ? folder._created : time;
-        folder._modified = folder._modified ? folder._modified : time;
-      })
+  async createFolder(folder: ReqFolder, addWithSuffix = false): Promise<ReqFolder> {
+    var time = new Date().getTime();
+    if (this.authUser?.UID) {
+      folder.owner = this.authUser.UID;
+    } else {
+      delete folder.owner;
     }
-    return iDB.insertMany(iDB.TABLES.FOLDERS, folders).then((data) => {
-      if (!fromSync && this.authUser?.UID) {//added successfully
-        this.syncService.prepareAndSync('addFolder', folders);
+    folder._id = time + '-' + apic.s12();
+    folder._created = time;
+    folder._modified = time;
+
+    //owner detail has to be set first before this check
+    let allFolders = await this.store.select(RequestsStateSelector.getFoldersPartial).pipe(first()).toPromise();
+    if (addWithSuffix) {
+      let duplicate = false
+      do {
+        duplicate = allFolders.some(p => p.name.toLocaleLowerCase() == folder.name.toLocaleLowerCase() && p.owner === folder.owner && p.parentId == folder.parentId)
+        if (duplicate) {
+          folder.name += ` ${apic.s4()}`
+        }
+      } while (duplicate);
+    } else if (allFolders.find(p => p.name.toLowerCase() === folder.name.toLowerCase() && p.owner === folder.owner && p.parentId == folder.parentId)) {
+      throw new Error('A folder with the same name already exists.')
+    }
+
+    return iDB.insert(iDB.TABLES.FOLDERS, folder).then((data) => {
+      if (this.authUser?.UID) {//added successfully
+        this.syncService.prepareAndSync('addFolder', [folder]);
       }
-      this.store.dispatch(new RequestsAction.Folder.Add(folders));
-      return folders;
+      this.store.dispatch(new RequestsAction.Folder.Add([folder]));
+      return folder;
     });
   }
 
-  //TODO: Use this and depricate above
-  // createFolders2(foldersToCreate: ReqFolderPartial[], fromSync?: boolean) {
-  //   if (!fromSync) {
-  //     var time = new Date().getTime();
-  //     let folders:ReqFolder[] = foldersToCreate.map(f => {
-  //       let folder:ReqFolder = {...f, _created:time, _modified:time,_id:time+ '-' + apic.s12()}
-  //       if (this.authUser?.UID) {
-  //         folder.owner = this.authUser.UID;
-  //       }
-  //       return folder;
-  //     })
-  //   }
-  //   return iDB.insertMany(iDB.TABLES.FOLDERS, folders).then((data) => {
-  //     if (!fromSync && this.authUser?.UID) {//added successfully
-  //       this.syncService.prepareAndSync('addFolder', foldersToCreate);
-  //     }
-  //     this.store.dispatch(new RequestsAction.Folder.Add(foldersToCreate));
-  //     return foldersToCreate;
-  //   });
-  // }
 
-  updateFolders(folders: ReqFolder[], fromSync?: boolean) {
-    if (!fromSync) {
-      folders.forEach(f => f._modified = Date.now());
+  async updateFolder(folder: ReqFolder): Promise<ReqFolder> {
+    let allFolders = await this.store.select(RequestsStateSelector.getFoldersPartial).pipe(first()).toPromise();
+    if (allFolders.find(p => p.name.toLowerCase() === folder.name.toLowerCase() && p._id != folder._id && p.parentId == folder.parentId && p.owner === folder.owner)) {
+      throw new Error('A Folder with the same name already exists.')
     }
-    return iDB.upsertMany(iDB.TABLES.FOLDERS, folders).then((updatedIds) => {
-      if (updatedIds && !fromSync && this.authUser?.UID) {
-        var foldersToSync = apic.removeDemoItems(folders); //returns a list
+
+    folder._modified = Date.now();
+    return iDB.upsert(iDB.TABLES.FOLDERS, folder).then((updatedIds) => {
+      if (updatedIds && this.authUser?.UID) {
+        var foldersToSync = apic.removeDemoItems([folder]); //returns a list
         if (foldersToSync.length > 0) {
           this.syncService.prepareAndSync('updateFolder', foldersToSync);
         }
       }
-      this.store.dispatch(new RequestsAction.Folder.Update(folders));
-      return updatedIds;
+      this.store.dispatch(new RequestsAction.Folder.Update([folder]));
+      return folder;
     });
   }
 
-  async deleteFolders(ids: string[], fromSync?: boolean) {
+  async deleteFolders(ids: string[], owner: string) {
+    //get folder owner, if folder owner also matches allow delete
+    if (owner && this.authUser?.UID !== owner) {
+      throw new Error('You can\'t delete this folder as you are not the owner.');
+    }
     return iDB.deleteMany(iDB.TABLES.FOLDERS, ids).then((data) => { //data doesnt contain deleted ids
-      if (!fromSync && this.authUser?.UID) {
+      if (this.authUser?.UID) {
         this.syncService.prepareAndSync('deleteFolder', ids);
       }
       this.store.dispatch(new RequestsAction.Folder.Delete(ids));
@@ -112,50 +114,66 @@ export class RequestsService {
     });
   }
 
-  createRequests(reqs: ApiRequest[], fromSync?: boolean) {
-    if (!fromSync) {
-      var time = new Date().getTime();
-      reqs.forEach(req => {
-        if (this.authUser?.UID) {
-          req.owner = this.authUser.UID;
-        } else {
-          delete req.owner;
-        }
-        req._id = time + '-' + apic.s12();
-        req._created = time;
-        req._modified = time;
-      })
+  async createRequest(req: ApiRequest, addWithSuffix = false): Promise<ApiRequest> {
+    var time = new Date().getTime();
+    if (this.authUser?.UID) {
+      req.owner = this.authUser.UID;
+    } else {
+      delete req.owner;
     }
-    return iDB.insertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((data) => {
-      if (!fromSync) {//added successfully
-        this.syncService.prepareAndSync('addAPIReq', reqs);
+    req._id = time + '-' + apic.s12();
+    req._created = time;
+    req._modified = time;
+
+    //owner detail has to be set first before this check
+    let allFolders = await this.store.select(RequestsStateSelector.getReqsPartial).pipe(first()).toPromise();
+    if (addWithSuffix) {
+      let duplicate = false
+      do {
+        duplicate = allFolders.some(p => p.name.toLocaleLowerCase() == req.name.toLocaleLowerCase() && p.owner === req.owner && p._parent == req._parent)
+        if (duplicate) {
+          req.name += ` ${apic.s4()}`
+        }
+      } while (duplicate);
+    } else if (allFolders.find(p => p.name.toLowerCase() === req.name.toLowerCase() && p.owner === req.owner && p._parent == req._parent)) {
+      throw new Error('A request with the same name already exists in the folder.')
+    }
+
+    return iDB.insert(iDB.TABLES.SAVED_REQUESTS, req).then((data) => {
+      if (this.authUser?.UID) {//added successfully
+        this.syncService.prepareAndSync('addAPIReq', [req]);
       }
-      this.store.dispatch(new RequestsAction.Req.Add(reqs));
-      return reqs;
+      this.store.dispatch(new RequestsAction.Req.Add([req]));
+      return req;
     });
   }
 
-  updateRequests(reqs: ApiRequest[], fromSync?: boolean) {
-    if (!fromSync) {
-      reqs.forEach(r => {
-        r._modified = Date.now();
-      });
+  async updateRequest(req: ApiRequest): Promise<ApiRequest> {
+    let allReqs = await this.store.select(RequestsStateSelector.getReqsPartial).pipe(first()).toPromise();
+    if (allReqs.find(s => s.name.toLowerCase() === req.name.toLowerCase() && s._parent === req._parent && s._id != req._id)) {
+      throw new Error('A request with the same name already exists.')
     }
-    return iDB.upsertMany(iDB.TABLES.SAVED_REQUESTS, reqs).then((updatedIds) => {
-      if (updatedIds && !fromSync && this.authUser?.UID) {
-        var toSync = apic.removeDemoItems(reqs); //returns a list
+
+    req._modified = Date.now();
+    return iDB.upsert(iDB.TABLES.SAVED_REQUESTS, req).then((updatedIds) => {
+      if (updatedIds && this.authUser?.UID) {
+        var toSync = apic.removeDemoItems([req]); //returns a list
         if (toSync.length > 0) {
           this.syncService.prepareAndSync('updateAPIReq', toSync);
         }
       }
-      this.store.dispatch(new RequestsAction.Req.Update(reqs));
-      return reqs;
+      this.store.dispatch(new RequestsAction.Req.Update([req]));
+      return req;
     });
   }
 
-  async deleteRequests(ids: string[], fromSync?: boolean) {
+  async deleteRequests(ids: string[], owner: string) {
+    //get folder owner, if folder owner also matches allow delete
+    if (owner && this.authUser?.UID !== owner) {
+      throw new Error('You can\'t delete this request as you are not the owner.');
+    }
     return iDB.deleteMany(iDB.TABLES.SAVED_REQUESTS, ids).then((data) => { //data doesnt contain deleted ids
-      if (!fromSync && this.authUser?.UID) {
+      if (this.authUser?.UID) {
         this.syncService.prepareAndSync('deleteAPIReq', ids);
       }
       this.store.dispatch(new RequestsAction.Req.Delete(ids));
@@ -163,22 +181,45 @@ export class RequestsService {
     });
   }
 
+  //Update the projects & suites when received via sync message
+  async updateSyncedFolders(folders: ReqFolder[]) {
+    let updatedIds = await iDB.upsertMany(iDB.TABLES.FOLDERS, folders);
+    this.store.dispatch(new RequestsAction.Folder.Update(folders));
+    return updatedIds;
+  }
+  async deleteSyncedProjects(ids: string[]) {
+    await iDB.deleteMany(iDB.TABLES.FOLDERS, ids);
+    this.store.dispatch(new RequestsAction.Folder.Delete(ids));
+    return ids;
+  }
+  async updateSyncedReqs(reqs: ApiRequest[]) {
+    let updatedIds = await iDB.upsertMany(iDB.TABLES.SAVED_REQUESTS, reqs);
+    this.updatedViaSync$.next({ type: 'update', ids: updatedIds as string[] });
+    this.store.dispatch(new RequestsAction.Req.Update(reqs));
+    return updatedIds;
+  }
+  async deleteSyncedReqs(ids: string[]) {
+    await iDB.deleteMany(iDB.TABLES.SAVED_REQUESTS, ids);
+    this.updatedViaSync$.next({ type: 'delete', ids });
+    this.store.dispatch(new RequestsAction.Req.Delete(ids));
+    return ids;
+  }
   async onSyncMessage(message: StompMessage) {
     if (!message?.action) return;
 
     if (message.type == 'Folders' || message.type === 'Fetch:Folders') {
       if ((message.folders?.length > 0)) {
         if (message.action === 'update' || message.action === 'add') {
-          let folders = await this.updateFolders(message.folders, true);
+          let folders = await this.updateSyncedFolders(message.folders);
           console.info('Sync: added/updated folders', folders)
         }
       } else if (message.idList?.length > 0 && message.action === 'delete') {
-        const resp = await this.deleteFolders(message.idList, true);
+        const resp = await this.deleteSyncedProjects(message.idList);
         console.info('Sync: deleted folder', resp)
       }
 
       if (message.nonExistant?.folders?.length > 0) {
-        const resp = await this.deleteFolders(message.nonExistant?.folders, true);
+        const resp = await this.deleteSyncedProjects(message.nonExistant?.folders);
         console.info('Sync: deleted folders', resp)
       }
 
@@ -191,16 +232,16 @@ export class RequestsService {
     } else if (message.type == 'APIRequests' || message.type == 'Fetch:ApiRequests') {
       if ((message.apiRequests?.length > 0)) {
         if (message.action === 'update' || message.action === 'add') {
-          let reqs = await this.updateRequests(message.apiRequests, true);
+          let reqs = await this.updateSyncedReqs(message.apiRequests);
           console.info('Sync: added/updated request', reqs)
         }
       } else if (message.idList?.length > 0 && message.action === 'delete') {
-        const resp = await this.deleteRequests(message.idList, true);
+        const resp = await this.deleteSyncedReqs(message.idList);
         console.info('Sync: deleted request', resp)
       }
 
       if (message.nonExistant?.apiRequests?.length > 0) {
-        const resp = await this.deleteRequests(message.nonExistant?.apiRequests, true);
+        const resp = await this.deleteSyncedReqs(message.nonExistant?.apiRequests);
         console.info('Sync: deleted request', resp)
       }
 

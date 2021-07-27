@@ -152,8 +152,6 @@ export class AuthService {
         this.reqService.syncReqs();
         this.suiteService.syncTestProjects();
         this.suiteService.syncTestSuites();
-        //TODO: add for others
-
       })
     this.stompService.connect(UID + '||' + authToken);
   }
@@ -224,7 +222,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return this.user != undefined
+    return !!this.user;
   }
   getUser() {
     return this.user;

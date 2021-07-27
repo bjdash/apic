@@ -16,12 +16,15 @@ import { MigrationService } from '../services/migration.service';
 import { ThemesService } from '../services/themes.service';
 import { ReqHistoryService } from '../services/reqHistory.service';
 import { SuiteService } from '../services/suite.service';
+import { HttpService } from '../services/http.service';
+import { first } from 'rxjs/operators';
 
 @Injectable()
 export class AppBootstrap {
     // static httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
 
     constructor(private httpClient: HttpClient,
+        private httpService: HttpService,
         private migrationService: MigrationService,
         private apiProjectService: ApiProjectService,
         private envService: EnvService,
@@ -33,20 +36,10 @@ export class AppBootstrap {
     }
 
     async init() {
-        //Init window.APP
-        window['APP'] = {
-            VERSION: environment.VERSION,
-            PLATFORM: environment.PLATFORM,
-            IS_ELECTRON: Utils.isElectron(),
-            TYPE: Utils.getAppType()
-        };
         const newVersion = environment.VERSION, oldVersion = LocalStore.get(LocalStore.VERSION);
 
         //check if the dummy user is registered, otherwise add a dummy user.
         this.addDummyUser();
-
-        //check if the user is logged in
-        this.initLoggedinUser();
 
         //do firstRun
         await this.doFirstRunIfRequired();
@@ -54,7 +47,7 @@ export class AppBootstrap {
         this.migrationService.migrate(newVersion, oldVersion);
 
         //check if APIC was updated, and show notification
-        this.checkUpdate();
+        this.checkIfUpdated();
 
         //apply theme
         this.themeService.applyCurrentTheme();
@@ -65,66 +58,11 @@ export class AppBootstrap {
 
     private async addDummyUser() {
         //check if the dummy user is registered, otherwise add a dummy user.
-        const userId = LocalStore.get(LocalStore.USER_ID);
-        var body = {
-            id: apic.uuid(),
-            platform: window['APP'].TYPE,
-            existing: false
-        }
-        if (userId) {
-            body.id = userId;
-            body.existing = true;
-        }
-        try {
-            const respData: any = await this.httpClient.post(ApicUrls.registerDummy, body).toPromise();
-            if (respData.resp) {
-                LocalStore.set(LocalStore.USER_ID, respData.resp.id);
-            }
-        } catch (e) {
-            console.error('Failed to add dummy user', e);
-        }
-    }
-
-    //TODO: Remove this
-    private initLoggedinUser() {
-
-        // const data = LocalStore.getMany([LocalStore.UID, LocalStore.AUTH_TOKEN]);
-        // if (data?.UID && data?.authToken) { //user is logged in
-        //     this.authService.refreshFromLocal();
-        //     this.authService.connectToSyncServer()
-
-        //     AuthInterceptor.AUTH_HEADER = data.UID + '||' + data.authToken;
-
-        //     // TeamService.getList(true).then(function (data) {
-        //     //     const setTeams = useSetRecoilState(TeamsState);
-        //     //     if (data && data.resp && data.resp.length) {
-
-        //     //         var teams = {};
-        //     //         for (var i = 0; i < data.resp.length; i++) {
-        //     //             teams[data.resp[i].id] = data.resp[i].name;
-        //     //         }
-        //     //         setTeams(() => teams);
-        //     //     } else {
-        //     //         setTeams(() => { })
-        //     //     }
-        //     // });
-
-        //     //TODO: 
-        //     // ngSockJs.connect({ 'Auth-Token': data.UID + '||' + data.authToken }).then(function () {
-        //     //     //get the last synced time
-        //     //     //no need to do these. The are handeled once socket is connected onSocketConnected();
-        //     //     /*iDB.findByKey('setting', '_id', 'lastSynced').then(function (data){
-        //     //         console.log('lastsybced', data);
-        //     //         var ts = 0;//new Date().getTime();
-
-        //     //         if(data && data.time){
-        //     //             ts = data.time;
-        //     //         }
-        //     //         //SyncIt.fetch('fetchAll', ts);
-        //     //         //SyncIt.syncUnsynced();
-        //     //     });*/
-        //     // });
-        // }
+        this.httpService.addDummyUser()
+            .pipe(first())
+            .subscribe(respData => {
+                LocalStore.set(LocalStore.USER_ID, respData.id);
+            });
     }
 
     async doFirstRunIfRequired() {
@@ -160,18 +98,21 @@ export class AppBootstrap {
         return await Promise.all([
             this.apiProjectService.loadApiProjs(),
             this.envService.getAllEnvs(),
-            this.reqService.getFolders(),
-            this.reqService.getRequests(),
+            this.reqService.loadFolders(),
+            this.reqService.loadRequests(),
             this.reqHistoryService.refresh(),
-            this.suiteService.getTestProjects(),
-            this.suiteService.getTestSuites()
+            this.suiteService.loadTestProjects(),
+            this.suiteService.loadTestSuites()
         ])
 
     }
 
-    private checkUpdate() {
-        //TODO:
-
+    checkIfUpdated() {
+        let version = LocalStore.get(LocalStore.VERSION);
+        if (MigrationService.isVersionHigher(environment.VERSION, version)) {
+            Utils.notify('APIC Updated', `Apic has been updated to a new version ${environment.VERSION}.`, 'https://apic.app/changelog.html');
+        }
+        LocalStore.set(LocalStore.VERSION, environment.VERSION);
     }
 }
 

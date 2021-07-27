@@ -211,8 +211,9 @@
                 </mat-tab>
                 <mat-tab label="Responses">
                     <div class="pad10">
-                        <response-schema-builder [models]="selectedPROJ.models" [onChange]="setDirty.bind(this)"
-                            (onTestBuilder)="openTestBuilder($event)" formControlName="responses">
+                        <response-schema-builder [models]="selectedPROJ.models" [responsesModels]="traitResponses"
+                            [onChange]="setDirty.bind(this)" (onTestBuilder)="openTestBuilder($event)"
+                            formControlName="responses">
                         </response-schema-builder>
                     </div>
                 </mat-tab>

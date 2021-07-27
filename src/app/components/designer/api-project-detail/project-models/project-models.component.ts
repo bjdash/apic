@@ -71,7 +71,7 @@ export class ProjectModelsComponent implements OnInit, OnDestroy {
 
   }
 
-  createModel(allowDup?: boolean) {
+  async createModel(allowDup?: boolean) {
     if (!this.modelForm.valid) return;
 
     const model: ApiModel = { ...this.modelForm.value, _id: this.isEditing() ? this.selectedModel._id : new Date().getTime() + apic.s8() };
@@ -82,7 +82,8 @@ export class ProjectModelsComponent implements OnInit, OnDestroy {
     }
 
     var projToUpdate: ApiProject = { ...this.selectedPROJ, models: { ...this.selectedPROJ.models, [model._id]: model } };
-    this.apiProjService.updateAPIProject(projToUpdate).then((data) => {
+    try {
+      await this.apiProjService.updateAPIProject(projToUpdate);
       this.modelForm.markAsPristine();
       this.modelForm.markAsUntouched();
       if (this.isEditing()) {
@@ -92,12 +93,11 @@ export class ProjectModelsComponent implements OnInit, OnDestroy {
         this.router.navigate(['../', model._id], { relativeTo: this.route })
         this.toaster.success('Model created.');;
       }
-    },
-      (e) => {
-        console.error('Failed to create/update model', e, model);
-        this.toaster.error(`Failed to create/update model: ${e.message}`);
-      }
-    );
+
+    } catch (e) {
+      console.error('Failed to create/update model', e, model);
+      this.toaster.error(`Failed to create/update model: ${e?.message || e || ''}`);
+    }
   }
 
   deleteModel(modelId: string) {
@@ -113,19 +113,17 @@ export class ProjectModelsComponent implements OnInit, OnDestroy {
         confirmOk: 'Delete',
         confirmCancel: 'Cancel',
       })
-      .then(() => {
+      .then(async () => {
         delete project.models[modelId];
-        this.apiProjService.updateAPIProject(project).then(
-          () => {
-            this.toaster.success('Model deleted.');
-            this.modelForm.markAsPristine();
-            this.router.navigate(['../', 'new'], { relativeTo: this.route })
-          },
-          (e) => {
-            console.error('Failed to delete model', e);
-            this.toaster.error(`Failed to delete model: ${e.message}`);
-          }
-        );
+        try {
+          await this.apiProjService.updateAPIProject(project)
+          this.toaster.success('Model deleted.');
+          this.modelForm.markAsPristine();
+          this.router.navigate(['../', 'new'], { relativeTo: this.route })
+        } catch (e) {
+          console.error('Failed to delete model', e);
+          this.toaster.error(`Failed to delete model: ${e?.message || e || ''}`);
+        }
       });
   }
 

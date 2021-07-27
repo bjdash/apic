@@ -174,6 +174,9 @@ export class TabSocketComponent implements OnInit, OnDestroy {
           }
         }
         break;
+      case 'Websocket':
+        this.form.patchValue(patch);
+        break;
     }
 
   }
@@ -566,7 +569,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
   }
   async updateRequest(updatedRequest: ApiRequest) {
     updatedRequest = { ...this.selectedReq, ...updatedRequest }
-    this.pendingAction = this.reqService.updateRequests([updatedRequest]);
+    this.pendingAction = this.reqService.updateRequest(updatedRequest);
     try {
       this.selectedReq = (await this.pendingAction)[0];
       this.toastr.success('Request updated.');

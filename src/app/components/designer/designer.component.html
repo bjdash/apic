@@ -24,11 +24,13 @@
                 </div>
 
                 <div class="projects">
-                    <div class="title-txt">My Projects</div>
+                    <div class="title-txt">API Projects</div>
                     <div class="card-list">
                         <div class="cl-item ic" [routerLink]="['/designer', project._id]"
                             *ngFor="let project of projects$ | async">
                             <div class="cl-item-name">{{project.title}}</div>
+                            <mat-icon *ngIf="!!project.owner && project.owner!=authUser?.UID"
+                                matTooltip="Shared with you" class="shared">share</mat-icon>
                         </div>
                         <div class="cl-item" style="width: 120px">
                             <button mat-fab class="t_bg " aria-label="Create new project" (click)="openAddProject()"

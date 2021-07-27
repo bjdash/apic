@@ -323,7 +323,9 @@
                         <label class="bold">Requests imported from APIC Session Recorder:</label>
                     </div>
                     <div class="col-sm-4" *ngIf="har.importType==='file'">
-                        <input type="file" class="form-control input-sm" (change)="onFileChange($event)" />
+                        <input type="file" class="form-control input-sm margB5" (change)="onFileChange($event)" />
+                        <mat-checkbox class="col-sm-6 nopad" [(ngModel)]="har.excludeOptionReq">Exclude OPTIONS request
+                        </mat-checkbox>
                     </div>
                     <div class="col-sm-6">
                         <button type="button" mat-stroked-button *ngIf="har.importType==='file'" class="sm gap t_border"
@@ -332,10 +334,6 @@
                             (click)="addRequestsToSuit(har.requests);har.requests=[];" class="sm">Add requests to
                             suit</button>
                     </div>
-                </div>
-                <div class="row">
-                    <mat-checkbox class="col-sm-6" [(ngModel)]="har.excludeOptionReq">Exclude OPTIONS request
-                    </mat-checkbox>
                 </div>
                 <div>
                     <div *ngFor="let req of har.requests; trackBy: trackByFn;let i=index" style="position: relative;">

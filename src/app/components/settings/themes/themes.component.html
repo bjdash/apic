@@ -3,7 +3,7 @@
     <div *ngFor="let theme of themes|keyvalue" class="theme gap" (click)="switchTheme(theme.key)"
         [ngStyle]="{background:theme.value['--header-bg']}">
         <div class="logo">
-            <img src="../../assets/images/apic-logo.svg" class="logo-img" />
+            <img src="assets/images/apic-logo.svg" class="logo-img" />
             <span class="logo-text" [ngStyle]="{color:theme.value['--text-color']}">apic</span>
         </div>
         <div class="theme-name">{{theme.key}}</div>

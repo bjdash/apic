@@ -78,7 +78,6 @@ import { JsonSchemaComponent } from './components/common/json-schema-builder/jso
 import { MainJsonSchemaComponent } from './components/common/json-schema-builder/main/main.component';
 import { SelectSchemaJsonSchemaComponent } from './components/common/json-schema-builder/field/selectschema.component';
 import { FieldJsonSchemaComponent } from './components/common/json-schema-builder/field/field.component';
-import { JsonSchemaStateService } from './components/common/json-schema-builder/schemaState.service';
 import { EndpBodyParamsComponent } from './components/designer/api-project-detail/project-endpoint/endp-body-params/endp-body-params.component';
 import { ApicAceComponent } from './components/common/apic-ace/apic-ace.component';
 import { AceResizeDirective } from './directives/ace-resize.directive';
@@ -132,6 +131,8 @@ import { JsonSchemaViewerComponent } from './components/common/json-schema-viewe
 import { SharingComponent } from './components/sharing/sharing.component';
 import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
 import { CustomFilter } from './utils/filter.pipe';
+import { AppUpdateComponent } from './components/dialogs/app-update/app-update.component';
+import { UpdateDownloadedComponent } from './components/dialogs/update-downloaded/update-downloaded.component';
 
 @NgModule({
   declarations: [
@@ -207,7 +208,9 @@ import { CustomFilter } from './utils/filter.pipe';
     JsonSchemaViewerComponent,
     SharingComponent,
     ApiBuilderComponent,
-    CustomFilter
+    CustomFilter,
+    AppUpdateComponent,
+    UpdateDownloadedComponent
   ],
   imports: [
     BrowserModule,
@@ -220,6 +223,9 @@ import { CustomFilter } from './utils/filter.pipe';
       selectorOptions: {
         suppressErrors: false,
         injectContainerState: false
+      },
+      compatibility: {
+        strictContentSecurityPolicy: true
       }
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
@@ -256,7 +262,6 @@ import { CustomFilter } from './utils/filter.pipe';
     AppBootstrap,
     MigrationService,
     ApiProjectService,
-    JsonSchemaStateService,
     EnvService,
     Toaster,
     Utils,

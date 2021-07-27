@@ -1,0 +1,13 @@
+<h2 mat-dialog-title class="modal-title">Update downloaded</h2>
+<mat-dialog-content>
+    <div class="f18">
+        A new update for apic has been successfully downloaded. Restart apic to apply update.
+    </div>
+    <!-- New version: <span class="bold">{{updateModal.newVer}}</span><br />
+    Current version: <span class="bold">{{appInfo.version}}</span><br /> -->
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" type="button" class="sm gap" (click)="restart()">Restart</button>
+    <button mat-button type="button" mat-dialog-close class="sm">Remind me later</button>
+</mat-dialog-actions>

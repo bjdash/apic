@@ -10,7 +10,6 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { JsonSchemaService } from './jsonschema.service';
-import { JsonSchemaStateService } from './schemaState.service';
 import { Utils } from '../../../services/utils.service'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 @Component({
@@ -46,7 +45,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   models: any = [];
 
   @Input()
-  responses: any = []; //TODO: responses
+  responses: any = [];
 
   @Input()
   disabledKeys: string[] = []
@@ -84,7 +83,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   singleChild = ['OneOf', 'AllOf', 'AnyOf'];
   schemaStr = { original: '', dup: '' };
 
-  constructor(private state: JsonSchemaStateService, private utils: Utils) {
+  constructor(private utils: Utils) {
     // this.editorOptions = new JsonEditorOptions() // this.options.mode = 'code'; //set only one mode
     // this.editorOptions.modes = ['code', 'text', 'tree', 'view']; // set all allowed modes
     // this.state.getState().subscribe(
@@ -289,13 +288,14 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   }
 
   // callback after the model changed
-  modelChangesCallback(entity) {
+  modelChangesCallback(entity, suppressEmmit = false) {
     this.configs.currModelType = entity._type;
     this.selectedEntity = entity;
+    this.configs.extraArrayOptn = false;
     if (entity._type.indexOf('Array') >= 0) {
       this.configs.showMoreOptn = 'array';
-      if (entity._type.indexOf('$ref') >= 0) {
-        this.configs.showMoreOptn = 'Array$ref';
+      if (entity._items?.[0]?._type?.indexOf('$ref') >= 0) {
+        this.configs.extraArrayOptn = true;
         this.modelRef = '';
       }
     } else if (entity._type.indexOf('$ref') >= 0) {
@@ -304,8 +304,9 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
     } else {
       this.configs.showMoreOptn = '';
     }
-    this.configs.extraArrayOptn = false;
-    this.emitSchemaChanged();
+    if (!suppressEmmit) {
+      this.emitSchemaChanged();
+    }
   }
 
   setArrayType(type, entity, e) {
@@ -413,7 +414,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
 
   displaySelectorModal(entity = null, e: MouseEvent = null) {
     if (entity) {
-      this.modelChangesCallback(entity);
+      this.modelChangesCallback(entity, true);
     }
 
     if (e) {

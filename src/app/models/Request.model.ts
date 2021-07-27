@@ -17,6 +17,7 @@ export interface ApiRequest {
     method: string
     name: string
     owner?: string
+    team?: string
     postscript?: string
     prescript?: string
     respCodes?: any[]
@@ -24,7 +25,7 @@ export interface ApiRequest {
     _parent?: string
     url: string
     _created?: number
-    _id: string
+    _id?: string
     _modified?: number,
     //ws
     type?: 'ws'

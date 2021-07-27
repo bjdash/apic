@@ -17,6 +17,7 @@ import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Valida
 export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAccessor {
   @Input() onChange: Function;
   @Input() models: any;
+  @Input() responsesModels: any[] = [];
   @Output()
   onTestBuilder = new EventEmitter<number>()
 
@@ -68,6 +69,8 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
     if (this.responses[index]) {
       this.selectedIndex = index;
       this.selectedResp = { ...this.responses[index] }
+      //TODO: this line marks the main endp form as dirty just by switching between different resp codes
+      //because of this.selectedRespForm.valueChanges.subscribe in nginit
       this.selectedRespForm.patchValue({ ...this.responses[index] });
     }
   }

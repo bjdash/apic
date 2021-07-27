@@ -73,27 +73,27 @@ export class SaveReqDialogComponent implements OnInit {
       return;
     }
 
-    if (this.selectedFolder.requests.find(r => r.name.toLowerCase() === details.name.toLocaleLowerCase() && r._id != this.data.req._id)) {
-      this.toaster.error('A request with the same name already exists in the folder');
-    } else {
+    try {
       if (this.data.action === 'rename') {
-        let reqs: ApiRequest[] = await this.reqService.updateRequests([{ ...this.data.req, ...details }]);
+        let req: ApiRequest = await this.reqService.updateRequest({ ...this.data.req, ...details });
         this.toaster.success('Request saved.');
-        this.tabsService.updateTab(this.data.req._id, this.data.req._id, reqs[0].name);
+        this.tabsService.updateTab(this.data.req._id, this.data.req._id, req.name);
       } else {
-        let reqs: ApiRequest[] = await this.reqService.createRequests([{ ...this.data.req, ...details }]);
+        let req: ApiRequest = await this.reqService.createRequest({ ...this.data.req, ...details });
         if (this.data.action == 'saveAs') {
           this.toaster.success('A copy of the request saved.');
         } else {
           this.toaster.success('Request saved.');
           if (this.data.action === 'new') {
-            this.tabsService.updateTab(this.data.req._id, reqs[0]._id, reqs[0].name);
+            this.tabsService.updateTab(this.data.req._id, req._id, req.name);
           }
         }
       }
       this.dialogRef.close();
+    } catch (e) {
+      console.error('Operation failed.', e);
+      this.toaster.error(`Operation failed: ${e?.message || e || ''}`)
     }
-
   }
 
   selectFolder(folder: TreeReqFolder) {

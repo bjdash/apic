@@ -1,13 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
+import { SharingComponent } from 'src/app/components/sharing/sharing.component';
 import { Suite, SuiteReq } from 'src/app/models/Suite.model';
+import { Team } from 'src/app/models/Team.model';
 import { TestProject, TreeTestProject } from 'src/app/models/TestProject.model';
 import { User } from 'src/app/models/User.model';
+import { AuthService } from 'src/app/services/auth.service';
 import { FileSystem } from 'src/app/services/fileSystem.service';
+import { SharingService } from 'src/app/services/sharing.service';
 import { SuiteService } from 'src/app/services/suite.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
@@ -28,6 +33,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   suiteForm: FormGroup;
   authUser: User;
   private destroy: Subject<boolean> = new Subject<boolean>();
+  teams: { [key: string]: Team } = {};
 
   rename = {
     _id: '',
@@ -45,6 +51,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   flags = {
     newProj: false,
     newSuite: false,
+    unsharingId: '',//ID of the unsharing project
     expanded: {
       "123456abcdef-testproj-demo": true,//keep demo project expanded by default
       "123456abcdef-testsuite-demo": true
@@ -55,10 +62,18 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     private suiteService: SuiteService,
     private fileSystem: FileSystem,
     private testerTabsService: TesterTabsService,
+    private authService: AuthService,
+    private toaster: Toaster,
+    private dialog: MatDialog,
+    private sharing: SharingService,
     private store: Store) {
     this.store.select(UserState.getAuthUser).pipe(takeUntil(this.destroy)).subscribe(user => {
       this.authUser = user;
     });
+    this.sharing.teams$
+      .subscribe(teams => {
+        this.teams = Utils.arrayToObj(teams, 'id');
+      })
 
     this.newProjForm = fb.group({
       name: ['']
@@ -70,8 +85,6 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    //TODO: remove
-    this.testerTabsService.addSuiteTab("123456abcdef-testsuite-demo", "Demo");
     this.suiteService.initAddReq$.pipe(takeUntil(this.destroy)).subscribe(([suite, index]: [Suite, number]) => {
       this.addReqToSuite(suite, index);
     })
@@ -81,7 +94,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     this.destroy.complete();
   }
 
-  createProject() {
+  async createProject() {
     var projName = this.newProjForm.value.name;
     if (!projName) {
       this.toastr.error('Please Specify a project name.');
@@ -89,25 +102,18 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     }
     let newProj: TestProject = { name: projName, _id: null };
 
-    this.testProjects$.pipe(take(1)).subscribe(async (projects: any[]) => {
-      if (projects.find(s => s.name?.toLowerCase() === newProj.name.toLowerCase())) {
-        this.toastr.error('A test project with the same name already exists.');
-        document.getElementById('newProjName').focus();
-      } else {
-        try {
-          await this.suiteService.createTestProjects([newProj])
-          this.toastr.success('Project "' + newProj.name + '" created');
-          this.newProjForm.reset();
-        } catch (e) {
-          console.error('Failed to createfolder', e, newProj)
-          this.toastr.error(`Failed to create project: ${e.message}`);
-          document.getElementById('newProjName').focus();
-        }
-      }
-    });
+    try {
+      await this.suiteService.createTestProject(newProj)
+      this.toastr.success('Project "' + newProj.name + '" created');
+      this.newProjForm.reset();
+    } catch (e) {
+      console.error('Failed to createfolder', e, newProj)
+      this.toastr.error(`Failed to create project: ${e?.message || e || ''}`);
+      document.getElementById('newProjName').focus();
+    }
   }
 
-  createSuite() {
+  async createSuite() {
     let { projId, name } = this.suiteForm.value;
     if (!name) {
       this.toastr.error('Please enter a suite name');
@@ -115,25 +121,16 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     }
 
     let newSuite: Suite = { _id: null, name, projId, reqs: [] }
-    this.store.select(SuitesStateSelector.getSuites)
-      .pipe(take(1))
-      .subscribe(async (suites: Suite[]) => {
-        if (suites.find(s => s.name.toLocaleLowerCase() == newSuite.name.toLocaleLowerCase() && s.projId === newSuite.projId)) {
-          this.toastr.error('A test suite with the same name already exists in the project.');
-          document.getElementById('newSuiteName').focus();
-        } else {
-          try {
-            await this.suiteService.createTestSuites([newSuite])
-            this.toastr.success('Suite "' + newSuite.name + '" created');
-            this.flags.newSuite = false;
-            this.suiteForm.reset();
-          } catch (e) {
-            console.error('Failed to createfolder', e, newSuite)
-            this.toastr.error(`Failed to create suite: ${e.message}`);
-            document.getElementById('newProjName').focus();
-          }
-        }
-      })
+    try {
+      await this.suiteService.createTestSuite(newSuite)
+      this.toastr.success('Suite "' + newSuite.name + '" created');
+      this.flags.newSuite = false;
+      this.suiteForm.reset();
+    } catch (e) {
+      console.error('Failed to createfolder', e, newSuite)
+      this.toastr.error(`Failed to create suite: ${e.message}`);
+      document.getElementById('newProjName').focus();
+    }
   }
 
   async importSuite(projId: string) {
@@ -151,11 +148,10 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
         let suite: Suite = data.value;
         suite.projId = projId;
         try {
-          //TODO: Check for duplicate name
-          await this.suiteService.createTestSuites([suite]);
+          await this.suiteService.createTestSuite(suite, true);
           this.toastr.success('Import Complete.');
         } catch (e) {
-          this.toastr.error(`Failed to import. ${e.message}`);
+          this.toastr.error(`Failed to import. ${e?.message || e || ''}`);
         }
       } else {
         this.toastr.error('Selected file doesn\'t contain valid test suite information');
@@ -185,15 +181,16 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
       if (this.suiteService.validateProjectImportData(data) === true) {
         let project: TestProject = { _id: null, name: data.value.name }
         try {
-          //TODO: Check for duplicate name
-          let newProj = (await this.suiteService.createTestProjects([project]))[0];
+          let newProj = await this.suiteService.createTestProject(project, true);
           let suites: Suite[] = data.value.suites.map((s: Suite): Suite => {
             return { name: s.name, projId: newProj._id, reqs: s.reqs, _id: null };
           });
-          await this.suiteService.createTestSuites(suites);
+          for (let suite of suites) {
+            await this.suiteService.createTestSuite(suite, true);
+          }
           this.toastr.success('Import Complete.');
         } catch (e) {
-          this.toastr.error(`Failed to import. ${e.message}`);
+          this.toastr.error(`Failed to import. ${e?.message || e || ''}`);
         }
       } else {
         this.toastr.error('Selected file doesn\'t contain valid test project information');
@@ -248,7 +245,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
           if (projToEdit) {
             projToEdit = { ...projToEdit, name };
             try {
-              await this.suiteService.updateTestProject([projToEdit]);
+              await this.suiteService.updateTestProject(projToEdit);
               this.toastr.success('Project renamed.');
               this.rename._id = ''
             } catch (e) {
@@ -262,25 +259,40 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
       })
   }
 
-  shareProject(p) {
-
+  shareProject(project: TestProject) {
+    if (!this.authService.isLoggedIn()) {
+      this.toaster.error('You need to login to apic to use this feature.');
+      return;
+    }
+    this.dialog.open(SharingComponent, { data: { objId: project._id, type: 'TestCaseProjects' } });
+  }
+  unshareProject(project: TestProject) {
+    this.flags.unsharingId = project._id;
+    this.sharing.unshare(project._id, project.team, 'TestCaseProjects').pipe(first())
+      .subscribe(teams => {
+        this.flags.unsharingId = '';
+        this.toaster.success(`Project un-shared with team.`);
+      }, () => {
+        this.flags.unsharingId = '';
+      })
   }
 
   async deleteProject(project: TreeTestProject) {
-    let suitesToDelete = project.suites.map(s => s._id);
     try {
-      await this.suiteService.deleteSuites(suitesToDelete);
-      await this.suiteService.deleteTestprojects([project._id]);
+      for (let suite of project.suites) {
+        await this.suiteService.deleteSuite(suite._id, suite.owner);
+      }
+      await this.suiteService.deleteTestproject(project._id, project.owner);
       this.toastr.success('Project deleted.');
     } catch (e) {
+      this.toastr.error(`Failed to delete project ${e.message || e || ''}`);
       console.error('Failed to delete project', e);
-      this.toastr.error(`Failed to delete project ${e.message}`);
     }
   }
 
-  async deleteSuite(suiteId: string) {
+  async deleteSuite(suiteId: string, owner: string) {
     try {
-      await this.suiteService.deleteSuites([suiteId]);
+      await this.suiteService.deleteSuite(suiteId, owner);
       this.toastr.success('Suite deleted.');
     } catch (e) {
       console.error('Failed to delete suite.', e);
@@ -370,15 +382,19 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
               suiteToUpdate.reqs.splice(index, 0, { ...request, disabled: false })
             }
             try {
-              await this.suiteService.updateSuites([suiteToUpdate]);
+              await this.suiteService.updateSuite(suiteToUpdate);
               this.toastr.success(`Request added to suite ${suite.name}.`);
             } catch (e) {
               console.error('Failed add request to suite.', e);
-              this.toastr.error(`Failed add request to suite.`);
+              this.toastr.error(`Failed add request to suite.${e?.message || e || ''}`);
             }
             this.treeSelectorOpt.show = false;
           })
       }
     }
+  }
+
+  shareSuite() {
+    this.toastr.warn('Sharing of individual suite is not possible. Please share the entire test project.')
   }
 }

@@ -121,13 +121,9 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
     }
 
     async deleteApiProject() {
-        if (this.selectedPROJ.owner && this.authUser?.UID !== this.selectedPROJ.owner) {
-            this.toaster.error('You can\'t delete this Project as you are not the owner. If you have permission you can edit it though.');
-            return;
-        }
         var id = this.selectedPROJ._id;
         try {
-            await this.apiProjService.deleteAPIProjects([id]);
+            await this.apiProjService.deleteAPIProject(id, this.selectedPROJ.owner);
             if (this.selectedPROJ.setting?.envId) {
                 this.envService.deleteEnvs([this.selectedPROJ.setting.envId])
             }
@@ -137,7 +133,7 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
             this._destroy.next(true);
             this._destroy.complete();
         } catch (e) {
-            this.toaster.error('Failed to delete project');
+            this.toaster.error(`Failed to delete project. ${e?.message || e || ''}`);
         }
     }
 
@@ -150,6 +146,10 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
     }
 
     share() {
+        if (!this.authService.isLoggedIn()) {
+            this.toaster.error('You need to login to apic to use this feature.');
+            return;
+        }
         this.dialog.open(SharingComponent, { data: { objId: this.selectedPROJ._id, type: 'APIProject' } });
     }
 

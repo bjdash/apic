@@ -113,4 +113,30 @@ export class ApiProjectUtils {
         })
         return modelRefs;
     }
+
+    static getTraitNamedResponses(proj: ApiProject) {
+        var traitsModel = [];
+        if (proj.traits) {
+            Object.values(proj.traits).forEach((trait) => {
+                trait.responses && trait.responses.forEach(function (resp) {
+                    if (resp.noneStatus) {
+                        traitsModel.push({
+                            name: resp.code,
+                            data: resp.data
+                        })
+                    }
+                });
+            })
+        }
+        return traitsModel;
+    }
+
+    static getTraitNamedResponsesObj(proj) {
+        var traitsModel = ApiProjectUtils.getTraitNamedResponses(proj);
+        var obj = {};
+        traitsModel.forEach(function (resp) {
+            obj[resp.name] = resp.data;
+        });
+        return obj
+    }
 }
