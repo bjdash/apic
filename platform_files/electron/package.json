@@ -1,6 +1,6 @@
 {
     "name": "apic",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "apic- Complete API solution",
     "author": "Bijaya Dash <bijaya.k.dash@gmail.com>",
     "main": "electron.js",

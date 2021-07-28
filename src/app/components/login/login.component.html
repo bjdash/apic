@@ -69,7 +69,8 @@
     <div class="login-cont" *ngIf="flags.panel === 'register'">
         <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
 
-        <form class="form-horizontal" role="form" [formGroup]="regForm" (ngSubmit)="register()">
+        <form class="form-horizontal" role="form" [formGroup]="regForm" (ngSubmit)="register()"
+            *ngIf="PLATFORM !== 'ELECTRON'">
             <div class="row form-group">
                 <label class="control-label col-sm-1" for="name-reg">
                     <mat-icon>badge</mat-icon>
@@ -111,12 +112,16 @@
                 </div>
             </div>
         </form>
+        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="electronRegister()">
+            <button type="button" mat-raised-button color="primary">Register with APIC</button>
+        </div>
     </div>
 
     <div class="login-cont" *ngIf="flags.panel === 'forgot'">
         <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
 
-        <form class="form-horizontal" role="form" [formGroup]="forgotForm" (ngSubmit)="forgotPsd()">
+        <form class="form-horizontal" role="form" [formGroup]="forgotForm" (ngSubmit)="forgotPsd()"
+            *ngIf="PLATFORM !== 'ELECTRON'">
 
             <div class="row form-group">
                 <label class="control-label col-sm-1" for="email-reg">
@@ -141,5 +146,8 @@
                 </div>
             </div>
         </form>
+        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="electronForgotPsd()">
+            <button type="button" mat-raised-button color="primary">Requet password reset</button>
+        </div>
     </div>
 </div>

@@ -34,7 +34,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     type: '',
     text: ''
   }
+
   CAPTCHA_SITE_KEY: string = environment.CAPTCHA_SITE_KEY;
+  PLATFORM = environment.PLATFORM;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { action: string },
     private googleAuth: GoogleLoginService,
@@ -195,6 +197,16 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.toaster.success('Login successful.');
       this.dialogRef.close();
     })
+  }
+
+  electronRegister() {
+    window.apicElectron.openUrl('https://apic.app/identity/#!/register');
+    this.setMesssage('info', 'Please complete resistration in the opened browser tab.');
+  }
+
+  electronForgotPsd() {
+    window.apicElectron.openUrl('https://apic.app/identity/#!/forgotPassword')
+    this.setMesssage('info', 'Please complete the form in the opened browser tab.');
   }
 
   // config = {

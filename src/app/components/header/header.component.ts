@@ -162,7 +162,6 @@ export class HeaderComponent implements OnInit {
         }
 
       });
-
   }
 
   public get ApicRxStompState() {

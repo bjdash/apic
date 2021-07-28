@@ -66,7 +66,7 @@ let updateBase = textTransformation(function (s) {
 }, {})
 var electron = {
     cleanElectron: function () {
-        return del(['./dist/win']);
+        return del(['./dist/win', './dist/native']);
     },
     copyJs: function () {
         return gulp.src(['./platform_files/electron/*.*'])
