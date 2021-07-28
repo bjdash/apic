@@ -149,14 +149,16 @@ export class HeaderComponent implements OnInit {
     LocalStore.set(LocalStore.WORKSPACE, workspace);
   }
 
-  checkForUpdate() {
+  checkForUpdate(manual = false) {
     this.httpService.checkForUpdate()
       .pipe(first())
       .subscribe(response => {
         if (response) {//update found
           this.dialog.open(AppUpdateComponent, { data: { newVer: response.version, changeLog: response.changeLog } });
         } else {//no update
-          this.toaster.info("You are already using the latest version of apic.");
+          if (manual) {
+            this.toaster.info("You are already using the latest version of apic.");
+          }
         }
 
       });

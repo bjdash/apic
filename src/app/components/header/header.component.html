@@ -115,7 +115,7 @@
                     <mat-icon class="gap">dvr</mat-icon>Intro Screen
                 </button>
                 <mat-divider></mat-divider>
-                <button mat-menu-item (click)="checkForUpdate()" *ngIf="flags.update=='idle'">
+                <button mat-menu-item (click)="checkForUpdate(true)" *ngIf="flags.update=='idle'">
                     <mat-icon class="gap">system_update_alt</mat-icon>Check for update
                 </button>
                 <button mat-menu-item *ngIf="flags.update=='downloading'">
