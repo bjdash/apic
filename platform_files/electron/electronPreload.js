@@ -19,6 +19,9 @@ electron.contextBridge.exposeInMainWorld("apicElectron", {
             electron.ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
     },
+    openUrl: (url) => {
+        electron.shell.openExternal(url);
+    },
     winClose: () => {
         const currentWindow = electron.remote.BrowserWindow.getFocusedWindow();
         if (currentWindow.isDevToolsOpened()) {

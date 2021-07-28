@@ -199,10 +199,10 @@
                                         <span class="url">{{req.url}}</span>
                                         <div class="run-status" *ngIf="req.status == 'complete'">
                                             <div class="vcenter"><span class="green vcenter">{{req.tests.passed}}
-                                                    <mat-icon class="sm">
+                                                    <mat-icon class="xs">
                                                         check_circle</mat-icon>
-                                                </span> /
-                                                <span class="red vcenter">{{req.tests.failed}} <mat-icon class="sm">
+                                                </span>&nbsp;/&nbsp;
+                                                <span class="red vcenter">{{req.tests.failed}}<mat-icon class="xs">
                                                         cancel
                                                     </mat-icon></span>
                                             </div>

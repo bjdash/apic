@@ -9,7 +9,7 @@ export class ReporterService {
   constructor(private httpClient: HttpClient) { }
 
   async suitReport(runRes, suiteName: string) {
-    let template = await this.httpClient.get('/assets/suitReport.html', { responseType: 'text' }).toPromise();
+    let template = await this.httpClient.get('assets/suitReport.html', { responseType: 'text' }).toPromise();
 
     if (template) {
       var data = template.replace('{{brand}}', suiteName);

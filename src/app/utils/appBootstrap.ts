@@ -47,7 +47,7 @@ export class AppBootstrap {
         this.migrationService.migrate(newVersion, oldVersion);
 
         //check if APIC was updated, and show notification
-        this.checkIfUpdated();
+        // this.checkIfUpdated();
 
         //apply theme
         this.themeService.applyCurrentTheme();
@@ -107,13 +107,13 @@ export class AppBootstrap {
 
     }
 
-    checkIfUpdated() {
-        let version = LocalStore.get(LocalStore.VERSION);
-        if (MigrationService.isVersionHigher(environment.VERSION, version)) {
-            Utils.notify('APIC Updated', `Apic has been updated to a new version ${environment.VERSION}.`, 'https://apic.app/changelog.html');
-        }
-        LocalStore.set(LocalStore.VERSION, environment.VERSION);
-    }
+    // checkIfUpdated() {
+    //     let version = LocalStore.get(LocalStore.VERSION) || '0.0.0';
+    //     if (MigrationService.isVersionHigher(environment.VERSION, version)) {
+    //         Utils.notify('APIC Updated', `Apic has been updated to a new version ${environment.VERSION}.`, 'https://apic.app/changelog.html');
+    //     }
+    //     LocalStore.set(LocalStore.VERSION, environment.VERSION);
+    // }
 }
 
 
