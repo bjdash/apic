@@ -95,6 +95,10 @@ export class AuthService {
       }))
   }
 
+  externalBrowserLogin(data) {
+    this.postLoginHandler(data);
+  }
+
   register(name, email, psd, captchaCode) {
     return this.http.post(ApicUrls.register, { name, email, psd, captchaCode })
       .pipe(map((response: any) => {

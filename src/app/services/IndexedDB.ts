@@ -14,6 +14,7 @@ const TABLES = {
 
 const dbPromise = openDB('apic', 11, {
   upgrade(db) {
+    console.log('Upgrading db')
     var historyStore = db.createObjectStore(TABLES.HISTORY, { keyPath: '_id' });
     historyStore.createIndex('_time', '_time', { unique: false });
     historyStore.createIndex('_id', '_id', { unique: true });

@@ -3,7 +3,8 @@ const {
     BrowserWindow,
     Menu,
     protocol,
-    ipcMain
+    ipcMain,
+    shell
 } = require('electron');
 const log = require('electron-log');
 const {
@@ -98,6 +99,10 @@ app.on('ready', function () {
 
     mainWindow.on('closed', function () {
         mainWindow = null;
+    });
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: 'deny' };
     });
 
     // mainWindow.webContents.on('did-frame-finish-load', function () {

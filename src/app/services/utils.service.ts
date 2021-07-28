@@ -219,7 +219,7 @@ export class Utils {
 
     static notify(title, content, link, image?) {
         if (!image)
-            image = '/assets/logo192.png';
+            image = '/assets/images/logo192.png';
         if (typeof window['chrome'] !== "undefined" && window['chrome'].notifications && window['chrome'].notifications.create) {
             var optn = {
                 type: "basic",
