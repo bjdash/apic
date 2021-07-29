@@ -24,7 +24,7 @@
             </span>
         </div>
 
-        <div class="val">
+        <div class="val gap">
             <input class="form-control"
                 *ngIf="!options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')"
                 (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" [placeholder]="options.placeholderVal" />

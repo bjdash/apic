@@ -122,7 +122,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
         val: [kv.val || ''],
         //if checkbox is enabled and kv pair doesnt have an active property then set it to true by default
         ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] }),
-        ...(this.options.allowFileType && { type: [kv.type || 'text'], meta: [null] })
+        ...(this.options.allowFileType && { type: [kv.type || 'text'], meta: [kv.meta] })
       })
     });
   }

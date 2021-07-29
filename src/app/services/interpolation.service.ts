@@ -54,7 +54,7 @@ export class InterpolationService {
 
   interpolateObject(obj: { [key: string]: string }, option?: InterpolationOption): { [key: string]: string } {
     return Utils.objectEntries(obj).reduce((reduced, [key, val]) => {
-      reduced[this.interpolate(key, option)] = this.interpolate(val, option)
+      reduced[this.interpolate(key, option)] = (typeof val == 'string') ? this.interpolate(val, option) : val
       return reduced;
     }, {})
   }

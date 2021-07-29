@@ -9,7 +9,7 @@ import { RememberService } from 'src/app/services/remember.service';
 @Component({
   selector: 'app-digest-auth',
   templateUrl: './digest-auth.component.html',
-  styleUrls: ['./digest-auth.component.scss']
+  styleUrls: []
 })
 export class DigestAuthComponent implements OnInit {
   @Output() onChange = new EventEmitter<any>();

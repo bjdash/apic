@@ -1,0 +1,78 @@
+<div class="margB10 vcenter">
+    <span class="title sm">OAuth 1.0</span>
+</div>
+<form [formGroup]="form" class="form-horizontal" name="oauth1">
+    <div class="row">
+        <label class="control-label col-sm-2">Consumer Key:<span class="red">*</span></label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="consumerKey" class="form-control"></apic-rich-input>
+        </div>
+        <div class="col-sm-4">
+            <mat-checkbox formControlName="addToHeader">Add auth params to header</mat-checkbox>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Consumer Secret:<span class="red">*</span></label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="consumerSecret" class="form-control"></apic-rich-input>
+        </div>
+        <div class="col-sm-4">
+            <mat-checkbox formControlName="encode">Encode OAuth signature</mat-checkbox>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Token:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="token" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Token Secret:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="tokenSecret" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Signature Method:</label>
+        <div class="col-sm-5">
+            <select formControlName="signature" class="form-control">
+                <option value="HMAC-SHA1">HMAC-SHA1</option>
+                <option value="HMAC-SHA256">HMAC-SHA256</option>
+                <option value="PLAINTEXT">PLAIN TEXT</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Timestamp:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="timestamp" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Nonce:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="nonce" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Version:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="version" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Relm:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="relm" placeholder="Optional" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-offset-2 col-sm-5" style="padding: 5px 15px">
+            <button mat-raised-button color="primary" type="button" class="sm gap"
+                [disabled]="!form.value.consumerKey || !form.value.consumerSecret" (click)="updateAuthHeader()">Update
+                Auth header</button>
+        </div>
+    </div>
+</form>
+{{form.value|json}}

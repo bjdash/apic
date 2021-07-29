@@ -134,6 +134,7 @@ import { CustomFilter } from './utils/filter.pipe';
 import { AppUpdateComponent } from './components/dialogs/app-update/app-update.component';
 import { UpdateDownloadedComponent } from './components/dialogs/update-downloaded/update-downloaded.component';
 import { DigestAuthComponent } from './components/tester/tester-tabs/tab-request/digest-auth/digest-auth.component';
+import { Oauth1AuthComponent } from './components/tester/tester-tabs/tab-request/oauth1-auth/oauth1-auth.component';
 
 @NgModule({
   declarations: [
@@ -212,7 +213,8 @@ import { DigestAuthComponent } from './components/tester/tester-tabs/tab-request
     CustomFilter,
     AppUpdateComponent,
     UpdateDownloadedComponent,
-    DigestAuthComponent
+    DigestAuthComponent,
+    Oauth1AuthComponent
   ],
   imports: [
     BrowserModule,

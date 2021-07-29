@@ -569,4 +569,21 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   trackByFn(index, item) {
     return index;
   }
+
+  updateOauth1(oauth1: { in: string, value: any[] }) {
+    if (oauth1.in === 'header') {
+      this.updateHeader(oauth1.value[0].key, oauth1.value[0].val)
+    } else if (oauth1.in === 'body') {
+      if (METHOD_WITH_BODY.indexOf(this.form.value.method) >= 0 && this.form.value.body.type === 'form-data') {
+        this.form.controls['body'].patchValue({ formData: [...this.form.value.body.formData, ...(oauth1.value.map(v => { return { key: v.key, val: v.val, type: 'text' } }))] });
+        this.toastr.info('Auth params added to body(as form-data).');
+      } else if (METHOD_WITH_BODY.indexOf(this.form.value.method) >= 0 && this.form.value.body.type === 'x-www-form-urlencoded') {
+        this.form.controls['body'].patchValue({ xForms: [...this.form.value.body.xForms, ...oauth1.value] });
+        this.toastr.info('Auth params added to body(as x-www-form).');
+      } else {
+        this.form.patchValue({ urlParams: [...this.form.value.urlParams, ...oauth1.value] });
+        this.toastr.info('Auth string added to url parameters');
+      }
+    }
+  }
 }

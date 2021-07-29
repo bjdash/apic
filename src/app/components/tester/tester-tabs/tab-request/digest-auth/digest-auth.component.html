@@ -16,8 +16,7 @@
             <input [type]="showPsd?'text':'password'" formControlName="password" id="d-auth-pwd" class="form-control">
         </div>
         <div class="col-sm-4">
-            <mat-checkbox class="example-margin" [(ngModel)]="showPsd" [ngModelOptions]="{standalone:true}">Show
-                password</mat-checkbox>
+            <mat-checkbox [(ngModel)]="showPsd" [ngModelOptions]="{standalone:true}">Show password</mat-checkbox>
         </div>
     </div>
     <div class="row">
