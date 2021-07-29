@@ -1,10 +1,10 @@
 <div class="app-body" *ngIf="selectedPROJ">
     <div class="left-nav">
-        <div class="nav nav-tabs">
+        <div class="nav nav-tabs vcenter">
             <button type="button" [routerLink]="['/docs']" mat-button>
                 <mat-icon>keyboard_backspace</mat-icon>
             </button>
-            <span class="workspace-title" style="vertical-align: middle;">{{selectedPROJ.title}}</span>
+            <span class="workspace-title">{{selectedPROJ.title}}</span>
         </div>
         <div class="tab-content" *ngIf="leftTree">
             <div *ngFor=" let item of leftTree|keyvalue" ng-init="expanded = true">
@@ -95,7 +95,7 @@
                                     target="_blank">{{resolvedSpec.info.contact.email}}</a>
                             </div>
                             <div *ngIf="resolvedSpec.info.contact.url" class="">
-                                <a [href]="resolvedSpec.info.contact.utl"
+                                <a [href]="resolvedSpec.info.contact.url"
                                     target="_blank">{{resolvedSpec.info.contact.url}}</a>
                             </div>
                         </div>
@@ -125,7 +125,7 @@
                 <div class="pointer vcenter margB10 f18" (click)="flags.hidePaths = !flags.hidePaths">
                     <mat-icon *ngIf="!flags.hidePaths">expand_more</mat-icon>
                     <mat-icon *ngIf="flags.hidePaths">chevron_right</mat-icon>
-                    <a href="" class="apic-collaps-text t_color">Paths</a>
+                    <span class="t_color">Paths</span>
                 </div>
                 <div class="" [hidden]="flags.hidePaths" *ngIf="flags.groupBy=='url'">
                     <div class="path" *ngFor="let pathItem of resolvedSpec.paths|keyvalue">
@@ -165,7 +165,7 @@
                 <div class="pointer vcenter margB10 f18" (click)="flags.hideModels = !flags.hideModels">
                     <mat-icon *ngIf="!flags.hideModels">expand_more</mat-icon>
                     <mat-icon *ngIf="flags.hideModels">chevron_right</mat-icon>
-                    <a href="" class="apic-collaps-text t_color">Models</a>
+                    <span class="t_color">Models</span>
                 </div>
                 <div class="" [hidden]="flags.hideModels">
                     <div class="definition" *ngFor="let modelItem of resolvedSpec.definitions|keyvalue"
@@ -189,7 +189,7 @@
     <header (click)="visibleEndps[operationName+pathName] = !visibleEndps[operationName+pathName]"
         id="{{(operationName|| operation.method)+'-'+(pathName.slice( 1 )||operation.path.slice(1))}}">
         <span class='http-method'>{{(operationName || operation.method) | uppercase}}</span>
-        <span class="http-path"> {{pathName || operation.path}}</span>
+        <span class="http-path"> {{operation.path}}</span>
         <div class="http-summary">{{operation.summary}}</div>
 
         <div class="deprecated" *ngIf="operation.deprecated">Deprecated</div>

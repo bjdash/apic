@@ -61,7 +61,6 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     private toaster: Toaster,
     private httpService: HttpService,
-    private syncService: SyncService,
     private electronHandler: ElectronHandlerService,
     public stompService: StompService) {
     router.events
@@ -74,9 +73,7 @@ export class HeaderComponent implements OnInit {
         })
       })
   }
-  async test() {
-    this.syncService.fetch('Fetch:ApiProject');
-  }
+
   ngOnInit(): void {
     this.getNotifications();
 

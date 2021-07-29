@@ -193,14 +193,14 @@
 
 .win-bar {
     /* display: none; */
-    height: 24px;
+    height: 25px;
     background: var(--header-bg);
     cursor: move;
     -webkit-app-region: drag;
     -webkit-user-select: none;
 }
 .win-title-bar-btns {
-    margin-top: -24px;
+    margin-top: -25px;
     cursor: default;
     -webkit-app-region: no-drag;
 }

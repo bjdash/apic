@@ -2,11 +2,16 @@
     top: 38px;
     padding-left: 5px;
 }
+.workspace-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .right-cont {
-    background: var(--header-bg);
+    overflow: auto;
 }
 .submodMenu {
-    top: 60px;
+    top: 50px;
     margin: 0;
 }
 .docs-proj {
@@ -21,13 +26,7 @@
     color: #bdbdbd;
 }
 .docs-content {
-    overflow: auto;
-    font-size: 14px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 10px;
+    // margin-top: -10px;
     padding: 0 10px;
     background-color: var(--main-bg);
 }

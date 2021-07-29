@@ -51,6 +51,10 @@ export class TesterTabsComponent implements OnInit {
         }
       }
     })
+    window.onresize = () => {
+      this.overFlowtabsCount = Math.floor((window.innerWidth - 416) / 170);
+    }
+
   }
   addReqTab() {
     this.tabsService.addTab({ action: 'add', id: 'new_tab' + apic.s8(), name: 'New tab', type: 'req' })
