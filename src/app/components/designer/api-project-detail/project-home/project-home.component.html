@@ -1,8 +1,6 @@
-<div *ngIf="selectedPROJ">
-    <div class="proj-banner">
-        <h4 class="t_color head proj-head">{{selectedPROJ.title}}
-        </h4>
-        <div class="pull-right vcenter">
+<div *ngIf="selectedPROJ" class="content">
+    <div class="submodMenu">
+        <div class="submodMenuOptn vcenter">
             <mat-icon *ngIf="!!selectedPROJ.owner && selectedPROJ.owner!=authUser?.UID" matTooltip="Shared with you"
                 class="t_color gap">share</mat-icon>
             <button mat-stroked-button class="sm gap" *ngIf="selectedPROJ.owner == authUser?.UID && !selectedPROJ.team"
@@ -71,8 +69,16 @@
                 <mat-icon>delete_forever</mat-icon>
             </button>
         </div>
+        <div class="tip"></div>
     </div>
-    <div class="content autoFlow">
+    <h4 class="t_color proj-head">{{selectedPROJ.title}}</h4>
+    <!-- <div class="proj-banner">
+        
+        <div class="pull-right vcenter">
+            
+        </div>
+    </div> -->
+    <div class="content autoFlow full-w">
         <a href="" class="landing-action" [routerLink]="['api-builder']">
             <div class="ac-text">
                 Describe your resource and auto-generate Create, Read, Update &amp; Delete (POST, GET, PUT,

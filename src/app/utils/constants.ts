@@ -65,7 +65,7 @@ function getConstants() {
                     '--main-bg': '#1c1c1c',
                     '--text-color': '#e0e0e0',
                     '--text-color-bold': '#ffffff',
-                    '--content-bg': '#252629',
+                    '--content-bg': '#2d2f33',
                     '--accent-bg-text': '#ffffff',
                     '--border-color': '#7575757d',
                     '--content-bg-contrast': '#1d1d1d',

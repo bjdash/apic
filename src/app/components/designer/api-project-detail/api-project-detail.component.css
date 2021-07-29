@@ -10,49 +10,15 @@
     top: 38px;
 }
 
-.projHead {
-    font-size: 20px;
-    color: var(--text-color);
-    vertical-align: text-bottom;
-    font-family: apic-font;
-    width: 275px;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.proj-banner {
-    min-height: 80px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    background-color: var(--header-bg);
-    background-size: 100%;
-    background-position: center center;
-    padding: 5px 10px;
-    position: relative;
-    overflow: visible;
-}
-
-.proj-banner .proj-head {
+.proj-head {
     width: auto;
     max-width: 100%;
-    /* position: absolute; */
-    bottom: 0;
-    left: 10px;
     padding: 0;
     font-size: 35px;
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 0;
-    float: left;
-}
-
-.proj-banner .mat-raised-button.sm,
-.proj-banner .mat-button.sm,
-.proj-banner .mat-icon-button.sm,
-.proj-banner .mat-stroked-button.sm,
-.proj-banner .mat-flat-button.sm {
-    line-height: 30px !important;
-    padding: 0 5px;
+    margin: 0;
 }
 
 .landing-action {
