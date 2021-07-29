@@ -13,7 +13,7 @@
         </button>
     </div>
     <div class="input-group search-box req-search" [ngClass]="{'visible':flags.showSearch}">
-        <input type="search" placeholder="Search history" id="req-search" class="form-control sm"
+        <input type="search" placeholder="Search history" id="req-search" class="form-control"
             [(ngModel)]="flags.searchModel">
         <button mat-icon-button class="red sm"
             (click)="flags.showSearch = false;flags.searchModel='';flags.expandAll=false">

@@ -6,12 +6,12 @@
 <div class="row margB10">
     <label class="control-label col-sm-2" for="basic-auth-uname">User Name:</label>
     <input type="text" value="" name="basic-auth-u" id="basic-auth-uname" [(ngModel)]="models.user"
-        class="form-control sm col-sm-5" autocomplete="off" placeholder="User Name" />
+        class="form-control col-sm-5" autocomplete="off" placeholder="User Name" />
 </div>
 <div class="row margB10">
     <label class="control-label col-sm-2" for="b-auth-pwd">Password:</label>
     <input [type]="models.showPsd?'text':'password'" [(ngModel)]="models.password" value="" autocomplete="off"
-        class="col-sm-5 form-control sm" id="b-auth-pwd" placeholder="Password">
+        class="col-sm-5 form-control" id="b-auth-pwd" placeholder="Password">
 </div>
 
 <div class="row">

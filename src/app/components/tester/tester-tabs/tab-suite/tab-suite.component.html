@@ -1,6 +1,6 @@
 <div class="test-tab-cont tab-suit" *ngIf="selectedSuite">
     <form [formGroup]="form" autocomplete="off">
-        <div class="suite-bar f18 vcenter">
+        <div class="suite-bar vcenter">
             <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadSuite"
                 matTooltip="This suite is updated by another user. Reload?" matTooltipPosition="left">
                 <mat-icon>sync</mat-icon>
@@ -15,7 +15,7 @@
                 </span>
                 <span *ngIf="flags.editSuitName" class="input-group">
                     <input type="text" formControlName="name" (keydown.enter)="renameSuite()"
-                        id="suite_{{selectedSuite._id}}" class="form-control sm"
+                        id="suite_{{selectedSuite._id}}" class="form-control"
                         style="display: inline; width: 300px;vertical-align: top">
                     <span class="input-group-btn">
                         <button mat-icon-button class="sm green" (click)="renameSuite()">
