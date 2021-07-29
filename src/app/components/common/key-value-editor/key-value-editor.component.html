@@ -2,11 +2,18 @@
     *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
     <div class="vcenter">
         <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
-        <input *ngIf="!options.enableAutocomplete" class="form-control input-sm" (focus)="onRowFocus(last, i)"
-            [formControl]="kv.controls.key" placeholder="{{options.placeholderKey}}" />
+        <input *ngIf="!options.enableAutocomplete && !options.useRichText" class="form-control input-sm"
+            (focus)="onRowFocus(last, i)" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey" />
+        <apic-rich-input class="form-control" [formControl]="kv.controls.key" (focus)="onRowFocus(last, i)"
+            *ngIf="options.useRichText && !options.enableAutocomplete" [placeholder]="options.placeholderKey">
+        </apic-rich-input>
         <span *ngIf="options.enableAutocomplete" class="gap form-control">
             <input [matAutocomplete]="auto" class="form-control input-sm" (focus)="onRowFocus(last, i)"
-                [formControl]="kv.controls.key" placeholder="{{options.placeholderKey}}" />
+                *ngIf="!options.useRichText" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey" />
+            <apic-rich-input [matAutocomplete]="auto" class="form-control input-sm" (focus)="onRowFocus(last, i)"
+                *ngIf="options.useRichText" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey">
+            </apic-rich-input>
+
             <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
                 <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
                     {{option}}
@@ -15,9 +22,10 @@
         </span>
         <input class="form-control input-sm"
             *ngIf="!options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')"
-            (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" placeholder="{{options.placeholderVal}}" />
-        <apic-rich-input [formControl]="kv.controls.val"
-            *ngIf="options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')">
+            (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" [placeholder]="options.placeholderVal" />
+        <apic-rich-input [formControl]="kv.controls.val" class="form-control" (focus)="onRowFocus(last, i)"
+            *ngIf="options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')"
+            [placeholder]="options.placeholderVal">
         </apic-rich-input>
         <input type="file" class="form-control input-sm"
             *ngIf="options.allowFileType && kv.controls.type?.value=='file'" (change)="onFileChange($event, i)" />

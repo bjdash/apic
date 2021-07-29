@@ -7,8 +7,8 @@
     </button>
 </div>
 <div class="input-group margV5">
-    <input type="text" class="form-control input-sm" placeholder="Add new" [(ngModel)]="newItem"
-        (keydown.enter)="add(); $event.stopPropagation();$event.preventDefault()">
+    <apic-rich-input class="form-control" placeholder="Add new" [(ngModel)]="newItem"
+        (keydown.enter)="add(); $event.stopPropagation();$event.preventDefault()"></apic-rich-input>
     <span class="input-group-btn">
         <button class="sm" type="button" mat-icon-button (click)="add()">
             <mat-icon>add</mat-icon>

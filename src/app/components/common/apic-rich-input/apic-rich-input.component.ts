@@ -1,5 +1,6 @@
-import { Component, ElementRef, forwardRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Select } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,7 +21,11 @@ import { EnvState } from 'src/app/state/envs.state';
   ],
 })
 export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAccessor {
+  @Input() matAutocomplete: MatAutocomplete;
+  @Input() placeholder: string;
+  @Output() focus = new EventEmitter();
   @ViewChild('editor') editor: ElementRef;
+  @ViewChild(MatAutocompleteTrigger) autocomplete: MatAutocompleteTrigger;
   @Select(EnvState.getSelected) selectedEnv$: Observable<ParsedEnv>;
   @Select(EnvState.getInMemEnv) inMemEnv$: Observable<{ [key: string]: string }>;
   private _destroy = new Subject<boolean>();
@@ -130,7 +135,10 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
     var newValue = this.editor.nativeElement.innerText;
     if (this.text !== newValue) {
       this.text = newValue;
-      this.propagateChange(newValue)
+      this.propagateChange(newValue);
+      if (this.autocomplete) {
+        this.autocomplete.openPanel();
+      }
     }
   }
 
@@ -257,5 +265,9 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
         type: 'Couldn\'t resolve environment varible'
       }
     }
+  }
+
+  onFocus() {
+    this.focus.next();
   }
 }

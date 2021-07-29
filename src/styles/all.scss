@@ -8,12 +8,14 @@
 .left-auto {
   margin-left: auto !important;
 }
+.autoFlow {
+  overflow: auto;
+}
 .visibleFlow {
   overflow: visible !important;
 }
 .content {
   padding: 10px;
-  overflow: auto;
 }
 .contentH {
   padding: 0 10px;
@@ -297,6 +299,13 @@ fieldset legend {
   &.danger {
     box-shadow: 0 0px 6px 0px rgb(244 67 54 / 90%);
   }
+  &.visibleFlow {
+    overflow: visible;
+    .panel-title {
+      margin-left: -10px;
+      border-top-left-radius: 10px;
+    }
+  }
 }
 .paper:hover {
   box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.15);
@@ -564,7 +573,7 @@ a.panel-fab {
   margin-bottom: 10px;
 }
 input.form-control.sm {
-  height: 30px;
+  height: 22px;
 }
 select,
 select.form-control,
@@ -607,7 +616,7 @@ textarea {
   color: var(--text-color-bold) !important;
   display: block;
   width: 100%;
-  line-height: 1.846;
+  height: 28px;
   background-image: none;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }

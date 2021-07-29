@@ -1,11 +1,11 @@
 <div class="test-tab-cont tab-req" [ngClass]="{'suit-tab':suitRequest}">
-    <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
+    <form [formGroup]="form" autocomplete="off">
         <div class="url-cont" *ngIf="!suitRequest">
             <div class="progress-holder">
                 <div class="progress-bar" *ngIf="flags.running"></div>
             </div>
             <div class="vcenter">
-                <apic-rich-input class="URL" formControlName="url"></apic-rich-input>
+                <apic-rich-input class="URL" formControlName="url" placeholder="Request URL"></apic-rich-input>
                 <span class="url-opt vcenter">
                     <button matTooltip="Click & hold to view compiled url" type="button" mat-icon-button class="sm"
                         (mousedown)="showCompiledUrl()" (mouseup)="hideCompiledUrl()" matTooltipClass="url-pop">
@@ -37,7 +37,6 @@
                 </mat-menu>
             </div>
         </div>
-
         <div class="top-spacer" *ngIf="!suitRequest"></div>
         <!---Suit request fields--->
         <div *ngIf="suitRequest" class="suit-req-det">
@@ -56,13 +55,14 @@
                     </mat-select>
                 </div>
                 <div class="col-xs-8">
-                    <apic-rich-input class="input-sm " formControlName="url"></apic-rich-input>
+                    <apic-rich-input class="input-sm " formControlName="url" placeholder="Request URL">
+                    </apic-rich-input>
                 </div>
             </div>
         </div>
 
-        <div class="content">
-            <div class="paper req-box">
+        <div class="content req-box">
+            <div class="paper visibleFlow">
                 <h3 class="panel-title pointer" (click)="flags.showReq = !flags.showReq">
                     <mat-icon *ngIf="!flags.showReq" class="sm">chevron_right</mat-icon>
                     <span>Request</span>
@@ -128,13 +128,13 @@
 
                     <div class="control-content short" [hidden]="flags.reqTab != 'ReqParam'">
                         <app-key-value-editor formControlName="urlParams"
-                            [options]="{addOnFocus:true,allowToggle:true}">
+                            [options]="{addOnFocus:true,allowToggle:true, useRichText: true,placeholderKey: 'Param name'}">
                         </app-key-value-editor>
                     </div>
 
                     <div class="control-content short" [hidden]="flags.reqTab != 'Headers'">
                         <app-key-value-editor formControlName="headers"
-                            [options]="{enableAutocomplete:true,autocompletes:HTTP_HEADERS,addOnFocus:true,allowToggle:true}">
+                            [options]="{enableAutocomplete:true,autocompletes:HTTP_HEADERS,addOnFocus:true,allowToggle:true,useRichText: true, placeholderKey: 'Header name'}">
                         </app-key-value-editor>
                     </div>
                     <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="body">
@@ -162,12 +162,12 @@
                         </div>
                         <div *ngIf="form.value.body.type==='form-data'">
                             <app-key-value-editor formControlName="formData"
-                                [options]="{addOnFocus:true,allowToggle:true, allowFileType:true}">
+                                [options]="{addOnFocus:true,allowToggle:true, allowFileType:true,useRichText: true,placeholderKey: 'Name'}">
                             </app-key-value-editor>
                         </div>
                         <div *ngIf="form.value.body.type==='x-www-form-urlencoded'">
                             <app-key-value-editor formControlName="xForms"
-                                [options]="{addOnFocus:true,allowToggle:true}">
+                                [options]="{addOnFocus:true,allowToggle:true,useRichText: true,placeholderKey: 'Name'}">
                             </app-key-value-editor>
                         </div>
                         <apic-ace class="test_editor" *ngIf="form.value.body.type=='raw'" #bodyAce

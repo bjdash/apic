@@ -1,11 +1,11 @@
 <div class="test-tab-cont tab-socket">
-    <form [formGroup]="form" autocomplete="off" style="overflow: auto;">
+    <form [formGroup]="form" autocomplete="off">
         <div class="url-cont">
             <div class="progress-holder">
                 <div class="progress-bar" *ngIf="flags.connecting"></div>
             </div>
             <div class="vcenter">
-                <apic-rich-input class="URL" formControlName="url"></apic-rich-input>
+                <apic-rich-input class="URL" formControlName="url" placeholder="Request URL"></apic-rich-input>
                 <span class="url-opt vcenter">
                     <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url"
                         matTooltipPosition="left" (click)="copyCompiledUrl()">
@@ -23,7 +23,7 @@
         <div class="row">
             <!-----Socket type selector------>
             <div class="col-xs-7">
-                <div class="paper">
+                <div class="paper visibleFlow">
                     <h3 class="panel-title pointer" (click)="flags.showConnection = !flags.showConnection">
                         Connection type
                     </h3>
@@ -65,30 +65,30 @@
                             <div class="row">
                                 <label class="col-sm-4 align-right">Subscription URL:</label>
                                 <div class="col-sm-8">
-                                    <input type="text" value="" formControlName="subscUrl" class="form-control sm"
-                                        placeholder="Stomp Subscription URL">
+                                    <apic-rich-input formControlName="subscUrl" class="form-control"
+                                        placeholder="Stomp Subscription URL"></apic-rich-input>
                                 </div>
                             </div>
                             <div class="row">
                                 <label class="col-sm-4 align-right">Virtual Host:</label>
                                 <div class="col-sm-8">
-                                    <input type="text" value="" formControlName="host" class="form-control sm"
-                                        placeholder="Stomp Virtual Host name (optional)">
+                                    <apic-rich-input formControlName="host" class="form-control"
+                                        placeholder="Stomp Virtual Host name (optional)"></apic-rich-input>
                                 </div>
                             </div>
                             <div *ngIf="flags.stompUseCred">
                                 <div class="row">
                                     <label class="col-sm-4 align-right" for="email">Login:</label>
-                                    <div class="col-sm-8 align-right">
-                                        <input type="text" value="" formControlName="login" class="form-control sm"
-                                            placeholder="Login Id">
+                                    <div class="col-sm-8">
+                                        <apic-rich-input formControlName="login" class="form-control"
+                                            placeholder="Login Id"></apic-rich-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <label class="col-sm-4 align-right" for="pwd">Passcode:</label>
                                     <div class="col-sm-8">
                                         <input type="{{flags.stompShowPsd?'text':'password'}}"
-                                            formControlName="passcode" value="" class="form-control sm" id="pwd"
+                                            formControlName="passcode" value="" class="form-control" id="pwd"
                                             placeholder="Password" />
                                         <mat-checkbox [(ngModel)]="flags.stompShowPsd"
                                             [ngModelOptions]="{standalone:true}">Show password</mat-checkbox>
@@ -102,19 +102,19 @@
                             <div class="headers form-inline" role="form" style="clear: both">
                                 <div>Headers</div>
                                 <app-key-value-editor formControlName="headers"
-                                    [options]="{addOnFocus:true,allowToggle:true}">
+                                    [options]="{addOnFocus:true,allowToggle:true,useRichText:true}">
                                 </app-key-value-editor>
                             </div>
                         </div>
                         <div *ngIf="method=='SSE'" formGroupName="sse">
                             <div class="row">
-                                <div class="col-xs-5">
-                                    <mat-checkbox formControlName="withCred">With credentials</mat-checkbox>
-                                </div>
                                 <div class="col-xs-7">
                                     <apic-list label="Listeners" (onToggle)="wsToggleListener($event, 'sse')"
                                         (onRemove)="wsRemoveListener($event, 'sse')"
                                         (onAdd)="wsAddListener($event, 'sse')" formControlName="listeners"></apic-list>
+                                </div>
+                                <div class="col-xs-5">
+                                    <mat-checkbox formControlName="withCred">With credentials</mat-checkbox>
                                 </div>
                             </div>
                         </div>
@@ -123,9 +123,9 @@
                                 <div class="col-sm-6">
                                     <div>
                                         <label>Path:</label>
-                                        <div>
-                                            <input type="text" value="" formControlName="path" class="form-control sm"
-                                                placeholder="Default /socket.io" />
+                                        <div class="margV5">
+                                            <apic-rich-input formControlName="path" class="form-control"
+                                                placeholder="Default /socket.io"></apic-rich-input>
                                         </div>
                                     </div>
                                     <div class="margV5">
@@ -148,13 +148,13 @@
                             <div class="left15 margB5">
                                 <div>Query params</div>
                                 <app-key-value-editor formControlName="query"
-                                    [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Query param name'}">
+                                    [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Query param name',useRichText:true}">
                                 </app-key-value-editor>
                             </div>
                             <div class="left15">
                                 <div>Headers</div>
                                 <app-key-value-editor formControlName="headers"
-                                    [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Header name'}">
+                                    [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Header name',useRichText:true}">
                                 </app-key-value-editor>
                             </div>
                             <div class="sio-info">
@@ -229,16 +229,16 @@
                         <div *ngIf="method === 'Stomp'">
                             <div class="form-group" formGroupName="stomp">
                                 <label>Destination Queue:</label>
-                                <input type="text" value="" formControlName="destQ" class="form-control sm"
-                                    placeholder="Destination Queue URL">
+                                <apic-rich-input formControlName="destQ" class="form-control"
+                                    placeholder="Destination Queue URL"></apic-rich-input>
                             </div>
                         </div>
                         <div *ngIf="method === 'Socketio'" class="row" formGroupName="socketio">
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label>Event name to emit:</label>
-                                    <input type="text" value="" formControlName="emitName" class="form-control sm"
-                                        placeholder="Event name">
+                                    <apic-rich-input formControlName="emitName" class="form-control"
+                                        placeholder="Event name"></apic-rich-input>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Arguments</label>

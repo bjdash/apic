@@ -1,19 +1,21 @@
-.kvCont{
+.kvCont {
     border: none;
     margin: 0;
     margin-bottom: 5px;
     padding: 0;
 }
-.kvCont input{
+.kvCont input,
+.kvCont apic-rich-input {
     margin-right: 5px;
 }
-.placeholder{
+.placeholder {
     width: 28px;
     height: 28px;
 }
-.kvCtrls .copy .material-icons, .kvCtrls .paste .material-icons{
+.kvCtrls .copy .material-icons,
+.kvCtrls .paste .material-icons {
     font-size: 16px;
 }
-.kv-type{
+.kv-type {
     width: 65px;
 }
