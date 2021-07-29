@@ -16,7 +16,6 @@ export default {
     arrayToObj,
     getTestsCountByType,
     getRandomStr,
-    parseURL,
     removeHeader,
     addHeader,
     getReqV2,
@@ -201,19 +200,6 @@ function getRandomStr(length) {
         return str.substring(0, length);
     }
     return str;
-}
-
-function parseURL(href) {
-    var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
-    return match && {
-        protocol: match[1],
-        host: match[2],
-        hostname: match[3],
-        port: match[4],
-        pathname: match[5],
-        search: match[6],
-        hash: match[7]
-    };
 }
 
 function removeHeader(headerName, headerList) {

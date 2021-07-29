@@ -133,6 +133,7 @@ import { ApiBuilderComponent } from './components/designer/api-project-detail/ap
 import { CustomFilter } from './utils/filter.pipe';
 import { AppUpdateComponent } from './components/dialogs/app-update/app-update.component';
 import { UpdateDownloadedComponent } from './components/dialogs/update-downloaded/update-downloaded.component';
+import { DigestAuthComponent } from './components/tester/tester-tabs/tab-request/digest-auth/digest-auth.component';
 
 @NgModule({
   declarations: [
@@ -210,7 +211,8 @@ import { UpdateDownloadedComponent } from './components/dialogs/update-downloade
     ApiBuilderComponent,
     CustomFilter,
     AppUpdateComponent,
-    UpdateDownloadedComponent
+    UpdateDownloadedComponent,
+    DigestAuthComponent
   ],
   imports: [
     BrowserModule,

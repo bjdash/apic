@@ -25,7 +25,7 @@ export interface KVEditorOptn {
 @Component({
   selector: 'app-key-value-editor',
   templateUrl: './key-value-editor.component.html',
-  styleUrls: ['./key-value-editor.component.css'],
+  styleUrls: ['./key-value-editor.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

@@ -4,10 +4,20 @@
     margin-bottom: 5px;
     padding: 0;
 }
-.kvCont input,
-.kvCont apic-rich-input {
-    margin-right: 5px;
+.val,
+.key {
+    width: 100%;
+    display: flex;
+    apic-rich-input {
+        flex: 1;
+    }
 }
+.val {
+    apic-rich-input {
+        width: 1px;
+    }
+}
+
 .placeholder {
     width: 28px;
     height: 28px;

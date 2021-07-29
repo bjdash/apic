@@ -190,7 +190,10 @@
                             (onChange)="updateHeader('Authorization', $event)"></app-bearer-auth>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'"></div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'">
+                        <app-digest-auth (onChange)="updateHeader('Authorization', $event)" [url]="form.value.url"
+                            [method]="form.value.method"></app-digest-auth>
+                    </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_o1'"></div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'"></div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'"></div>

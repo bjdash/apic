@@ -310,6 +310,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
   updateHeader(name: string, value: string) {
     let headers: KeyVal[] = this.form.value.headers.filter((h: KeyVal) => h.key.toLocaleLowerCase() !== name.toLocaleLowerCase());
+    if (!headers[headers.length - 1].key && !headers[headers.length - 1].val) {
+      headers.pop()
+    }
     this.form.patchValue({ headers: [...headers, { key: name, val: value, active: true }] });
     this.toastr.info('Header updated');
   }

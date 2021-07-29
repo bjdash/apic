@@ -1,0 +1,74 @@
+<div class="margB10 vcenter">
+    <span class="title sm gap">Digest Authentication</span>
+    <mat-icon matTooltip="This will generate the Authorization header and add it to the request.">info
+    </mat-icon>
+</div>
+<form [formGroup]="form" class="form-horizontal" name="digest-auth">
+    <div class="row">
+        <label class="control-label col-sm-2">User Name:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="userName" class="form-control" id="d-auth-user"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2" for="d-auth-pwd">Password:</label>
+        <div class="col-sm-5">
+            <input [type]="showPsd?'text':'password'" formControlName="password" id="d-auth-pwd" class="form-control">
+        </div>
+        <div class="col-sm-4">
+            <mat-checkbox class="example-margin" [(ngModel)]="showPsd" [ngModelOptions]="{standalone:true}">Show
+                password</mat-checkbox>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Realm:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="realm" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Algorithm:</label>
+        <div class="col-sm-5">
+            <select formControlName="algorithm" class="form-control">
+                <option value="MD5">MD5</option>
+                <option value="MD5-sess">MD5-sess</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Nonce:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="nonce" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Nonce count:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="nonceCount" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Client Nonce:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="clientNonce" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">qop:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="qop" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Opaque:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="opaque" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-2 col-sm-5">
+            <button mat-raised-button color="primary" type="button" class="sm gap" (click)="updateAuthHeader()">Update
+                Auth header</button>
+        </div>
+    </div>
+</form>
