@@ -1,6 +1,7 @@
 import Base64 from 'crypto-js/enc-base64';
 import HmacSHA1 from 'crypto-js/hmac-sha1';
 import HmacSHA256 from 'crypto-js/hmac-sha256';
+import { Utils } from '../services/utils.service';
 
 export class OAuth1Util {
     static sign(message, accessor: { consumerSecret: string, tokenSecret: string }, method: string) {
@@ -120,7 +121,7 @@ export class OAuth1Util {
     }
 
     static normalizeUrl(url) {
-        var uri: any = this.parseUri(url);
+        var uri: any = Utils.parseUri(url);
         var scheme = uri.protocol.toLowerCase();
         var authority = uri.authority.toLowerCase();
         var dropPort = (scheme == "http" && uri.port == 80)
@@ -138,21 +139,6 @@ export class OAuth1Util {
         }
         // we know that there is no query and no fragment here.
         return scheme + "://" + authority + path;
-    }
-
-    static parseUri(str) {
-        /* This function was adapted from parseUri 1.2.1
-           http://stevenlevithan.com/demo/parseuri/js/assets/parseuri.js
-         */
-        var o = {
-            key: ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"],
-            parser: { strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@\/]*):?([^:@\/]*))?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/ }
-        };
-        var m = o.parser.strict.exec(str);
-        var uri = {};
-        var i = 14;
-        while (i--) uri[o.key[i]] = m[i] || "";
-        return uri;
     }
 
     static normalizeParameters(parameters) {

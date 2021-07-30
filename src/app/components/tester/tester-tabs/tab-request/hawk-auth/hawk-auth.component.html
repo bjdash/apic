@@ -1,0 +1,65 @@
+<div class="margB10 vcenter">
+    <span class="title sm">Hawk Authentication</span>
+    <mat-icon matTooltip="This will generate the Authorization header and add it to the request.">info
+    </mat-icon>
+</div>
+<form [formGroup]="form" class="form-horizontal" name="hawkAuth">
+    <div class="row">
+        <label class="control-label col-sm-2">Hawk Auth ID: <span class="red">*</span></label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="id" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Hawk Auth Key: <span class="red">*</span></label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="key" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Algorithm: <span class="red">*</span></label>
+        <div class="col-sm-5">
+            <select class="form-control" formControlName="algorithm">
+                <option value="sha1">SHA1</option>
+                <option value="sha256">SHA256</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Nonce:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="nonce" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Timestamp:</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="timestamp" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Extra Data (ext):</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="ext" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">App id (app):</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="app" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+    <div class="row">
+        <label class="control-label col-sm-2">Delegation (dlg):</label>
+        <div class="col-sm-5">
+            <apic-rich-input formControlName="dlg" class="form-control"></apic-rich-input>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-offset-2 col-sm-5" style="padding: 5px 15px">
+            <button mat-raised-button color="primary" type="button" class="sm gap"
+                [disabled]="!form.value.id || !form.value.key" (click)="updateAuthHeader()">Update Auth header</button>
+        </div>
+    </div>
+</form>

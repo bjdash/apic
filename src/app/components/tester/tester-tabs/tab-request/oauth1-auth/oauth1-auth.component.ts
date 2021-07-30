@@ -11,7 +11,7 @@ import { RequestUtils } from 'src/app/utils/request.util';
 @Component({
   selector: 'app-oauth1-auth',
   templateUrl: './oauth1-auth.component.html',
-  styleUrls: ['./oauth1-auth.component.scss']
+  styleUrls: []
 })
 export class Oauth1AuthComponent implements OnInit {
   @Output() onChange = new EventEmitter<any>();

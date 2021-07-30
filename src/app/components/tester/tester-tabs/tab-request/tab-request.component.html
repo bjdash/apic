@@ -200,7 +200,10 @@
                         </app-oauth1-auth>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'"></div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'">
+                        <app-hawk-auth [method]="form.value.method" [url]="form.value.url"
+                            (onChange)="updateHeader('Authorization', $event)"></app-hawk-auth>
+                    </div>
 
                     <div class="control-content" *ngIf="flags.reqTab == 'Scripts'">
                         <pre-post-run-script class="test_editor" [prerun]="form.value.prescript"

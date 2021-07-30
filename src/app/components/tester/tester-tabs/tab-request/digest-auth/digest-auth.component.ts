@@ -43,9 +43,9 @@ export class DigestAuthComponent implements OnInit {
     let uri = '';
 
     if (this.url) {
-      var parsedURL = Utils.parseURL(this.url);
+      var parsedURL = Utils.parseUri(this.url);
       if (parsedURL) {
-        uri = parsedURL.pathname + parsedURL.search;
+        uri = parsedURL.relative;
       } else {
         uri = this.url.substring(this.url.indexOf('/'), this.url.length);
       }

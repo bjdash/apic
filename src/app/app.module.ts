@@ -135,6 +135,8 @@ import { AppUpdateComponent } from './components/dialogs/app-update/app-update.c
 import { UpdateDownloadedComponent } from './components/dialogs/update-downloaded/update-downloaded.component';
 import { DigestAuthComponent } from './components/tester/tester-tabs/tab-request/digest-auth/digest-auth.component';
 import { Oauth1AuthComponent } from './components/tester/tester-tabs/tab-request/oauth1-auth/oauth1-auth.component';
+import { HawkAuthComponent } from './components/tester/tester-tabs/tab-request/hawk-auth/hawk-auth.component';
+
 
 @NgModule({
   declarations: [
@@ -214,7 +216,8 @@ import { Oauth1AuthComponent } from './components/tester/tester-tabs/tab-request
     AppUpdateComponent,
     UpdateDownloadedComponent,
     DigestAuthComponent,
-    Oauth1AuthComponent
+    Oauth1AuthComponent,
+    HawkAuthComponent
   ],
   imports: [
     BrowserModule,

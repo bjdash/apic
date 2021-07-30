@@ -68,11 +68,10 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-offset-2 col-sm-5" style="padding: 5px 15px">
+        <div class="col-sm-offset-2 col-sm-5">
             <button mat-raised-button color="primary" type="button" class="sm gap"
                 [disabled]="!form.value.consumerKey || !form.value.consumerSecret" (click)="updateAuthHeader()">Update
                 Auth header</button>
         </div>
     </div>
 </form>
-{{form.value|json}}
