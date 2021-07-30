@@ -65,6 +65,10 @@ export class HttpService {
 
     addDummyUser() {
         const userId = LocalStore.get(LocalStore.USER_ID);
+        let platform = environment.PLATFORM;
+        if (window.apicElectron?.osType) {
+            platform += '-' + window.apicElectron?.osType
+        }
         var body = {
             id: userId ?? apic.uuid(),
             platform: environment.PLATFORM,

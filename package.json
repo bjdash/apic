@@ -13,7 +13,8 @@
     "extnLocal": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
     "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
     "electron": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
-    "electronLocal": "gulp cleanElectron && ng build --configuration=electronLocal --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64"
+    "electronLocal": "gulp cleanElectron && ng build --configuration=electronLocal --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
+    "release": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder --macos --linux --windows --publish always"
   },
   "private": true,
   "dependencies": {
