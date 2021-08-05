@@ -114,10 +114,12 @@
                         <mat-menu #authOpts="matMenu">
                             <button mat-menu-item (click)="removeAuthHeader()">No Auth</button>
                             <button mat-menu-item (click)="selectTab('reqTab','auth_basic')">Basic Auth</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','api_key')">Api Key</button>
                             <button mat-menu-item (click)="selectTab('reqTab','auth_bearer')">Bearer Token</button>
                             <button mat-menu-item (click)="selectTab('reqTab','auth_digest')">Digest Auth</button>
                             <button mat-menu-item (click)="selectTab('reqTab','auth_o1')">OAuth 1.0</button>
                             <button mat-menu-item (click)="selectTab('reqTab','auth_o2')">OAuth 2.0</button>
+                            <button mat-menu-item (click)="selectTab('reqTab','aws_sign')">AWS Signature</button>
                             <button mat-menu-item (click)="selectTab('reqTab','auth_hawk')">Hawk Auth</button>
                         </mat-menu>
                         <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Scripts'}"
@@ -182,27 +184,34 @@
                     </div>
 
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_basic'">
-                        <app-basic-auth [headers]="form.value.headers"
-                            (onChange)="updateHeader('Authorization', $event)"></app-basic-auth>
+                        <app-basic-auth [headers]="form.value.headers" (onChange)="updateAuthValue($event)">
+                        </app-basic-auth>
+                    </div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'api_key'">
+                        <app-api-key-auth (onChange)="updateAuthValue($event)"></app-api-key-auth>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'">
-                        <app-bearer-auth [headers]="form.value.headers"
-                            (onChange)="updateHeader('Authorization', $event)"></app-bearer-auth>
+                        <app-bearer-auth [headers]="form.value.headers" (onChange)="updateAuthValue($event)">
+                        </app-bearer-auth>
                     </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'"></div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'">
-                        <app-digest-auth (onChange)="updateHeader('Authorization', $event)" [url]="form.value.url"
+                        <app-digest-auth (onChange)="updateAuthValue($event)" [url]="form.value.url"
                             [method]="form.value.method"></app-digest-auth>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_o1'">
                         <app-oauth1-auth [method]="form.value.method" [url]="form.value.url" [body]="form.value.body"
-                            (onChange)="updateOauth1($event)">
+                            (onChange)="updateAuthValue($event)">
                         </app-oauth1-auth>
                     </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'"></div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'">
+                        <app-auth-oauth2></app-auth-oauth2>
+                    </div>
+                    <div class="control-content" *ngIf="flags.reqTab == 'aws_sign'">
+                        <app-auth-aws-signature></app-auth-aws-signature>
+                    </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'">
                         <app-hawk-auth [method]="form.value.method" [url]="form.value.url"
-                            (onChange)="updateHeader('Authorization', $event)"></app-hawk-auth>
+                            (onChange)="updateAuthValue($event)"></app-hawk-auth>
                     </div>
 
                     <div class="control-content" *ngIf="flags.reqTab == 'Scripts'">

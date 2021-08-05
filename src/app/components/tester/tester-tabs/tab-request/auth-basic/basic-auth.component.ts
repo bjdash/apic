@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { ReqAuthMsg } from 'src/app/models/ReqAuthMsg.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import { RememberService } from 'src/app/services/remember.service';
 
@@ -8,7 +9,7 @@ import { RememberService } from 'src/app/services/remember.service';
   templateUrl: './basic-auth.component.html'
 })
 export class BasicAuthComponent implements OnInit {
-  @Output() onChange = new EventEmitter<any>();
+  @Output() onChange = new EventEmitter<ReqAuthMsg>();
   @Input() headers: KeyVal[]
 
   private readonly rememberKey = 'BasicAuth';
@@ -44,13 +45,20 @@ export class BasicAuthComponent implements OnInit {
     const { user, password } = this.models;
     // if username or password contain a variable then preserve it to be used with environment
     // else generate the base64 encoded string
-    let authdata;
+    let authHeader: string;
     if (this.interpolation.hasVariables(user) || this.interpolation.hasVariables(password)) {
-      authdata = `{{apic.basicAuth(${this.interpolation.getExpressionString(user)} , ${this.interpolation.getExpressionString(password)})}}`; //TODO
+      authHeader = `{{apic.basicAuth(${this.interpolation.getExpressionString(user)} , ${this.interpolation.getExpressionString(password)})}}`; //TODO
     } else {
-      authdata = 'Basic ' + window.btoa(user + ':' + password);
+      authHeader = 'Basic ' + window.btoa(user + ':' + password);
     }
-    this.onChange.emit(authdata);
+    this.onChange.emit({
+      addTo: 'header',
+      value: [{
+        key: 'Authorization',
+        val: authHeader,
+        active: true
+      }]
+    });
     this.rememberService.set(this.rememberKey, { user, password });
   }
 }

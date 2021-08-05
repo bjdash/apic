@@ -91,7 +91,7 @@ import { TesterTabsComponent } from './components/tester/tester-tabs/tester-tabs
 import { TabRequestComponent } from './components/tester/tester-tabs/tab-request/tab-request.component';
 import { TabSocketComponent } from './components/tester/tester-tabs/tab-socket/tab-socket.component';
 import { ApicRichInputComponent } from './components/common/apic-rich-input/apic-rich-input.component';
-import { BasicAuthComponent } from './components/tester/tester-tabs/tab-request/basic-auth/basic-auth.component';
+import { BasicAuthComponent } from './components/tester/tester-tabs/tab-request/auth-basic/basic-auth.component';
 import { RememberService } from './services/remember.service';
 import { RouteReuseStrategy } from '@angular/router';
 import { ApicRouteReuseStrategy } from './ApicRouteReuseStrategy';
@@ -99,7 +99,7 @@ import { SaveReqDialogComponent } from './components/tester/save-req-dialog/save
 import { TesterTabsService } from './components/tester/tester-tabs/tester-tabs.service';
 import { TesterService } from './services/tester.service';
 import { RespTabTestsComponent } from './components/tester/tester-tabs/tab-request/resp-tab-tests/resp-tab-tests.component';
-import { BearerAuthComponent } from './components/tester/tester-tabs/tab-request/bearer-auth/bearer-auth.component';
+import { BearerAuthComponent } from './components/tester/tester-tabs/tab-request/auth-bearer/bearer-auth.component';
 import { JsonViewerComponent } from './components/common/json-viewer/json-viewer.component';
 import { JsonTestBuilderComponent } from './components/common/json-test-builder/json-test-builder.component';
 import { ReqHistoryService } from './services/reqHistory.service';
@@ -133,9 +133,12 @@ import { ApiBuilderComponent } from './components/designer/api-project-detail/ap
 import { CustomFilter } from './utils/filter.pipe';
 import { AppUpdateComponent } from './components/dialogs/app-update/app-update.component';
 import { UpdateDownloadedComponent } from './components/dialogs/update-downloaded/update-downloaded.component';
-import { DigestAuthComponent } from './components/tester/tester-tabs/tab-request/digest-auth/digest-auth.component';
-import { Oauth1AuthComponent } from './components/tester/tester-tabs/tab-request/oauth1-auth/oauth1-auth.component';
-import { HawkAuthComponent } from './components/tester/tester-tabs/tab-request/hawk-auth/hawk-auth.component';
+import { DigestAuthComponent } from './components/tester/tester-tabs/tab-request/auth-digest/digest-auth.component';
+import { Oauth1AuthComponent } from './components/tester/tester-tabs/tab-request/auth-oauth1/oauth1-auth.component';
+import { HawkAuthComponent } from './components/tester/tester-tabs/tab-request/auth-hawk/hawk-auth.component';
+import { ApiKeyAuthComponent } from './components/tester/tester-tabs/tab-request/auth-api-key/api-key-auth.component';
+import { AuthOauth2Component } from './components/tester/tester-tabs/tab-request/auth-oauth2/auth-oauth2.component';
+import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-request/auth-aws-signature/auth-aws-signature.component';
 
 
 @NgModule({
@@ -217,7 +220,10 @@ import { HawkAuthComponent } from './components/tester/tester-tabs/tab-request/h
     UpdateDownloadedComponent,
     DigestAuthComponent,
     Oauth1AuthComponent,
-    HawkAuthComponent
+    HawkAuthComponent,
+    ApiKeyAuthComponent,
+    AuthOauth2Component,
+    AuthAwsSignatureComponent
   ],
   imports: [
     BrowserModule,

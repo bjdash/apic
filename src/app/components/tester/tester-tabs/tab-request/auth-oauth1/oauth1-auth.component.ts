@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { ReqAuthMsg } from 'src/app/models/ReqAuthMsg.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import { RememberService } from 'src/app/services/remember.service';
 import { Toaster } from 'src/app/services/toaster.service';
@@ -14,7 +15,7 @@ import { RequestUtils } from 'src/app/utils/request.util';
   styleUrls: []
 })
 export class Oauth1AuthComponent implements OnInit {
-  @Output() onChange = new EventEmitter<any>();
+  @Output() onChange = new EventEmitter<ReqAuthMsg>();
   @Input() method: string;
   @Input() url: string;
   @Input() body: { type: string, xForms: KeyVal[], formData: KeyVal[] }
@@ -122,19 +123,19 @@ export class Oauth1AuthComponent implements OnInit {
 
       header = header.substring(0, header.length - 1);
       this.onChange.next({
-        in: 'header',
+        addTo: 'header',
         value: [{ key: 'Authorization', val: header }]
       })
     } else {//add to query parameter or body based on http method type
       //add auth params as form-data or x-www-form or query params
-      let params = message.parameters
+      let params: KeyVal[] = message.parameters
         .filter(p => oAuthProps.indexOf(p[0]) >= 0)
         .map(p => {
-          return { key: p[0], val: p[1], type: 'Text' }
+          return { key: p[0], val: p[1], type: 'text', active: true }
         })
 
       this.onChange.next({
-        in: 'body',
+        addTo: 'body',
         value: params
       })
     }

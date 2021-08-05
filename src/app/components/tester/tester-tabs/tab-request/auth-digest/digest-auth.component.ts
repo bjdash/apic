@@ -5,6 +5,7 @@ import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import md5 from 'crypto-js/md5';
 import { RememberService } from 'src/app/services/remember.service';
+import { ReqAuthMsg } from 'src/app/models/ReqAuthMsg.model';
 
 @Component({
   selector: 'app-digest-auth',
@@ -12,7 +13,7 @@ import { RememberService } from 'src/app/services/remember.service';
   styleUrls: []
 })
 export class DigestAuthComponent implements OnInit {
-  @Output() onChange = new EventEmitter<any>();
+  @Output() onChange = new EventEmitter<ReqAuthMsg>();
   @Input() url: string;
   @Input() method: string;
 
@@ -37,6 +38,7 @@ export class DigestAuthComponent implements OnInit {
   ngOnInit(): void {
     this.form.patchValue(this.rememberService.get(this.rememberKey))
   }
+
   updateAuthHeader() {
     let formValue = this.interpolationService.interpolateObject({ ...this.form.value });
     let { algorithm, userName, realm, password, nonce, nonceCount, clientNonce, opaque, qop } = formValue;
@@ -97,7 +99,14 @@ export class DigestAuthComponent implements OnInit {
     headerParams.push('response="' + reqDigest + '"');
     headerParams.push('opaque="' + opaque + '"');
 
-    this.onChange.emit('Digest ' + headerParams.join(', '));
+    this.onChange.emit({
+      addTo: 'header',
+      value: [{
+        key: 'Authorization',
+        val: 'Digest ' + headerParams.join(', '),
+        active: true
+      }]
+    });
     this.rememberService.set(this.rememberKey, { ...this.form.value });
   }
 }

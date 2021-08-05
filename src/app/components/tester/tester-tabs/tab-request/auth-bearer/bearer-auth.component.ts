@@ -1,15 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { ReqAuthMsg } from 'src/app/models/ReqAuthMsg.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import { RememberService } from 'src/app/services/remember.service';
 
 @Component({
   selector: 'app-bearer-auth',
   templateUrl: './bearer-auth.component.html',
-  styleUrls: ['./bearer-auth.component.css']
+  styleUrls: []
 })
 export class BearerAuthComponent implements OnInit {
-  @Output() onChange = new EventEmitter<any>();
+  @Output() onChange = new EventEmitter<ReqAuthMsg>();
   @Input() headers: KeyVal[]
 
   private readonly rememberKey = 'BearerToken';
@@ -35,7 +36,14 @@ export class BearerAuthComponent implements OnInit {
 
   updateAuthHeader() {
     var authData = 'Bearer ' + this.token;
-    this.onChange.emit(authData);
+    this.onChange.emit({
+      addTo: 'header',
+      value: [{
+        key: 'Authorization',
+        val: authData,
+        active: true
+      }]
+    });
     this.rememberService.set(this.rememberKey, this.token);
   }
 

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReqAuthMsg } from 'src/app/models/ReqAuthMsg.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import { RememberService } from 'src/app/services/remember.service';
 import { Toaster } from 'src/app/services/toaster.service';
@@ -11,7 +12,7 @@ import { HawkAuthUtil } from 'src/app/utils/HawkAuth.util';
   styleUrls: []
 })
 export class HawkAuthComponent implements OnInit {
-  @Output() onChange = new EventEmitter<any>();
+  @Output() onChange = new EventEmitter<ReqAuthMsg>();
   @Input() url: string;
   @Input() method: string;
 
@@ -42,7 +43,14 @@ export class HawkAuthComponent implements OnInit {
 
     try {
       let hawk = HawkAuthUtil.header(this.url, this.method, options);
-      this.onChange.next(hawk.header)
+      this.onChange.next({
+        addTo: 'header',
+        value: [{
+          key: 'Authorization',
+          val: hawk.header,
+          active: true
+        }]
+      })
     } catch (e) {
       this.toaster.error(e);
     }

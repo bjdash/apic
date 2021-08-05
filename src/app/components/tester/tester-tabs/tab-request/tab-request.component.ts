@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Store } from '@ngxs/store';
@@ -10,6 +10,7 @@ import { TestBuilderSave } from 'src/app/components/common/json-test-builder/jso
 import { Segment } from 'src/app/components/common/json-viewer/json-viewer.component';
 import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
 import { KeyVal } from 'src/app/models/KeyVal.model';
+import { ReqAuthMsg } from 'src/app/models/ReqAuthMsg.model';
 import { HistoryRequest } from 'src/app/models/ReqHistory.model';
 import { ApiRequest, SavedResp } from 'src/app/models/Request.model';
 import { RunResponse } from 'src/app/models/RunResponse.model';
@@ -308,14 +309,6 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     this.form.patchValue({ headers: this.form.value.headers.filter((h: KeyVal) => h.key.toLocaleLowerCase() !== 'authorization') })
     this.toastr.info('Authorization header removed.');
   }
-  updateHeader(name: string, value: string) {
-    let headers: KeyVal[] = this.form.value.headers.filter((h: KeyVal) => h.key.toLocaleLowerCase() !== name.toLocaleLowerCase());
-    if (!headers[headers.length - 1].key && !headers[headers.length - 1].val) {
-      headers.pop()
-    }
-    this.form.patchValue({ headers: [...headers, { key: name, val: value, active: true }] });
-    this.toastr.info('Header updated');
-  }
   prerunUpdated(newVal) {
     if (newVal != this.form.value.prescript) {
       this.form.patchValue({ prescript: newVal });
@@ -570,20 +563,33 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
     return index;
   }
 
-  updateOauth1(oauth1: { in: string, value: any[] }) {
-    if (oauth1.in === 'header') {
-      this.updateHeader(oauth1.value[0].key, oauth1.value[0].val)
-    } else if (oauth1.in === 'body') {
+  updateAuthValue(auth: ReqAuthMsg) {
+    if (auth.addTo === 'header') {
+      this.updateKeyValForm(auth.value, this.form.value.headers, this.form, 'headers')
+      this.toastr.info('Auth params added to header.');
+    } else if (auth.addTo === 'body') {
       if (METHOD_WITH_BODY.indexOf(this.form.value.method) >= 0 && this.form.value.body.type === 'form-data') {
-        this.form.controls['body'].patchValue({ formData: [...this.form.value.body.formData, ...(oauth1.value.map(v => { return { key: v.key, val: v.val, type: 'text' } }))] });
+        this.updateKeyValForm(auth.value, this.form.value.body.formData, this.form.controls['body'], 'formData')
         this.toastr.info('Auth params added to body(as form-data).');
       } else if (METHOD_WITH_BODY.indexOf(this.form.value.method) >= 0 && this.form.value.body.type === 'x-www-form-urlencoded') {
-        this.form.controls['body'].patchValue({ xForms: [...this.form.value.body.xForms, ...oauth1.value] });
+        this.updateKeyValForm(auth.value, this.form.value.body.xForms, this.form.controls['body'], 'xForms')
         this.toastr.info('Auth params added to body(as x-www-form).');
       } else {
-        this.form.patchValue({ urlParams: [...this.form.value.urlParams, ...oauth1.value] });
+        this.updateKeyValForm(auth.value, this.form.value.urlParams, this.form, 'urlParams')
         this.toastr.info('Auth string added to url parameters');
       }
+    } else if (auth.addTo === 'query') {
+      this.updateKeyValForm(auth.value, this.form.value.urlParams, this.form, 'urlParams')
+      this.toastr.info('Auth string added to url parameters');
     }
+  }
+
+  private updateKeyValForm(valsToAdd: KeyVal[], existing: KeyVal[], patchTo: AbstractControl, patchKey: string) {
+    let keysToAdd = valsToAdd.map(kv => kv.key.toLowerCase());
+    let existingKeys: KeyVal[] = existing.filter((h: KeyVal) => !keysToAdd.includes(h.key.toLocaleLowerCase()));
+    if (existingKeys.length > 0 && !existingKeys[existingKeys.length - 1].key && !existingKeys[existingKeys.length - 1].val) {
+      existingKeys.pop()
+    }
+    patchTo.patchValue({ [patchKey]: [...existingKeys, ...valsToAdd] });
   }
 }
