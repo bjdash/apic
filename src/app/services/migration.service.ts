@@ -79,7 +79,6 @@ export class MigrationService {
         await Promise.all(promises);
         console.debug('Migration completed');
 
-        //TODO:
         this.onDone(newVesrion, this.oldVersion);
     }
 

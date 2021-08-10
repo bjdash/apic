@@ -21,8 +21,8 @@ export class RequestUtils {
     * Prepares request for run, variables will not be interpolated yet
     */
     static getCompiledRequest(req: ApiRequest): CompiledApiRequest {
-        const { _id, url, method, prescript, postscript, respCodes } = req;
-        let newReq: CompiledApiRequest = { _id, url, method, prescript, postscript, respCodes };
+        const { _id, url, method, prescript, postscript, respCodes, name } = req;
+        let newReq: CompiledApiRequest = { _id, url, method, prescript, postscript, respCodes, name };
 
         //interpolate query params
         let queryParams = req.Req.url_params

@@ -72,7 +72,6 @@
                         href="https://docs.apic.app/tester/make-an-api-call" target="_new">
                         <mat-icon>help</mat-icon>
                     </a>
-                    <!--TODO: Add env button-->
                     <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadRequest"
                         matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
                         <mat-icon>sync</mat-icon>
@@ -315,7 +314,8 @@
                     </div>
 
                     <div class="control-content" *ngIf="flags.respTab == 'Tests'">
-                        <app-resp-tab-tests [tests]="runResponse.tests"></app-resp-tab-tests>
+                        <app-resp-tab-tests [tests]="runResponse.tests" [scriptError]="runResponse.scriptError">
+                        </app-resp-tab-tests>
                     </div>
 
                     <div class="control-content" *ngIf="flags.respTab == 'Headers'">

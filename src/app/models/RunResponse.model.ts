@@ -15,5 +15,6 @@ export interface RunResponse {
     logs: string[],
     tests: Test[],
     inMemEnvs?: { [key: string]: any; }
-    meta?: any // additional metadata
+    meta?: any // additional metadata,
+    scriptError: string
 }

@@ -102,7 +102,8 @@ export class RequestRunnerService {
         data: null,
         logs: preRunResponse?.logs || [this.defaultLogMsg],
         tests: preRunResponse?.tests || [],
-        inMemEnvs: preRunResponse?.inMem || {}
+        inMemEnvs: preRunResponse?.inMem || {},
+        scriptError: preRunResponse.scriptError || null
       };
       $response.respSize = this.getResponseSize($response)
       //convert response to json object
@@ -123,7 +124,10 @@ export class RequestRunnerService {
         let postRunResponse: TestResponse = await this.tester.runScript(script, testerOption);
         $response.logs = [...$response.logs, ...postRunResponse.logs];
         $response.tests = [...$response.tests, ...postRunResponse.tests];
-        $response.inMemEnvs = { ...$response.inMemEnvs, ...postRunResponse.inMem }
+        $response.inMemEnvs = { ...$response.inMemEnvs, ...postRunResponse.inMem };
+        if (postRunResponse.scriptError) {
+          $response.scriptError = $response.scriptError ? $response.scriptError + '\n' + postRunResponse.scriptError : postRunResponse.scriptError;
+        }
       }
       resolve({ $request, $response })
     }
@@ -230,7 +234,7 @@ export class RequestRunnerService {
   }
 
   getResponseSize(resp: RunResponse) {
-    var size = resp.headers['lontent-length'];
+    var size = resp.headers['content-length'];
     if (size === undefined) {
       if (resp.body) {
         size = resp.body.length;

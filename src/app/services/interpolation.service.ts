@@ -38,6 +38,7 @@ export class InterpolationService {
 
   interpolate(str: string, option?: InterpolationOption) {
     const rules: Rule[] = this.parseRules(str);
+    let useInMem: boolean = true; //bydefault use in mem env unless specified otherwise
     if (rules && rules.length > 0) {
       let envToUse;
       if (option?.hasOwnProperty('useEnv')) {
@@ -45,7 +46,10 @@ export class InterpolationService {
       } else {
         envToUse = this.selectedEnv;
       }
-      let context = { ...(envToUse?.vals || {}), ...((option?.useInMemEnv) ? this.inMemEnv : {}), apic };
+      if (option?.hasOwnProperty('useInMemEnv')) {
+        useInMem = option.useInMemEnv;
+      }
+      let context = { ...(envToUse?.vals || {}), ...(useInMem ? this.inMemEnv : {}), apic };
       return this.parseFromRules(str, context, rules);
     }
 

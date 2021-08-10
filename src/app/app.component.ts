@@ -51,9 +51,8 @@ export class AppComponent {
     //TODO:after some time fetch user details from server and update local, this is to reflect change in name in other device
   }
 
-  //TODO: For each create calls for envs, move the duplicate check logic to create method itself, with an option to create with suffix such as "Env 2"
   //TODO: refactor each create type to use a parital object with minimum field. Eg: Folders should only take name, desc & parent
-  //TODO: Use different methode for update from sync
+  //TODO: Performance - keep server down and let the connect fail for few times in client. Start server. Notice multiple listeners
 
   async init() {
     this.authService.initLoggedinUser();

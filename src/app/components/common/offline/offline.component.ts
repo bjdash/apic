@@ -1,8 +1,11 @@
 import { AuthService } from './../../../services/auth.service';
 import { LoginComponent } from '../../login/login.component';
-import { StompService } from './../../../services/stomp.service';
+import { ApicRxStompState, StompService } from './../../../services/stomp.service';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-offline',
@@ -12,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class OfflineComponent implements OnInit {
   private ACCESS_DENIED: string = 'Access denied';
   offlineReason: string = '';
-  constructor(private stompService: StompService, private dialog: MatDialog, private authService: AuthService) {
+  constructor(private stompService: StompService, private dialog: MatDialog, private authService: AuthService, private router: Router) {
 
   }
 
@@ -22,10 +25,18 @@ export class OfflineComponent implements OnInit {
         this.offlineReason = 'UNAUTHORISED';
         this.stompService.client.deactivate()
       } else {
-        //TODO: make offline work with dashboard
         this.offlineReason = 'OFFLINE';
       }
     });
+    combineLatest([this.stompService.client.connectionChange$, this.router.events.pipe(filter(event => event instanceof NavigationEnd))])
+      .subscribe(([status, event]) => {
+        if ((status === ApicRxStompState.CONNECTING || status === ApicRxStompState.CLOSED) && this.router.url.includes('dashboard')) {
+          this.offlineReason = 'OFFLINE';
+        } else {
+          this.offlineReason = '';
+        }
+      })
+
     this.stompService.client.connected$.subscribe(() => {
       this.offlineReason = ''
     })

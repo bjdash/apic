@@ -3,7 +3,8 @@
 var TEST_RUN_CONTEXT = {
     envs: { saved: null, inMem: null },
     logs: [],
-    tests: []
+    tests: [],
+    scriptError: null
 }
 var $scriptType, $response, $request, $env;
 
@@ -13,6 +14,7 @@ var $scriptType, $response, $request, $env;
  * @param {Object} msg.inMem
  * @param {string[]} msg.logs
  * @param {Object[]} msg.tests
+ * @param {Object} msg.scriptError
  */
 function sendResponseBack(msg) {
     window.parent.postMessage(msg, '*');
@@ -32,7 +34,8 @@ function onMessageReceived(data) {
     TEST_RUN_CONTEXT = {
         envs: data.envs,
         logs: [],
-        tests: []
+        tests: [],
+        scriptError: null
     };
     $scriptType = data.type;
     $request = { ...data.$request };
@@ -47,8 +50,9 @@ function onMessageReceived(data) {
     try {
         eval(code);
     } catch (e) {
+        TEST_RUN_CONTEXT.scriptError = e?.message || e?.stack || e.toString();
         console.error('error', e);
-        log(`Error: ${e.message}`)
+        log(`Error: ${e?.message || e?.stack || e.toString()}`);
     }
     // reqObj.tests = TESTSX.concat(convertToTestX(TESTS));
     // reqObj.testsX = TESTSX;
@@ -56,7 +60,8 @@ function onMessageReceived(data) {
         type: $scriptType,
         inMem: TEST_RUN_CONTEXT.envs.inMem,
         logs: TEST_RUN_CONTEXT.logs,
-        tests: TEST_RUN_CONTEXT.tests
+        tests: TEST_RUN_CONTEXT.tests,
+        scriptError: TEST_RUN_CONTEXT.scriptError
     });
 }
 

@@ -48,7 +48,6 @@ export class SyncService {
             allIds.envs = data.envs;
         }
 
-        //TODO: DO the same as above
         if (data?.folders) {
             allIds.folders = data.folders;
         }
@@ -68,10 +67,6 @@ export class SyncService {
         };
         toSend = Object.assign(toSend, allIds);
         this.stompService.addtoSendQueue(toSend);
-        if (command.includes('fetchAll')) {
-            //TODO:
-            // angular.element('#avatar').removeClass('online offline').addClass('syncing');
-        }
     }
 
     execute(command: string, data: StompMessage) {

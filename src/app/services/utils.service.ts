@@ -108,26 +108,6 @@ export class Utils {
         return formatedDate;
     }
 
-    //TODO: remove this, not used
-    static getUrlEncodedBody(xForms) {
-        var paramsList = [];
-        for (var i = 0; i < xForms.length; i++) {
-            var pair = xForms[i];
-            if (pair.key) {
-                var key = encodeURIComponent(pair.key);
-                key = key.replace(/%20/g, '+');
-                var val = encodeURIComponent(pair.val);
-                val = val.replace(/%20/g, '+');
-                paramsList.push(key + '=' + val);
-            }
-        }
-        if (paramsList.length > 0) {
-            return paramsList.join('&');
-        } else {
-            return null;
-        }
-    }
-
     static getGqlBody(query, vars) {
         var variables = null;
         if (vars) variables = JSON.parse(vars.trim());

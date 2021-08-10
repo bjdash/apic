@@ -253,6 +253,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
         this.onSioConect();
       });
       this.client.on('error', this.onError.bind(this));
+      this.client.on('connect_error', this.onError.bind(this));
       this.client.on('disconnect', this.onDisconnect.bind(this));
     } else if (this.method === 'Stomp') {
       this.client = new StompSocketService(
@@ -410,6 +411,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
       headers: e.headers,
       time: Date.now()
     });
+    this.toastr.error(`Connection failed. Error:${body}`)
   }
 
   wsAddListener(listener: ApicListItem, type: 'socketio' | 'sse') {

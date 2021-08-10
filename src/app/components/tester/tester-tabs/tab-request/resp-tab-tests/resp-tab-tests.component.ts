@@ -12,6 +12,7 @@ import { Test } from 'src/app/models/TestResponse.model';
 })
 export class RespTabTestsComponent implements OnInit {
   @Input() tests: Test[];
+  @Input() scriptError: string;
   filter: FormControl = new FormControl();
   filtered$: Observable<any>;
 

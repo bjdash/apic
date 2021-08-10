@@ -130,19 +130,6 @@ export class AuthService {
   postLoginHandler(userData: User) {
     userData.UID = userData.id;
     this.store.dispatch(new UserAction.Set(userData));//on set of user data we auto connect socket
-    //TODO:
-    // $http.defaults.headers.common['Authorization'] = userData.UID + '||' + userData.authToken;
-
-    // if (prevLogin.UID === userData.id) {
-    //   ngSockJs.reconnect({ 'Auth-Token': userData.UID + '||' + userData.authToken });
-    // } else {
-    //   ngSockJs.connect({ 'Auth-Token': userData.UID + '||' + userData.authToken }).then(function () {
-    //     DataService.getAllData(true).then(function (allData) {
-    //       SyncIt.execute('updateAll', allData);
-    //       SyncIt.fetch('fetchAll');
-    //     });
-    //   });
-    // }
   }
 
   connectToSyncServer(UID: string, authToken: string) {

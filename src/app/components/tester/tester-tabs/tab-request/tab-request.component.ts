@@ -483,7 +483,8 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       respSize: savedResp.statusText,
       logs: ['Loaded from saved response'],
       tests: [],
-      meta: this.savedRespIdentifier
+      meta: this.savedRespIdentifier,
+      scriptError: null
     };
     try {
       this.runResponse.data = JSON.parse(this.runResponse.body);

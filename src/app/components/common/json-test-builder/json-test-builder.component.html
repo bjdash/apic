@@ -142,16 +142,18 @@
             </div>
             <div class="tbh_b">
                 <div class="bold">Tests</div>
-                <div *ngFor="let k of tests;let i=index" class="vcenter">
-                    <button mat-icon-button class="sm red" (click)="delTest(i)">
-                        <mat-icon class="">remove_circle</mat-icon>
-                    </button>
-                    <button mat-icon-button class="sm green" (click)="runTests([k])" *ngIf="options.showRun">
-                        <mat-icon class="">play_arrow</mat-icon>
-                    </button>
-                    <span class="pointer" (click)="k.show=!k.show">{{k.str}}</span>
-                    <span class="green" *ngIf="k.status"> Passed</span>
-                    <span class="red" *ngIf="k.status===false"> Failed</span>
+                <div *ngFor="let k of tests;let i=index" class="">
+                    <div class="vcenter">
+                        <button mat-icon-button class="sm red" (click)="delTest(i)">
+                            <mat-icon class="">remove_circle</mat-icon>
+                        </button>
+                        <button mat-icon-button class="sm green" (click)="runTests([k])" *ngIf="options.showRun">
+                            <mat-icon class="">play_arrow</mat-icon>
+                        </button>
+                        <span class="pointer" (click)="k.show=!k.show">{{k.str}}</span>
+                        <span class="green" *ngIf="k.status"> Passed</span>
+                        <span class="red" *ngIf="k.status===false"> Failed</span>
+                    </div>
                     <div style="margin-left:55px;" class="red" *ngIf="k.error">{{k.error}}</div>
                     <pre *ngIf="k.show">{{k.val}}</pre>
                 </div>

@@ -58,7 +58,7 @@ export class PublishedDocsComponent implements OnInit {
 
   publish(project: ApiProject) {
     if (project._id.includes('demo')) {
-      this.toaster.error('This is  ademo project and can\'t be published.');
+      this.toaster.error('This is  a demo project and can\'t be published.');
       return;
     }
     if (!this.authService.doIOwn(project)) {
