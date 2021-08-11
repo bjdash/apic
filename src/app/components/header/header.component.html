@@ -45,6 +45,23 @@
             </a>
         </div>
         <div class="flex-right header-right vcenter">
+            <div class="input-group gap agent-grp vcenter" [ngClass]="{open:flags.agentOpt}">
+                <button class="agent sm" [ngClass]="flags.agent" mat-icon-button *ngIf="platform==='WEB'"
+                    matTooltip="APIC web agent" (click)="connectAgent()">
+                    <mat-icon>podcasts</mat-icon>
+                </button>
+                <mat-icon class="exp" [matTooltip]="flags.agentOpt?'Hide':'More'"
+                    (click)="flags.agentOpt = !flags.agentOpt">
+                    {{flags.agentOpt?'arrow_right':'arrow_left'}}</mat-icon>
+                <button class="agent-setting sm" mat-icon-button *ngIf="platform==='WEB'" matTooltip="Agent settings"
+                    (click)="openAgentSetting()">
+                    <mat-icon>settings_applications</mat-icon>
+                </button>
+                <a href="https://docs.apic.app/apic-web-agent-apic-cli" mat-icon-button class="sm agent-help"
+                    matTooltip="Agent docs" target="_blank">
+                    <mat-icon>help</mat-icon>
+                </a>
+            </div>
             <div class="env-cont input-group gap">
                 <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments"
                     matTooltip="Environments">

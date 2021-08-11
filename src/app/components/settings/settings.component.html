@@ -12,12 +12,15 @@
                 </mat-selection-list>
             </div>
             <div class="settings-right">
-                <app-themes *ngIf="selectedSetting[0] === settingsList[0]"></app-themes>
-                <app-web-client *ngIf="selectedSetting[0] === settingsList[1]"></app-web-client>
+                <app-themes *ngIf="selectedSetting[0] === settingsList[0]" (onSave)="saved()"></app-themes>
+                <app-web-agent *ngIf="selectedSetting[0] === settingsList[1]" (onSave)="saved()"></app-web-agent>
             </div>
         </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
+        <span *ngIf="showSaved" class="green vcenter gap">
+            <mat-icon class="sm gap">done</mat-icon> Saved
+        </span>
         <button mat-button mat-dialog-close class="sm">Close</button>
     </mat-dialog-actions>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ThemesService } from 'src/app/services/themes.service';
 import { Const } from 'src/app/utils/constants';
 
@@ -8,6 +8,7 @@ import { Const } from 'src/app/utils/constants';
   styleUrls: ['./themes.component.css']
 })
 export class ThemesComponent implements OnInit {
+  @Output() onSave: EventEmitter<boolean> = new EventEmitter();
   themes = Const.themes.types;
   accents = Const.themes.accents;
   constructor(private themesService: ThemesService) { }
@@ -17,5 +18,6 @@ export class ThemesComponent implements OnInit {
 
   switchTheme(themeType?: string, themeAccent?: string) {
     this.themesService.switchTheme(themeType, themeAccent);
+    this.onSave.next(true);
   }
 }

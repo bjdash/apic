@@ -24,6 +24,7 @@ import { ElectronHandlerService } from 'src/app/services/electron-handler.servic
 import { Toaster } from 'src/app/services/toaster.service';
 import { AppUpdateComponent } from '../dialogs/app-update/app-update.component';
 import { UpdateDownloadedComponent } from '../dialogs/update-downloaded/update-downloaded.component';
+import { ApicAgentService, ApicAgentStatus } from 'src/app/services/apic-agent.service';
 
 declare global {
   interface Window {
@@ -44,6 +45,7 @@ export class HeaderComponent implements OnInit {
   platform = environment.PLATFORM;
   os = window.apicElectron?.osType;
 
+
   moduleUrls = {
     tester: '/tester',
     designer: '/designer',
@@ -51,9 +53,11 @@ export class HeaderComponent implements OnInit {
     docs: '/docs'
   }
   notifications: any[] = [];
-  flags: { update: 'idle' | 'downloading' | 'downloaded', downloadPercent: number } = {
+  flags: { update: 'idle' | 'downloading' | 'downloaded', downloadPercent: number, agent: ApicAgentStatus, agentOpt: boolean } = {
     update: 'idle',
-    downloadPercent: 0
+    downloadPercent: 0,
+    agent: 'offline',
+    agentOpt: false
   }
 
   constructor(private store: Store,
@@ -62,6 +66,7 @@ export class HeaderComponent implements OnInit {
     private toaster: Toaster,
     private httpService: HttpService,
     private electronHandler: ElectronHandlerService,
+    private apicAgentService: ApicAgentService,
     public stompService: StompService) {
     router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -71,7 +76,12 @@ export class HeaderComponent implements OnInit {
             this.moduleUrls[key] = event.url.split('#')[0].split('?')[0];
           }
         })
+      });
+    if (this.platform === 'WEB') {
+      this.apicAgentService.status$.subscribe(status => {
+        this.flags.agent = status;
       })
+    }
   }
 
   ngOnInit(): void {
@@ -118,6 +128,9 @@ export class HeaderComponent implements OnInit {
 
   openSettings() {
     this.dialog.open(SettingsComponent, { panelClass: 'settings-dialog', minWidth: '65vw' });
+  }
+  openAgentSetting() {
+    this.dialog.open(SettingsComponent, { panelClass: 'settings-dialog', minWidth: '65vw', data: { selected: 'Web Agent (CORS)' } });
   }
 
   openAuthModal(action) {
@@ -182,5 +195,13 @@ export class HeaderComponent implements OnInit {
   }
   openDevTools() {
     this.electronHandler.sendMessage('open-devtools');
+  }
+
+  connectAgent() {
+    if (this.apicAgentService.isOnline()) {
+      this.apicAgentService.disconnect();
+    } else {
+      this.apicAgentService.connect();
+    }
   }
 }

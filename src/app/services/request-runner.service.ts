@@ -1,15 +1,20 @@
 import { Injectable } from '@angular/core';
+import { Store } from '@ngxs/store';
+import { take } from 'rxjs/operators';
+import { EnvsAction } from '../actions/envs.action';
 import { CompiledApiRequest } from '../models/CompiledRequest.model';
-import { ParsedEnv } from '../models/Envs.model';
+import { Env, ParsedEnv } from '../models/Envs.model';
 import { KeyVal } from '../models/KeyVal.model';
 import { ApiRequest } from '../models/Request.model';
 import { RunResponse } from '../models/RunResponse.model';
 import { RunResult } from '../models/RunResult.model';
 import { TestResponse } from '../models/TestResponse.model';
 import { TestScript } from '../models/TestScript.model';
+import { EnvState } from '../state/envs.state';
 import apic from '../utils/apic';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { RequestUtils } from '../utils/request.util';
+import { ApicAgentService } from './apic-agent.service';
 import { InterpolationOption, InterpolationService } from './interpolation.service';
 import { TesterOptions, TesterService } from './tester.service';
 import { Utils } from './utils.service';
@@ -31,12 +36,17 @@ export class RequestRunnerService {
 
   constructor(
     private tester: TesterService,
+    private apicAgentService: ApicAgentService,
+    private store: Store,
     private interpolationService: InterpolationService
   ) {
     this.onreadystatechange = this.onreadystatechange.bind(this)
   }
 
   run(req: ApiRequest, options?: RunOption): Promise<RunResult> {
+    if (!options) {
+      options = { skipinMemUpdate: false, useInMemEnv: true }
+    }
     return new Promise(async (resolve, reject) => {
       if (options?.skipinMemUpdate && !options?.hasOwnProperty('useEnv')) {
         reject({ message: 'skipinMemUpdate should be used along with useEnv.' })
@@ -44,6 +54,10 @@ export class RequestRunnerService {
       }
       if (!req.url) {
         reject({ message: 'Invalid URL.' })
+        return;
+      }
+      if (this.apicAgentService.isOnline()) {
+        await this.runViaAgent(req, options, resolve, reject)
         return;
       }
       let $request: CompiledApiRequest = RequestUtils.getCompiledRequest(req);
@@ -80,6 +94,35 @@ export class RequestRunnerService {
         this._xhr.send();
       }
     });
+  }
+
+  async runViaAgent(req: ApiRequest, options: RunOption, resolve, reject) {
+    try {
+      let envsVals: { saved: { [key: string]: string }, inMem: { [key: string]: string } } = {
+        saved: {},
+        inMem: {}
+      };
+      if (options?.useEnv) {
+        //use the env specified
+        envsVals.saved = { ...envsVals.saved, ...options.useEnv.vals };
+      } else {
+        //use the current selected env
+        let selectedEnv = await this.store.select(EnvState.getSelected).pipe(take(1)).toPromise();
+        envsVals.saved = { ...envsVals.saved, ...(selectedEnv?.vals || {}) }
+      }
+      if (options?.useInMemEnv) {
+        let inMemEnvs = await this.store.select(EnvState.getInMemEnv).pipe(take(1)).toPromise();
+        envsVals.inMem = { ...envsVals.inMem, ...inMemEnvs }
+      }
+      console.log('using env', envsVals)
+      let res = await this.apicAgentService.runRequest(req, envsVals);
+      resolve(res);
+      if (!options?.skipinMemUpdate) {
+        this.store.dispatch(new EnvsAction.SetInMem(res.$response.inMemEnvs))
+      }
+    } catch (e) {
+      reject(e);
+    }
   }
 
   async onreadystatechange(event, $request: CompiledApiRequest, preRunResponse: TestResponse, resolve, testerOption: TesterOptions) {

@@ -108,11 +108,10 @@
         animation: spin 10s linear infinite;
     }
     .avatar.online {
-        animation-name: greenPulse;
-        animation-duration: 3s;
-        animation-iteration-count: infinite;
         border: 2px solid #00d407;
-        transform: scale(1);
+    }
+    .avatar.syncing {
+        border: 2px solid #2196f3;
     }
     .avatar.offline {
         border: 2px solid #f9250f;
@@ -121,15 +120,26 @@
         animation-iteration-count: infinite;
         transform: scale(1);
     }
-    .avatar.syncing {
-        animation-name: bluePulse;
-        animation-duration: 1s;
-        animation-iteration-count: infinite;
-        border: 2px solid #2196f3;
-    }
     .initial {
         font-size: 18px;
     }
+}
+.online {
+    animation-name: greenPulse;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    border: 2px solid #00d407;
+    transform: scale(1);
+}
+.syncing,
+.connecting {
+    animation-name: bluePulse;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    border: 2px solid #2196f3;
+}
+.agent {
+    border-width: 1px !important;
 }
 .mat-menu-item {
     text-decoration: none;
@@ -238,4 +248,41 @@
 }
 .mac-btn.mac-close-btn {
     background: #fd5652;
+}
+
+.agent-grp {
+    width: 30px;
+    transition: width 0.3s;
+    border-radius: 20px;
+    position: relative;
+    &:hover {
+        .exp {
+            display: block;
+        }
+    }
+    &.open {
+        border: 1px solid var(--border-color);
+        width: 90px;
+        .agent-setting,
+        .exp,
+        .agent-help {
+            display: block;
+        }
+    }
+    .agent-setting,
+    .agent-help {
+        display: none;
+    }
+    .agent-help {
+        .mat-icon {
+            line-height: 28px;
+        }
+    }
+    .exp {
+        position: absolute;
+        left: -14px;
+        display: none;
+        cursor: pointer;
+        top: 2px;
+    }
 }

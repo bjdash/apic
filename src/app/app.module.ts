@@ -69,7 +69,6 @@ import { SyncService } from './services/sync.service';
 import { OfflineComponent } from './components/common/offline/offline.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ThemesComponent } from './components/settings/themes/themes.component';
-import { WebClientComponent } from './components/settings/web-client/web-client.component';
 import { SecurityDefComponent } from './components/designer/api-project-detail/project-home/security-def/security-def.component';
 import { environment } from 'src/environments/environment';
 import { KeyValueEditorComponent } from './components/common/key-value-editor/key-value-editor.component';
@@ -139,6 +138,7 @@ import { HawkAuthComponent } from './components/tester/tester-tabs/tab-request/a
 import { ApiKeyAuthComponent } from './components/tester/tester-tabs/tab-request/auth-api-key/api-key-auth.component';
 import { AuthOauth2Component } from './components/tester/tester-tabs/tab-request/auth-oauth2/auth-oauth2.component';
 import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-request/auth-aws-signature/auth-aws-signature.component';
+import { WebAgentComponent } from './components/settings/web-agent/web-agent.component';
 
 
 @NgModule({
@@ -168,7 +168,6 @@ import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-r
     OfflineComponent,
     SettingsComponent,
     ThemesComponent,
-    WebClientComponent,
     SecurityDefComponent,
     KeyValueEditorComponent,
     ProjSettingsComponent,
@@ -223,7 +222,8 @@ import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-r
     HawkAuthComponent,
     ApiKeyAuthComponent,
     AuthOauth2Component,
-    AuthAwsSignatureComponent
+    AuthAwsSignatureComponent,
+    WebAgentComponent
   ],
   imports: [
     BrowserModule,

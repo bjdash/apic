@@ -58,7 +58,7 @@ export class ApiProjectDetailService {
         }, 0);
         //select the environment for this project which is auto created while saving settings.
         if (project.setting?.envId) {
-            let selectedEnv: Env = await this.store.select(EnvState.getSelected)
+            let selectedEnv = await this.store.select(EnvState.getSelected)
                 .pipe(take(1)).toPromise();
             if (selectedEnv?._id !== project.setting?.envId) {
                 this.store.dispatch(new EnvsAction.Select(project.setting.envId));

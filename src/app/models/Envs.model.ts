@@ -17,5 +17,5 @@ export interface Env {
 export interface ParsedEnv {
     _id: string,
     name: string,
-    vals: any
+    vals: { [key: string]: string }
 }

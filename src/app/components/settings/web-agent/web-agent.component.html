@@ -1,0 +1,45 @@
+<div class="title vcenter margB25">APIC Web Agent
+    <button class="sm" mat-icon-button (click)="flags.info = !flags.info">
+        <mat-icon>info</mat-icon>
+    </button>
+</div>
+<div class="margV5" *ngIf="flags.info">
+    The web version of APIC suffers from the limitation of <a
+        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank">CORS</a>. To bypass the CORS
+    limitation you can use APIC's web agent to make API calls. Using the web agent will allow you to make the request
+    via the agent and then show the response in the web app. This way you can bypass the CORS limitation set by
+    browsers. To learn more please visit our <a href="https://docs.apic.app/apic-web-agent-apic-cli"
+        target="_blank">APIC Agent docs page</a>.
+</div>
+<div>
+    <form class="form-horizontal" [formGroup]="form">
+        <div class="row">
+            <label class="col-sm-3 control-label">
+                <mat-icon class="sm gap" matTooltip="The port on which APIC should try to connect to the web agent">info
+                </mat-icon>
+                Agent port: <span class="red">*</span>
+            </label>
+            <div class="col-sm-8">
+                <input type="number" class="form-control" formControlName="port" required="" (change)="saveSettings()"
+                    placeholder="Default 8008">
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-sm-3 control-label">
+                <mat-icon class="sm gap"
+                    matTooltip="How loang should APIC wait for a response from the agent before failing the request. Min: 10000(10sec))">
+                    info</mat-icon>
+                Timeout (ms): <span class="red">*</span>
+            </label>
+            <div class="col-sm-8">
+                <input type="number" class="form-control" formControlName="timeoutMs" required="" min="10000"
+                    (change)="saveSettings()" placeholder="Default 120000">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-4">
+                <button class="sm t_border" mat-stroked-button (click)="reset()">Reset Default</button>
+            </div>
+        </div>
+    </form>
+</div>

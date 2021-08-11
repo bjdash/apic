@@ -262,5 +262,6 @@ export const SAVED_SETTINGS = {
         SUITES: 'lastSyncedSuites',
         TEST_PROJECTS: 'lastSyncedTestProjects'
     }
-
 }
+
+export const AGENT_DEFAULT_CONF = { port: 8008, timeoutMs: 120000 }
