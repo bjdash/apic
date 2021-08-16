@@ -139,6 +139,7 @@ import { ApiKeyAuthComponent } from './components/tester/tester-tabs/tab-request
 import { AuthOauth2Component } from './components/tester/tester-tabs/tab-request/auth-oauth2/auth-oauth2.component';
 import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-request/auth-aws-signature/auth-aws-signature.component';
 import { WebAgentComponent } from './components/settings/web-agent/web-agent.component';
+import { IntroComponent } from './components/intro/intro.component';
 
 
 @NgModule({
@@ -223,7 +224,8 @@ import { WebAgentComponent } from './components/settings/web-agent/web-agent.com
     ApiKeyAuthComponent,
     AuthOauth2Component,
     AuthAwsSignatureComponent,
-    WebAgentComponent
+    WebAgentComponent,
+    IntroComponent
   ],
   imports: [
     BrowserModule,

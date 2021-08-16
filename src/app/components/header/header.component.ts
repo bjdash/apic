@@ -25,6 +25,7 @@ import { Toaster } from 'src/app/services/toaster.service';
 import { AppUpdateComponent } from '../dialogs/app-update/app-update.component';
 import { UpdateDownloadedComponent } from '../dialogs/update-downloaded/update-downloaded.component';
 import { ApicAgentService, ApicAgentStatus } from 'src/app/services/apic-agent.service';
+import { IntroComponent } from '../intro/intro.component';
 
 declare global {
   interface Window {
@@ -145,6 +146,15 @@ export class HeaderComponent implements OnInit {
 
   logout() {
     this.dialog.open(LogoutComponent);
+  }
+
+  openIntro() {
+    this.dialog.open(IntroComponent,
+      {
+        disableClose: true,
+        width: '100vw',
+        height: '100vh', maxWidth: '100vw'
+      });
   }
 
   getNotifications() {

@@ -18,6 +18,8 @@ import { ReqHistoryService } from '../services/reqHistory.service';
 import { SuiteService } from '../services/suite.service';
 import { HttpService } from '../services/http.service';
 import { first } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { IntroComponent } from '../components/intro/intro.component';
 
 @Injectable()
 export class AppBootstrap {
@@ -31,6 +33,7 @@ export class AppBootstrap {
         private reqService: RequestsService,
         private suiteService: SuiteService,
         private themeService: ThemesService,
+        private dialog: MatDialog,
         private reqHistoryService: ReqHistoryService) {
 
     }
@@ -90,7 +93,12 @@ export class AppBootstrap {
             await Promise.all(promises);
             //mark first run complete
             LocalStore.set(LocalStore.FIRST_RUN, true);
-
+            this.dialog.open(IntroComponent,
+                {
+                    disableClose: true,
+                    width: '100vw',
+                    height: '100vh', maxWidth: '100vw'
+                });
         }
     }
 

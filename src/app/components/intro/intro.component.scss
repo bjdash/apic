@@ -1,0 +1,120 @@
+.intro {
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    .close {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        border: 2px solid var(--text-color);
+        box-sizing: content-box;
+    }
+
+    .intro-items {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-color);
+        font-family: apic-font;
+        align-items: center;
+    }
+
+    .intro-item {
+        /* width: 700px; */
+        /* height: 700px; */
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        padding: 25px;
+        color: var(--text-color);
+        border-radius: 4px;
+    }
+
+    .intro-item a {
+        color: var(--text-color);
+    }
+    .intro-circe {
+        width: 188px;
+        height: 198px;
+        display: inline-block;
+        margin: 20px;
+        /* border: 1px solid; */
+        background-size: contain;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    .intro-circe::after {
+        position: absolute;
+        bottom: -20px;
+    }
+    .intro-designer::after {
+        content: "API Designer";
+        left: 28px;
+    }
+    .intro-tester::after {
+        content: "API Tester";
+        left: 42px;
+    }
+    .intro-docs::after {
+        content: "API Documentation";
+        left: 3px;
+    }
+    .intro-db::after {
+        content: "Teams & Sharing";
+        left: 12px;
+    }
+    .ii-head {
+        width: 100%;
+        font-size: 35px;
+    }
+    .ii-body {
+        font-size: 18px;
+        width: 100%;
+    }
+    .intro-ft {
+        padding-top: 40px;
+    }
+    .intro-ft button {
+        font-size: 20px;
+    }
+    .introPref img {
+        width: 350px;
+        cursor: pointer;
+        margin: 10px;
+        border: 3px solid transparent;
+    }
+    .introPref img.active {
+        border: 3px solid #2196f3;
+        box-shadow: 0px 0px 15px #2196f36b;
+    }
+    .introPref a {
+        font-size: 34px;
+        width: 350px;
+        justify-content: center;
+        margin-bottom: 30px;
+        text-decoration: none;
+        &:hover {
+            color: var(--accent-color);
+        }
+    }
+    .designer-ico {
+        width: 45px;
+        height: 45px;
+        font-size: 46px;
+    }
+    .next {
+        position: absolute;
+        right: 0;
+    }
+    .prev {
+        position: absolute;
+        left: 0;
+    }
+    img {
+        width: 185px;
+    }
+}

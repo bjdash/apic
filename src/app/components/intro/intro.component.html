@@ -1,0 +1,91 @@
+<div class="intro ripple" ng-init="slide = 0" ng-class="'s'+slide">
+    <button mat-icon-button class="close" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+    </button>
+
+    <div class="intro-items">
+        <button mat-fab color="primary" class="prev" *ngIf="slide !=0" (click)="slide = slide-1">
+            <mat-icon>west</mat-icon>
+        </button>
+        <div class="intro-item ii0" *ngIf="slide==0">
+            <div class="f20 center">
+                <div class="introPref">
+                    <h4>I want to start with </h4>
+                    <div class="click row">
+                        <div class="col-sm-6">
+                            <a href [routerLink]="'/designer'" routerLinkActive="t_color" class="vcenter">
+                                <mat-icon class="designer-ico gap">architecture</mat-icon>
+                                <span>API Designing</span>
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <a href [routerLink]="'/tester'" routerLinkActive="t_color" class="vcenter">
+                                <i class="icon bj-lab gap"></i>
+                                <span>API Testing</span>
+                            </a>
+                        </div>
+                    </div>
+                    <h4>Color Scheme</h4>
+                    <div class="row">
+                        <div class="col-xs-6 click" (click)="switchTheme('dark')">
+                            <img src="assets/images/apic-dark.png" [ngClass]="{active:selectedTheme=='dark'}" />
+                        </div>
+                        <div class="col-xs-6 click" (click)="switchTheme('light')">
+                            <img src="assets/images/apic-light.png" [ngClass]="{active:selectedTheme=='light'}" />
+                        </div>
+                    </div>
+                    <div class="col-sm-12 click intro-ft">
+                        <button mat-raised-button class="gap" mat-dialog-close>Done</button>
+                        <button mat-stroked-button (click)="slide = slide+1">Know more</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="intro-item ii1" *ngIf="slide==1">
+            <div style="font-size: 30px;margin-top: -25px;margin-bottom: 45px;">APIC - makes your APIs Complete</div>
+            <div style="font-size:20px;text-align:center">
+                <a href="https://docs.apic.app/designer" target="_new">
+                    <div class="intro-circe intro-designer">
+                        <img src="assets/images/apic-apic-designer.png" />
+                    </div>
+                </a>
+                <a href="https://docs.apic.app/tester" target="_new">
+                    <div class="intro-circe intro-tester">
+                        <img src="assets/images/apic-api-tester.png" />
+                    </div>
+                </a>
+                <a href="https://docs.apic.app/docs" target="_new">
+                    <div class="intro-circe intro-docs">
+                        <img src="assets/images/apic-api-docs.png" />
+                    </div>
+                </a>
+                <a href="https://docs.apic.app/sharing" target="_new">
+                    <div class="intro-circe intro-db">
+                        <img src="assets/images/apic-api-sharing-with-teams.png" />
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="intro-item ii6" *ngIf="slide==2">
+            <div class="ii-head">Free Cloud Storage</div>
+            <div class="ii-body" style="text-align:center; margin-top:20px;">
+                Never loose your data by syncing them with our cloud.
+                <br />
+                <div style="margin:20px;">Login/Register to enable cloud sync</div>
+                <button mat-raised-button (click)="openAuthModal()">Login/Register</button>
+            </div>
+        </div>
+        <div class="intro-item ii7" *ngIf="slide==3">
+            <div class="ii-body">
+                <div style="font-size: 25px;text-align: center;margin: 30px;">
+                    APIC is free and always will be.
+                </div>
+            </div>
+        </div>
+        <div style="position:absolute;right:0">
+            <button mat-fab color="primary" class="next" (click)="slide==3?closeIntroModal():slide = slide+1">
+                <mat-icon>east</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
