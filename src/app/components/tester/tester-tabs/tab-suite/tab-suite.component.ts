@@ -5,6 +5,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Select, Store } from '@ngxs/store';
 import { from, Observable, Subject } from 'rxjs';
 import { delayWhen, map, take, takeUntil } from 'rxjs/operators';
+import { EnvsAction } from 'src/app/actions/envs.action';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Env, ParsedEnv } from 'src/app/models/Envs.model';
 import { ApiRequest } from 'src/app/models/Request.model';
@@ -32,6 +33,7 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
   @Input() suiteId: string;
   @Input() reqToOpen: string;
   @Select(EnvState.getAll) envs$: Observable<Env[]>;
+  @Select(EnvState.getSelected) selectedEnv$: Observable<ParsedEnv>;
 
   selectedSuite$: Observable<Suite>;
   selectedSuite: Suite;
@@ -510,6 +512,11 @@ export class TabSuiteComponent implements OnInit, OnDestroy {
 
   addRequestsToSuit(requests: SuiteReq[]) {
     this.checkAndUpdateSuite({ ...this.selectedSuite, reqs: [...this.suiteReqs, ...requests] });
+  }
+
+  switchToSuiteEnv() {
+    this.store.dispatch(new EnvsAction.Select(this.selectedSuite.env));
+    this.toaster.info('Selected env has been changed to this suite\'s environment.')
   }
 
   drop(event: CdkDragDrop<string[]>) {

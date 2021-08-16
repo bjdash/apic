@@ -62,7 +62,7 @@ export class ApiProjectDetailService {
                 .pipe(take(1)).toPromise();
             if (selectedEnv?._id !== project.setting?.envId) {
                 this.store.dispatch(new EnvsAction.Select(project.setting.envId));
-                this.toaster.info('Selected env has been changes to this project\'s environment.')
+                this.toaster.info('Selected env has been changed to this project\'s environment.')
             }
         }
     }

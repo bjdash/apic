@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="col-xs" [formGroup]="selectedRespForm">
-        <div *ngIf="selectedResp.fromTrait">This
+        <div *ngIf="selectedResp?.fromTrait">This
             response is imported from the trait <a class="t_color"
                 [routerLink]="['../../', 'traits', selectedResp.traitId]">{{selectedResp.traitName}}</a> and can't be
             edited
@@ -25,7 +25,7 @@
             <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
                 module</a> to edit it.
         </div>
-        <fieldset [disabled]="selectedResp.fromTrait">
+        <fieldset [disabled]="selectedResp?.fromTrait">
             <ng-jsonschema [models]="models" [responses]="responsesModels" (onSchemaChange)="onSchemaUpdate()"
                 name="data" formControlName="data" [showTestBuilder]="true" (onTestBuilder)="openTestBuilder($event)">
             </ng-jsonschema>

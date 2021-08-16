@@ -114,11 +114,7 @@ export const NewApiTrait: ApiTrait = {
     headers: { type: "object" },
     pathParams: { type: "object" },
     queryParams: { type: "object" },
-    responses: [{
-        code: "200",
-        data: { type: "object" },
-        noneStatus: false
-    }]
+    responses: []
 }
 
 export const NewApiEndp: ApiEndp = {

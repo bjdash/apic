@@ -72,7 +72,6 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
         this.traitForm.patchValue({ name, summary, folder, queryParams, headers, pathParams, responses: [...responses] });
         this.traitForm.markAsPristine();
         this.traitForm.markAsUntouched();
-        this.addDefaultResponse();
     }
 
     async createTrait(allowDup?: boolean) {
@@ -152,19 +151,6 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
 
     setDirty() {
         this.traitForm.markAsDirty();
-    }
-
-    addDefaultResponse() {
-        if (this.traitForm.controls['responses'].value.length === 0) {
-            this.traitForm.patchValue({
-                responses: [{
-                    code: '200',
-                    data: { "type": ["object"] },
-                    desc: '',
-                    noneStatus: false
-                }]
-            })
-        }
     }
 
     canDeactivate() {

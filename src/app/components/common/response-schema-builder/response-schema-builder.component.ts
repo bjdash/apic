@@ -18,6 +18,7 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   @Input() onChange: Function;
   @Input() models: any;
   @Input() responsesModels: any[] = [];
+  @Input() noDefault200: boolean
   @Output()
   onTestBuilder = new EventEmitter<number>()
 
@@ -40,7 +41,7 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
   }
   writeValue(value: any): void {
     this.responses = value?.length > 0 ? [...value] : [];
-    if (this.responses.length === 0) {
+    if (this.responses.length === 0 && !this.noDefault200) {
       this.responses.push({ code: '200', data: { type: 'object' } });
       setTimeout(() => {
         this.propagateChange(this.responses);

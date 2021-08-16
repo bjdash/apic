@@ -36,6 +36,11 @@
                 <span class="sname" *ngIf="flags.editReqType === 'harReq'">/ HAR Import</span>
                 <span class="sname">/ {{selectedReq.req.name}}</span>
             </span>
+            <span class="req-env" *ngIf="flags.editReq">
+                Using env: <span class="bold">{{(selectedEnv$|async)?.name || 'No environment'}}</span>&nbsp;
+                <button mat-stroked-button class="xs t_border" (click)="switchToSuiteEnv()"
+                    *ngIf="((selectedEnv$|async)?._id || '') != form.value.env">Use suite's env</button>
+            </span>
             <a class="f18 help" mat-icon-button aria-label="Test Suite"
                 href="https://apic.app/docs/tester/writing-test-cases.html" target="_new">
                 <mat-icon>help</mat-icon>
@@ -467,7 +472,7 @@
             </span>
         </div>
 
-        <app-tab-request #suitReqTab [suitRequest]="true" [initialData]="selectedReq.req"
+        <app-tab-request #suitReqTab [suiteRequest]="true" [initialData]="selectedReq.req"
             [requestId]="'suit_req:'+selectedReq.req._id" (onSuitReqSave)="onSuitReqSave($event)">
         </app-tab-request>
 

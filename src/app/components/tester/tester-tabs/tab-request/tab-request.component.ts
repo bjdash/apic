@@ -42,7 +42,7 @@ import { TesterTabsService } from '../tester-tabs.service';
 export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   @Input() requestId: string;
   @Input() initialData: ApiRequest;
-  @Input() suitRequest: boolean;
+  @Input() suiteRequest: boolean;
   @Input() projId: string; //The id of the project if the request is an endpoint 
 
   @Output() onSuitReqSave = new EventEmitter();
@@ -154,7 +154,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    if (!this.requestId.includes('new_tab') && !this.suitRequest && !this.projId) {
+    if (!this.requestId.includes('new_tab') && !this.suiteRequest && !this.projId) {
       this.listenForUpdate()
     } else {
 
@@ -233,7 +233,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       }
     } else {
       let saveData: ApiRequest = this.getReqFromForm();
-      if (this.suitRequest) {
+      if (this.suiteRequest) {
         this.onSuitReqSave.next(saveData);
       } else if (this.requestId.includes('new_tab') || saveAs) {
         this.dialog.open(SaveReqDialogComponent, { data: { req: saveData, action: (saveAs ? 'saveAs' : 'new') }, width: '600px' });
@@ -461,7 +461,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
     let savedResp: SavedResp = RequestUtils.formatResponseForSave(this.runResponse);
-    if (this.suitRequest) {
+    if (this.suiteRequest) {
       this.onSuitReqSave.emit({ savedResp: [savedResp] })
     } else {
       let updatedReq: ApiRequest = { ...this.selectedReq, savedResp: [savedResp] };
