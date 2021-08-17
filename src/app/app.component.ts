@@ -1,7 +1,5 @@
 import { AuthService } from './services/auth.service';
-import { EnvService } from './services/env.service';
-import { ApiProjectService } from './services/apiProject.service';
-import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { AppBootstrap } from './utils/appBootstrap';
 //TODO: See if this can be converted to ecma script modules to supress *CommonJS or AMD dependencies can cause optimization bailouts*
 import 'brace/mode/json';
@@ -12,11 +10,8 @@ import 'brace/ext/searchbox';
 import 'brace/ext/language_tools';
 import './utils/mode-graphql'
 
-import { ThemesService } from './services/themes.service';
-import { RequestsService } from './services/requests.service';
-import { ReqHistoryService } from './services/reqHistory.service';
 import LocalStore from './services/localStore';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { SuitesStateSelector } from './state/suites.selector';
 import { first } from 'rxjs/operators';
@@ -24,6 +19,8 @@ import { Toaster } from './services/toaster.service';
 import { TesterTabsService } from './components/tester/tester-tabs/tester-tabs.service';
 import { SuiteService } from './services/suite.service';
 import { environment } from 'src/environments/environment';
+import { IntroComponent } from './components/intro/intro.component';
+import { MatDialog } from '@angular/material/dialog';
 
 declare global {
   interface Window {
@@ -45,6 +42,7 @@ export class AppComponent {
     private store: Store,
     private toaster: Toaster,
     private suiteService: SuiteService,
+    private dialog: MatDialog,
     public zone: NgZone,
     private testerTabsService: TesterTabsService) {
     this.init();
@@ -57,6 +55,15 @@ export class AppComponent {
   async init() {
     this.authService.initLoggedinUser();
     await this.bootstrap.init();
+    if (!LocalStore.get(LocalStore.INTRO_SHOWN)) {
+      this.dialog.open(IntroComponent,
+        {
+          disableClose: true,
+          width: '100vw',
+          height: '100vh', maxWidth: '100vw'
+        });
+      LocalStore.set(LocalStore.INTRO_SHOWN, true)
+    }
 
     //for receiving messages from APIC dev tools
     try {

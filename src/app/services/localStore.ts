@@ -18,6 +18,7 @@ export default class LocalStore {
     static TESTER_LEFT_NAV_TAB = 'leftTab';
     static WORKSPACE = 'workspace';//which module was last used
     static WEB_AGENT = 'webAgent';//json string for storing web agent settings
+    static INTRO_SHOWN = 'introShown'
 
     //return object for list of keys, direct value for single key
     static get(key: string): string {
@@ -57,6 +58,10 @@ export default class LocalStore {
         } else {
             localStorage.removeItem(key);
         }
+    }
+
+    static clear() {
+        localStorage.clear();
     }
 
 

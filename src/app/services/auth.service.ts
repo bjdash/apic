@@ -188,7 +188,8 @@ export class AuthService {
         }))
     }
 
-    LocalStore.remove([LocalStore.UID, LocalStore.AUTH_TOKEN, LocalStore.NAME, LocalStore.EMAIL, LocalStore.ID, LocalStore.VERIFIED, LocalStore.FIRST_RUN]);
+    LocalStore.clear();
+    LocalStore.set(LocalStore.INTRO_SHOWN, true);
     this.store.dispatch(new UserAction.Clear());
     this.stompService.disconnect();
 
