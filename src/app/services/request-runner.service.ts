@@ -146,7 +146,7 @@ export class RequestRunnerService {
         logs: preRunResponse?.logs || [this.defaultLogMsg],
         tests: preRunResponse?.tests || [],
         inMemEnvs: preRunResponse?.inMem || {},
-        scriptError: preRunResponse.scriptError || null
+        scriptError: preRunResponse?.scriptError || null
       };
       $response.respSize = this.getResponseSize($response)
       //convert response to json object
