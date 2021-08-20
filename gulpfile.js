@@ -2,6 +2,8 @@
 var gulp = require('gulp'),
     del = require('del'),
     zip = require('gulp-zip'),
+    bump = require('gulp-bump'),
+    args = require('yargs').argv,
     gulpGit = require('gulp-git'),
     textTransformation = require('gulp-text-simple'),
     run = require('gulp-run');
@@ -13,6 +15,7 @@ var buildExtnLocal = {
         return del(['./dist/extnLocal']);
     },
     build: function () {
+        //@ts-ignore
         return run('ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json', { verbosity: 2 }).exec();
     },
     copyExtnFiles: function () {
@@ -37,6 +40,7 @@ var buildExtn = {
         return del(['./dist/extn']);
     },
     build: function () {
+        //@ts-ignore
         return run('ng build --prod --configuration=extn --base-href=index.html --output-path=dist/extn --stats-json --source-map=false', { verbosity: 2 }).exec();
     },
     copyExtnFiles: function () {
@@ -123,24 +127,32 @@ exports.buildElectron = gulp.series(
     electron.updateBase
 )
 
-// exports.extnLocal = gulp.series(
-//     buildExtnLocal.clean,
-//     buildExtnLocal.cleanDevTools,
-//     buildExtnLocal.build,
-//     buildExtnLocal.copyExtnFiles,
-//     buildExtnLocal.devTools,
-//     buildExtnLocal.cloneDevtools,
-//     buildExtnLocal.copyDevtoolsSrc,
-//     buildExtnLocal.cleanDevTools
-// );
-// exports.extn = gulp.series(
-//     buildExtn.clean,
-//     devTools.cleanDevTools,
-//     buildExtn.build,
-//     buildExtn.copyExtnFiles,
-//     buildExtn.devTools,
-//     devTools.cloneDevtools,
-//     buildExtn.copyDevtoolsSrc,
-//     devTools.cleanDevTools,
-//     buildExtn.zip
-// );
+exports.bump = function () {
+    /// <summary>
+    /// It bumps revisions
+    /// Usage:
+    /// 1. gulp bump : bumps the package.json and bower.json to the next minor revision.
+    ///   i.e. from 0.1.1 to 0.1.2
+    /// 2. gulp bump --version 1.1.1 : bumps/sets the package.json and bower.json to the 
+    ///    specified revision.
+    /// 3. gulp bump --type major       : bumps 1.0.0 
+    ///    gulp bump --type minor       : bumps 0.1.0
+    ///    gulp bump --type patch       : bumps 0.0.2
+    ///    gulp bump --type prerelease  : bumps 0.0.1-2
+    /// </summary>
+    var type = args.type;
+    var version = args.version;
+    var options = {};
+    if (version) {
+        options.version = version;
+    } else {
+        options.type = type;
+    }
+
+
+    return gulp
+        .src(['./package.json', './platform_files/extension/manifest.json'], { base: './' })
+        //@ts-ignore
+        .pipe(bump(options))
+        .pipe(gulp.dest('./'));
+}

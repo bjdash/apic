@@ -4,12 +4,20 @@
     </button>
 </div>
 <div class="margV5" *ngIf="flags.info">
-    The web version of APIC suffers from the limitation of <a
-        href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank">CORS</a>. To bypass the CORS
-    limitation you can use APIC's web agent to make API calls. Using the web agent will allow you to make the request
-    via the agent and then show the response in the web app. This way you can bypass the CORS limitation set by
-    browsers. To learn more please visit our <a href="https://docs.apic.app/apic-web-agent-apic-cli"
-        target="_blank">APIC Agent docs page</a>.
+    <p>
+        The web version of APIC suffers from the limitation of <a
+            href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank">CORS</a>. To bypass the CORS
+        limitation you can use APIC's web agent to make API calls. Using the web agent will allow you to make the
+        request
+        via the agent and then show the response in the web app. This way you can bypass the CORS limitation set by
+        browsers. To learn more please visit our <a href="https://docs.apic.app/apic-web-agent-apic-cli" class="t_color"
+            target="_blank">APIC Agent docs page</a>.
+    </p>
+    <p>Alternatively you can use <a
+            href="https://chrome.google.com/webstore/detail/apic-extension/dejjobgejdajdjjhjcindbjcfohoiehn"
+            target="_new" class="t_color">APIC's CORS extension</a> for Chrome/Edge to bypass the CORS limitation. We
+        recomend using the native apps or browser extenstion which doesn't have any cors limitation.</p>
+
 </div>
 <div>
     <form class="form-horizontal" [formGroup]="form">

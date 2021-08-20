@@ -1,7 +1,7 @@
 {
-    "name": "Apic - Local",
+    "name": "Apic - Complete API solution",
     "short_name": "apic",
-    "version": "2.2.2",
+    "version": "3.0.0",
     "minimum_chrome_version": "28",
     "description": "The only tool you will ever need for all you API Design, Documentation and Testing needs.",
     "devtools_page": "devtools/devtools.html",
@@ -32,13 +32,6 @@
         "identity",
         "notifications"
     ],
-    "oauth2": {
-        "client_id": "918023175434-66ho6c625p1ut9aectho4ldj57slsnlk.apps.googleusercontent.com",
-        "scopes": [
-            "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile"
-        ]
-    },
     "sandbox": {
         "pages": [
             "assets/tester/tester.html",

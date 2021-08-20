@@ -188,8 +188,10 @@ export class AuthService {
         }))
     }
 
+    let dummyUser = LocalStore.get(LocalStore.USER_ID)
     LocalStore.clear();
     LocalStore.set(LocalStore.INTRO_SHOWN, true);
+    LocalStore.set(LocalStore.USER_ID, dummyUser);
     this.store.dispatch(new UserAction.Clear());
     this.stompService.disconnect();
 

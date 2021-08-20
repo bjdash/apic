@@ -204,7 +204,8 @@
                     <span class="endpUrl pointer" (click)="runMockedEndp(endp.key)">
                         <span class="host-sh" *ngIf="selectedPROJ.simKey">https://apic.app/mock/... </span>
                         <span class="host"
-                            *ngIf="selectedPROJ.simKey">https://apic.app/mock/{{selectedPROJ.simKey}}</span>{{selectedPROJ.setting?.basePath+endp.value.path}}
+                            *ngIf="selectedPROJ.simKey">https://apic.app/mock/{{selectedPROJ.simKey}}</span>{{(selectedPROJ.setting?.basePath
+                        || '')+endp.value.path}}
                     </span>
                     <span class="pull-right mockCtrls" *ngIf="selectedPROJ.simKey">
                         <span class="mockCtrls-hidden">

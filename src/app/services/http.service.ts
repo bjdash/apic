@@ -72,7 +72,9 @@ export class HttpService {
         var body = {
             id: userId ?? apic.uuid(),
             platform: environment.PLATFORM,
-            existing: !!userId
+            os: navigator.platform,
+            existing: !!userId,
+            version: environment.VERSION
         }
         return this.http.post(ApicUrls.registerDummy, body)
             .pipe(map(this.processResponse), catchError((error) => {

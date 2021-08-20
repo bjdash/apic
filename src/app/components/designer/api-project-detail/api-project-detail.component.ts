@@ -41,7 +41,8 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         tree: null
     };
     flags = {
-        stage: 'Dashboard'
+        stage: 'Dashboard',
+        loading: true
     }
 
     constructor(private detachedRouteHandlesService: DetachedRouteHandlerService,
@@ -119,6 +120,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                             this.router.navigate(['designer'])
                         }
                     }
+                    this.flags.loading = false
                 })
         });
 

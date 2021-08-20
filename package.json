@@ -1,6 +1,6 @@
 {
   "name": "apic-angular",
-  "version": "0.0.0",
+  "version": "3.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port=5000",
@@ -10,6 +10,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "bump": "gulp bump",
     "extnLocal": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
     "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
     "electron": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
@@ -55,6 +56,7 @@
     "electron": "^13.1.7",
     "electron-builder": "^22.11.7",
     "gulp": "^4.0.2",
+    "gulp-bump": "^3.2.0",
     "gulp-git": "^2.10.1",
     "gulp-run": "^1.7.1",
     "gulp-text-simple": "^0.5.5",
@@ -69,7 +71,8 @@
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~4.1.5"
+    "typescript": "~4.1.5",
+    "yargs": "^17.1.1"
   },
   "build": {
     "appId": "bj.apic.app",

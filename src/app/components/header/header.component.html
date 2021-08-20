@@ -45,9 +45,14 @@
             </a>
         </div>
         <div class="flex-right header-right vcenter">
-            <div class="input-group gap agent-grp vcenter" [ngClass]="{open:flags.agentOpt}">
-                <button class="agent sm" [ngClass]="flags.agent" mat-icon-button *ngIf="platform==='WEB'"
-                    matTooltip="APIC web agent" (click)="connectAgent()">
+            <a href="https://docs.apic.app/apic-web-agent-apic-cli" target="_new" mat-icon-button class="sm warning gap"
+                *ngIf="platform=='WEB'"
+                matTooltip="You are using the web version of APIC which suffers with the limitation of CORS. Click to know how to resolve this.">
+                <mat-icon>warning</mat-icon>
+            </a>
+            <div class="input-group gap agent-grp vcenter" [ngClass]="{open:flags.agentOpt}" *ngIf="platform==='WEB'">
+                <button class="agent sm" [ngClass]="flags.agent" mat-icon-button matTooltip="APIC web agent"
+                    (click)="connectAgent()">
                     <mat-icon>podcasts</mat-icon>
                 </button>
                 <mat-icon class="exp" [matTooltip]="flags.agentOpt?'Hide':'More'"
