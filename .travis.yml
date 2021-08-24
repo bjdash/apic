@@ -1,56 +1,42 @@
-matrix:
-  include:
-    - os: osx
-      osx_image: xcode9.4
-      language: node_js
-      node_js: "8"
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+osx_image: xcode10.2
 
-    # Windows currently doesn't support encrypted variables.
-    # Once supported uncomment this out & remove build with Docker
-    #
-    #- os: windows
-    #  language: node_js
-    #  node_js: "8"
+dist: trusty # needs Ubuntu Trusty
+# Note: if you switch to sudo: false, you'll need to launch chrome with --no-sandbox.
+# See https://github.com/travis-ci/travis-ci/issues/8836
+sudo: required
 
-    - os: linux
-      services: docker
-      language: generic
+language: node_js
+node_js: "10"
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - ELECTRON_CACHE=$HOME/.cache/electron
+    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 cache:
   yarn: true
   directories:
-    - node_modules
     - $HOME/.cache/electron
     - $HOME/.cache/electron-builder
+    - $HOME/.npm/_prebuilds
+
+addons:
+  chrome: stable # have Travis install chrome stable.
 
 install:
-  - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install yarn;
-    fi
-script:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      docker run --rm \
-        -e GH_TOKEN=$GH_TOKEN \
-        -v $PWD:/project \
-        -v ~/.cache/electron:/root/.cache/electron \
-        -v ~/.cache/electron-builder:/root/.cache/electron-builder \
-        electronuserland/builder:wine \
-        /bin/bash -c "yarn install --link-duplicates --pure-lockfile && yarn release --win"
-    elif [ "$TRAVIS_OS_NAME" == "windows" ]; then
-      npm install;
-      npm run release;
-    else
-      yarn install;
-      yarn release;
-    fi
-before_cache:
-  - rm -rf $HOME/.cache/electron-builder/wine
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install yarn; fi
+  - yarn
 
-branches:
-  except:
-    - "/^v\\d+\\.\\d+\\.\\d+$/"
+script:
+  - echo "Deploy linux version to GitHub"
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn electron:linux; fi
+
+  - echo "Deploy mac version to GitHub"
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn electron:mac; fi
+
+before_cache:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then rm -rf $HOME/.cache/electron-builder/wine; fi
