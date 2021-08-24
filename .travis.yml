@@ -6,7 +6,8 @@ dist: trusty # needs Ubuntu Trusty
 sudo: required
 
 language: node_js
-node_js: "10"
+node_js:
+  - lts/*
 
 os:
   - linux
