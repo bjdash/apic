@@ -1,6 +1,6 @@
 {
   "name": "apic-angular",
-  "version": "3.0.1",
+  "version": "3.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port=5000",

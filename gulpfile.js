@@ -152,7 +152,7 @@ exports.bump = function () {
 
 
     return gulp
-        .src(['./package.json', './platform_files/extension/manifest.json'], { base: './' })
+        .src(['./package.json', './platform_files/extension/manifest.json', './platform_files/electron/package.json'], { base: './' })
         //@ts-ignore
         .pipe(bump(options))
         .pipe(gulp.dest('./'));
