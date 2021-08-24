@@ -116,7 +116,8 @@ exports.buildExtn = gulp.series(
     buildExtn.devTools,
     devTools.cloneDevtools,
     buildExtn.copyDevtoolsSrc,
-    devTools.cleanDevTools
+    devTools.cleanDevTools,
+    buildExtn.zip
 );
 
 exports.cleanElectron = gulp.series(
