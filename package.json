@@ -16,7 +16,7 @@
     "extn:local": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
     "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
     "electron:win": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
-    "electron:mac": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --mac --x64",
+    "electron:mac": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --mac --x64 -p always",
     "electron:linux": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --linux -p always --x64",
     "electron:local": "gulp cleanElectron && ng build --configuration=electronLocal --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
     "release:all": "npm run bump && npm run web && npm run extn && electron:win",
@@ -83,8 +83,8 @@
     "appId": "bj.apic.app",
     "publish": [
       {
-        "provider": "generic",
-        "url": "https://apic.app/download/"
+        "provider": "github",
+        "releaseType": "release"
       }
     ],
     "mac": {
