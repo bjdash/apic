@@ -28,15 +28,14 @@ addons:
   chrome: stable # have Travis install chrome stable.
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install yarn; fi
-  - yarn
+  - npm install
 
 script:
   - echo "Deploy linux version to GitHub"
-  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn electron:linux; fi
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run electron:linux; fi
 
   - echo "Deploy mac version to GitHub"
-  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn electron:mac; fi
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run electron:mac; fi
 
 before_cache:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then rm -rf $HOME/.cache/electron-builder/wine; fi
