@@ -67,7 +67,7 @@ export class AppComponent {
 
     //for receiving messages from APIC dev tools
     try {
-      if (window.chrome && window.chrome.runtime) {
+      if (window.chrome && window.chrome.runtime && window.chrome.runtime.onMessage) {
         window.chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           console.log(message, sender);
           this.zone.run(() => {

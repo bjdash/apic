@@ -12,7 +12,7 @@
     "e2e": "ng e2e",
     "bump": "gulp bump",
     "web:local": "ng build",
-    "web": "ng build --prod --output-path=dist/web",
+    "web": "ng build --prod --base-href=/onlinex/",
     "extn:local": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
     "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
     "electron:win": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64 -p onTagOrDraft",
