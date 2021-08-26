@@ -1,0 +1,17 @@
+<div class="offline-db" id="signedOut" *ngIf="offlineReason=='UNAUTHORISED'">
+    <div class="offline-dbtxt">
+        Connection to your account has been lost. Please login in again to continue.
+        <div style="font-size: 14px;">This could be because you have changed your password or have logged out across all
+            your devices.</div>
+        <div>
+            <button mat-raised-button class="gap" (click)="openLoginModal()">Login again</button>
+            <button mat-raised-button class="" (click)="logout()">Logout from here</button>
+        </div>
+    </div>
+</div>
+
+<div class="offline-db" id="offline-db" *ngIf="offlineReason=='OFFLINE'">
+    <div class="offline-dbtxt">
+        Dashboard is offline. Please check your internet connection.
+    </div>
+</div>

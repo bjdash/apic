@@ -1,0 +1,59 @@
+<h4 class="head vcenter">
+    <a href (click)="loadDashboard();$event.preventDefault()" class="t_color" title="Click to Refresh">Dashboard</a>
+    <span class="spinner" *ngIf="flags.loading"></span>
+</h4>
+<div class="row">
+    <div class="col-md-3">
+        <div class="d-panel">
+            <div class="db-item">
+                <div class="val">{{dashData.apiProjects}}</div>
+                <div class="ico t_bgg t_glow">
+                    <span class="icon bj-palette"></span>
+                </div>
+            </div>
+            <div class="d-panel-foot">
+                API Projects
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="d-panel">
+            <div class="db-item">
+                <div class="val">{{dashData.publishedDocs}}</div>
+                <div class="ico t_bgg t_glow">
+                    <span class="icon bj-cloud-upload"></span>
+                </div>
+            </div>
+            <div class="d-panel-foot">
+                Published Docs
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="d-panel">
+            <div class="db-item">
+                <div class="val">{{dashData.reqs}}</div>
+                <div class="ico t_bgg t_glow">
+                    <span class="icon bj-embed2"></span>
+                </div>
+            </div>
+            <div class="d-panel-foot">
+                API Requests
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="d-panel">
+            <div class="db-item">
+                <div class="val">{{dashData.suits}}</div>
+                <div class="ico t_bgg t_glow">
+                    <span class="icon bj-box-filled"></span>
+                </div>
+            </div>
+            <div class="d-panel-foot">
+                Test Suites
+            </div>
+        </div>
+    </div>
+
+</div>

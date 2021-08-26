@@ -1,0 +1,49 @@
+<section class="json-schema">
+    <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0" class="sm"
+        *ngIf="mode != 'list' && mode != 'static'">
+        <mat-tab label="Designer">
+            <div index="0" heading="Designer">
+                <ng-container [ngTemplateOutlet]="SchemaRef">
+                </ng-container>
+            </div>
+        </mat-tab>
+        <mat-tab label="Json Schema">
+            <apic-ace id="json-schema" [(text)]="schemaStr.original" [mode]="'json'" #editor>
+            </apic-ace>
+        </mat-tab>
+    </mat-tab-group>
+    <!--Hide the tabs for static/list mode-->
+    <ng-container [ngTemplateOutlet]="SchemaRef" *ngIf="mode == 'list' || mode == 'static'"></ng-container>
+
+    <div class="tab-action" [ngClass]="{static:mode == 'list' || mode == 'static'}">
+        <button type="button" class="sm" mat-icon-button aria-label="Download" (click)="downloadJSON();">
+            <mat-icon>vertical_align_bottom</mat-icon>
+        </button>
+        <button type="button" class="sm" mat-icon-button aria-label="Copy" (click)="copyToClipboard()">
+            <mat-icon>file_copy</mat-icon>
+        </button>
+    </div>
+</section>
+
+<ng-template #SchemaRef>
+    <div>
+        <fieldset [disabled]="readonly" class="js-fieldset">
+            <div class="main">
+                <ng-jsonschema-main [mode]="mode" [msg]="msg" [refreshSchema]="refreshSchema.bind(this)"
+                    [models]="models" [addNewProp]="addNewProp.bind(this)" [removeEntity]="removeEntity.bind(this)"
+                    [openMenu]="displaySelectorModal.bind(this)" [entity]="entity" [expand$ref]="expand$ref.bind(this)"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)" [disabledKeys]="disabledKeys"
+                    [addAdditionalProp]="addAdditionalProp.bind(this)">
+                </ng-jsonschema-main>
+            </div>
+            <div *ngIf="showSelectorModal" [style.left.px]="selectorModalPosition.x"
+                [style.bottom.px]="selectorModalPosition.y" class="model-type-selector" id="model-type-selector">
+                <ng-jsonschema-selectschema [refreshSchema]="refreshSchema.bind(this)" [mode]="mode"
+                    [selectedEntity]="selectedEntity" [openMenu]="displaySelectorModal.bind(this)" [models]="models"
+                    [responses]="responses" [setArrayType]="setArrayType.bind(this)"
+                    [modelChangesCallback]="modelChangesCallback.bind(this)" [modelRef]="modelRef" [configs]="configs">
+                </ng-jsonschema-selectschema>
+            </div>
+        </fieldset>
+    </div>
+</ng-template>

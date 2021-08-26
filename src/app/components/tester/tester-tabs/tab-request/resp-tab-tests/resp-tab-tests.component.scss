@@ -1,0 +1,30 @@
+.title {
+    min-width: 200px;
+    margin-right: 50px;
+}
+.filter {
+    width: 150px;
+}
+.test-result {
+    font-size: 14px;
+    border-bottom: 1px dashed var(--border-color);
+    padding: 5px 0;
+
+    .t_status {
+        display: flex;
+        align-items: center;
+        padding: 2px 16px;
+        border-radius: 3px;
+        margin-right: 10px;
+        width: 100px;
+    }
+    .passed {
+        background-color: var(--success);
+        color: #fff;
+    }
+
+    .failed {
+        background-color: var(--error);
+        color: #fff;
+    }
+}

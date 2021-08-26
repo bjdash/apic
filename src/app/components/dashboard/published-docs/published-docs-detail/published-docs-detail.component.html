@@ -1,0 +1,55 @@
+<div class="f20 vcenter">
+    <a class="t_color" [routerLink]="['../']" mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+    </a>
+    {{selectedDoc?.title || 'Publish new document'}}
+    <button class="" mat-icon-button (click)="getDocDetail(selectedDoc.id)" *ngIf="!flags.loading && selectedDoc">
+        <mat-icon>refresh</mat-icon>
+    </button>
+    <a *ngIf="!flags.loading && selectedDoc" mat-flat-button
+        [href]="'https://apic.app/PublishedDocs/#!/view/'+selectedDocId" target="_new" class="sm" class="sm">View doc
+        <mat-icon>launch
+        </mat-icon></a>
+    <span class="spinner" *ngIf="flags.loading"></span>
+</div>
+<form class="form-horizontal" [formGroup]="form" (submit)="publish()">
+    <div class="row">
+        <div class="col-sm-2 control-label">Title</div>
+        <div class="col-sm-6">
+            <input class="form-control" formControlName="title" placeholder="Title" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 control-label">Version</div>
+        <div class="col-sm-6">
+            <input class="form-control" formControlName="version" placeholder="1.2.3" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 control-label">Logo</div>
+        <div class="col-sm-6">
+            <input class="form-control" formControlName="logo" placeholder="Eg: https://apic.app/img/logo_128.png" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 control-label">Favicon</div>
+        <div class="col-sm-6">
+            <input class="form-control" formControlName="favicon" placeholder="Eg: https://apic.app/favicon.ico" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2 control-label">Custom CSS</div>
+        <div class="col-sm-6">
+            <textarea formControlName="css" class="form-control"
+                placeholder="Add your own CSS to chang the look and feel of the docs page"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-2 col-sm-6">
+            <button class="sm gap" mat-raised-button color="primary"
+                type="submit">{{selectedDocId=='new'?'Publish':'Re-pulish'}}
+                <span class="spinner wh" *ngIf="flags.updating"></span></button>
+            <a class="sm" mat-button [routerLink]="['../']">Cancel</a>
+        </div>
+    </div>
+</form>

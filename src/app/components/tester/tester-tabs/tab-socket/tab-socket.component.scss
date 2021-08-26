@@ -1,0 +1,194 @@
+.url-cont {
+    position: fixed;
+    margin-left: -15px;
+    padding: 0 5px 4px 5px;
+    z-index: 10;
+    background: var(--header-bg);
+    box-shadow: 0 7px 9px rgb(0 0 0 / 10%);
+    left: 365px;
+    right: 0;
+
+    .progress-holder {
+        position: absolute;
+        top: 0px;
+        left: 5px;
+        right: 5px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--content-bg);
+        z-index: -1;
+        height: 35px;
+
+        .progress-bar {
+            height: 35px;
+            width: 100%;
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.15) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.15) 50%,
+                rgba(255, 255, 255, 0.15) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 40px 40px;
+            background-color: var(--accent-shadow);
+            animation: progress-bar-stripes 2s linear infinite;
+        }
+    }
+    .URL {
+        flex: 1;
+        height: 35px;
+        width: 1px;
+        margin-left: 5px;
+    }
+    .url-opt {
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        overflow: hidden;
+    }
+    .url-pop {
+        background: var(--header-bg);
+        color: var(--text-color);
+    }
+    .mat-select {
+        width: 95px;
+        height: 36px;
+        border-radius: 0;
+        padding-top: 10px;
+        background: var(--content-bg);
+    }
+    .abort {
+        background-color: red;
+        color: #fff;
+        border-radius: 0;
+    }
+    .run {
+        background: var(--accent-color);
+        border-radius: 0;
+        color: #fff;
+    }
+    .run-more {
+        padding: 0 4px 0 0;
+        color: #fff;
+        width: 35px;
+        height: 36px;
+        background-color: var(--accent-color);
+        border-radius: 0 20px 20px 0;
+        border-left: 1px solid #fff;
+    }
+}
+.top-spacer {
+    height: 35px;
+}
+.saveas {
+    padding: 0;
+}
+.panel-body {
+    margin-top: 3px;
+    position: relative;
+}
+.msgs {
+    max-height: 300px;
+    overflow: auto;
+    padding-top: 5px;
+}
+.s-send-cont {
+    overflow: auto;
+    display: flex;
+    position: relative;
+}
+.s-send-cont > div {
+    flex: 1;
+}
+.s-send-cont > button {
+    position: absolute;
+    right: 5px;
+    bottom: 15px;
+}
+.sock-resp-cont {
+    padding-top: 5px;
+}
+.sock-resp:not(.auto) {
+    background: var(--input-bg);
+    margin-bottom: 15px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    position: relative;
+}
+.sock-resp.auto pre {
+    text-align: center;
+}
+.sock-resp.out {
+    border-bottom-right-radius: 0;
+    margin-left: 50px;
+}
+.sock-resp.in,
+.sock-resp.error {
+    border-bottom-left-radius: 0;
+    margin-right: 50px;
+}
+.sock-resp.in::before,
+.sock-resp.out::before {
+    position: absolute;
+    font-family: "Material Icons" !important;
+    top: -7px;
+    font-size: 16px;
+    right: 0px;
+}
+.sock-resp.in::after,
+.sock-resp.out::after {
+    position: absolute;
+    // font-family: "apic-icon" !important;
+    top: -10px;
+    border-radius: 5px;
+    padding: 4px;
+    font-size: 12px;
+    content: attr(time);
+    background: var(--content-bg);
+    line-height: 12px;
+    right: 22px;
+}
+.sock-resp.out::before {
+    content: "\e864";
+}
+.sock-resp.in::before {
+    content: "\e2c0";
+}
+.left15 {
+    padding-left: 15px;
+}
+.sio-info {
+    font-size: 12px;
+    margin-top: 10px;
+    mat-icon {
+        vertical-align: middle;
+    }
+}
+.sioarg {
+    border-radius: 7px 0 0 7px;
+    background: var(--input-bg);
+    float: right;
+    clear: right;
+    width: 100px;
+    text-align: right;
+    margin-right: -15px;
+    padding: 0 10px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    position: relative;
+    line-height: 20px;
+}
+.sioarg mat-icon {
+    float: left;
+}
+:host ::ng-deep {
+    .URL {
+        .apic-editor {
+            height: 35px;
+            border: none;
+            padding: 8px;
+        }
+    }
+}

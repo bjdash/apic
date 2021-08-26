@@ -1,0 +1,8 @@
+<apic-header></apic-header>
+<div class="main-body" [ngClass]="platform==='ELECTRON'?'frameless':''">
+  <div class="container-fluid">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+<!--Offline indicator-->
+<app-offline></app-offline>

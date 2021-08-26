@@ -1,0 +1,19 @@
+<div class="docs">
+    <div class="app-body">
+        <div class="content">
+            <h4 class="head">
+                API Docs
+            </h4>
+            <div class="projects">
+                <div class="card-list">
+                    <div class="cl-item ic" [routerLink]="['/docs', project._id]"
+                        *ngFor="let project of projects$ | async">
+                        <div class="cl-item-name">{{project.title}}</div>
+                        <mat-icon *ngIf="!!project.owner && project.owner!=authUser?.UID" matTooltip="Shared with you"
+                            class="shared">share</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

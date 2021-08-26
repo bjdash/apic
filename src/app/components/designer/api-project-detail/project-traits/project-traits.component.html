@@ -1,0 +1,98 @@
+<div class="content" *ngIf="selectedPROJ">
+    <div class="submodMenu">
+        <div class="submodMenuOptn">
+            <span *ngIf="selectedTrait._id === 'NEW'">
+                <button type="button" type="button" (click)="createTrait()" form="traitForm" class="sm gap"
+                    mat-raised-button color="primary">Create</button>
+                <button mat-button class="sm" type="reset" (click)="traitForm.reset()">Reset</button>
+            </span>
+            <span *ngIf="selectedTrait._id !== 'NEW'">
+                <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
+                    (click)="createTrait()">Save</button>
+                <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
+                    (click)="deleteTrait(selectedTrait._id)">Delete</button>
+                <button type="button" type="button" *ngIf="traitForm.dirty" class="sm gap" mat-raised-button
+                    (click)="discardChange()">Discard</button>
+                <div class="bar"></div>
+                <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
+                    <mat-icon class="sm">add</mat-icon>New Trait
+                </a>
+            </span>
+        </div>
+        <div class="tip"></div>
+    </div>
+
+    <h4 class="t_color head vcenter">
+        <span class="gap">Traits:</span>
+        <div class="margL10">
+            <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="traitsList">
+                <span class="gap">{{selectedTrait?.name || 'Create new trait'}}</span>
+                <span *ngIf="traitForm.dirty">(Unsaved)</span>
+                <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #traitsList="matMenu">
+                <a href="" mat-menu-item [routerLink]="['../', 'new']">Create new Trait</a>
+                <mat-divider></mat-divider>
+                <a href="" *ngFor="let trait of selectedPROJ.traits | keyvalue" [routerLink]="['../', trait.value._id]"
+                    mat-menu-item>{{trait.value.name}}</a>
+            </mat-menu>
+        </div>
+        <a class="f18 pull-right" mat-icon-button href="https://apic.app/docs/designer/create-trait" target="_new">
+            <mat-icon>help</mat-icon>
+        </a>
+    </h4>
+
+    <div>
+        <form class="form-horizontal form-compact " [formGroup]="traitForm" id="traitForm">
+            <div class="row">
+                <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required="" placeholder="Trait Name" maxlength="100"
+                        formControlName="name">
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="control-label col-sm-2">Folder: </label>
+                <div class="col-sm-8">
+                    <mat-select formControlName="folder">
+                        <mat-option value="">Un-grouped</mat-option>
+                        <mat-divider></mat-divider>
+                        <mat-option *ngFor="let folder of selectedPROJ.folders | keyvalue" [value]="folder.value._id">
+                            {{folder.value.name}}
+                        </mat-option>
+                    </mat-select>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Summary:</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" formControlName="summary"></textarea>
+                </div>
+            </div>
+            <mat-tab-group class="margV10" animationDuration="0ms">
+                <mat-tab label="Path Params">
+                    <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams">
+                    </ng-jsonschema>
+                </mat-tab>
+                <mat-tab label="Query Params">
+                    <ng-jsonschema mode="list" msg="Define Query params here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams">
+                    </ng-jsonschema>
+                </mat-tab>
+                <mat-tab label="Headers">
+                    <ng-jsonschema mode="list" msg="Define Headers here and reuse them with endpoints."
+                        (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
+                </mat-tab>
+                <mat-tab label="Responses">
+                    <div class="pad10">
+                        <response-schema-builder [onChange]="setDirty.bind(this)" [models]="selectedPROJ.models"
+                            [noDefault200]="true" formControlName="responses">
+                        </response-schema-builder>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </form>
+    </div>
+</div>

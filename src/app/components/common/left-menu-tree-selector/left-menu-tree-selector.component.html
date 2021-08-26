@@ -1,0 +1,13 @@
+<div>
+    <div class="heading">{{options.title}}
+        <button mat-icon-button class="close sm" (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <div class="tree">
+        <apic-tree-selector [items]="items" [formControl]="model" [options]="options.treeOptions">
+        </apic-tree-selector>
+    </div>
+    <button type="button" mat-raised-button color="primary" class="sm done" (click)="done()">{{options.doneText||
+        'Done'}}</button>
+</div>

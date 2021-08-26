@@ -1,0 +1,29 @@
+table {
+    width: 100%;
+    .query-td {
+        width: 55%;
+    }
+    .schema-td {
+        width: 45%;
+        position: relative;
+
+        .gql-opt {
+            position: absolute;
+            top: -32px;
+            left: 10px;
+        }
+        .scroll-cont {
+            height: 100%;
+            overflow: auto;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding-left: 10px;
+        }
+    }
+}
+.reload-gql {
+    position: absolute;
+    right: 5px;
+    top: 0;
+}

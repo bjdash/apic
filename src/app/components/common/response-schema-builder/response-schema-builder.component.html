@@ -1,0 +1,40 @@
+<div class="row resp-builder">
+    <div class="resp-codes">
+        <div class="head">Name or Status Code</div>
+        <div class="resp-code" *ngFor="let resp of responses;trackBy: trackByFn; let i = index" (click)="selectResp(i);"
+            [ngClass]="{active:resp.code == selectedRespForm.value.code}">
+            <response-builder-item [resp]="resp" (onChange)="onChange()" (onRemove)="removeResp($event)" [index]="i">
+            </response-builder-item>
+        </div>
+        <div class="input-group" style="margin-top: 15px;">
+            <input type="text" class="form-control input-sm" placeholder="Add response"
+                (keydown.enter)="addResp(undefined, true, $event)" maxlength="20" [(ngModel)]="newResponseInput" />
+            <span class="input-group-btn vcenter">
+                <button mat-icon-button class="sm" type="button" (click)="addResp(undefined, true, $event)">
+                    <mat-icon>add_box</mat-icon>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-xs" [formGroup]="selectedRespForm">
+        <div *ngIf="selectedResp?.fromTrait">This
+            response is imported from the trait <a class="t_color"
+                [routerLink]="['../../', 'traits', selectedResp.traitId]">{{selectedResp.traitName}}</a> and can't be
+            edited
+            here.
+            <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
+                module</a> to edit it.
+        </div>
+        <fieldset [disabled]="selectedResp?.fromTrait">
+            <ng-jsonschema [models]="models" [responses]="responsesModels" (onSchemaChange)="onSchemaUpdate()"
+                name="data" formControlName="data" [showTestBuilder]="true" (onTestBuilder)="openTestBuilder($event)">
+            </ng-jsonschema>
+            <label>Description</label>
+            <textarea class="form-control" formControlName="desc"></textarea>
+        </fieldset>
+        <span *ngIf="selectedRespForm.value.noneStatus">
+            <i class="icon bj-alert warning"></i>This response won't be
+            auto imported when this trait is added to an endpoint as it
+            is not defined against a status code.</span>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+.kvCont {
+    border: none;
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
+}
+.val,
+.key {
+    width: 100%;
+    display: flex;
+    apic-rich-input {
+        flex: 1;
+    }
+}
+.val {
+    apic-rich-input {
+        width: 1px;
+    }
+}
+
+.placeholder {
+    width: 28px;
+    height: 28px;
+}
+.kvCtrls .copy .material-icons,
+.kvCtrls .paste .material-icons {
+    font-size: 16px;
+}
+.kv-type {
+    width: 65px;
+}

@@ -1,0 +1,44 @@
+osx_image: xcode10.2
+
+dist: trusty # needs Ubuntu Trusty
+# Note: if you switch to sudo: false, you'll need to launch chrome with --no-sandbox.
+# See https://github.com/travis-ci/travis-ci/issues/8836
+sudo: required
+
+language: node_js
+node_js:
+  - lts/*
+
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    - ELECTRON_CACHE=$HOME/.cache/electron
+    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+
+cache:
+  yarn: true
+  directories:
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
+    - $HOME/.npm/_prebuilds
+
+addons:
+  chrome: stable # have Travis install chrome stable.
+
+install:
+  - npm install
+
+script:
+  - echo "Deploy linux version to GitHub"
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run electron:linux; fi
+
+  - echo "Deploy mac version to GitHub"
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run electron:mac; fi
+
+  - echo "Deploy windows version to GitHub"
+  - if [[ "$TRAVIS_BRANCH" == "master" ]] && [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run electron:win; fi
+before_cache:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then rm -rf $HOME/.cache/electron-builder/wine; fi

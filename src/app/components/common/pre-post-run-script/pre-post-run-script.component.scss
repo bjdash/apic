@@ -1,0 +1,26 @@
+.run-scripts{
+    display: flex;
+
+    .s-tabs{
+        flex: 0 0 75%;
+    }
+    .s-snip{
+        flex: 0 0 25%;position: relative;
+
+        .snip-cont{
+            position: absolute!important;flex-direction: column!important;display: flex!important;top: 0;bottom: 0;left: 0;right: 0;
+            
+            .s-help{
+                padding: 0 0 5px 10px;line-height: 15px;
+            }
+
+            .snips{
+                display: flex;overflow: auto;
+
+                .snip-menu {
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+}

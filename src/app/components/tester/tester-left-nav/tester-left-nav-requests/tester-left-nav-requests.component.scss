@@ -1,0 +1,59 @@
+.ctrls {
+    text-align: right;
+}
+
+.new-folder {
+    padding: 0 10px;
+}
+
+.reqSection {
+    font-size: 20px;
+    font-family: apic-font;
+    cursor: pointer;
+    padding: 0 6px;
+    margin-bottom: 7px;
+}
+.msg {
+    font-size: 16px;
+    text-align: center;
+    line-height: 1.846;
+}
+.tree-select-dialog {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--content-bg);
+    padding: 0 10px;
+}
+.searching {
+    .folder {
+        height: 20px;
+    }
+    .empty {
+        display: none;
+    }
+    .l-sec .bj-folder {
+        font-size: 15px;
+    }
+    .savedReq {
+        height: 25px;
+    }
+}
+.l-sec {
+    position: relative;
+
+    .shared {
+        position: absolute;
+        font-size: 12px;
+        width: 16px;
+        height: 16px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        right: -2px;
+        bottom: -5px;
+        color: var(--accent-bg-text);
+        padding: 2px 1px;
+    }
+}

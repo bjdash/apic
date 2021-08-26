@@ -1,0 +1,101 @@
+.auth-dialog {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .close {
+        position: absolute;
+        right: 0;
+        top: 0;
+        border: 2px solid var(--text-color);
+        box-sizing: content-box;
+    }
+
+    .title {
+        font-size: 70px;
+        margin-bottom: 50px;
+    }
+    .auth-tabs {
+        justify-content: space-between;
+        width: 500px;
+
+        div {
+            border-radius: 15px;
+            padding: 1px 15px;
+            cursor: pointer;
+            transition: all 0.5s;
+        }
+        div:hover {
+            font-size: 16px;
+            padding: 1px 20px;
+        }
+        div.active {
+            opacity: 1;
+            background: var(--accent-color);
+            font-size: 20px;
+            color: var(--accent-bg-text);
+        }
+    }
+    .login-cont {
+        box-shadow: 0 1px 11px rgb(0 0 0 / 27%);
+        border-radius: 5px;
+        padding: 25px;
+        width: 500px;
+        display: inline-block;
+        position: relative;
+        background: var(--header-bg);
+        padding-bottom: 60px;
+        border: 1px solid var(--border-color);
+    }
+    .form-horizontal .row {
+        margin-bottom: 20px;
+    }
+    .btn-login {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+    }
+    .msg {
+        font-size: 14px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+}
+.login-g {
+    background: var(--content-bg);
+    color: var(--text-color);
+    border-radius: 1px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    outline: none;
+    border: none;
+    padding: 5px 15px 1px 15px;
+    position: absolute;
+    left: 80px;
+    bottom: 26px;
+}
+.login-g:focus,
+.login-g:active {
+    box-shadow: 1px 1px 7px 0 rgba(4, 117, 171, 0.6);
+}
+.login-g .g-logo {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+.login-g .g-text {
+    vertical-align: text-bottom;
+}
+.ext-action {
+    text-align: center;
+    margin-top: 35px;
+}
+// .auth-dialog:before {
+//     content: "";
+//     width: 100%;
+//     height: 50%;
+//     position: absolute;
+//     left: 0;
+//     top: 0;
+//     background: var(--accent-color);
+// }

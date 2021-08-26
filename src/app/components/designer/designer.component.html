@@ -1,0 +1,46 @@
+<div class="designer">
+    <div class="app-body">
+        <div class="tab-container">
+            <ol class="breadcrumb proj-brcmb">
+                <li ng-click="vm.showWorkspace()">
+                    API Designer
+                </li>
+            </ol>
+        </div>
+
+        <div class="designer-cont">
+            <div class="workspace">
+                <a class="f18 pull-right" mat-icon-button aria-label="Designer Documentation"
+                    href="https://apic.app/docs/designer/getting-started-with-designer.html" target="_new">
+                    <mat-icon>help</mat-icon>
+                </a>
+                <div class="workspace-title">
+                    Workspace
+                    <button mat-fab class="t_bg" (click)="showProjImport()"
+                        aria-label="Import RAW API project or Open API spec (Swagger)"
+                        matTooltip="Import RAW API project or Open API spec (Swagger)" matTooltipPosition="right">
+                        <mat-icon>transit_enterexit</mat-icon>
+                    </button>
+                </div>
+
+                <div class="projects">
+                    <div class="title-txt">API Projects</div>
+                    <div class="card-list">
+                        <div class="cl-item ic" [routerLink]="['/designer', project._id]"
+                            *ngFor="let project of projects$ | async">
+                            <div class="cl-item-name">{{project.title}}</div>
+                            <mat-icon *ngIf="!!project.owner && project.owner!=authUser?.UID"
+                                matTooltip="Shared with you" class="shared">share</mat-icon>
+                        </div>
+                        <div class="cl-item" style="width: 120px">
+                            <button mat-fab class="t_bg " aria-label="Create new project" (click)="openAddProject()"
+                                matTooltip="Create new project" matTooltipPosition="right">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

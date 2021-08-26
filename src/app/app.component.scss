@@ -1,0 +1,12 @@
+.frameless {
+    top: 75px;
+}
+:host ::ng-deep {
+    .frameless {
+        .docs-content {
+            .submodMenu {
+                top: 74px;
+            }
+        }
+    }
+}

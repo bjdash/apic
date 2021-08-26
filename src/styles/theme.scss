@@ -1,0 +1,40 @@
+/******************  Theme *******************/
+input,
+select,
+textarea {
+    color: var(--text-color);
+}
+select option {
+    background: var(--content-bg);
+}
+.t_bg {
+    background: var(--accent-color) !important;
+    color: var(--accent-bg-text) !important;
+}
+.t_bgo {
+    background-color: var(--accent-shadow);
+}
+.red {
+    color: var(--error) !important;
+}
+.green {
+    color: var(--success) !important;
+}
+.t_bgg {
+    background: linear-gradient(60deg, var(--accent-color), var(--accent-shadow));
+}
+.t_glow {
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px var(--accent-shadow);
+}
+.t_bgc {
+    background-color: var(--accent-color) !important;
+}
+.t_color {
+    color: var(--accent-color) !important;
+}
+.t_border {
+    border-color: var(--accent-color) !important;
+}
+.c_color {
+    color: var(--text-color-bold) !important;
+}

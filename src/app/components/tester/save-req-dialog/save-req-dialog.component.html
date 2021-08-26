@@ -1,0 +1,46 @@
+<h2 mat-dialog-title class="modal-title">{{title}}</h2>
+<form [formGroup]="form" class="form-horizontal" name="new-api-project" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+        <div class="row">
+            <label class="col-sm-12">Request Name: <span class="red">*</span></label>
+            <div class="col-sm-12">
+                <input type="text" autoFocus class="form-control" required formControlName="name"
+                    placeholder="Request Name" maxLength="70" />
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-sm-12">Description:</label>
+            <div class="col-sm-12">
+                <textarea class="form-control" formControlName="description"></textarea>
+            </div>
+        </div>
+        <div class="row" *ngIf="data.action !== 'rename'">
+            <label class="col-sm-12">Select a folder to save:</label>
+            <div class="col-sm-12" *ngIf="!data?.parent">
+                <div *ngFor="let folder of folders$ | async ">
+                    <button mat-button type="button" class="sm folder-select" (click)="selectFolder(folder)"
+                        [ngClass]="{t_bg:form.value._parent==folder._id}">
+                        <mat-icon class="gap">folder</mat-icon>{{folder.name}}
+                    </button>
+                    <div class="subfolder">
+                        <button mat-button type="button" class="sm folder-select"
+                            *ngFor="let subfolder of folder.children" (click)="selectFolder(subfolder)"
+                            [ngClass]="{t_bg:form.value._parent==subfolder._id}">
+                            <mat-icon class="gap">folder</mat-icon>
+                            {{subfolder.name}}
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="(folders$ |async)?.length == 0">No folders to select. Please create a folder first in the
+                    left menu.</div>
+            </div>
+            <div class="col-sm-12" *ngIf="data?.parent">
+                Duplicate request will be created under folder <b>{{data.parent}}</b>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button class="sm gap" mat-raised-button color="primary">Save</button>
+        <button mat-button type="button" mat-dialog-close class="sm">Close</button>
+    </mat-dialog-actions>
+</form>

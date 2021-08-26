@@ -1,0 +1,101 @@
+<div class="json-schema-view" [ngClass]="{collapsed: isCollapsed}">
+    <div class="primitive" *ngIf="isPrimitive">
+        <a class="v_title" (click)="toggle()" [ngClass]="{open:isCollapsed}">
+            <span class="toggle-handle" *ngIf="isPrimitiveCollapsible()"></span>
+            {{schema.title}}
+        </a>
+        <span class="type">{{schema.type}}</span>
+        <span class="format" *ngIf="!isCollapsed && schema.format">({{schema.format}})</span>
+        <span class="range minimum" *ngIf="!isCollapsed && schema.minimum">minimum:{{schema.minimum}}</span>
+        <span class="range exclusiveMinimum"
+            *ngIf="!isCollapsed && schema.exclusiveMinimum">(ex)minimum:{{schema.exclusiveMinimum}}</span>
+        <span class="range maximum" *ngIf="!isCollapsed && schema.maximum">maximum:{{schema.maximum}}</span>
+        <span class="range exclusiveMaximum"
+            *ngIf="!isCollapsed && schema.exclusiveMaximum">(ex)maximum:{{schema.exclusiveMaximum}}</span>
+        <span class="range minLength" *ngIf="!isCollapsed && schema.minLength">minLength:{{schema.minLength}}</span>
+        <span class="range maxLength" *ngIf="!isCollapsed && schema.maxLength">maxLength:{{schema.maxLength}}</span>
+        <div class="inner description">{{schema.description}}</div>
+        <!-- <div ng-include="'enum.html'" *ngIf="!isCollapsed && schema.enum"></div> -->
+        <ng-container [ngTemplateOutlet]="Enum" *ngIf="!isCollapsed && schema.enum">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'allOf'}" *ngIf="schema.allOf">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'anyOf'}" *ngIf="schema.anyOf">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'oneOf'}" *ngIf="schema.oneOf">
+        </ng-container>
+        <!-- <div ng-include="'x_of.html'" *ngIf="schema.allOf" onload="type = 'allOf'"></div>
+        <div ng-include="'x_of.html'" *ngIf="schema.anyOf" onload="type = 'anyOf'"></div>
+        <div ng-include="'x_of.html'" *ngIf="schema.oneOf" onload="type = 'oneOf'"></div> -->
+    </div>
+    <div *ngIf="isArray" class="array">
+        <a class="v_title" (click)="toggle()" [ngClass]="{open:isCollapsed}">
+            <span class="toggle-handle"></span>{{schema.title}} <span class="opening bracket">[</span>
+            <span class="closing bracket" *ngIf="isCollapsed">]</span>
+        </a>
+        <span *ngIf="!isCollapsed && (schema.uniqueItems || schema.minItems || schema.maxItems)">
+            <span title="items range">({{schema.minItems || 0}}..{{schema.maxItems || '∞'}})</span>
+            <span title="unique" class="uniqueItems" *ngIf="!isCollapsed && schema.uniqueItems">♦</span>
+        </span>
+        <div class="inner">
+            <div class="description">{{schema.description}}</div>
+            <json-schema-viewer *ngIf="!isCollapsed" [schema]="schema.items" open="open - 1"></json-schema-viewer>
+        </div>
+        <!-- <div ng-include="'enum.html'" *ngIf="!isCollapsed && schema.enum"></div> -->
+        <ng-container [ngTemplateOutlet]="Enum" *ngIf="!isCollapsed && schema.enum">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'allOf'}" *ngIf="schema.allOf">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'anyOf'}" *ngIf="schema.anyOf">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'oneOf'}" *ngIf="schema.oneOf">
+        </ng-container>
+        <!-- <div ng-include="'x_of.html'" *ngIf="schema.allOf" onload="type = 'allOf'"></div>
+        <div ng-include="'x_of.html'" *ngIf="schema.anyOf" onload="type = 'anyOf'"></div>
+        <div ng-include="'x_of.html'" *ngIf="schema.oneOf" onload="type = 'anyOf'"></div> -->
+        <span class="closing bracket" *ngIf="!isCollapsed">]</span>
+    </div>
+    <div *ngIf="!isPrimitive && !isArray" class="object">
+        <a class="v_title" (click)="toggle()" [ngClass]="{open:isCollapsed}">
+            <span class="toggle-handle"></span>{{schema.title}} <span class="opening brace">{{ '{' }}</span>
+            <span class="closing brace" *ngIf="isCollapsed">}</span>
+        </a>
+        <div class="inner">
+            <div class="description">{{schema.description}}</div>
+            <div class="property" *ngFor="let propertyItem of schema.properties|keyvalue">
+                <span class="name">{{propertyItem.key}}:</span>
+                <span class="required" *ngIf="schema.required?.includes(propertyItem.key)">*</span>
+                <json-schema-viewer [schema]="propertyItem.value" open="open - 1">
+                </json-schema-viewer>
+            </div>
+        </div>
+        <!-- <div ng-include="'enum.html'" *ngIf="!isCollapsed && schema.enum"></div> -->
+        <ng-container [ngTemplateOutlet]="Enum" *ngIf="!isCollapsed && schema.enum">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'allOf'}" *ngIf="schema.allOf">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'anyOf'}" *ngIf="schema.anyOf">
+        </ng-container>
+        <ng-container [ngTemplateOutlet]="Xof" [ngTemplateOutletContext]="{type: 'oneOf'}" *ngIf="schema.oneOf">
+        </ng-container>
+        <!-- <div ng-include="'x_of.html'" *ngIf="schema.allOf" onload="type = 'allOf'"></div>
+        <div ng-include="'x_of.html'" *ngIf="schema.anyOf" onload="type = 'anyOf'"></div>
+        <div ng-include="'x_of.html'" *ngIf="schema.oneOf" onload="type = 'oneOf'"></div> -->
+        <span class="closeing brace" *ngIf="!isCollapsed">}</span>
+    </div>
+</div>
+
+<ng-template #Xof let-type="type">
+    <div class="inner"><b>{{convertXOf(type)}}:</b>
+        <div class="inner" *ngFor="let schema of schema[type]">
+            <json-schema-viewer [schema]="schema"></json-schema-viewer>
+        </div>
+    </div>
+</ng-template>
+<ng-template #Enum>
+    <div class="inner enums" *ngIf="!isCollapsed && schema.enum"><b>Enum:</b>
+        <div *ngFor="let enum of schema.enum">
+            {{enum|json}}
+        </div>
+    </div>
+</ng-template>

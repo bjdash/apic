@@ -1,0 +1,5 @@
+.mat-standard-chip.mat-chip-with-trailing-icon{
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    min-height: 26px;
+}

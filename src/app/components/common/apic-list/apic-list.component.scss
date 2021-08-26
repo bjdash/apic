@@ -1,0 +1,11 @@
+.remove {
+    margin-left: auto;
+}
+:host ::ng-deep {
+    .input-group {
+        .apic-editor {
+            border-top-right-radius: 0px !important;
+            border-bottom-right-radius: 0px !important;
+        }
+    }
+}

@@ -1,0 +1,120 @@
+.designer .left-nav .nav-tabs {
+    height: 38px;
+}
+.designer .left-nav .nav-tabs > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.left-nav .tab-content {
+    top: 38px;
+}
+
+.proj-head {
+    width: auto;
+    max-width: 100%;
+    padding: 0;
+    font-size: 35px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0;
+    margin: 0;
+}
+
+.landing-action {
+    width: 350px;
+    height: 125px;
+    background: var(--content-bg);
+    border-radius: 10px;
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    font-family: apic-font;
+    float: left;
+    margin: 10px;
+}
+
+.landing-action .ac-text {
+    font-size: 14px;
+    line-height: 18px;
+}
+
+.landing-action .ac-head {
+    font-size: 27px;
+    position: absolute;
+    width: 450px;
+    left: -50px;
+    height: 90px;
+    border-radius: 50%;
+    text-align: center;
+    color: var(--accent-bg-text);
+    bottom: -45px;
+}
+
+h4.head {
+    margin-top: 0;
+    font-size: 26px;
+    font-family: apic-font;
+    padding-bottom: 20px;
+    width: 400px;
+}
+
+.endp_more {
+    width: 100px;
+}
+
+.endp_more.open {
+    margin-bottom: -35px;
+}
+.simKey {
+    font-size: 20px;
+    border: 1px dashed var(--border-color);
+    padding: 3px 10px;
+    text-align: center;
+}
+/***********Mocked container *******/
+.mockCont > .endp {
+    padding: 7px 10px 6px 0;
+}
+.mockCont > .endp .endpUrl {
+    font-weight: bold;
+}
+.endp .host {
+    font-weight: normal;
+    display: none;
+}
+.endp:hover .host {
+    display: inline;
+}
+.endp .host-sh {
+    font-weight: normal;
+    display: inline;
+}
+.endp:hover .host-sh {
+    display: none;
+}
+.mockCont > .endp:hover {
+    background: var(--main-bg);
+}
+.mockCont .summary {
+    font-weight: bold;
+}
+.mockCont .method {
+    display: inline-block;
+    width: 40px;
+    margin-right: 10px;
+    margin-top: 0;
+}
+.endp .mockCtrls {
+    margin-top: -5px;
+    font-size: 20px;
+}
+.endp .mockCtrls-hidden {
+    display: none;
+}
+.endp:hover .mockCtrls-hidden {
+    display: inline;
+}
+/***********Mocked container end*******/

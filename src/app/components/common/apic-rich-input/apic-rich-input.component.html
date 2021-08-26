@@ -1,0 +1,12 @@
+<div class="apic-editor-cont">
+    <input type="text" *ngIf="matAutocomplete" [matAutocomplete]="matAutocomplete" [formControl]="text"
+        class="ghostInput">
+    <div #editor contenteditable="true" (keydown)="onKeyDown($event)" (focus)="onFocus()" (input)="onChangeHandle()"
+        class="apic-editor" attr.placeholder="{{placeholder}}"></div>
+
+    <div class="wysiwug-tooltip">
+        <div class="wysiwug-tooltip-head">localhost</div>
+        <div class="wysiwug-tooltip-tail align-right">Value read from selected environment</div>
+        <div class="wysiwug-tooltip-tail">Ctrl/Cmd + Click to copy value</div>
+    </div>
+</div>

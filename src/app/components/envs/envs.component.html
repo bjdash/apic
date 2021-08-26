@@ -1,0 +1,160 @@
+<div class="env-modal">
+    <h2 mat-dialog-title class="modal-title">Environments</h2>
+    <button mat-fab class="t_bg addEnvBtn" aria-label="Add new environment" (click)="showAddEnvBox()">
+        <mat-icon [ngClass]="{rotateZ:flags.showAddEnv}">add</mat-icon>
+    </button>
+    <div class="env-ctrls">
+        <button mat-icon-button class="gap stroked" (click)="importFromFile()" matTooltip="Import">
+            <mat-icon>south_west</mat-icon>
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="exportEnvsList" class="stroked" matTooltip="Export">
+            <mat-icon>north_east</mat-icon>
+        </button>
+        <mat-menu #exportEnvsList="matMenu" xPosition="before">
+            <button mat-menu-item
+                (click)="toggleAllSelection('export');$event.stopPropagation()">{{selectAll.export?'Unselect':'Select'}}
+                all</button>
+            <mat-divider></mat-divider>
+            <div *ngFor="let env of envsList" mat-menu-item
+                (click)="selectionToggled('export', env._id);$event.stopPropagation()">
+                <label>
+                    <input type="checkbox" [checked]="bulkSelectIds.export.indexOf(env._id)>=0" />
+                    {{env.name}}
+                </label>
+            </div>
+            <mat-divider></mat-divider>
+            <button mat-menu-item class="t_bg" (click)="downloadMultiple();$event.stopPropagation()">Download</button>
+        </mat-menu>
+    </div>
+
+    <mat-dialog-content class="">
+        <div class="flex">
+            <div class="envs-left">
+                <div *ngIf="flags.showAddEnv" class="addEnvForm vcenter">
+                    <input type="text" maxlength="30" placeholder="New environment name" class="form-control input-sm"
+                        #addEnvInput [(ngModel)]="newEnvNameModel" (keydown.enter)="createNewEnv()"
+                        ng-change="vm.flags.traitPageDirty = true" />
+                    <button type="button" mat-icon-button class="" (click)="createNewEnv()">
+                        <mat-icon class="green">done_outline</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button class="" (click)="flags.showAddEnv=false">
+                        <mat-icon class="">close</mat-icon>
+                    </button>
+                </div>
+                <mat-selection-list #envs [multiple]="false" [(ngModel)]="selectedEnvId"
+                    (selectionChange)="onEnvSelected()">
+                    <mat-list-option [value]="inMemEnvId">
+                        In-memory/generated variables
+                    </mat-list-option>
+                    <mat-list-option class="vcenter" *ngFor="let env of envsList; trackBy: trackByEnvId;let i = index"
+                        [value]="env._id">
+                        {{env.name}}
+                        <mat-icon class="shared" *ngIf="!!env.owner && env.owner!=authUser?.UID"
+                            matTooltip="Shared with you">
+                            share</mat-icon>
+                        <div class="vcenter env-optn" (click)="stopPropagation($event)">
+                            <button mat-icon-button class="sm"
+                                (click)="saveNewEnv(env.name+' Copy', env.vals);stopPropagation($event)">
+                                <mat-icon>file_copy</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sm" (click)="downloadEnv([env])">
+                                <mat-icon>download</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sm" *ngIf="env.owner == authUser?.UID && !env.team"
+                                (click)="shareEnv(env)">
+                                <mat-icon>share</mat-icon>
+                            </button>
+                            <button mat-icon-button class="sm" *ngIf="env.team && env.owner === authUser?.UID"
+                                (confirm-click)="unshareEnv(env)" confirm="Do you want to unshare this env?"
+                                confirmTitle="Unshare Environment" confirmOk="Unshare"
+                                [matTooltip]="'Unshare: '+ teams[env.team]?.name">
+                                <span class="icon bj-unshare red"></span>
+                            </button>
+                            <button mat-icon-button class="sm red" (click)="deleteEnv(env, i);stopPropagation($event)">
+                                <mat-icon>delete_outline</mat-icon>
+                            </button>
+                        </div>
+                    </mat-list-option>
+                </mat-selection-list>
+
+                <div *ngIf="(envs$ | async)?.length === 0 && !flags.showAddEnv">
+                    No Environments found. Please
+                    <button mat-button (click)="showAddEnvBox();">create one</button> or <button mat-button
+                        (click)="importFromFile()">import from file</button> .
+                </div>
+            </div>
+            <div class="envs-right" *ngIf="selectedEnvId[0] !== inMemEnvId">
+                <div class="vcenter">
+                    <span class="title" *ngIf="!flags.editName">{{selectedEnv.name}}</span>
+                    <button mat-icon-button (click)="startEnvNameEdit()"
+                        *ngIf="selectedEnv.owner === authUser?.UID && !selectedEnv.proj && !flags.editName">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <mat-icon *ngIf="selectedEnv.proj" class="warning" matTooltipPosition="below"
+                        matTooltip="This environment is auto generated from the saved settings for API project '{{selectedEnv.proj?.name}}'. This will be auto deleted when the API design project is deleted. To modify 'host' & 'basePath', go to the Designer section ">
+                        warning
+                    </mat-icon>
+                    <span *ngIf="flags.editName" class="envNameEditBox">
+                        <input maxlength="30" type="text" #editEnvInput [(ngModel)]="editEnvNameModel"
+                            class="form-control" (keydown.enter)="saveEnvNameEdit()" (blur)="saveEnvNameEdit()" />
+                        <button type="button" mat-icon-button (click)="saveEnvNameEdit()">
+                            <mat-icon class="bold green">done</mat-icon>
+                        </button>
+                    </span>
+                </div>
+                <div class="envForm pad10" id="envValsCont">
+                    <div class="margB10" style="width: 100%"
+                        *ngFor="let entry of selectedEnv.vals; trackBy: trackByIndex;let i=index">
+                        <span *ngIf="entry.readOnly" class="vcenter">
+                            <span class="fakeInp">{{entry.key}}</span>
+                            <span class="fakeInp">{{entry.val}}</span>
+                        </span>
+                        <span *ngIf="!entry.readOnly" class="vcenter">
+                            <input onlyAlphaNumericInput type="text" placeholder="Name" [(ngModel)]="entry.key"
+                                autocomplete="off" (blur)="onEnvValueChange($event)" class="form-control envValsKey">
+                            <input style="display:inline-block" type="text" class="form-control" placeholder="Value"
+                                autocomplete="off" (ngModelChange)="onEnvValueChange()"
+                                [ngModelOptions]="{updateOn: 'blur'}" [(ngModel)]="entry.val" />
+                            <button mat-icon-button class="sm red" (click)="removeEnvVals(i)">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </span>
+                    </div>
+                    <button mat-stroked-button type="button" class="sm" (click)="addNewEnvValue()">+
+                        Add another</button>
+                </div>
+            </div>
+            <div class="envs-right" *ngIf="selectedEnvId[0] == inMemEnvId">
+                <div class="vcenter">
+                    <span class="title">In-memory/generated variables</span>
+                </div>
+                <div class="envForm pad10">
+                    <div class="margB10" style="width: 100%"
+                        *ngFor="let entry of inMemEnvs; trackBy: trackByIndex;let i=index">
+                        <span *ngIf="entry.readOnly" class="vcenter">
+                            <span class="fakeInp">{{entry.key}}</span>
+                            <span class="fakeInp">{{entry.val}}</span>
+                        </span>
+                        <span *ngIf="!entry.readOnly" class="vcenter">
+                            <input onlyAlphaNumericInput type="text" placeholder="Name" [(ngModel)]="entry.key"
+                                autocomplete="off" (blur)="updateInMemEnv($event)" class="form-control envValsKey">
+                            <input style="display:inline-block" type="text" class="form-control" placeholder="Value"
+                                autocomplete="off" [ngModelOptions]="{updateOn: 'blur'}" [(ngModel)]="entry.val"
+                                (ngModelChange)="updateInMemEnv()" />
+                            <button mat-icon-button class="sm red" (click)="inMemEnvs.splice(i, 1);updateInMemEnv();">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </span>
+                    </div>
+                    <button mat-stroked-button type="button" class="sm" (click)="inMemEnvs.push({key:'',val:''});">+
+                        Add another</button>
+                </div>
+            </div>
+        </div>
+
+
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close class="sm">Close</button>
+    </mat-dialog-actions>
+</div>

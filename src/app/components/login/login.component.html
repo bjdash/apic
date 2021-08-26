@@ -1,0 +1,153 @@
+<div class="auth-dialog">
+    <button mat-icon-button class="close" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+    </button>
+    <div class="title">apic</div>
+    <div class="auth-tabs vcenter">
+        <div [ngClass]="{active:flags.panel=='login'}" (click)="flags.panel='login';message.text=''">Login</div>
+        <div [ngClass]="{active:flags.panel=='register'}" (click)="flags.panel='register';message.text=''">Register
+        </div>
+        <div [ngClass]="{active:flags.panel=='forgot'}" (click)="flags.panel='forgot';message.text=''">Forgot password
+        </div>
+    </div>
+    <div class="login-cont" *ngIf="flags.panel === 'login'">
+        <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
+
+        <form class="form-horizontal" role="form" [formGroup]="loginForm" (ngSubmit)="login()">
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="email-login">
+                    <mat-icon>email</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="email" required="" id="email-login" class="form-control" placeholder="Email"
+                        pattern=".{3,255}" formControlName="email">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <label class="control-label col-sm-1" for="pwd-login">
+                    <mat-icon>password</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="password" required="" class="form-control" id="pwd-login" placeholder="Password"
+                        pattern=".{6,255}" formControlName="psd">
+                </div>
+            </div>
+            <button type="button" class="login-g" id="login-g" (click)="googleLogin()">
+                <span class="g-logo">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48"
+                        class="abcRioButtonSvg">
+                        <g>
+                            <path fill="#EA4335"
+                                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z">
+                            </path>
+                            <path fill="#4285F4"
+                                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z">
+                            </path>
+                            <path fill="#FBBC05"
+                                d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z">
+                            </path>
+                            <path fill="#34A853"
+                                d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z">
+                            </path>
+                            <path fill="none" d="M0 0h48v48H0z"></path>
+                        </g>
+                    </svg>
+                </span>
+                <span class="g-text">Sign in with Google</span>
+            </button>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button type="submit" mat-fab class="btn-login t_bg">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="login-cont" *ngIf="flags.panel === 'register'">
+        <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
+
+        <form class="form-horizontal" role="form" [formGroup]="regForm" (ngSubmit)="register()"
+            *ngIf="PLATFORM !== 'ELECTRON'">
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="name-reg">
+                    <mat-icon>badge</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="text" required="" id="name-reg" class="form-control" placeholder="Name"
+                        pattern=".{2,50}" formControlName="name">
+                </div>
+            </div>
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="email-reg">
+                    <mat-icon>email</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="email" required="" id="email-reg" class="form-control" placeholder="Email"
+                        pattern=".{3,100}" formControlName="email">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <label class="control-label col-sm-1" for="pwd-reg">
+                    <mat-icon>password</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="password" required="" class="form-control" id="pwd-reg" placeholder="Password"
+                        pattern=".{6,30}" formControlName="psd">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <re-captcha formControlName="captchaCode" #regCaptcha="reCaptcha" [siteKey]="CAPTCHA_SITE_KEY">
+                    </re-captcha>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button type="submit" mat-fab class="btn-login t_bg">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="electronRegister()">
+            <button type="button" mat-raised-button color="primary">Register with APIC</button>
+        </div>
+    </div>
+
+    <div class="login-cont" *ngIf="flags.panel === 'forgot'">
+        <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
+
+        <form class="form-horizontal" role="form" [formGroup]="forgotForm" (ngSubmit)="forgotPsd()"
+            *ngIf="PLATFORM !== 'ELECTRON'">
+
+            <div class="row form-group">
+                <label class="control-label col-sm-1" for="email-reg">
+                    <mat-icon>email</mat-icon>
+                </label>
+                <div class="col-sm-11">
+                    <input type="email" required="" id="email-reg" class="form-control" placeholder="Email"
+                        pattern=".{3,100}" formControlName="email">
+                </div>
+            </div>
+            <div class=" row form-group">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <re-captcha formControlName="captchaCode" #forgotCaptcha="reCaptcha" [siteKey]="CAPTCHA_SITE_KEY">
+                    </re-captcha>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button type="submit" mat-fab class="btn-login t_bg">
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="electronForgotPsd()">
+            <button type="button" mat-raised-button color="primary">Requet password reset</button>
+        </div>
+    </div>
+</div>

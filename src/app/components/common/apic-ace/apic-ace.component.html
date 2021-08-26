@@ -1,0 +1,4 @@
+<ace-editor #editor class="apic-ace" [options]="options" [text]="text" (textChange)="textChanged($event)" [mode]="mode"
+    [theme]="'monokai'" [readOnly]="readOnly">
+</ace-editor>
+<div class="ace-drag" (mousedown)="startResize($event)"></div>

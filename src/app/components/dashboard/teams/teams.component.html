@@ -1,0 +1,138 @@
+<h4 class="head vcenter">
+    <a [routerLink]="['./']" href (click)="ngOnInit();$event.preventDefault()" class="t_color"
+        title="Click to Refresh">Teams</a>
+    <span class="spinner" *ngIf="flags.loadingTeams || flags.loadingMembers"></span>
+</h4>
+
+<div *ngIf="!myOutlet.isActivated">
+    <div class="paper margB25" *ngIf="flags.showCreate">
+        <h3 class="panel-title"><span class="vcenter">Create new team <span class="spinner wh"
+                    *ngIf="flags.creating"></span></span></h3>
+        <div class="panel-body">
+            <form class="form-horizontal margV10" [formGroup]="newForm" (submit)="createTeam()">
+                <div class="row">
+                    <div class="col-sm-2 control-label">Team name:</div>
+                    <div class="col-sm-7">
+                        <input type="text" formControlName="name" class="form-control" id="newteam" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-7 col-sm-offset-2">
+                        <button mat-raised-button type="submit" color="primary" class="sm gap"
+                            [disabled]="flags.creating">Create</button>
+                        <button mat-button type="button" color="promary" class="sm gap"
+                            (click)="flags.showCreate=false">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="paper margB25">
+        <h3 class="panel-title"><span class="vcenter">Teams you own <span class="spinner wh"
+                    *ngIf="flags.loadingTeams"></span></span></h3>
+        <div class="pull-right vcenter">
+            <button mat-fab color="primary" aria-label="Create team" class="panel-fab" *ngIf="!flags.showCreate"
+                (click)="showCreateTeam()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <div class="panel-body">
+            <table class="table apic-table table-hover narrow" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Team Name</th>
+                        <th style="width: 25%">Members</th>
+                        <th style="width: 10%">Created</th>
+                        <th style="width: 10%">Last Modified</th>
+                        <th style="width: 25%">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let team of teams;trackBy: trackbyFn">
+                        <td>{{team.name}}</td>
+                        <td>
+                            <div *ngIf="!expanded[team.id]" class="vcenter">
+                                {{team.members.length}}
+                                <button mat-icon-button class="" (click)="expanded[team.id]=true"
+                                    matTooltip="Show all members">
+                                    <mat-icon>unfold_more</mat-icon>
+                                </button>
+                            </div>
+                            <div *ngIf="expanded[team.id]" class="members-list">
+                                <div class="bold">
+                                    Member emails: ({{team.members.length}})
+                                    <button mat-icon-button class="" (click)="expanded[team.id]=false"
+                                        matTooltip="Hide members">
+                                        <mat-icon>unfold_less</mat-icon>
+                                    </button>
+                                </div>
+                                <div *ngFor="let member of team.members">{{member.email}}</div>
+                            </div>
+                        </td>
+                        <td>{{team.created| date:'MMM dd,yyyy h:mm a'}}</td>
+                        <td>{{team.modified| date:'MMM dd,yyyy h:mm a'}}</td>
+                        <td>
+                            <a mat-icon-button href="" [routerLink]="[team.id]">
+                                <mat-icon>edit</mat-icon>
+                            </a>
+                            <a mat-icon-button href="" [routerLink]="[team.id]">
+                                <mat-icon>person_add</mat-icon>
+                            </a>
+                            <button mat-icon-button class="red" confirm="Do you want to delete this team?"
+                                confirmTitle="Delete Confirmation" confirmOk="Delete"
+                                (confirm-click)="deleteTeam(team.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="teams.length==0 && !flags.loadingTeams" class="margB5">You don't have any teams created. <button
+                    mat-flat-button class="t_color" (click)="showCreateTeam()">Create one now.</button></div>
+        </div>
+    </div>
+    <div class="paper margB25">
+        <h3 class="panel-title"><span class="vcenter">Teams you are a member of<span class="spinner wh"
+                    *ngIf="flags.loadingMembers || flags.exiting"></span></span></h3>
+        <div class="panel-body">
+            <table class="table apic-table table-hover narrow" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th style="width: 50%">Team Name</th>
+                        <th style="width: 35%">Owner</th>
+                        <th style="width: 15%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let team of membersOf;trackBy: trackbyFn">
+                        <td>{{team.name}}</td>
+                        <td>{{team.ownerEmail}}</td>
+                        <td>
+                            <button mat-button class="red" confirm="Do you want to delete this team?"
+                                confirmTitle="Delete Confirmation" confirmOk="Leave"
+                                (confirm-click)="exitTeam(team.id)">
+                                <mat-icon>logout</mat-icon> Leave
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="membersOf.length==0" class="margB5">You are not a member of any team yet.</div>
+        </div>
+    </div>
+
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-sm-3 nopad childMenu" *ngIf="myOutlet.isActivated">
+            <mat-nav-list role="list">
+                <a mat-list-item href="" [routerLinkActive]="'active'" [routerLink]="[team.id]"
+                    *ngFor="let team of teams; trackBy:trackbyFn">{{team.name}}</a>
+            </mat-nav-list>
+        </div>
+        <div class="col-sm-9 child-route">
+            <router-outlet #myOutlet="outlet"></router-outlet>
+        </div>
+    </div>
+</div>

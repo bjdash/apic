@@ -1,0 +1,93 @@
+<div *ngIf="selectedTeam">
+    <div class="f20">
+        <a class="t_color" [routerLink]="['../']" mat-icon-button>
+            <mat-icon>arrow_back</mat-icon>
+        </a>
+        {{selectedTeam.name}}
+        <button class="" mat-icon-button (click)="getTeamDetail(selectedTeam.id)" *ngIf="!flags.loading">
+            <mat-icon>refresh</mat-icon>
+        </button>
+        <span class="spinner" *ngIf="flags.loading"></span>
+    </div>
+    <form [formGroup]="form" (submit)="updateTeam()">
+        <div class="row margB25">
+            <div class="col-sm-6 nopad">
+                <input type="text" class="form-control" formControlName="name" />
+            </div>
+            <div class="col-sm-6">
+                <button mat-stroked-button color="primary" class="t_border sm">
+                    Save
+                    <span class="spinner" *ngIf="flags.updating"></span>
+                </button>
+            </div>
+        </div>
+    </form>
+    <div class="paper margB25">
+        <h3 class="panel-title"><span class="vcenter">Add member<span class="spinner wh"
+                    *ngIf="flags.adding"></span></span></h3>
+        <div class="panel-body">
+            <form [formGroup]="addForm" (submit)="addMember()">
+                <div class="row margB10">
+                    <div class="col-sm-6">
+                        <div>Email</div>
+                        <input type="text" class="form-control" formControlName="email" />
+                    </div>
+                    <div class="col-sm-4">
+                        <div>Role</div>
+                        <select class="form-control" formControlName="role">
+                            <option value="1">Can Edit</option>
+                            <!--<option value="0">Can Read</option>-->
+                        </select>
+                    </div>
+                </div>
+                <div class="row margB10">
+                    <div class="col-sm-2">
+                        <button type="submit" mat-stroked-button class="t_border sm">
+                            Add member
+                            <span class="spinner" *ngIf="flags.adding"></span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="paper margB25">
+        <h3 class="panel-title"><span class="vcenter">Team Members<span class="spinner wh"
+                    *ngIf="flags.removing"></span></span></h3>
+        <div class="panel-body">
+            <table class="table apic-table table-hover narrow" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th style="width: 50%">Member</th>
+                        <th style="width: 40%">Permission</th>
+                        <th style="width: 10%">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>You</td>
+                        <td>Admin</td>
+                        <td></td>
+                    </tr>
+                    <tr *ngFor="let memb of selectedTeam.members;trackBy: trackbyFn">
+                        <td>{{memb.email}}</td>
+                        <td>{{memb.role == '1'?'Can Edit': 'Can Read'}}</td>
+                        <td>
+                            <button mat-icon-button class="red sm"
+                                confirm="Do you want to remove this member from this team?"
+                                confirmTitle="Remove team member" confirmOk="Remove"
+                                (confirm-click)="removeMember(memb.uid)">
+                                <mat-icon>person_remove_alt_1</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div *ngIf="!selectedTeam">
+    <div *ngIf="flags.loading">Loading...</div>
+    <div *ngIf="!flags.loading" class="red f20">Failed to get team details</div>
+</div>

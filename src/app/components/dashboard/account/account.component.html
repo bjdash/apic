@@ -1,0 +1,81 @@
+<h4 class="head vcenter">
+    Account details
+</h4>
+<div class="row margB25">
+    <div class="col-sm-6">
+        <div class="paper">
+            <h3 class="panel-title margB10">Update Account</h3>
+            <div class="panel-body">
+                <form class="form-horizontal" [formGroup]="detailForm" (submit)="updateAccount()">
+                    <div class="row">
+                        <label class="col-sm-3 control-label">Name:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" placeholder="Name" formControlName="name"
+                                required="" minlength="3" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-3 control-label">Email:</label>
+                        <div class="col-sm-8">
+                            {{authUser?.email}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-3">
+                            <button type="submit" mat-raised-button color="primary" class="sm">
+                                Update <span class="spinner wh" *ngIf="flags.accUpdating"></span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="paper">
+            <h3 class="panel-title margB10">Change password</h3>
+            <div class="panel-body">
+                <form class="form-horizontal" [formGroup]="psdForm" (submit)="changePassword()">
+                    <div class="row">
+                        <label class="col-sm-4 control-label">Current password:</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" formControlName="currentPsd" required=""
+                                minlength="3" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4 control-label">New password:</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" formControlName="newPsd" required=""
+                                minlength="3" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4 control-label">confirm new password:</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" formControlName="confirmPsd" required=""
+                                minlength="3" maxlength="50">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-4">
+                            <button type="submit" mat-raised-button color="primary" class="sm">
+                                Update <span class="spinner wh" *ngIf="flags.psdChanging"></span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="paper pad10 danger">
+    <div class="f18 red bold margB10">Danger zone</div>
+    <div class="margB10">
+        Deleting you account will permanently delete all your data saved with APIC which includes your API Projects, API
+        requests, Test Cases, Published Docs, Teams and everything else. This action can not be undone.
+    </div>
+    <button mat-raised-button color="warn" class="btn-danger margV10" (click)="deleteAccount()">Delete account</button>
+</div>

@@ -1,0 +1,428 @@
+.left-nav .tab-content {
+    top: 38px;
+    padding-left: 5px;
+}
+.workspace-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.right-cont {
+    overflow: auto;
+}
+.submodMenu {
+    top: 50px;
+    margin: 0;
+}
+.docs-proj {
+    position: relative;
+}
+.docs-proj:after {
+    content: "\e920";
+    position: absolute;
+    font-family: apic-icon;
+    bottom: -3px;
+    right: 5px;
+    color: #bdbdbd;
+}
+.docs-content {
+    // margin-top: -10px;
+    padding: 0 10px;
+    background-color: var(--main-bg);
+}
+.docs-content .section-header {
+    font-family: apic-font;
+    margin: 10px 0 15px;
+    font-size: 22px;
+}
+.docs-content .section-header .badge {
+    background: #888;
+    font-weight: bold;
+    padding: 5px 10px;
+    margin-left: 12px;
+    font-size: 15px;
+}
+
+.docs-content .label-xs {
+    font-size: 16px;
+    line-height: 20px;
+    font-family: apic-font;
+}
+.docs-content .label-sm {
+    font-size: 18px;
+    line-height: 20px;
+    font-family: apic-font;
+}
+.docs-content .label-md {
+    font-size: 22px;
+}
+.docs-content .label-lg {
+    font-size: 28px;
+}
+.docs-content .modal-title.custom {
+    margin: 10px 0 3px -11px;
+    cursor: pointer;
+    font-family: apic-font;
+    padding: 0 20px;
+    width: auto;
+    min-width: 200px;
+}
+.docs-content .modal-title.custom:after {
+    border-top-width: 33px !important;
+}
+.docs-content .table > thead > tr > th {
+    padding: 3px;
+    font-family: apic-font;
+    background: var(--main-bg);
+    padding-left: 5px;
+    border-width: 0px;
+    background: var(--main-bg);
+}
+.docs-content .table > tbody > tr > td {
+    border-top: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 8px;
+    line-height: normal;
+}
+.json-schema-view .property,
+json-schema-view .property {
+    line-height: 12px;
+}
+.doc-model {
+    margin-top: 7px;
+    cursor: pointer;
+}
+.doc-model .glyphicon {
+    font-size: 14px;
+}
+.docs-content .resp-code {
+    font-size: 20px;
+    font-weight: bold;
+}
+.path {
+    border-bottom: 1px solid var(--border-color);
+}
+.apiTags {
+    float: right;
+    margin-top: -10px;
+    margin-right: 10px;
+}
+ul.operations {
+    list-style-type: none;
+    padding: 0;
+}
+div.operation {
+    margin: 10px 5px;
+    border-radius: 3px;
+    position: relative;
+    /*border-bottom: 1px dashed #BDBDBD;*/
+    background-color: var(--content-bg);
+    border: 1px solid var(--border-color);
+    /* color: #777777; */
+}
+div.operation > header {
+    display: flex;
+    padding: 5px;
+    cursor: pointer;
+    flex-wrap: wrap;
+    align-items: center;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.19);
+}
+
+div.operation > header .deprecated {
+    float: left;
+    margin: 8px;
+    color: white;
+    background: #c52a5e;
+    padding: 0px 7px;
+    border: 1px solid white;
+}
+div.operation > header .http-method {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 80px;
+    padding: 8px 15px;
+    text-align: center;
+    border-radius: 3px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+    font-family: Titillium Web, sans-serif;
+    color: #fff;
+    height: 30px;
+}
+div.operation > header .http-path {
+    font-size: 16px;
+    display: flex;
+    padding: 0 15px;
+    font-family: Source Code Pro, monospace;
+    font-weight: 600;
+    color: var(--text-color);
+    align-items: center;
+    word-break: break-all;
+}
+div.operation > header .http-summary {
+    font-size: 13px;
+    /*flex: 1;*/
+    font-family: Open Sans, sans-serif;
+    color: var(--text-color);
+}
+
+div.operation .http-method {
+    background-color: #949493;
+    color: white;
+}
+div.operation > header {
+    background-color: rgba(148, 148, 147, 0.1);
+}
+@media print {
+    div.operation > header {
+        background-color: #adadad !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation h4 {
+    color: #949493;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-family: apic-font;
+}
+div.operation.get {
+    border: 1px solid #2392f7;
+    background-color: var(--content-bg);
+}
+div.operation.get .http-method {
+    background-color: #2392f7;
+    color: white;
+}
+div.operation.get > header {
+    background-color: rgba(35, 146, 247, 0.1);
+}
+@media print {
+    div.operation.get > header {
+        background-color: #54aaf9 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.get h4 {
+    color: #2392f7;
+}
+div.operation.post {
+    border: 1px solid #49cc90;
+    background-color: var(--content-bg);
+}
+div.operation.post .http-method {
+    background-color: #49cc90;
+    color: white;
+}
+div.operation.post > header {
+    background: rgba(73, 204, 144, 0.1);
+    border-color: #49cc90;
+    /*border: 1px solid #49cc90;*/
+    border-radius: 4px;
+}
+@media print {
+    div.operation.post > header {
+        background-color: #1ced17 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.post h4 {
+    color: #49cc90;
+}
+div.operation.delete {
+    border: 1px solid #e30012;
+    background-color: var(--content-bg);
+}
+div.operation.delete .http-method {
+    background-color: #e30012;
+    color: white;
+}
+div.operation.delete > header {
+    background-color: rgba(227, 0, 18, 0.1);
+}
+@media print {
+    div.operation.delete > header {
+        background-color: #ff1729 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.delete h4 {
+    color: #e30012;
+}
+div.operation.patch {
+    border: 1px solid #af01d9;
+    background-color: var(--content-bg);
+}
+div.operation.patch .http-method {
+    background-color: #af01d9;
+    color: white;
+}
+div.operation.patch > header {
+    background-color: rgba(175, 1, 217, 0.1);
+}
+@media print {
+    div.operation.patch > header {
+        background-color: #cf0ffe !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.patch h4 {
+    color: #af01d9;
+}
+div.operation.put {
+    border: 1px solid #ff9000;
+    background-color: var(--content-bg);
+}
+div.operation.put .http-method {
+    background-color: #ff9000;
+    color: white;
+}
+div.operation.put > header {
+    background-color: rgba(255, 144, 0, 0.1);
+}
+@media print {
+    div.operation.put > header {
+        background-color: #ffa633 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.put h4 {
+    color: #ff9000;
+}
+div.operation.options {
+    border: 1px solid #bdc3c7;
+    background-color: var(--content-bg);
+}
+div.operation.options .http-method {
+    background-color: #bdc3c7;
+    color: white;
+}
+div.operation.options > header {
+    background-color: rgba(189, 195, 199, 0.1);
+}
+@media print {
+    div.operation.options > header {
+        background-color: #d9dcde !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.options h4 {
+    color: #bdc3c7;
+}
+div.operation.head {
+    border: 1px solid #4ae597;
+    background-color: var(--content-bg);
+}
+div.operation.head .http-method {
+    background-color: #4ae597;
+    color: white;
+}
+div.operation.head > header {
+    background-color: rgba(74, 229, 151, 0.1);
+}
+@media print {
+    div.operation.head > header {
+        background-color: #77ebb1 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.head h4 {
+    color: #4ae597;
+}
+div.operation.trace {
+    border: 1px solid #bdc3c7;
+    background-color: var(--content-bg);
+}
+div.operation.trace .http-method {
+    background-color: #bdc3c7;
+    color: white;
+}
+div.operation.trace > header {
+    background-color: rgba(189, 195, 199, 0.1);
+}
+@media print {
+    div.operation.trace > header {
+        background-color: #d9dcde !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+div.operation.trace h4 {
+    color: #bdc3c7;
+}
+div.operation .content > section {
+    margin: 1em;
+    font-size: 0.9em;
+}
+div.operation .content > section > h4 {
+    font-weight: 600;
+}
+div.operation .content > section > div {
+    margin: 0.3em 0 0.5em;
+    line-height: 120%;
+}
+div.operation .content > section button.close-try {
+    float: right;
+}
+
+.definition {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.apiheader {
+    padding: 0 5px 0 10px;
+    font-family: apic-font;
+    font-size: 25px;
+    cursor: pointer;
+    max-width: 100%;
+    word-wrap: break-word;
+    margin-top: 10px;
+}
+.apiheader .glyphicon {
+    color: #888;
+    vertical-align: bottom;
+}
+.gp-by {
+    position: fixed;
+    right: 20px;
+    top: 70px;
+    z-index: 1;
+}
+/********* left menu ***********/
+.left-nav .doc-link {
+    margin-top: 5px;
+}
+.left-nav .doc-link > div {
+    font-size: 18px;
+    cursor: pointer;
+}
+.left-nav .savedReq .method {
+    background: transparent;
+    margin: 0 8px 0 0;
+    display: inline-block;
+    width: 50px;
+}
+.left-nav .savedReq {
+    font-size: 14px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    border-left: none;
+    height: 30px;
+    line-height: 14px;
+}
+.left-nav .savedReq:hover {
+    text-decoration: none;
+}
+.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 23px;
+
+    th {
+        text-align: left;
+    }
+    td {
+        vertical-align: top;
+    }
+}

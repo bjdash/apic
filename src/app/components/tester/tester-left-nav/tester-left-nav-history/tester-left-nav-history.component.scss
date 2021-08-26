@@ -1,0 +1,45 @@
+.ctrls {
+    text-align: right;
+}
+
+.h-date {
+    padding: 5px 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+.h-item {
+    position: relative;
+    font-family: "Poppins", sans-serif !important;
+    min-height: 45px;
+
+    &:hover {
+        background: var(--main-bg);
+        cursor: pointer;
+
+        .h-action {
+            display: block;
+        }
+    }
+
+    .h-action {
+        position: absolute;
+        right: 2px;
+        height: 35px;
+        background: var(--main-bg);
+        display: none;
+        padding-top: 5px;
+    }
+
+    .h-url {
+        font-size: 12px;
+        line-height: 14px;
+        word-wrap: break-word;
+        display: inline-block;
+        width: 270px;
+        vertical-align: middle;
+    }
+
+    .h-icon {
+        padding: 3px 10px;
+    }
+}

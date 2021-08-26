@@ -1,0 +1,87 @@
+<h2 mat-dialog-title class="modal-title">Create new project</h2>
+<mat-dialog-content>
+    <form [formGroup]="form" class="form-horizontal" name="new-api-project" (ngSubmit)="onSubmit()">
+        <div class="row">
+            <label class="control-label col-sm-3">Name: <span class="red">*</span></label>
+            <div class="col-sm-8">
+                <input type="text" autoFocus class="form-control" required formControlName="title"
+                    placeholder="Project Name" maxLength="70" />
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-sm-3">Version: <span class="red">*</span></label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" required placeholder="Initial Project Version"
+                    formControlName="version" />
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-sm-3">Description: </label>
+            <div class="col-sm-8">
+                <textarea class="form-control" formControlName="description"
+                    placeholder="A short description of the application. Markdown supported."></textarea>
+            </div>
+        </div>
+        <div formGroupName="license" *ngIf="flags.license">
+            <div class="row">
+                <label class="control-label col-sm-3">License Name: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="The license name used for the API"
+                        formControlName="name" />
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-3">License URL: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="A URL to the license used for the API"
+                        formControlName="url" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <label class="control-label col-sm-3">Terms of service</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" placeholder="A URL to the Terms of Service for the API"
+                    formControlName="termsOfService" />
+            </div>
+        </div>
+        <div formGroupName="contact" *ngIf="flags.contact">
+            <div class="row">
+                <label class="control-label col-sm-3">Contact Name: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control"
+                        placeholder="The identifying name of the contact person/organization" formControlName="name" />
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-3">Contact URL: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="The URL pointing to the contact information"
+                        formControlName="url" />
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-3">Contact email: </label>
+                <div class="col-sm-8">
+                    <input type="email" class="form-control"
+                        placeholder="The email address of the contact person/organization" formControlName="email" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-8 align-right">
+                <button type="button" mat-button class="sm" *ngIf="!flags.license" (click)="flags.license=true">Add
+                    License Info</button>
+                <button type="button" mat-button class="sm" *ngIf="!flags.contact" (click)="flags.contact=true">Add
+                    Contact Info</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-offset-3 col-xs-8">
+                <button type="submit" class="sm gap" mat-raised-button color="primary">Create</button>
+                <button mat-button mat-dialog-close class="sm">Cancel</button>
+            </div>
+        </div>
+
+    </form>
+</mat-dialog-content>

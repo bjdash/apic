@@ -1,0 +1,12 @@
+.row {
+    min-height: 45px;
+}
+.btn-group {
+    margin-top: -22px;
+    margin-left: auto;
+    margin-bottom: 5px;
+}
+:host ::ng-deep #import-ace .apic-ace {
+    max-height: calc(65vh - 155px);
+    height: calc(100vh - 555px);
+}

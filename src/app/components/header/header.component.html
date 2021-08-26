@@ -1,0 +1,189 @@
+<div class="win-bar" *ngIf="platform==='ELECTRON'">
+    <div class="mac-title-bar-btns" style="display: inline;" *ngIf="os!=='Windows_NT'">
+        <button (click)="winClose()" class="mac-btn mac-close-btn"></button>
+        <button (click)="winMinimize()" class="mac-btn mac-min-btn"></button>
+        <button (click)="winMaximize()" class="mac-btn mac-max-btn"></button>
+    </div>
+    <div class="win-title center"><span class="bold">APIC</span> - The complete API solution</div>
+    <div class="win-title-bar-btns pull-right" *ngIf="os==='Windows_NT'">
+        <button (click)="winMinimize()" class="win-btn win-min-btn">
+            <mat-icon>remove</mat-icon>
+        </button>
+        <button (click)="winMaximize()" class="win-btn win-max-btn">
+            <mat-icon>crop_16_9</mat-icon>
+        </button>
+        <button (click)="winClose()" class="win-btn win-close-btn">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+</div>
+<div class="header">
+    <div class="header-cont">
+        <div class="logo">
+            <img src="assets/images/apic-logo.svg" class="logo-img" alt="Logo" />
+            <span class="logo-text">apic</span>
+        </div>
+        <div style="width: 300px;height: 50px;">
+            <a id="designer-ico" href class="module-icon" [routerLink]="moduleUrls.designer" routerLinkActive="active"
+                aria-label="Designer" style="font-size: 38px;padding-top: 4px;padding-left:3px;"
+                matTooltipPosition="right" matTooltip="API Designer" (click)="saveWorkspace('Designer')">
+                <!-- <i class="icon bj-palette"></i> -->
+                <mat-icon class="designer-ico">architecture</mat-icon>
+            </a>
+            <a id="tester-ico" href class="module-icon" [routerLink]="moduleUrls.tester" routerLinkActive="active"
+                aria-label="Tester" (click)="saveWorkspace('Tester')" matTooltipPosition="right" matTooltip="Tester">
+                <i class="icon bj-lab"></i>
+            </a>
+            <a id="docs-ico" href class="module-icon" [routerLink]="moduleUrls.docs" routerLinkActive="active"
+                aria-label="Docs" (click)="saveWorkspace('Docs')" matTooltipPosition="right" matTooltip="Docs">
+                <i class="icon bj-book"></i>
+            </a>
+            <a id="dash-ico" href class="module-icon" [routerLink]="[moduleUrls.dashboard]" routerLinkActive="active"
+                aria-label="Daashboard" matTooltipPosition="right" queryParamsHandling="preserve"
+                matTooltip="Dashboard">
+                <i class="icon bj-dashboard"></i>
+            </a>
+        </div>
+        <div class="flex-right header-right vcenter">
+            <a href="https://docs.apic.app/apic-web-agent-apic-cli" target="_new" mat-icon-button class="sm warning gap"
+                *ngIf="platform=='WEB'"
+                matTooltip="You are using the web version of APIC which suffers with the limitation of CORS. Click to know how to resolve this.">
+                <mat-icon>warning</mat-icon>
+            </a>
+            <div class="input-group gap agent-grp vcenter" [ngClass]="{open:flags.agentOpt}" *ngIf="platform==='WEB'">
+                <button class="agent sm" [ngClass]="flags.agent" mat-icon-button matTooltip="APIC web agent"
+                    (click)="connectAgent()">
+                    <mat-icon>podcasts</mat-icon>
+                </button>
+                <mat-icon class="exp" [matTooltip]="flags.agentOpt?'Hide':'More'"
+                    (click)="flags.agentOpt = !flags.agentOpt">
+                    {{flags.agentOpt?'arrow_right':'arrow_left'}}</mat-icon>
+                <button class="agent-setting sm" mat-icon-button *ngIf="platform==='WEB'" matTooltip="Agent settings"
+                    (click)="openAgentSetting()">
+                    <mat-icon>settings_applications</mat-icon>
+                </button>
+                <a href="https://docs.apic.app/apic-web-agent-apic-cli" mat-icon-button class="sm agent-help"
+                    matTooltip="Agent docs" target="_blank">
+                    <mat-icon>help</mat-icon>
+                </a>
+            </div>
+            <div class="env-cont input-group gap">
+                <button mat-button="" class="sm" (click)="openEnvModal()" aria-label="Environments"
+                    matTooltip="Environments">
+                    <i class="icon bj-stack"></i>
+                </button>
+                <button mat-button="" class="sm" [matMenuTriggerFor]="envsList">
+                    <span class="gap" *ngIf="(selectedEnv$ | async)?._id">{{(selectedEnv$ | async)?.name}}</span>
+                    <span class="gap" *ngIf="!(selectedEnv$ | async)?._id">No Environment</span>
+                    <mat-icon>arrow_drop_down</mat-icon>
+                </button>
+                <mat-menu #envsList="matMenu">
+                    <button (click)="selectEnv('')" mat-menu-item>No Environment</button>
+                    <mat-divider></mat-divider>
+                    <button *ngFor="let env of envs$ | async" (click)="selectEnv(env._id)"
+                        mat-menu-item>{{env.name}}</button>
+                </mat-menu>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="notifiaction" [matBadge]="notifications.length"
+                aria-label="Donate" matTooltip="Notifications">
+                <mat-icon>notifications</mat-icon>
+            </button>
+            <mat-menu #notifiaction="matMenu" class="noti-panel">
+                <div class="noti-head">Notifications</div>
+                <div class="noti-body">
+                    <div class="" *ngIf="notifications.length==0">Nothing to show here</div>
+                    <div class="notification" *ngFor="let noti of notifications">
+                        {{noti.message}}
+                    </div>
+                </div>
+            </mat-menu>
+            <a href="https://github.com/bjdash/apic/issues" mat-icon-button aria-label="Feature request" target="_blank"
+                matTooltip="Feature request">
+                <i class="icon bj-ink"></i>
+            </a>
+            <button mat-icon-button [matMenuTriggerFor]="donate" aria-label="Donate" matTooltip="Donate">
+                <i class="icon bj-donate"></i>
+            </button>
+            <mat-menu #donate="matMenu">
+                <a href="https://www.paypal.me/bdash4" target="_new" mat-menu-item>PayPal</a>
+                <a href="https://www.patreon.com/apic_app" target="_new" mat-menu-item>Paetron</a>
+                <a href="https://ko-fi.com/bdash" target="_new" mat-menu-item>Buy me a coffee</a>
+            </mat-menu>
+            <button mat-icon-button (click)="openSettings()" aria-label="Settings" matTooltip="Settings">
+                <mat-icon>settings</mat-icon>
+            </button>
+            <button mat-icon-button (click)="openDevTools()" aria-label="Open devtools" matTooltip="Open devtools"
+                *ngIf="platform==='ELECTRON'">
+                <i class="icon bj-terminal" style="font-size: 24px;"></i>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="menuOpt" aria-label="Options Menu" matTooltip="More options">
+                <mat-icon>reorder</mat-icon>
+            </button>
+            <mat-menu #menuOpt="matMenu">
+                <a href="https://apic.app/docs" target="_new" mat-menu-item>
+                    <mat-icon class="gap">menu_book</mat-icon> Docs/Help
+                </a>
+                <a href="https://github.com/apic-apps/apic" target="_new" mat-menu-item>
+                    <span class="icon bj-github"></span>Opensource
+                </a>
+                <a href="https://apic.app/identity/#!/feedback" target="_new" mat-menu-item>
+                    <mat-icon class="gap">feedback</mat-icon>Feedback
+                </a>
+                <a href="https://github.com/bjdash/apic/issues" target="_new" mat-menu-item>
+                    <mat-icon class="gap">bug_report</mat-icon>Report an issue
+                </a>
+                <button mat-menu-item (click)="openIntro()">
+                    <mat-icon class="gap">dvr</mat-icon>Intro Screen
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="checkForUpdate(true)" *ngIf="flags.update=='idle'">
+                    <mat-icon class="gap">system_update_alt</mat-icon>Check for update
+                </button>
+                <button mat-menu-item *ngIf="flags.update=='downloading'">
+                    <mat-icon class="gap">system_update_alt</mat-icon>Downloaded: {{flags.downloadPercent}}%
+                </button>
+                <button mat-menu-item (click)="restart()" *ngIf="flags.update=='downloaded'" class="t_bg">
+                    <mat-icon class="gap t_bg">restart_alt</mat-icon>Restart
+                </button>
+                <button mat-menu-item class="align-right"> Version: {{version}}</button>
+            </mat-menu>
+
+            <div class="avatar-cont vcenter">
+                <div class="avatar-bg"></div>
+                <button mat-icon-button class="avatar sm" [ngClass]="{
+                        online:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.OPEN,
+                        offline:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.CLOSED,
+                        syncing:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.SYNCING,
+                        connecting:(loggedInUser$|async)?.UID && (stompService.client.connectionChange$|async) === ApicRxStompState.CONNECTING
+                    }" [matMenuTriggerFor]="accountOpt">
+                    <mat-icon *ngIf="! (loggedInUser$|async)?.UID">person</mat-icon>
+                    <span class="initial"
+                        *ngIf="(loggedInUser$|async)?.UID">{{(loggedInUser$|async).name.charAt(0).toLocaleUpperCase()}}</span>
+                </button>
+                <mat-menu #accountOpt="matMenu">
+                    <div *ngIf="! (loggedInUser$|async)?.UID">
+                        <button mat-menu-item (click)="openAuthModal('login')">Login</button>
+                        <button mat-menu-item (click)="openAuthModal('register')">Register</button>
+                        <button mat-menu-item (click)="openAuthModal('forgot')">Forgot Password</button>
+                    </div>
+                    <div *ngIf="(loggedInUser$|async)?.UID">
+                        <div class="greet">Hi {{(loggedInUser$|async).name}}</div>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item>
+                            <mat-icon>manage_accounts</mat-icon>Account
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>dashboard</mat-icon> Dashboard
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>sync</mat-icon> Sync
+                        </button>
+                        <button mat-menu-item (click)="logout()">
+                            <mat-icon>logout</mat-icon> Logout
+                        </button>
+                    </div>
+                </mat-menu>
+            </div>
+        </div>
+    </div>
+</div>

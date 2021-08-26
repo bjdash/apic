@@ -1,0 +1,193 @@
+<div class="objCont" *ngIf="entity && entity._type">
+    <fieldset [disabled]="entity.disabled || disabledKeys?.includes(entity._key)" class="js-fieldset">
+        <div class="js-row" [ngClass]="showDetailsPan?'t_glow':''">
+            <button type="button" mat-icon-button aria-label="Add new prop" class="obj-add sm"
+                (click)="addNewProp(entity,$event)" [disabled]="mode == 'static'"
+                *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0]) && !entity.refTxt">
+                <mat-icon>add_box</mat-icon>
+            </button>
+            <span *ngIf="(mode != 'list' && mode != 'static') || !entity.root$$" class="model-type-cont vcenter">
+                <button type="button" mat-icon-button class="t_color obj-exp sm" (click)="ctrl.expanded=!ctrl.expanded"
+                    *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0])">
+                    <mat-icon class="" *ngIf="ctrl.expanded">expand_more</mat-icon>
+                    <mat-icon *ngIf="!ctrl.expanded">chevron_right</mat-icon>
+                </button>
+                <span *ngIf="entity._readOnlyKey">{{entity._key}} : </span>
+                <span [hidden]="entity.root$$ || entity._hideKey">
+                    <input [readonly]="mode == 'static'" (ngModelChange)="refreshSchema($event)" class="model-key"
+                        type="text" [(ngModel)]="entity._key" />:
+                    <!-- : -->
+                </span>
+                <button type="button" mat-button class="model-selector" (click)="openMenu(entity,$event)">
+                    <span *ngFor="let t of entity._type;let last=last">
+                        <span [ngClass]="t">{{t}}</span>
+                        <span *ngIf="t==='Array' && entity._items[0]" [ngClass]="entity._items[0]._type[0]"
+                            class="unspecified">[{{entity._items[0]._type[0]}}
+                            <span *ngIf="entity._items[0]._type[0]=='$ref'">
+                                {{entity._items[0]._path}}
+                                <span
+                                    *ngIf="models[entity._items[0]._value]">{{models[entity._items[0]._value].nameSpace}}</span>
+                                <span *ngIf="!models[entity._items[0]._value]">{{entity._items[0]._value}}</span>
+                            </span>]
+                        </span>
+                        <span *ngIf="t==='Array' && !entity._items[0]" ngClass="Unspecified"
+                            class="unspecified">[Unspecified]
+                        </span>
+                        <span *ngIf="t==='$ref' && models && models[entity._value]">({{entity._path
+                            +models[entity._value]?.nameSpace}})</span>
+                        <span *ngIf="t==='$ref' && (!models || !models[entity._value])" class="faint">({{entity._path +
+                            entity._value}})</span>
+                        <mat-icon style="vertical-align: top;height:10px;">arrow_drop_down</mat-icon>
+                        <span *ngIf="!last" class="faint"> or </span>
+                    </span>
+                    <span class="caret"></span>
+                </button>
+
+                <span *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0])"
+                    class="faint">[
+                    <span>{{(entity._properties && entity._properties.length) || (entity._items &&
+                        entity._items[0]._properties && entity._items[0]._properties.length)||0}}</span>
+                    ]
+                </span>
+
+                <span *ngIf="entity.refTxt" class="margL90">{{entity.refTxt}}</span>
+            </span>
+            <span *ngIf="(mode == 'list' || mode == 'static') && entity.root$$">{{msg}}</span>
+            <span class="vcenter js-right-cont">
+                <a href="" mat-icon-button title="Expand $ref" class="sm"
+                    (click)="$event.preventDefault();expand$ref(entity)"
+                    *ngIf="entity._type.indexOf('$ref')>=0 || (entity._items && entity._items[0] && entity._items[0]._type.indexOf('$ref'))>=0">
+                    <!--TODO: Use Optional chaining operator (?)-->
+                    <mat-icon
+                        *ngIf="!entity._refExp && (!entity._items || !entity._items[0] || !entity._items[0]._refExp)">
+                        expand</mat-icon>
+                    <mat-icon *ngIf="entity._refExp || (entity._items && entity._items[0] && entity._items[0]._refExp)">
+                        compress</mat-icon>
+                </a>
+                <a href="" mat-icon-button title="Open test builder" class="sm"
+                    *ngIf="showTestBuilder && !entity.root$$ && !entity._hideKey"
+                    (click)="$event.preventDefault();buildTest(entity, $event)">
+                    <mat-icon>science</mat-icon>
+                </a>
+                <mat-icon class="sm" *ngIf="entity._description" matTooltip="{{entity._description}}">description
+                </mat-icon>
+                <span *ngIf="!entity.root$$ && !entity._hideKey" class="vcenter gap">
+                    <mat-checkbox [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)">Required
+                    </mat-checkbox>
+                    <!-- <input type="checkbox" [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)" />
+                    <span>Required</span> -->
+                </span>
+                <!--Needs to be an anchor to make sure its enable even if the fieldset is disabled-->
+                <a href="" mat-icon-button *ngIf="showDetailsPan" class="model-done sm"
+                    (click)="showDetailsPan=false; refreshSchema();$event.preventDefault()">
+                    <mat-icon>done</mat-icon>
+                </a>
+                <a href="" mat-icon-button [hidden]="entity.root$$ && (mode == 'list' || mode == 'static')"
+                    *ngIf="!showDetailsPan" class="model-detail sm"
+                    (click)="showDetailsPan=true;$event.preventDefault()">
+                    <mat-icon>edit</mat-icon>
+                </a>
+                <button class="model-remove sm" mat-icon-button *ngIf="!entity.root$$ && mode != 'static'" type="button"
+                    (click)="removeEntity(entity)">
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+            </span>
+        </div>
+        <div class="model-det-cont" *ngIf="showDetailsPan">
+            <div class="col-xs-6 model-det-child">
+                <div class="t_color bold">Basic Info</div>
+                <div class="">
+                    <form class="form-horizontal form-compact model-detail-form" name="detailForm" role="form">
+                        <div class="form-group" *ngIf="!entity.root$$">
+                            <label class="control-label col-xs-2">Name:</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control sm detail-ip" id="foldName"
+                                    (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}"
+                                    placeholder="Field Name" [(ngModel)]="entity._key" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">Desc: </label>
+                            <div class="col-xs-9">
+                                <textarea class="form-control" [(ngModel)]="entity._description"
+                                    (ngModelChange)="refreshSchema($event)"
+                                    [ngModelOptions]="{standalone: true}"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">Default:</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._default"
+                                    (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <form class="form-inline model-detail-form" name="detailForm" role="form">
+                    <div *ngIf="!entity.root$$">
+                        <div class="t_color">Common Validations</div>
+                        <div>
+                            <div class="checkbox padding">
+                                <label><input type="checkbox" class="small" [(ngModel)]="entity._required"
+                                        (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}" />
+                                    Required
+                                    ?</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngFor="let type of entity._type">
+                        <div class="t_color">{{type}} Validations</div>
+                        <ng-jsonschema-field [type]="type" [entity]="entity" (onChange)="refreshSchema($event)"
+                            [addAdditionalProp]="addAdditionalProp">
+                        </ng-jsonschema-field>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div *ngIf="ctrl.expanded" class="objProps">
+            <div *ngFor="let prop of entity._properties" class="propCont">
+                <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
+                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
+                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
+                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+            </div>
+            <div *ngFor="let prop of entity._additionalProperties" class="propCont">
+                <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
+                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
+                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
+                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+            </div>
+
+        </div>
+        <!-- ITEMS: {{entity._items}} -->
+        <div
+            *ngIf="entity._items && entity._items[0] && entity._type.indexOf('Object')<0 && hasChild.indexOf(entity._items[0]._type[0])>=0">
+            <div *ngFor="let prop of entity._items[0]._properties" class="propCont">
+                <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
+                    [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop" [mode]="mode"
+                    [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
+                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+            </div>
+        </div>
+        <div *ngIf="entity._refExp" class="expanded-ref">
+            <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
+                [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._refExp" [mode]="mode"
+                [disabledKeys]="disabledKeys" [addAdditionalProp]="addAdditionalProp"
+                [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
+                [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+        </div>
+        <div *ngIf="entity._items && entity._items[0] && entity._items[0]._refExp" class="expanded-ref">
+            <ng-jsonschema-main [refreshSchema]="refreshSchema" [addNewProp]="addNewProp" [models]="models"
+                [disabledKeys]="disabledKeys" [removeEntity]="removeEntity" [openMenu]="openMenu"
+                [entity]="entity._items[0]._refExp" [mode]="mode" [addAdditionalProp]="addAdditionalProp"
+                [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)"
+                [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+        </div>
+
+    </fieldset>
+</div>

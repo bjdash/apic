@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!--<link rel="stylesheet" href="style.css" />-->
+<style>
+/* bootstrap styles */
+*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}body{margin:0;font-family:Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:13px;line-height:1.846;color:#666;background-color:#fff}.container,.container-fluid{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px}html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}a{color:#2196f3;text-decoration:none}@media (min-width:768px){.container{width:750px}}@media (min-width:992px){.container{width:970px}}@media (min-width:1200px){.container{width:1170px}}.row{margin-left:-15px;margin-right:-15px}.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9{position:relative;min-height:1px;padding-left:15px;padding-right:15px}.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9{float:left}.col-xs-12{width:100%}.col-xs-6{width:50%}@media (min-width:768px){.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9{float:left}.col-sm-12{width:100%}.col-sm-11{width:91.66666667%}.col-sm-10{width:83.33333333%}.col-sm-9{width:75%}.col-sm-8{width:66.66666667%}.col-sm-7{width:58.33333333%}.col-sm-6{width:50%}.col-sm-5{width:41.66666667%}.col-sm-4{width:33.33333333%}.col-sm-3{width:25%}.col-sm-2{width:16.66666667%}.col-sm-1{width:8.33333333%}}.navbar-inverse{background-color:#00BCD4}.navbar{border-radius:0!important;-webkit-box-shadow:0 1px 2px rgba(0,0,0,.3);box-shadow:0 1px 2px rgba(0,0,0,.3);position:relative;min-height:64px;margin-bottom:23px;border:1px solid transparent}.navbar-brand{height:50px;padding:14px;color:#fff;font-size:24px;float:left;line-height:23px}
+
+.col-sm-3{
+    margin-bottom:10px;
+    min-height:100px;
+}
+.navbar{
+    border-radius:0 !important;
+    min-height:50px;
+}
+.navbar-inverse{
+    background-color:#00BCD4;
+}
+.navbar-brand{
+    height:50px;
+    padding:14px;
+}
+.h100{
+    height:100px;
+}
+.card{
+    background:#fff;
+    border-radius:3px;
+    min-height:100px;
+    padding:5px 10px;
+    position:relative;
+}
+.card .title, .combo .title{
+    font-size:18px;
+}
+.card .footer, .combo .footer{
+    font-size:36px;
+    text-align:right;
+}
+.combo{
+    color:#fff;overflow:auto;
+    min-height:100px;
+}
+.combo .green{
+    min-height:100px;
+    background-color:#4CAF50;
+    border-radius:3px 0 0 3px;
+}
+.combo .red{
+    min-height:100px;
+    background-color:#F44336;
+    border-radius:0 3px 3px 0;
+    color: #fff;
+}
+.red{
+    color: #F44336;
+}
+.req{
+    padding:10px 5px;
+    border-bottom:1px solid #e4e7e9;
+    cursor:pointer;
+}
+.req.active{
+    border-left:4px solid #F44336;
+    background-color:#ECEFF1;
+}
+.req:hover{
+    background-color:#e4e7e9;
+}
+.detail{
+    position:relative;
+    display: none;
+}
+.detail.visible{
+    display: block;
+}
+.detail .title{
+    font-size:22px;
+    line-height: 30px;
+}
+.detail .url{
+    margin-bottom: 3px;
+}
+.tag{
+    margin-right:5px;
+    padding:0px 8px;
+    color:#fff;
+    background-color: #666;
+    font-size:12px;
+    border-radius:2px;
+    display:inline-block;
+}
+.status.success, .success{
+    background-color: #4CAF50;
+}
+.status.warning, .warning{
+    background-color: #FF9800;
+}
+.status.error, .error{
+    background-color: #F44336;
+}
+.status.info, .info{
+    background-color: #03A9F4;
+}
+.status.disabled, .disabled{
+    background-color: #666;
+}
+.GET{
+    color: #388E3C;
+}
+.POST{
+    color: #F57C00;
+}
+.PUT{
+    color: #7B1FA2;
+}
+.PATCH{
+    color: #1976D2;
+}
+.DELETE{
+    color: #D32F2F;
+}
+.OPTIONS{
+    color: #00796B;
+}
+.table{
+    width:100%;
+    border-collapse: collapse;
+}
+.table th, .table td{
+    margin:0;
+    padding:5px 2px;
+}
+.table th{
+    text-align:left;
+    border-bottom:2px solid #B0BEC5;
+}
+.table tr{
+    border-bottom:1px solid #B0BEC5;
+}
+.Passed{
+    color: #4CAF50;
+    border:1px solid #4CAF50;
+    border-radius:2px;
+    text-align:center;
+    font-weight:bold;
+}
+.Failed{
+    color: #F44336;
+    border:1px solid #F44336;
+    border-radius:2px;
+    text-align:center;
+    font-weight:bold;
+}
+</style>
+    </head>
+    <body style="background:#eff2f8">
+        <div class="header" style="">
+            <nav class="navbar navbar-inverse">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#" style="color:#fff">{{brand}}</a>
+                    </div>
+
+                    <!--<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+                    </div>-->
+                </div>
+            </nav>
+        </div><!--- header -->
+        <div class="container">
+            <div class="col-sm-3">
+                <div class="card h100">
+                    <div class="title">Total requests</div>
+                    <div class="footer">{{totalReqs}}</div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card h100">
+                    <div class="title">Total tests</div>
+                    <div class="footer">{{tests}}</div>
+                </div>
+            </div>
+            <div class="col-sm-3 combo">
+                <div class="col-xs-6 green">
+                    <div class="title">Passed</div>
+                    <div class="footer">{{passed}}</div>
+                </div>
+                <div class="col-xs-6 red">
+                    <div class="title">Failed</div>
+                    <div class="footer">{{failed}}</div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="card h100">
+                    <div class="title">Pass Percentage</div>
+                    <div class="footer">{{percent}}</div>
+                </div>
+            </div>
+        
+            <div class="col-sm-12">
+                <div class="card col-xs-6" style="padding:5px">
+                    <div class="title">Requests</div>
+                    <!--<div class="req" id="req{index}" onclick="showDetail(this.id)">
+                        Example
+                    </div>-->
+                    {{reqList}}
+                </div>
+                <div class="card col-xs-6">
+                    {{details}}
+                    <!--<div class="detail">
+                        <div class="title">Example</div>
+                        <div class="url"><span class="POST">POST</span> <span>http://localhost/todo/create.php</span></div>
+                        <div><span class="error tag">400 Bad Request</span> <span class="info tag">Time taken: 83 ms</span></div>
+                        <table class="table">
+                            <tr>
+                                <th>Test Case</th>
+                                <th style="width:100px;">Status</th>
+                            </tr>
+                            <tr>
+                                <td>Status Code shoudl be 200</td>
+                                <td><div class="Passed">Passed</div></td>
+                            </tr>
+                            <tr>
+                                <td>Status Code shoudl be 200</td>
+                                <td><div class="Failed">Failed</div></td>
+                            </tr>
+                        </table>
+                    </div>-->
+                </div>
+                
+            </div>
+            
+        </div>
+<script type="text/javascript">
+function showDetail(id){
+    var active = document.getElementsByClassName('active');
+    if(active[0]){
+        active[0].className = 'req';
+    }
+    var details = document.getElementsByClassName('visible');
+    if(details[0]){
+        details[0].className = 'detail';
+    }
+    if(document.getElementById('detail-'+id)){
+        document.getElementById(id).className = 'req active';
+        document.getElementById('detail-'+id).className = 'detail visible';
+    }
+    
+}
+showDetail('req0');
+</script>
+    </body>
+</html>

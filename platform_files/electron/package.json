@@ -1,0 +1,12 @@
+{
+    "name": "apic",
+    "version": "3.0.0",
+    "description": "apic- Complete API solution",
+    "author": "Bijaya Dash <bijaya.k.dash@gmail.com>",
+    "main": "electron.js",
+    "license": "MIT",
+    "dependencies": {
+        "electron-log": "^2.2.9",
+        "electron-updater": "^4.0.6"
+    }
+}

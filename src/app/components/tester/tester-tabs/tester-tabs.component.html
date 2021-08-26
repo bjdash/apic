@@ -1,0 +1,43 @@
+<div>
+    <div class="add-btns"
+        [ngStyle]="{left:tabs.length>overFlowtabsCount?'auto': (tabs.length*170)+'px',right:tabs.length<=overFlowtabsCount?'auto': '0px'}"
+        style="--data-count:{{tabs.length}}">
+        <button mat-button (click)="addReqTab()">
+            <mat-icon class="sm">add</mat-icon>
+        </button>
+        <button mat-button class="ws" (click)="addWsTab()">
+            <i class="icon bj-websocket"></i>ws
+        </button>
+    </div>
+    <mat-tab-group animationDuration="0ms" class="test-tabs" [selectedIndex]="selectedTabIndex"
+        (selectedIndexChange)="selectedIndexChange($event)">
+        <mat-tab class="XXX" *ngFor="let tab of tabs; trackBy:trackbyFn;let i=index" [ngSwitch]="tab.type">
+            <ng-template mat-tab-label>
+                <div class="tab-label vcenter" [title]="tab.name" (contextmenu)="onContextMenu($event, tab)">
+                    <i *ngSwitchCase="'req'" class="tab-icon icon bj-embed2"></i>
+                    <i *ngSwitchCase="'ws'" class="tab-icon icon bj-websocket"></i>
+                    <mat-icon *ngSwitchCase="'suite'" class="sm tab-icon gap">receipt_long</mat-icon>
+                    {{tab.name}}
+                    <mat-icon *ngIf="tabs.length>1" class="tab-close" (click)="closeTab(i,$event)">close</mat-icon>
+                </div>
+            </ng-template>
+            <div>
+                <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data"
+                    [projId]="tab.projId"></app-tab-request>
+                <app-tab-socket *ngSwitchCase="'ws'" [requestId]="tab.id"></app-tab-socket>
+                <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id" [reqToOpen]="tab.data?.reqToOpen">
+                </app-tab-suite>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+    <div style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x"
+        [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
+    </div>
+    <mat-menu #contextMenu="matMenu">
+        <ng-template matMenuContent let-item="item">
+            <button mat-menu-item (click)="closeAllButThis(item)">Close all but this</button>
+            <button mat-menu-item (click)="closeAllRight(item)">Close all to the right</button>
+            <!--TODO: <button mat-menu-item (click)="closeAllRight(item)">Duplicate</button> -->
+        </ng-template>
+    </mat-menu>
+</div>

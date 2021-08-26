@@ -1,0 +1,69 @@
+<div style="font-size:14px;" *ngIf="types">
+    <div>
+        <span *ngFor='let p of path;let last = last'>
+            <span *ngIf="!last"><a class="t_color bold" (click)="select(p, $event);" href="">{{p}}</a>
+                <span class="rArrow"> ▶ </span> </span>
+            <span class="bold" *ngIf="last">{{p}}</span>
+        </span>
+    </div>
+    <div class="margL10">
+        <div *ngIf="types[path[path.length-1]].interfaces?.length>0">
+            <div class="mono">Implements</div>
+            <div style="margin-bottom:15px;" *ngFor="let i of types[path[path.length-1]].interfaces">
+                <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: i}"></ng-container>
+            </div>
+        </div>
+        <div class="mono" *ngIf="types[path[path.length-1]].interfaces?.length>0">Fields</div>
+        <div style="margin-bottom:15px;" *ngFor="let f of types[path[path.length-1]].fields;let last = last">
+            <span class="GET">{{f.name}}</span> <span *ngIf="f.args?.length>0">(
+                <span class="gqlArg" *ngFor="let a of f.args">{{a.name}}: <ng-container [ngTemplateOutlet]="GqlTypeRef"
+                        [ngTemplateOutletContext]="{f: a.type}"></ng-container><span class="POST"
+                        *ngIf="a.defaultValue">= {{a.defaultValue}}</span><span *ngIf="!last">,</span></span>
+                )</span>: <span>
+                <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: f.type}"></ng-container>
+            </span>
+            <div style="margin-top:-7px;" class="OPTIONS">{{f.description}}</div>
+        </div>
+        <div style="margin-bottom:15px;" *ngFor="let f of types[path[path.length-1]].inputFields;let last = last">
+            <span class="GET">{{f.name}}</span> <span *ngIf="f.args?.length>0">(
+                <span class="gqlArg" *ngFor="let a of f.args">{{a.name}}: <ng-container [ngTemplateOutlet]="GqlTypeRef"
+                        [ngTemplateOutletContext]="{f: a.type}"></ng-container>> <span class="POST"
+                        *ngIf="a.defaultValue">= {{a.defaultValue}}</span><span *ngIf="!last">,</span></span>
+                )</span>: <span>
+                <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: f.type}"></ng-container>
+            </span>
+            <div style="margin-top:-7px;" class="OPTIONS">{{f.description}}</div>
+        </div>
+        <div style="margin-bottom:5px;" *ngFor="let f of types[path[path.length-1]].enumValues;let last = last">
+            <span class="GET">{{f.name}}</span> <span *ngIf="f.args?.length>0">(
+                <span class="gqlArg" *ngFor="let a of f.args">{{a.name}}: <ng-container [ngTemplateOutlet]="GqlTypeRef"
+                        [ngTemplateOutletContext]="{f: a.type}"></ng-container> <span class="POST"
+                        *ngIf="a.defaultValue">= {{a.defaultValue}}</span><span *ngIf="!last">,</span></span>
+                )</span>: <span>
+                <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: f.type}"></ng-container>
+            </span>
+            <div style="margin-top:-7px;" class="OPTIONS">{{f.description}}</div>
+        </div>
+        <div
+            *ngIf="!types[path[path.length-1]].fields && !types[path[path.length-1]].inputFields && !types[path[path.length-1]].enumValues">
+            <span class="GET">{{types[path[path.length-1]].name}}</span>: {{types[path[path.length-1]].description}}
+        </div>
+    </div>
+</div>
+
+<ng-template #GqlTypeRef let-f="f">
+    <span *ngIf="['ENUM', 'OBJECT', 'SCALAR', 'INPUT_OBJECT', 'INTERFACE'].indexOf(f?.kind)>=0">
+        <a class="PUT" href="" (click)="select(f.name, $event)">{{f?.name}}</a>
+    </span>
+    <span *ngIf="f?.kind==='LIST'">[<ng-container [ngTemplateOutlet]="GqlTypeRef"
+            [ngTemplateOutletContext]="{f: f.ofType}">
+        </ng-container>]</span>
+    <span *ngIf="f?.kind==='NON_NULL'">
+        <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: f.ofType}">
+        </ng-container> !
+    </span>
+</ng-template>
+<!-- 
+{{types|json}}
+--------------
+{{path|json}} -->
