@@ -1,6 +1,6 @@
 {
   "name": "apic-angular",
-  "version": "3.0.1",
+  "version": "3.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port=5000",
@@ -15,12 +15,10 @@
     "web": "ng build --prod",
     "extn:local": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
     "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
-    "electron:win": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64 -p always",
-    "electron:mac": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --mac --x64 -p always",
-    "electron:linux": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --linux --x64 -p always",
-    "electron:local": "gulp cleanElectron && ng build --configuration=electronLocal --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64",
-    "release:all": "npm run bump && npm run web && npm run extn && electron:win",
-    "release": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder --macos --linux --windows --publish always"
+    "electron:win": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64 -p onTagOrDraft",
+    "electron:mac": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --mac --x64 -p onTagOrDraft",
+    "electron:linux": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --linux --x64 -p onTagOrDraft",
+    "electron:local": "gulp cleanElectron && ng build --configuration=electronLocal --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64"
   },
   "private": true,
   "dependencies": {
@@ -85,6 +83,10 @@
       {
         "provider": "github",
         "releaseType": "release"
+      },
+      {
+        "provider": "generic",
+        "url": "https://apic.app/download/"
       }
     ],
     "mac": {
