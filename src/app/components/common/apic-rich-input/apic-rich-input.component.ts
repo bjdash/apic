@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { Select } from '@ngxs/store';
 import { Observable, Subject } from 'rxjs';
@@ -32,7 +32,7 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
 
   selectedEnv: ParsedEnv;
   inMemEnv = {};
-  text = '';
+  text = new FormControl();
   disabled: boolean = false;
   propagateChange: any = () => { };
   propagateTouch: any = () => { };
@@ -45,7 +45,7 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
     this._destroy.complete();
   }
   writeValue(value: any): void {
-    this.text = value;
+    this.text.setValue(value);
 
     setTimeout(() => {
       this.editor.nativeElement.innerText = value;
@@ -95,6 +95,11 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
         selection.addRange(range);
       }
     });
+
+    this.text.valueChanges.pipe(takeUntil(this._destroy)).subscribe(val => {
+      this.editor.nativeElement.innerText = val;
+      this.onChangeHandle();
+    })
   }
 
   onKeyDown(e) {
@@ -133,8 +138,8 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
       }
     }
     var newValue = this.editor.nativeElement.innerText;
-    if (this.text !== newValue) {
-      this.text = newValue;
+    if (this.text.value !== newValue) {
+      // this.text.setValue(newValue);
       this.propagateChange(newValue);
       if (this.autocomplete) {
         this.autocomplete.openPanel();
