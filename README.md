@@ -1,11 +1,3 @@
-# Apic 
-
-This is a rewrite of [APIC](https://apic.app) in angular 10
-
-## Development
-
-This is generated via angular cli. Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. 
-
 # One opensource tool for all your API needs.
 
 APIC is a free open-source solution that can help you in API Designing, API Testing (even during designing), API Documentation, Simulating your API response for the frontent team etc.
