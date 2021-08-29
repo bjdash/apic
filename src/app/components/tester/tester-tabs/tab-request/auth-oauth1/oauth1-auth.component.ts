@@ -66,7 +66,7 @@ export class Oauth1AuthComponent implements OnInit {
     var oAuthProps = ['oauth_consumer_key', 'oauth_token', 'oauth_signature_method', 'oauth_timestamp', 'oauth_nonce', 'oauth_version', 'oauth_signature'];
 
     //check if methode can have body
-    if (METHOD_WITH_BODY.indexOf(this.method) >= 0) {
+    if (METHOD_WITH_BODY.indexOf(this.method.toUpperCase()) >= 0) {
       if (this.body.type === 'form-data') {
         //formData: [{key: '', val: '', type: 'Text/File'}]
         for (var j = 0; j < this.body.formData.length; j++) {

@@ -52,7 +52,7 @@ export class RequestUtils {
         }
 
         //Prepare body to be sent with the request
-        if (METHOD_WITH_BODY.indexOf(req.method) >= 0 && req.Body) {
+        if (METHOD_WITH_BODY.indexOf(req.method.toUpperCase()) >= 0 && req.Body) {
             newReq.bodyType = req.Body.type;
             switch (req.Body.type) {
                 case 'x-www-form-urlencoded':
