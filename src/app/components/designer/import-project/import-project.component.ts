@@ -92,7 +92,7 @@ export class ImportProjectComponent implements OnInit {
       }, {
         key: 'basePath', val: project.setting.basePath, readOnly: true
       }, {
-        key: 'scheme', val: project.setting.protocol, readOnly: true
+        key: 'scheme', val: project.setting.protocol + '://', readOnly: true
       }],
       _id: null, _created: null, _modified: null,
       proj: {
