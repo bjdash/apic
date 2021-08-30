@@ -100,7 +100,7 @@ export class ImportProjectComponent implements OnInit {
         name: project.title
       }
     };
-    const newEnvId = await this.envService.addEnv(newEnv);
+    const newEnvId = (await this.envService.addEnv(newEnv))._id;
     project = { ...project, setting: { ...project.setting, envId: newEnvId } }
     try {
       await this.apiProjectService.updateAPIProject(project);
