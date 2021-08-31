@@ -719,7 +719,7 @@ export class SwaggerService {
                 reqObj.parameters.push(param);
             };
 
-            if (METHOD_WITH_BODY.includes(endp.method) && endp.body) { //if the trait has body add body params
+            if (METHOD_WITH_BODY.includes(endp.method.toUpperCase()) && endp.body) { //if the trait has body add body params
                 switch (endp.body.type) {
                     case 'raw':
                         let param = {

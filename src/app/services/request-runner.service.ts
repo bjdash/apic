@@ -189,7 +189,7 @@ export class RequestRunnerService {
     queryParams = this.interpolationService.interpolateObject(queryParams, interpolationOpt);
     url = this.interpolationService.interpolate(this.prepareQueryParams(url, queryParams || {}), interpolationOpt);
     url = RequestUtils.checkForHTTP(url);
-    if (METHOD_WITH_BODY.indexOf($request.method) >= 0 && $request.bodyType) {
+    if (METHOD_WITH_BODY.indexOf($request.method.toUpperCase()) >= 0 && $request.bodyType) {
       switch ($request.bodyType) {
         case 'x-www-form-urlencoded':
           body = this.interpolationService.interpolateObject(body, interpolationOpt);

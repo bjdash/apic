@@ -273,7 +273,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       name: request.name,
       _parent: this.selectedReq?._parent
     }
-    if (METHOD_WITH_BODY.includes(request.method)) {
+    if (METHOD_WITH_BODY.includes(request.method.toUpperCase())) {
       let body = { type: request.body.type };
       switch (request.body.type) {
         case 'form-data':
