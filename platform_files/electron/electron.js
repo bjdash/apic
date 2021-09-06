@@ -82,6 +82,7 @@ app.on('ready', function () {
         name: "apic",
         toolbar: true,
         frame: false,
+        icon: path.join(__dirname, '/assets/images/logo192.png'),
         webPreferences: {
             webSecurity: false,
             enableRemoteModule: true,

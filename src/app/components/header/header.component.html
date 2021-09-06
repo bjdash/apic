@@ -1,11 +1,11 @@
 <div class="win-bar" *ngIf="platform==='ELECTRON'">
     <div class="mac-title-bar-btns" style="display: inline;" *ngIf="os!=='Windows_NT'">
-        <button (click)="winClose()" class="mac-btn mac-close-btn"></button>
-        <button (click)="winMinimize()" class="mac-btn mac-min-btn"></button>
-        <button (click)="winMaximize()" class="mac-btn mac-max-btn"></button>
+        <button (click)="winClose()" class="mac-btn mac-close-btn gap"></button>
+        <button (click)="winMinimize()" class="mac-btn mac-min-btn gap"></button>
+        <button (click)="winMaximize()" class="mac-btn mac-max-btn gap"></button>
     </div>
     <div class="win-title center"><span class="bold">APIC</span> - The complete API solution</div>
-    <div class="win-title-bar-btns pull-right" *ngIf="os==='Windows_NT'">
+    <div class="win-title-bar-btns pull-right" *ngIf="os==='Windows_NT' ">
         <button (click)="winMinimize()" class="win-btn win-min-btn">
             <mat-icon>remove</mat-icon>
         </button>

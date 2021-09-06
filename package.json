@@ -108,7 +108,7 @@
       "verifyUpdateCodeSignature": false
     },
     "linux": {
-      "target": "AppImage",
+      "target": ["AppImage","snap"],
       "category": "Development"
     },
     "directories": {
