@@ -1,5 +1,6 @@
 
 // Custom Theming for Angular Material
+@use '~@angular/material' as mat;
 // For more information: https://material.angular.io/guide/theming
 @import '~@angular/material/theming';
 // Plus imports for other components in your app.
@@ -7,22 +8,22 @@
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-@include mat-core();
+@include mat.core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$apic-angular-primary: mat-palette($mat-indigo);
-$apic-angular-accent: mat-palette($mat-pink, A200, A100, A400);
+$apic-angular-primary: mat.define-palette(mat.$indigo-palette);
+$apic-angular-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$apic-angular-warn: mat-palette($mat-red);
+$apic-angular-warn: mat.define-palette(mat.$red-palette);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$apic-angular-theme: mat-light-theme($apic-angular-primary, $apic-angular-accent, $apic-angular-warn);
+$apic-angular-theme: mat.define-light-theme($apic-angular-primary, $apic-angular-accent, $apic-angular-warn);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include angular-material-theme($apic-angular-theme);
+@include mat.all-component-themes($apic-angular-theme);
 
