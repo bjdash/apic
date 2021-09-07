@@ -91,7 +91,8 @@ export class ApiProjectStateSelector {
                     var endpX = {
                         _id: endp._id,
                         name: endp.summary,
-                        method: endp.method
+                        method: endp.method,
+                        deprecated: endp.deprecated
                     };
                     if (leftTree[endp.folder]) {
                         leftTree[endp.folder].endps[endp._id] = endpX;

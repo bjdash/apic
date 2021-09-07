@@ -45,6 +45,7 @@ export interface ApiEndp {
     consumes?: string[],
     produces?: string[],
     description?: string,
+    deprecated?: boolean,
     pathParams?: any,
     queryParams?: any,
     headers?: any,

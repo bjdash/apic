@@ -60,7 +60,7 @@ fieldset[disabled] .mat-checkbox {
 
 .json-schema .main {
   background: var(--content-bg);
-  // border: 1px dashed #eee;
+  font-size: 12px;
   margin: 5px 0;
 }
 
@@ -103,7 +103,6 @@ fieldset[disabled] .mat-checkbox {
 .model-types .btn.btn-link {
   font-size: 14px;
   margin: 2px 3px;
-  /*border: 1px solid rgba(0,0,0,0.1);*/
   padding: 4px 10px 3px;
 }
 
@@ -113,7 +112,7 @@ fieldset[disabled] .mat-checkbox {
 }
 
 input.model-key {
-  font-size: 14px;
+  font-size: 12px;
   font-family: apic-font;
   height: 20px;
   width: 110px;

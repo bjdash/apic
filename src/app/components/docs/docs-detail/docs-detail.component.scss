@@ -103,9 +103,13 @@ json-schema-view .property {
     border-bottom: 1px solid var(--border-color);
 }
 .apiTags {
-    float: right;
-    margin-top: -10px;
-    margin-right: 10px;
+    margin-left: auto;
+    color: var(--accent-bg-text);
+    .tag {
+        background-color: var(--accent-color);
+        padding: 0 3px;
+        border-radius: 2px;
+    }
 }
 ul.operations {
     list-style-type: none;
@@ -115,10 +119,8 @@ div.operation {
     margin: 10px 5px;
     border-radius: 3px;
     position: relative;
-    /*border-bottom: 1px dashed #BDBDBD;*/
     background-color: var(--content-bg);
     border: 1px solid var(--border-color);
-    /* color: #777777; */
 }
 div.operation > header {
     display: flex;
@@ -127,15 +129,6 @@ div.operation > header {
     flex-wrap: wrap;
     align-items: center;
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.19);
-}
-
-div.operation > header .deprecated {
-    float: left;
-    margin: 8px;
-    color: white;
-    background: #c52a5e;
-    padding: 0px 7px;
-    border: 1px solid white;
 }
 div.operation > header .http-method {
     font-size: 14px;
@@ -165,7 +158,9 @@ div.operation > header .http-summary {
     font-family: Open Sans, sans-serif;
     color: var(--text-color);
 }
-
+div.operation.deprecated > header .http-path {
+    text-decoration: line-through;
+}
 div.operation .http-method {
     background-color: #949493;
     color: white;

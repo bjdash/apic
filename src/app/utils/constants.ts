@@ -83,12 +83,12 @@ function getConstants() {
                     '--input-bg': '#d1ebff'
                 },
                 midnight: {
-                    '--header-bg': '#2d333b',
-                    '--main-bg': '#22272e',
+                    '--header-bg': '#0a1220',
+                    '--main-bg': '#052137',
                     '--text-color': '#cdd9e5',
                     '--text-color-bold': '#e8e8e8',
-                    '--content-bg': '#1e2228',
-                    '--content-bg-contrast': '#2d333b',
+                    '--content-bg': '#1f3950',
+                    '--content-bg-contrast': '#111a29',
                     '--accent-bg-text': '#ffffff',
                     '--border-color': '#444c56',
                     '--input-bg': '#d1ebff1f'

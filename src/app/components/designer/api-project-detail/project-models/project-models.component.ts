@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-project-models',
   templateUrl: './project-models.component.html',
-  styleUrls: ['../api-project-detail.component.css'],
+  styleUrls: ['../api-project-detail.component.scss'],
 })
 export class ProjectModelsComponent implements OnInit, OnDestroy {
   selectedPROJ: ApiProject;

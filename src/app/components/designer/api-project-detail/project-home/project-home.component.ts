@@ -25,7 +25,7 @@ import { TesterTabsService } from 'src/app/components/tester/tester-tabs/tester-
 @Component({
     selector: 'app-project-home',
     templateUrl: './project-home.component.html',
-    styleUrls: ['../api-project-detail.component.css']
+    styleUrls: ['../api-project-detail.component.scss']
 })
 export class ProjectHomeComponent implements OnInit, OnDestroy {
     selectedPROJ: ApiProject;

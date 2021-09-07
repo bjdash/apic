@@ -15,11 +15,11 @@
                     </button>
                     <a href="" [routerLink]="['/', 'docs', selectedPROJ._id]" color="primary" mat-icon-button
                         aria-label="View Docs" matTooltip="View Docs">
-                        <i class="icon bj-book f18"></i>
+                        <mat-icon>auto_stories</mat-icon>
                     </a>
                     <button type="button" color="primary" mat-icon-button aria-label="Export" matTooltip="Export"
                         [matMenuTriggerFor]="exportMenu">
-                        <mat-icon>open_in_new</mat-icon>
+                        <mat-icon>file_download</mat-icon>
                     </button>
                     <mat-menu #exportMenu="matMenu">
                         <button mat-menu-item (click)="openExportModal('RAW',selectedPROJ._id)">Raw APIC
@@ -56,7 +56,8 @@
                                 <div class="l-sec">
                                     <div class="method" [ngClass]="endp.value.method.toUpperCase()"></div>
                                 </div>
-                                <div class="m-sec name">{{endp.value.name}}</div>
+                                <div class="m-sec name" [ngClass]="{deprecated:endp.value.deprecated}">
+                                    {{endp.value.name}}</div>
                                 <div class="r-sec">
                                     <button type="button" (click)="$event.preventDefault(); $event.stopPropagation()"
                                         [ngClass]="{t_bg:e.menuOpen}" mat-icon-button [matMenuTriggerFor]="endpMenu"

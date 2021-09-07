@@ -17,7 +17,7 @@ import { ApiProjectService } from 'src/app/services/apiProject.service';
 @Component({
     selector: 'app-project-folder',
     templateUrl: './project-folder.component.html',
-    styleUrls: ['../api-project-detail.component.css']
+    styleUrls: ['../api-project-detail.component.scss']
 })
 export class ProjectFolderComponent implements OnInit, OnDestroy {
     selectedPROJ: ApiProject;

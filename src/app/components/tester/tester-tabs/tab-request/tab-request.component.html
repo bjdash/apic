@@ -86,14 +86,14 @@
                             <mat-icon [ngClass]="{warning:!!projId}">save</mat-icon>
                             <span>Save</span>
                         </button>
-                        <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
-                            <mat-icon>arrow_drop_down</mat-icon>
-                        </button>
                         <mat-menu #savemenu="matMenu">
                             <button mat-menu-item (click)="initReqSave(true)">
                                 <mat-icon>save</mat-icon> Save as
                             </button>
                         </mat-menu>
+                        <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
+                            <mat-icon>arrow_drop_down</mat-icon>
+                        </button>
                     </span>
                 </div>
                 <div class="panel-body" [hidden]="!flags.showReq">

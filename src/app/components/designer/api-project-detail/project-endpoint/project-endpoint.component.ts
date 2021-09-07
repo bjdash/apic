@@ -18,7 +18,7 @@ import { TestBuilderSave } from 'src/app/components/common/json-test-builder/jso
 @Component({
   selector: 'app-project-endpoint',
   templateUrl: './project-endpoint.component.html',
-  styleUrls: ['../api-project-detail.component.css'],
+  styleUrls: ['../api-project-detail.component.scss'],
 })
 export class ProjectEndpointComponent implements OnInit, OnDestroy {
   selectedPROJ: ApiProject;
@@ -60,6 +60,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       consumes: [[]],
       produces: [[]],
       description: [''],
+      deprecated: [false],
       pathParams: [{ type: 'object' }],
       queryParams: [{ type: 'object' }],
       headers: [{ type: 'object' }],
@@ -92,7 +93,6 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     this.selectedEndp = this.selectedPROJ?.endpoints?.[endpId];
     if (!this.selectedEndp) {
       if (endpId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
-        // this.toaster.warn('Selected folder doesn\'t exist.');
         this.router.navigate(['../', 'new'], { relativeTo: this.route });
         return;
       } else {
@@ -111,9 +111,9 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       })
     }
 
-    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
+    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
     if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
+    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
 
     this.addDefaultResponse();
     this.endpForm.markAsPristine();

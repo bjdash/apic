@@ -32,12 +32,12 @@ export class ApicAgentService {
       this.status$.next('online')
     });
     this.agent.on('error', (e) => {
-      this.toaster.error(`Failed to connect to APIC agent. ${e}`);
+      this.toaster.error(`Failed to connect to APIC agent on port ${this.config.port}. ${e}`);
       this.status$.next('offline')
     });
     this.agent.on('connect_error', (e) => {
       this.status$.next('offline');
-      this.toaster.error(`Failed to connect to APIC agent. ${e}`)
+      this.toaster.error(`Failed to connect to APIC agent on port ${this.config.port}. ${e}`)
     });
     this.agent.on('disconnect', () => {
       this.status$.next('offline');

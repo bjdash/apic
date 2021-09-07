@@ -1,20 +1,37 @@
-.themes-list{
+.themes-list {
     overflow: auto;
 }
-.theme{
-    width:260px; height:90px;padding-top: 5px;border-top-left-radius: 6px;;float: left;position: relative;cursor: pointer;
+.theme {
+    width: 260px;
+    height: 90px;
+    padding-top: 5px;
+    border-top-left-radius: 6px;
+    float: left;
+    position: relative;
+    cursor: pointer;
+    margin: 5px;
 }
-img{
+img {
     width: 60px;
 }
-.logo-text{
-    font-family: 'apic-font';
+.logo-text {
+    font-family: "apic-font";
     font-size: 48px;
     vertical-align: middle;
 }
-.theme-name{
-    position: absolute;bottom: 0;padding:2px 5px;text-align: center;background: rgba(0,0,0,0.4);color: #fff;width: 100%;font-family: apic-font
+.theme-name {
+    position: absolute;
+    bottom: 0;
+    padding: 2px 5px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    width: 100%;
+    font-family: apic-font;
 }
-.accent{
-    width:80px;height:40px;float: left;cursor: pointer;
+.accent {
+    width: 80px;
+    height: 40px;
+    float: left;
+    cursor: pointer;
 }

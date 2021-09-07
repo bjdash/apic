@@ -22,7 +22,7 @@
 <div>
     <form class="form-horizontal" [formGroup]="form">
         <div class="row">
-            <label class="col-sm-3 control-label">
+            <label class="col-sm-4 control-label">
                 <mat-icon class="sm gap" matTooltip="The port on which APIC should try to connect to the web agent">info
                 </mat-icon>
                 Agent port: <span class="red">*</span>
@@ -33,7 +33,7 @@
             </div>
         </div>
         <div class="row">
-            <label class="col-sm-3 control-label">
+            <label class="col-sm-4 control-label">
                 <mat-icon class="sm gap"
                     matTooltip="How loang should APIC wait for a response from the agent before failing the request. Min: 10000(10sec))">
                     info</mat-icon>
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-offset-3 col-sm-4">
+            <div class="col-sm-offset-4 col-sm-4">
                 <button class="sm t_border" mat-stroked-button (click)="reset()">Reset Default</button>
             </div>
         </div>

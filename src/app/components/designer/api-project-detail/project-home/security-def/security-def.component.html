@@ -3,7 +3,7 @@
         *ngFor="let item of secDefForm.get('secDefs')['controls']; let i = index;">
         <div [formGroupName]="i">
             <div class="row">
-                <label class="control-label col-sm-2">Type: <span class="red">*</span></label>
+                <label class="control-label col-sm-3">Type: <span class="red">*</span></label>
                 <div class="control-label col-xs-6">
                     <select formControlName="type" ng-change="vm.secDefTypeChange(def)" class="form-control input-sm">
                         <option value="basic">Basic</option>
@@ -13,13 +13,13 @@
                 </div>
             </div>
             <div class="row">
-                <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
+                <label class="control-label col-sm-3">Name: <span class="red">*</span></label>
                 <div class="control-label col-xs-6">
                     <input formControlName="name" class="form-control input-sm">
                 </div>
             </div>
             <div class="row">
-                <label class="control-label col-sm-2">Description: </label>
+                <label class="control-label col-sm-3">Description: </label>
                 <div class="control-label col-xs-6">
                     <textarea formControlName="description" class="form-control input-sm"></textarea>
                 </div>
@@ -27,7 +27,7 @@
 
             <div [hidden]="item.value.type !== 'apiKey'" formGroupName="apiKey">
                 <div class="row">
-                    <label class="control-label col-xs-2">In</label>
+                    <label class="control-label col-xs-3">In</label>
                     <div class="col-xs-6">
                         <select formControlName="in" class="form-control input-sm">
                             <option value="header">Header</option>
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <label class="control-label col-xs-2">Header/Query Name <span class="red">*</span></label>
+                    <label class="control-label col-xs-3">Header/Query Name <span class="red">*</span></label>
                     <div class="col-xs-6">
                         <input class="form-control input-sm" formControlName="name" />
                     </div>
@@ -45,7 +45,7 @@
 
             <div [hidden]="item.value.type !== 'oauth2'" formGroupName="oauth2">
                 <div class="row">
-                    <label class="control-label col-xs-2">Flow <span class="red">*</span></label>
+                    <label class="control-label col-xs-3">Flow <span class="red">*</span></label>
                     <div class="col-xs-6">
                         <select formControlName="flow" class="form-control input-sm">
                             <option value="implicit">implicit</option>
@@ -56,19 +56,19 @@
                     </div>
                 </div>
                 <div class="row" *ngIf="['implicit', 'accessCode'].includes(item.value.oauth2.flow)">
-                    <label class="control-label col-xs-2">Authorization Url <span class="red">*</span></label>
+                    <label class="control-label col-xs-3">Authorization Url <span class="red">*</span></label>
                     <div class="col-xs-6">
                         <input class="form-control input-sm" formControlName="authorizationUrl" />
                     </div>
                 </div>
                 <div class="row" *ngIf="['password', 'application', 'accessCode'].includes(item.value.oauth2.flow)">
-                    <label class="control-label col-xs-2">Token Url <span class="red">*</span></label>
+                    <label class="control-label col-xs-3">Token Url <span class="red">*</span></label>
                     <div class="col-xs-6">
                         <input class="form-control input-sm" formControlName="tokenUrl" />
                     </div>
                 </div>
                 <div class="row">
-                    <label class="control-label top col-xs-2">Scopes</label>
+                    <label class="control-label top col-xs-3">Scopes</label>
                     <div class="col-xs-7">
                         <app-key-value-editor formControlName="scopes" [options]="kvEditorOption">
                         </app-key-value-editor>
@@ -77,7 +77,7 @@
             </div>
 
             <div class="row">
-                <label class="control-label top col-xs-2">
+                <label class="control-label top col-xs-3">
                     <a class="f18 sm" mat-icon-button
                         href="https://apic.app/docs/designer/api-security-definitions#additional-properties-x-properties"
                         target="_new">

@@ -25,7 +25,7 @@ import { RequestUtils } from 'src/app/utils/request.util';
     selector: 'app-api-project-detail',
     templateUrl: './api-project-detail.component.html',
     providers: [ApiProjectDetailService],
-    styleUrls: ['../designer.component.css', './api-project-detail.component.css']
+    styleUrls: ['../designer.component.css', './api-project-detail.component.scss']
 })
 export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     private _destroy: Subject<boolean> = new Subject<boolean>();

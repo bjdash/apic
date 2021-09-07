@@ -349,6 +349,8 @@ export class SwaggerService {
                             return { key: s.toLowerCase(), val: s };
                         }) : [];
 
+                        tmpEndP.deprecated = !!path.deprecated;
+
                         if (path.parameters) {
                             for (var i = 0; i < path.parameters.length; i++) {
                                 var param = path.parameters[i];
@@ -572,7 +574,6 @@ export class SwaggerService {
         obj.definitions = {};
         //add definitions/models
         for (const [id, model] of Utils.objectEntries(proj.models)) {
-            // angular.forEach(proj.models, function (model) {
             model.data = JsonSchemaService.sanitizeModel(model.data);
             obj.definitions[model.nameSpace] = model.data;
         };
@@ -581,12 +582,10 @@ export class SwaggerService {
         obj.parameters = {};
         //adding responses and parameters from traits
         for (const [id, trait] of Utils.objectEntries(proj.traits)) {
-            // angular.forEach(proj.traits, function (trait) {
             var responses = trait.responses;
             var tName = trait.name.replace(/\s/g, ' ');
 
             for (var i = 0; i < responses.length; i++) {
-                //var schema = JsonSchema.obj2schema(responses[i].data, proj.models);
                 var schema = responses[i].data;
                 var name = 'trait:' + tName + ':' + responses[i].code;
                 obj.responses[name] = {
@@ -597,7 +596,6 @@ export class SwaggerService {
 
             if (trait.pathParams) {
                 for (const [key, schema] of Utils.objectEntries(trait.pathParams.properties)) {
-                    // angular.forEach(trait.pathParams.properties, function (schema, key) {
                     let param = {
                         name: key,
                         in: 'path',
@@ -612,21 +610,18 @@ export class SwaggerService {
             }
 
             for (const [key, schema] of Utils.objectEntries(trait.queryParams.properties)) {
-                // angular.forEach(trait.queryParams.properties, function (schema, key) {
                 let param = {
                     name: key,
                     in: 'query',
                     description: schema.description ? schema.description : '',
                     required: trait.queryParams.required && trait.queryParams.required.indexOf(key) >= 0 ? true : false
                 };
-                //var paramExtra = getParam(schema);
                 param = Object.assign(param, schema);
                 var name = 'trait:' + tName + ':' + key;
                 obj.parameters[name] = param;
             };
 
             for (const [key, schema] of Utils.objectEntries(trait.headers.properties)) {
-                // angular.forEach(trait.headers.properties, function (schema, key) {
                 let param = {
                     name: key,
                     in: 'header',
@@ -643,7 +638,6 @@ export class SwaggerService {
         obj.paths = {};
         //add paths
         for (const [id, endp] of Utils.objectEntries(proj.endpoints)) {
-            // angular.forEach(proj.endpoints, function (endp) {
             if (obj.paths[endp.path] === undefined) {
                 obj.paths[endp.path] = {};
             }
@@ -654,7 +648,6 @@ export class SwaggerService {
                 tags: endp.tags,
                 summary: endp.summary,
                 description: endp.description,
-                //operationId: endp.operationId,
                 consumes: endp.consumes,
                 produces: endp.produces,
                 schemes: [],
@@ -669,6 +662,9 @@ export class SwaggerService {
             }
             if (endp.operationId) {
                 reqObj.operationId = endp.operationId;
+            }
+            if (endp.deprecated) {
+                reqObj.deprecated = true;
             }
             for (var i = 0; i < endp.schemes.length; i++) {
                 reqObj.schemes.push(endp.schemes[i].key);
@@ -692,7 +688,6 @@ export class SwaggerService {
                     description: schema.description ? schema.description : '',
                     required: endp.queryParams.required && endp.queryParams.required.indexOf(key) >= 0 ? true : false
                 };
-                //var paramExtra = getParam(schema);
                 param = Object.assign(param, schema);
                 reqObj.parameters.push(param);
             };
@@ -769,7 +764,6 @@ export class SwaggerService {
 
                 if (traitObj.pathParams) {
                     for (const [key, schema] of Utils.objectEntries(traitObj.pathParams.properties)) {
-                        // angular.forEach(traitObj.pathParams.properties, function (schema, key) {
                         var xPath = 'trait:' + tName + ':' + key;
                         if (obj.parameters[xPath]) {
                             reqObj.parameters.push({
@@ -782,7 +776,6 @@ export class SwaggerService {
                 }
 
                 for (const [key, schema] of Utils.objectEntries(traitObj.queryParams.properties)) {
-                    // angular.forEach(traitObj.queryParams.properties, function (schema, key) {
                     var xPath = 'trait:' + tName + ':' + key;
                     if (obj.parameters[xPath]) {
                         reqObj.parameters.push({
@@ -795,7 +788,6 @@ export class SwaggerService {
 
                 //query params
                 for (const [key, schema] of Utils.objectEntries(traitObj.headers.properties)) {
-                    // angular.forEach(traitObj.headers.properties, function (schema, key) {
                     var xPath = 'trait:' + tName + ':' + key;
                     if (obj.parameters[xPath]) {
                         reqObj.parameters.push({

@@ -135,7 +135,7 @@
                             {{pathItem.key}}
                         </h3>
                         <div [hidden]="hiddenPaths[pathItem.key]" class="operation"
-                            [ngClass]="operationItem.key.toLowerCase()"
+                            [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.key.toLowerCase()"
                             *ngFor="let operationItem of pathItem.value|keyvalue">
                             <ng-container [ngTemplateOutlet]="OpRef"
                                 [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.key, pathName:pathItem.key}">
@@ -186,20 +186,19 @@
 </div>
 
 <ng-template #OpRef let-operation="operation" let-operationName="operationName" let-pathName="pathName">
-    <header (click)="visibleEndps[operationName+pathName] = !visibleEndps[operationName+pathName]"
+    <header [ngClass]="{deprecated:operation.deprecated}"
+        (click)="visibleEndps[operationName+pathName] = !visibleEndps[operationName+pathName]"
         id="{{(operationName|| operation.method)+'-'+(pathName.slice( 1 )||operation.path.slice(1))}}">
         <span class='http-method'>{{(operationName || operation.method) | uppercase}}</span>
         <span class="http-path"> {{operation.path}}</span>
         <div class="http-summary">{{operation.summary}}</div>
-
-        <div class="deprecated" *ngIf="operation.deprecated">Deprecated</div>
-    </header>
-    <div class='content' [hidden]="!visibleEndps[operationName+pathName]">
-        <div class="apiTags">
-            <span class="label label-primary gap" *ngFor="let tag of operation.tags;">
+        <div class="apiTags" [hidden]="!visibleEndps[operationName+pathName]" title="Tags">
+            <span class="tag gap" *ngFor="let tag of operation.tags;">
                 {{tag}}
             </span>
         </div>
+    </header>
+    <div class='content' [hidden]="!visibleEndps[operationName+pathName]">
         <section class="description" *ngIf="operation.description">
             <h4>Description</h4>
             <div>{{operation.description}}</div>
@@ -211,18 +210,17 @@
                 <table class="table" cellSpacing="0">
                     <thead>
                         <tr>
-                            <th style="width: 20%">Name</th>
-                            <th style="width: 10%">Located in</th>
-                            <th style="width: 60%">Description</th>
-                            <th style="width: 10%">Required</th>
+                            <th style="width: 35%">Name</th>
+                            <th style="width: 65%">Description</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let parameter of operation.parameters;">
                             <td>
-                                <a><span class="mono">{{parameter.name}}</span></a>
+                                <span class="mono f16">{{parameter.name}}</span>
+                                <div>Located in: {{parameter.in}}</div>
+                                <div>Required: {{parameter.required ? 'Yes' : 'No'}}</div>
                             </td>
-                            <td>{{parameter.in}}</td>
                             <td>
                                 {{parameter.description}}
                                 <div class="" style="margin:10px 0 0 0">Schema</div>
@@ -237,7 +235,6 @@
                                 <json-schema-viewer *ngIf="parameter.type" [schema]="{type:parameter.type}">
                                 </json-schema-viewer>
                             </td>
-                            <td>{{parameter.required ? 'Yes' : 'No'}}</td>
                         </tr>
                     </tbody>
                 </table>

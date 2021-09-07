@@ -133,8 +133,24 @@ div {
     height: 14px;
     font-size: 14px;
   }
+  .mat-checkbox-background,
+  .mat-checkbox-frame {
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+  }
+  &.mat-checkbox {
+    .mat-checkbox-ripple {
+      left: calc(50% - 15px);
+      top: calc(50% - 15px);
+      height: 30px;
+      width: 30px;
+    }
+  }
 }
-button.xs {
+button.xs,
+a.xs {
   line-height: 20px !important;
   padding: 0 10px;
   min-width: 25px;
@@ -194,6 +210,9 @@ a.mat-icon-button:focus {
   .mat-ink-bar {
     background-color: var(--accent-color);
   }
+}
+.mat-tab-header-pagination-chevron {
+  border-color: var(--text-color) !important;
 }
 button.mat-menu-item,
 a.mat-menu-item,

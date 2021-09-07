@@ -1,4 +1,4 @@
-<div class="json-schema-view" [ngClass]="{collapsed: isCollapsed}">
+<div class="json-schema-view" [ngClass]="{collapsed: isCollapsed}" *ngIf="schema">
     <div class="primitive" *ngIf="isPrimitive">
         <a class="v_title" (click)="toggle()" [ngClass]="{open:isCollapsed}">
             <span class="toggle-handle" *ngIf="isPrimitiveCollapsible()"></span>

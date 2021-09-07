@@ -397,6 +397,9 @@ a.panel-fab {
   text-overflow: ellipsis;
   font-size: 14px;
   padding-left: 5px;
+  &.deprecated {
+    text-decoration: line-through;
+  }
 }
 .r-sec {
   flex: 0 0 40px;
@@ -723,12 +726,13 @@ input.input-xs {
 
 .input-group {
   display: flex;
+  align-items: center;
 
   .input-group-addon {
     background: #e9e9e9;
     align-self: center;
     border: 1px solid var(--border-color);
-    padding: 3px 10px 4px 10px;
+    padding: 3px 10px 3px 10px;
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
     color: #666666;
@@ -919,14 +923,14 @@ div.mat-menu-panel.noti-panel {
   position: absolute;
   left: 0;
   right: 0;
-  margin-left: 10px;
   top: -40px;
   z-index: 1;
-  background: var(--content-bg);
+  background: var(--content-bg-contrast);
   transition: top 0.3s;
+  padding: 5px;
 
   &.visible {
-    top: 5px;
+    top: 0px;
   }
 
   &.input-group {
