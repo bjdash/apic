@@ -34,7 +34,7 @@
     "@angular/platform-browser": "~11.2.3",
     "@angular/platform-browser-dynamic": "~11.2.3",
     "@angular/router": "~11.2.3",
-    "@ngxs/store": "^3.6.2",
+    "@ngxs/store": "^3.7.2",
     "@stomp/rx-stomp": "^1.1.0",
     "ajv": "^7.2.1",
     "crypto-js": "^4.1.1",
