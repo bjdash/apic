@@ -206,7 +206,6 @@
     height: 25px;
     background: var(--header-bg);
     cursor: move;
-    -webkit-app-region: drag;
     -webkit-user-select: none;
 }
 .win-title-bar-btns {
@@ -232,6 +231,7 @@
 .mac-title-bar-btns {
     position: absolute;
     padding: 3px;
+    -webkit-app-region: no-drag;
 }
 .mac-btn {
     border: none;
@@ -249,7 +249,10 @@
 .mac-btn.mac-close-btn {
     background: #fd5652;
 }
-
+.win-title{
+    margin-left: 70px;
+    -webkit-app-region: drag;
+}
 .agent-grp {
     width: 30px;
     transition: width 0.3s;
