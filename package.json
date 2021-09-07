@@ -14,7 +14,8 @@
     "web:local": "ng build",
     "web": "ng build --prod --base-href=/online/ --output-path=dist/web",
     "extn:local": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
-    "extn": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtn",
+    "extn:chrome": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtnChrome",
+    "extn:edge": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtnEdge",
     "electron:win": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --win --x64 -p onTagOrDraft",
     "electron:mac": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --mac --x64 -p onTagOrDraft",
     "electron:linux": "gulp cleanElectron && ng build --configuration=electron --output-path=dist/win && gulp buildElectron && electron-builder build --linux --x64 -p onTagOrDraft",
@@ -62,6 +63,7 @@
     "gulp": "^4.0.2",
     "gulp-bump": "^3.2.0",
     "gulp-git": "^2.10.1",
+    "gulp-rename": "^2.0.0",
     "gulp-run": "^1.7.1",
     "gulp-text-simple": "^0.5.5",
     "gulp-zip": "^5.1.0",
@@ -108,7 +110,10 @@
       "verifyUpdateCodeSignature": false
     },
     "linux": {
-      "target": ["AppImage","snap"],
+      "target": [
+        "AppImage",
+        "snap"
+      ],
       "category": "Development"
     },
     "directories": {

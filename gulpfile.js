@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     del = require('del'),
     zip = require('gulp-zip'),
     bump = require('gulp-bump'),
+    rename = require('gulp-rename'),
     args = require('yargs').argv,
     gulpGit = require('gulp-git'),
     textTransformation = require('gulp-text-simple'),
@@ -19,8 +20,13 @@ var buildExtnLocal = {
         return run('ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json', { verbosity: 2 }).exec();
     },
     copyExtnFiles: function () {
-        return gulp.src(['./platform_files/extension/*.*'])
+        return gulp.src(['./platform_files/extension/*.*', '!./platform_files/extension/manifest_*.json'])
             .pipe(gulp.dest('./dist/extnLocal'))
+    },
+    copyManifestChrome: function () {
+        return gulp.src(['./platform_files/extension/manifest_chrome.json'])
+            .pipe(rename("manifest.json"))
+            .pipe(gulp.dest('./dist/extnLocal/'))
     },
     devTools: function () {
         return gulp.src(['./platform_files/extension/devtools/*.*'])
@@ -44,8 +50,18 @@ var buildExtn = {
         return run('ng build --prod --configuration=extn --base-href=index.html --output-path=dist/extn --stats-json --source-map=false', { verbosity: 2 }).exec();
     },
     copyExtnFiles: function () {
-        return gulp.src(['./platform_files/extension/*.*'])
+        return gulp.src(['./platform_files/extension/*.*', '!./platform_files/extension/manifest_*.json'])
             .pipe(gulp.dest('./dist/extn'))
+    },
+    copyManifestChrome: function () {
+        return gulp.src(['./platform_files/extension/manifest_chrome.json'])
+            .pipe(rename("manifest.json"))
+            .pipe(gulp.dest('./dist/extn/'))
+    },
+    copyManifestEdge: function () {
+        return gulp.src(['./platform_files/extension/manifest_edge.json'])
+            .pipe(rename("manifest.json"))
+            .pipe(gulp.dest('./dist/extn/'))
     },
     devTools: function () {
         return gulp.src(['./platform_files/extension/devtools/*.*'])
@@ -101,18 +117,30 @@ exports.cleanExtnLocal = gulp.series(
 );
 exports.buildExtnLocal = gulp.series(
     buildExtnLocal.copyExtnFiles,
+    buildExtnLocal.copyManifestChrome,
     buildExtnLocal.devTools,
     devTools.cloneDevtools,
     buildExtnLocal.copyDevtoolsSrc,
     devTools.cleanDevTools
+
 );
 
 exports.cleanExtn = gulp.series(
     buildExtn.clean,
     devTools.cleanDevTools,
 );
-exports.buildExtn = gulp.series(
+exports.buildExtnChrome = gulp.series(
     buildExtn.copyExtnFiles,
+    buildExtn.copyManifestChrome,
+    buildExtn.devTools,
+    devTools.cloneDevtools,
+    buildExtn.copyDevtoolsSrc,
+    devTools.cleanDevTools,
+    buildExtn.zip
+);
+exports.buildExtnEdge = gulp.series(
+    buildExtn.copyExtnFiles,
+    buildExtn.copyManifestEdge,
     buildExtn.devTools,
     devTools.cloneDevtools,
     buildExtn.copyDevtoolsSrc,
@@ -152,7 +180,7 @@ exports.bump = function () {
 
 
     return gulp
-        .src(['./package.json', './platform_files/extension/manifest.json', './platform_files/electron/package.json'], { base: './' })
+        .src(['./package.json', './platform_files/extension/manifest_*.json', './platform_files/electron/package.json'], { base: './' })
         //@ts-ignore
         .pipe(bump(options))
         .pipe(gulp.dest('./'));
