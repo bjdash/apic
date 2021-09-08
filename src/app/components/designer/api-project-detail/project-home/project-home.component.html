@@ -123,11 +123,12 @@
                         </div>
                     </ng-template>
                     <div class="content">
-                        <app-proj-settings [updateApiProject]="updateApiProject" [SelectedPROJ]="selectedPROJ"
+                        <app-project-settings [updateApiProject]="updateApiProject" [SelectedPROJ]="selectedPROJ"
                             [projEnv]="projEnv" (onChange)="tabContentModified($event,'settingsChanged')">
-                        </app-proj-settings>
+                        </app-project-settings>
                     </div>
                 </mat-tab>
+
                 <mat-tab>
                     <ng-template mat-tab-label>
                         <div class="vcenter">
@@ -141,6 +142,7 @@
                         [SelectedPROJ]="selectedPROJ" (onChange)="tabContentModified($event,'secDefChanged')">
                     </app-security-def>
                 </mat-tab>
+
                 <mat-tab>
                     <ng-template mat-tab-label>
                         <div class="vcenter">
@@ -153,6 +155,22 @@
                     <app-project-info [updateApiProject]="updateApiProject" [projEnv]="projEnv"
                         [selectedPROJ]="selectedPROJ" (onChange)="tabContentModified($event,'infoChanged')">
                     </app-project-info>
+                </mat-tab>
+
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <div class="vcenter">
+                            <span>Tags</span>
+                            <mat-icon class="tab-badge" matTooltip="Unsaved changes" *ngIf="flags.tagsChanged">
+                                circle
+                            </mat-icon>
+                        </div>
+                    </ng-template>
+                    <div class="content">
+                        <app-project-tags [updateApiProject]="updateApiProject" [SelectedPROJ]="selectedPROJ"
+                            (onChange)="tabContentModified($event,'tagsChanged')">
+                        </app-project-tags>
+                    </div>
                 </mat-tab>
             </mat-tab-group>
         </div>

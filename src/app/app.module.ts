@@ -72,7 +72,7 @@ import { ThemesComponent } from './components/settings/themes/themes.component';
 import { SecurityDefComponent } from './components/designer/api-project-detail/project-home/security-def/security-def.component';
 import { environment } from 'src/environments/environment';
 import { KeyValueEditorComponent } from './components/common/key-value-editor/key-value-editor.component';
-import { ProjSettingsComponent } from './components/designer/api-project-detail/project-home/proj-settings/proj-settings.component';
+import { ProjectSettingsComponent } from './components/designer/api-project-detail/project-home/project-settings/project-settings.component';
 import { JsonSchemaComponent } from './components/common/json-schema-builder/jsonschema.component';
 import { MainJsonSchemaComponent } from './components/common/json-schema-builder/main/main.component';
 import { SelectSchemaJsonSchemaComponent } from './components/common/json-schema-builder/field/selectschema.component';
@@ -140,6 +140,7 @@ import { AuthOauth2Component } from './components/tester/tester-tabs/tab-request
 import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-request/auth-aws-signature/auth-aws-signature.component';
 import { WebAgentComponent } from './components/settings/web-agent/web-agent.component';
 import { IntroComponent } from './components/intro/intro.component';
+import { ProjectTagsComponent } from './components/designer/api-project-detail/project-home/project-tags/project-tags.component';
 
 
 @NgModule({
@@ -171,7 +172,7 @@ import { IntroComponent } from './components/intro/intro.component';
     ThemesComponent,
     SecurityDefComponent,
     KeyValueEditorComponent,
-    ProjSettingsComponent,
+    ProjectSettingsComponent,
     JsonSchemaComponent,
     MainJsonSchemaComponent,
     SelectSchemaJsonSchemaComponent,
@@ -225,7 +226,8 @@ import { IntroComponent } from './components/intro/intro.component';
     AuthOauth2Component,
     AuthAwsSignatureComponent,
     WebAgentComponent,
-    IntroComponent
+    IntroComponent,
+    ProjectTagsComponent
   ],
   imports: [
     BrowserModule,

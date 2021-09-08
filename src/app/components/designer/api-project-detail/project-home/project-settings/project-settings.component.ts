@@ -7,11 +7,11 @@ import { KeyVal } from 'src/app/models/KeyVal.model';
 import { EnvService } from 'src/app/services/env.service';
 import { Toaster } from 'src/app/services/toaster.service';
 @Component({
-  selector: 'app-proj-settings',
-  templateUrl: './proj-settings.component.html',
-  styleUrls: ['./proj-settings.component.css']
+  selector: 'app-project-settings',
+  templateUrl: './project-settings.component.html',
+  styleUrls: ['./project-settings.component.css']
 })
-export class ProjSettingsComponent implements OnInit, OnChanges {
+export class ProjectSettingsComponent implements OnInit, OnChanges {
   @Input() SelectedPROJ: ApiProject;
   @Input() updateApiProject: Function;
   @Input() projEnv: Env = null; //auto generated env for this project

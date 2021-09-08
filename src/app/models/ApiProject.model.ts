@@ -69,6 +69,16 @@ export interface ApiTrait {
     responses?: any[]
 }
 
+export interface ApiTag {
+    name: string,
+    description?: string,
+    externalDocs?: {
+        url: string,
+        description?: string
+    },
+    xProperty?: KeyVal[]
+}
+
 export interface ApiProject {
     _id?: string,
     title: string,
@@ -91,7 +101,8 @@ export interface ApiProject {
     },
     securityDefinitions?: SecurityDef[],
     simKey?: string,
-    publishedId?: string
+    publishedId?: string,
+    tags?: ApiTag[]
 }
 
 export const NewApiFolder: ApiFolder = {

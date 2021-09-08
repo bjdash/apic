@@ -1,9 +1,10 @@
-import { ApiProject, SecurityDef } from './../models/ApiProject.model';
+import { ApiProject, ApiTag, SecurityDef } from './../models/ApiProject.model';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
 import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
 import { Utils } from './utils.service';
 import { METHOD_WITH_BODY } from '../utils/constants';
+import { K } from '@angular/cdk/keycodes';
 
 @Injectable()
 export class SwaggerService {
@@ -103,6 +104,25 @@ export class SwaggerService {
                 }
                 proj.securityDefinitions.push(secdef);
             }
+        }
+
+        //import tags
+        proj.tags = [];
+        if (spec.tags?.length > 0) {
+            proj.tags = spec.tags.map(specTag => {
+                let tag: ApiTag = {
+                    name: specTag.name,
+                    description: specTag.description,
+                    // xProperty: [{key:'', val:''}]
+                }
+                if (specTag.externalDocs) {
+                    tag.externalDocs = specTag.externalDocs
+                }
+                tag.xProperty = Object.keys(specTag).filter(key => key.startsWith('x-')).map(key => {
+                    return { key, val: specTag[key] }
+                })
+                return tag;
+            });
         }
 
         //Parsing Model
@@ -492,7 +512,7 @@ export class SwaggerService {
         return proj;
     }
 
-    exportOAS(proj, type?: 'string' | 'object') {
+    exportOAS(proj: ApiProject, type?: 'string' | 'object') {
         proj = Utils.clone(proj);
         var obj: any = {};
         obj.swagger = '2.0';
@@ -505,16 +525,16 @@ export class SwaggerService {
 
         if (proj.contact) {
             obj.info.contact = {
-                name: proj.contact.name,
-                url: proj.contact.url,
-                email: proj.contact.email
+                ... (proj.contact.name && { name: proj.contact.name }),
+                ... (proj.contact.url && { url: proj.contact.url }),
+                ... (proj.contact.email && { email: proj.contact.email })
             };
         }
 
-        if (proj.license) {
+        if (proj.license?.name) {
             obj.info.license = {
-                name: proj.license.name,
-                url: proj.license.url
+                ... (proj.license.name && { name: proj.license.name }),
+                ... (proj.license.url && { url: proj.license.url })
             };
         }
 
@@ -571,6 +591,27 @@ export class SwaggerService {
             obj.securityDefinitions = secDefs;
         }
 
+        //export tags
+        if (proj.tags?.length > 0) {
+            obj.tags = proj.tags.map(tag => {
+                let specTag: any = {
+                    name: tag.name,
+                    description: tag.description
+                };
+                if (tag.externalDocs?.url) {
+                    specTag.externalDocs = tag.externalDocs
+                }
+                if (tag.xProperty?.length > 0) {
+                    tag.xProperty.forEach(kv => {
+                        if (kv.key) {
+                            specTag[kv.key] = kv.val
+                        }
+                    })
+                }
+                return specTag;
+            })
+        }
+
         obj.definitions = {};
         //add definitions/models
         for (const [id, model] of Utils.objectEntries(proj.models)) {
@@ -583,7 +624,7 @@ export class SwaggerService {
         //adding responses and parameters from traits
         for (const [id, trait] of Utils.objectEntries(proj.traits)) {
             var responses = trait.responses;
-            var tName = trait.name.replace(/\s/g, ' ');
+            let tName = trait.name.replace(/\s/g, ' ');
 
             for (var i = 0; i < responses.length; i++) {
                 var schema = responses[i].data;
@@ -750,7 +791,7 @@ export class SwaggerService {
             //importing details from traits
             for (var j = 0; j < endp.traits.length; j++) {
                 var traitObj = proj.traits[endp.traits[j]._id];
-                var tName = traitObj.name;
+                let tName = traitObj.name;
                 //responses
                 for (var i = 0; i < traitObj.responses.length; i++) {
                     var xPath = 'trait:' + tName + ':' + traitObj.responses[i].code;

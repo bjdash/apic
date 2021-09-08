@@ -135,7 +135,19 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       endp = ApiProjectUtils.removeTraitData(t._id, endp, this.selectedPROJ);
     });
 
-    var projToUpdate: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
+    //add any additional tags added here to the project.tags field if not already present
+    let existingTags = this.selectedPROJ.tags?.map(tag => tag.name);
+    let tags = [...(this.selectedPROJ.tags || [])];
+    endp.tags?.forEach(tag => {
+      if (existingTags?.indexOf(tag) == -1) {
+        tags.push({
+          name: tag,
+          description: ''
+        })
+      }
+    })
+
+    var projToUpdate: ApiProject = { ...this.selectedPROJ, tags, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
     try {
       await this.apiProjService.updateAPIProject(projToUpdate)
       this.endpForm.markAsPristine();

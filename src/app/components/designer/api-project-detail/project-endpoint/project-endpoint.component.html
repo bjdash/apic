@@ -116,9 +116,11 @@
                 <div class="row">
                     <label class="control-label col-sm-2">Tags:</label>
                     <div class="col-sm-8">
-                        <apic-tag-editor formControlName="tags" type="freeForm"></apic-tag-editor>
+                        <apic-tag-editor formControlName="tags" type="freeForm" [suggestions]="selectedPROJ.tags"
+                            key="name" dispValue="name"></apic-tag-editor>
                     </div>
                 </div>
+                {{endpForm.value.tags|json}}
 
 
                 <div class="row">

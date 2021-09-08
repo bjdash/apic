@@ -151,7 +151,7 @@
                             {{pathItem.key}}
                         </h3>
                         <div [hidden]="hiddenPaths[pathItem.key]" class="operation"
-                            [ngClass]="operationItem.value.method.toLowerCase()"
+                            [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method.toLowerCase()"
                             *ngFor="let operationItem of pathItem.value|keyvalue">
                             <ng-container [ngTemplateOutlet]="OpRef"
                                 [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.value.method, pathName:pathItem.key}">

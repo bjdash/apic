@@ -16,7 +16,6 @@ export class SecurityDefComponent implements OnInit, OnChanges {
   @Output() onChange = new EventEmitter<any>();
 
   secDefForm: FormGroup;
-  secDefs: FormArray;
   kvEditorOption: KVEditorOptn = {
     placeholderKey: 'read:todo / write:todo',
     placeholderVal: 'description'
@@ -27,7 +26,6 @@ export class SecurityDefComponent implements OnInit, OnChanges {
     placeholderVal: 'Property value'
   }
 
-  //TODO: Delete docs page /designer/defining-additional-properties
   constructor(private formBuilder: FormBuilder, private toaster: Toaster) {
     this.secDefForm = this.formBuilder.group({
       secDefs: this.formBuilder.array([])
@@ -112,8 +110,8 @@ export class SecurityDefComponent implements OnInit, OnChanges {
   }
 
   addDef(): void {
-    this.secDefs = this.secDefForm.get('secDefs') as FormArray;
-    this.secDefs.push(this.buildSecDefFormItem());
+    let secDefs = this.secDefForm.get('secDefs') as FormArray;
+    secDefs.push(this.buildSecDefFormItem());
     this.secDefForm.markAsDirty();
   }
 

@@ -39,6 +39,7 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
         loadSecDefTab: false,
         secDefChanged: false,
         settingsChanged: false,
+        tagsChanged: false,
         infoChanged: false,
         unshare: false,
         mockHelp: false,
