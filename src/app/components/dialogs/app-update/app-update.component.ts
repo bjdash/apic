@@ -68,7 +68,7 @@ export class AppUpdateComponent implements OnInit, OnDestroy {
       if (this.os?.toLowerCase() === 'darwin') {
         //macOS requires signed certificate for auto update to work, so for mac just download the dmg
         if (window.apicElectron.electron.shell) {
-          window.apicElectron.electron.shell.openExternal('https://apic.app/download/apic-' + this.data.newVer + '.dmg');
+          //window.apicElectron.electron.shell.openExternal('https://apic.app/download/apic-' + this.data.newVer + '.dmg');
           window.apicElectron.electron.shell.openExternal(`https://github.com/bjdash/apic/releases/download/v${this.data.newVer}/apic-${this.data.newVer}.dmg`);
           this.flags.downloading = false;
           this.toastr.info("Your download has been started..");
