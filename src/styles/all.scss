@@ -1,6 +1,12 @@
 .vcenter {
   display: flex;
   align-items: center;
+
+  &.eq-col {
+    & > * {
+      width: 100%;
+    }
+  }
 }
 .vcenter.full-height {
   height: 100%;

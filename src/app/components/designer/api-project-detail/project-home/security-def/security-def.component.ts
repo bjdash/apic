@@ -95,9 +95,9 @@ export class SecurityDefComponent implements OnInit, OnChanges {
     //Handle already selected secdefs in endpoint, remove them too
     var updatedProj = { ...this.SelectedPROJ, securityDefinitions: this.sanitizeSecDef(this.secDefForm.controls.secDefs.value) };
     let secDefNames = updatedProj.securityDefinitions.map(def => def.name);
-    let endpoints: { [key: string]: ApiEndp } = {}
+    let endpoints: { [key: string]: ApiEndp } = {};
     Utils.objectEntries(this.SelectedPROJ.endpoints).forEach(([id, endpoint]) => {
-      endpoints[id] = { ...endpoint, security: endpoint.security.filter(s => secDefNames.includes(s.name)) }
+      endpoints[id] = { ...endpoint, security: (endpoint.security?.filter(s => secDefNames.includes(s.name))) || [] }
     })
     updatedProj = { ...updatedProj, endpoints }
     try {

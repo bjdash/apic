@@ -1,0 +1,11 @@
+:host ::ng-deep {
+    a {
+        color: var(--accent-color);
+    }
+    code {
+        background: var(--content-bg);
+        padding: 1px 3px;
+        border-radius: 5px;
+        border: 1px solid var(--border-color);
+    }
+}

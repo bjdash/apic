@@ -65,7 +65,10 @@ const routes: Routes = [
   },
   {
     path: 'docs/:projectId',
-    component: DocsDetailComponent
+    component: DocsDetailComponent,
+    data: {
+      reuse: true
+    }
   },
   {
     path: 'dashboard',

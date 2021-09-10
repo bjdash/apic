@@ -41,6 +41,7 @@
     "expression-eval": "^4.0.0",
     "idb": "^5.0.8",
     "js-yaml": "^4.1.0",
+    "marked": "^3.0.2",
     "ng-recaptcha": "^8.0.1",
     "ng2-ace-editor": "^0.3.9",
     "rxjs": "~6.5.4",

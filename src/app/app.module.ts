@@ -141,6 +141,7 @@ import { AuthAwsSignatureComponent } from './components/tester/tester-tabs/tab-r
 import { WebAgentComponent } from './components/settings/web-agent/web-agent.component';
 import { IntroComponent } from './components/intro/intro.component';
 import { ProjectTagsComponent } from './components/designer/api-project-detail/project-home/project-tags/project-tags.component';
+import { MarkdownComponent } from './components/common/markdown/markdown.component';
 
 
 @NgModule({
@@ -227,7 +228,8 @@ import { ProjectTagsComponent } from './components/designer/api-project-detail/p
     AuthAwsSignatureComponent,
     WebAgentComponent,
     IntroComponent,
-    ProjectTagsComponent
+    ProjectTagsComponent,
+    MarkdownComponent
   ],
   imports: [
     BrowserModule,

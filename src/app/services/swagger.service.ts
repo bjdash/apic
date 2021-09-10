@@ -4,7 +4,10 @@ import apic from '../utils/apic';
 import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
 import { Utils } from './utils.service';
 import { METHOD_WITH_BODY } from '../utils/constants';
-import { K } from '@angular/cdk/keycodes';
+
+export interface SwaggerOption {
+    includeApicIds?: boolean
+}
 
 @Injectable()
 export class SwaggerService {
@@ -512,7 +515,7 @@ export class SwaggerService {
         return proj;
     }
 
-    exportOAS(proj: ApiProject, type?: 'string' | 'object') {
+    exportOAS(proj: ApiProject, options?: SwaggerOption) {
         proj = Utils.clone(proj);
         var obj: any = {};
         obj.swagger = '2.0';
@@ -617,6 +620,9 @@ export class SwaggerService {
         for (const [id, model] of Utils.objectEntries(proj.models)) {
             model.data = JsonSchemaService.sanitizeModel(model.data);
             obj.definitions[model.nameSpace] = model.data;
+            if (options?.includeApicIds) {
+                obj.definitions[model.nameSpace]['x-apic-id'] = model._id;
+            }
         };
 
         obj.responses = {};
@@ -709,6 +715,9 @@ export class SwaggerService {
             }
             for (var i = 0; i < endp.schemes.length; i++) {
                 reqObj.schemes.push(endp.schemes[i].key);
+            }
+            if (options?.includeApicIds) {
+                reqObj['x-apic-id'] = endp._id;
             }
             reqObj.responses = {};
             for (var j = 0; j < endp.responses.length; j++) {
@@ -845,9 +854,6 @@ export class SwaggerService {
             obj.paths[endp.path][endp.method] = reqObj;
         };
 
-        if (type === 'string') {
-            return JSON.stringify(obj, null, '    ');
-        }
         return obj;
     }
 

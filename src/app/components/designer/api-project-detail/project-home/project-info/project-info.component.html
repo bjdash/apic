@@ -21,9 +21,10 @@
         <div class="row">
             <label class="control-label col-xs-2">Description :</label>
             <div class="bold col-xs-10">
-                <span *ngIf="!flags.editProj">{{selectedPROJ.description}}</span>
+                <span *ngIf="!flags.editProj" markdown>{{selectedPROJ.description}}</span>
                 <span *ngIf="flags.editProj">
-                    <textarea formControlName="description" class="form-control input-sm"></textarea>
+                    <textarea formControlName="description" class="form-control input-sm"
+                        placeholder="Supports markdown syntax"></textarea>
                 </span>
             </div>
         </div>

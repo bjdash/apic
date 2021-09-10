@@ -11,7 +11,7 @@
     </div>
     <mat-tab-group animationDuration="0ms" class="test-tabs" [selectedIndex]="selectedTabIndex"
         (selectedIndexChange)="selectedIndexChange($event)">
-        <mat-tab class="XXX" *ngFor="let tab of tabs; trackBy:trackbyFn;let i=index" [ngSwitch]="tab.type">
+        <mat-tab *ngFor="let tab of tabs; trackBy:trackbyFn;let i=index" [ngSwitch]="tab.type">
             <ng-template mat-tab-label>
                 <div class="tab-label vcenter" [title]="tab.name" (contextmenu)="onContextMenu($event, tab)">
                     <i *ngSwitchCase="'req'" class="tab-icon icon bj-embed2"></i>

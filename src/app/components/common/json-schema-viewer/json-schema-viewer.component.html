@@ -93,7 +93,7 @@
     </div>
 </ng-template>
 <ng-template #Enum>
-    <div class="inner enums" *ngIf="!isCollapsed && schema.enum"><b>Enum:</b>
+    <div class="inner enums" *ngIf="!isCollapsed && schema.enum"><b>Allowed values:</b>
         <div *ngFor="let enum of schema.enum">
             {{enum|json}}
         </div>
