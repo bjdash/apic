@@ -1,6 +1,6 @@
 <div *ngIf="selectedPROJ" class="content">
     <div class="submodMenu">
-        <div class="submodMenuOptn vcenter">
+        <div class="submodMenuOptn vcenter designerOptn">
             <mat-icon *ngIf="!!selectedPROJ.owner && selectedPROJ.owner!=authUser?.UID" matTooltip="Shared with you"
                 class="t_color gap">share</mat-icon>
             <button mat-icon-button class="sm gap" *ngIf="selectedPROJ.owner == authUser?.UID && !selectedPROJ.team"
@@ -16,7 +16,7 @@
             </button>
             <span class="grp gap">
                 <button mat-icon-button aria-label="Enable mocked response" class="sm" *ngIf="!selectedPROJ.simKey"
-                    matTooltip="Enabled mocked response." (click)="enableMock()">
+                    matTooltip="Enable mocked response." (click)="enableMock()">
                     <mat-icon>api</mat-icon>
                     <span class="spinner" *ngIf="flags.mocking"></span>
                 </button>

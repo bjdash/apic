@@ -4,7 +4,7 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleCh
     selector: 'response-builder-item',
     template: `
     <div *ngIf="!edit" class="vcenter full-height">
-        <span [ngClass]="{
+        <span class="truncate" [ngClass]="{
             info:resp.code.charAt(0)=='1',
             success:resp.code.charAt(0)=='2',
             warning:resp.code.charAt(0)=='3',

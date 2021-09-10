@@ -194,6 +194,11 @@ h4.head {
 .flex-full {
   flex: 1;
 }
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .dashed-left {
   padding-left: 10px;
   border-left: 1px dashed var(--border-color);

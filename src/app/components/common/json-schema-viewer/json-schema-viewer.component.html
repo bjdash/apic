@@ -5,15 +5,15 @@
             {{schema.title}}
         </a>
         <span class="type">{{schema.type}}</span>
-        <span class="format" *ngIf="!isCollapsed && schema.format">({{schema.format}})</span>
-        <span class="range minimum" *ngIf="!isCollapsed && schema.minimum">minimum:{{schema.minimum}}</span>
-        <span class="range exclusiveMinimum"
-            *ngIf="!isCollapsed && schema.exclusiveMinimum">(ex)minimum:{{schema.exclusiveMinimum}}</span>
-        <span class="range maximum" *ngIf="!isCollapsed && schema.maximum">maximum:{{schema.maximum}}</span>
-        <span class="range exclusiveMaximum"
-            *ngIf="!isCollapsed && schema.exclusiveMaximum">(ex)maximum:{{schema.exclusiveMaximum}}</span>
-        <span class="range minLength" *ngIf="!isCollapsed && schema.minLength">minLength:{{schema.minLength}}</span>
-        <span class="range maxLength" *ngIf="!isCollapsed && schema.maxLength">maxLength:{{schema.maxLength}}</span>
+        <span class="format" *ngIf="!isCollapsed && schema.format"> ({{schema.format}})</span>
+        <span class="range minimum" *ngIf="!isCollapsed && schema.minimum"> minimum:{{schema.minimum}}</span>
+        <span class="range exclusiveMinimum" *ngIf="!isCollapsed && schema.exclusiveMinimum">
+            (ex)minimum:{{schema.exclusiveMinimum}}</span>
+        <span class="range maximum" *ngIf="!isCollapsed && schema.maximum"> maximum:{{schema.maximum}}</span>
+        <span class="range exclusiveMaximum" *ngIf="!isCollapsed && schema.exclusiveMaximum">
+            (ex)maximum:{{schema.exclusiveMaximum}}</span>
+        <span class="range minLength" *ngIf="!isCollapsed && schema.minLength"> minLength:{{schema.minLength}}</span>
+        <span class="range maxLength" *ngIf="!isCollapsed && schema.maxLength"> maxLength:{{schema.maxLength}}</span>
         <div class="inner description">{{schema.description}}</div>
         <!-- <div ng-include="'enum.html'" *ngIf="!isCollapsed && schema.enum"></div> -->
         <ng-container [ngTemplateOutlet]="Enum" *ngIf="!isCollapsed && schema.enum">
