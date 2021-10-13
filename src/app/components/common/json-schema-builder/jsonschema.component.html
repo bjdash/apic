@@ -1,6 +1,6 @@
 <section class="json-schema">
     <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0" class="sm"
-        *ngIf="mode != 'list' && mode != 'static'">
+        *ngIf="options.mode=='object'">
         <mat-tab label="Designer">
             <div index="0" heading="Designer">
                 <ng-container [ngTemplateOutlet]="SchemaRef">
@@ -13,9 +13,9 @@
         </mat-tab>
     </mat-tab-group>
     <!--Hide the tabs for static/list mode-->
-    <ng-container [ngTemplateOutlet]="SchemaRef" *ngIf="mode == 'list' || mode == 'static'"></ng-container>
+    <ng-container [ngTemplateOutlet]="SchemaRef" *ngIf="options.mode == 'list'"></ng-container>
 
-    <div class="tab-action" [ngClass]="{static:mode == 'list' || mode == 'static'}">
+    <div class="tab-action" [ngClass]="{static:options.mode == 'list'}">
         <button type="button" class="sm" mat-icon-button aria-label="Download" (click)="downloadJSON();">
             <mat-icon>vertical_align_bottom</mat-icon>
         </button>
@@ -29,16 +29,15 @@
     <div>
         <fieldset [disabled]="readonly" class="js-fieldset">
             <div class="main">
-                <ng-jsonschema-main [mode]="mode" [msg]="msg" [refreshSchema]="refreshSchema.bind(this)"
-                    [models]="models" [addNewProp]="addNewProp.bind(this)" [removeEntity]="removeEntity.bind(this)"
+                <ng-jsonschema-main [options]="options" [refreshSchema]="refreshSchema.bind(this)" [models]="models"
+                    (onAddNewProp)="addNewProp($event)" [removeEntity]="removeEntity.bind(this)"
                     [openMenu]="displaySelectorModal.bind(this)" [entity]="entity" [expand$ref]="expand$ref.bind(this)"
-                    [showTestBuilder]="showTestBuilder" [buildTest]="buildTest.bind(this)" [disabledKeys]="disabledKeys"
-                    [addAdditionalProp]="addAdditionalProp.bind(this)">
+                    [buildTest]="buildTest.bind(this)" [addAdditionalProp]="addAdditionalProp.bind(this)">
                 </ng-jsonschema-main>
             </div>
             <div *ngIf="showSelectorModal" [style.left.px]="selectorModalPosition.x"
                 [style.bottom.px]="selectorModalPosition.y" class="model-type-selector" id="model-type-selector">
-                <ng-jsonschema-selectschema [refreshSchema]="refreshSchema.bind(this)" [mode]="mode"
+                <ng-jsonschema-selectschema [refreshSchema]="refreshSchema.bind(this)" [options]="options"
                     [selectedEntity]="selectedEntity" [openMenu]="displaySelectorModal.bind(this)" [models]="models"
                     [responses]="responses" [setArrayType]="setArrayType.bind(this)"
                     [modelChangesCallback]="modelChangesCallback.bind(this)" [modelRef]="modelRef" [configs]="configs">

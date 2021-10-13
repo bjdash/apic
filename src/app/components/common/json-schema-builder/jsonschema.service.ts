@@ -2,28 +2,25 @@
 export class JsonSchemaService {
 
     xxxID = Math.random();
-    MODELS = {
-        Default: {
-            _key: '',
-            _title: '',
-            _description: '',
-            _$ref: '',
-            _default: '',
-            _enum: '',
-            _type: '',
-            _required: false,
-            __ID__: '',
-            _parent: '',
-            _hideKey: false
-        },
-        _id_: 0
+    private ENTITY_DEFAULTS = {
+        _key: '',
+        _title: '',
+        _description: '',
+        _$ref: '',
+        _default: '',
+        _enum: '',
+        _type: '',
+        _required: false,
+        __ID__: '',
+        _parent: '',
+        _hideKey: false
     };
 
-    additional = {
+    readonly ENTITY_PROPS = {
         forObject: {
             _properties: [],
-            _additionalProperties: [],
-            _disallowAdditional: false,
+            _ENTITY_PROPSProperties: [],
+            _disallowENTITY_PROPS: false,
             _maxProperties: undefined,
             _minProperties: undefined,
             _type: ['Object'],
@@ -85,17 +82,10 @@ export class JsonSchemaService {
         }
     };
 
-    fields;
+    private ENTITY_AUTO_ID = 0
 
     constructor() {
-        this.fields = this.additional;
-        /*MODELS.copyCommonProperties = function (newModel, oldModel) {
-            if (newModel === undefined || oldModel === undefined)
-                return newModel;
-            newModel._description = oldModel._description;
-            newModel._required = oldModel._required;
-            return newModel;
-        };*/
+
     }
 
     deepCopy(x) {
@@ -103,107 +93,117 @@ export class JsonSchemaService {
     }
 
     newArray(key, parent?) {
-        var newArr = { ...this.MODELS.Default, ...this.deepCopy(this.additional.forArray) };
-        this.MODELS._id_ += 1;
-        newArr.__ID__ = '$model' + this.MODELS._id_;
-        newArr._key = key;
-        newArr._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newArr = {
+            ...this.ENTITY_DEFAULTS,
+            ...this.deepCopy(this.ENTITY_PROPS.forArray),
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newArr;
     };;
 
     newBoolean(key, parent?) {
-        var newBool = { ...this.MODELS.Default, _type: ['Boolean'] };
-        this.MODELS._id_ += 1;
-        newBool.__ID__ = '$model' + this.MODELS._id_;
-        newBool._key = key;
-        newBool._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newBool = {
+            ...this.ENTITY_DEFAULTS, _type: ['Boolean'],
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newBool;
     };
 
     newInteger(key, parent?) {
-        var newInt = { ... this.MODELS.Default, ...this.deepCopy(this.additional.forInteger) };
-        this.MODELS._id_ += 1;
-        newInt.__ID__ = '$model' + this.MODELS._id_;
-        newInt._key = key;
-        newInt._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newInt = {
+            ... this.ENTITY_DEFAULTS,
+            ...this.deepCopy(this.ENTITY_PROPS.forInteger),
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newInt;
     };
 
     newNumber(key, parent?) {
-        var newNum = { ...this.MODELS.Default, ...this.deepCopy(this.additional.forNumber) };
-        this.MODELS._id_ += 1;
-        newNum.__ID__ = '$model' + this.MODELS._id_;
-        newNum._key = key;
-        newNum._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newNum = {
+            ...this.ENTITY_DEFAULTS,
+            ...this.deepCopy(this.ENTITY_PROPS.forNumber),
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newNum;
     };
 
     newNull(key, parent?) {
-        var newNull = { ...this.MODELS.Default, _type: ['Null'] };
-        this.MODELS._id_ += 1;
-        newNull.__ID__ = '$model' + this.MODELS._id_;
-        newNull._key = key;
-        newNull._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newNull = {
+            ...this.ENTITY_DEFAULTS,
+            _type: ['Null'],
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newNull;
     };
 
     newObject(key, props = null, parent?) {
-        var newObj = { ...this.MODELS.Default, ...this.deepCopy(this.additional.forObject) };
-        this.MODELS._id_ += 1;
-        newObj.__ID__ = '$model' + this.MODELS._id_;
-        newObj._key = key;
-
-        if (props) {
-            newObj._properties = props;
-        }
-        newObj._parent = (parent || '');
-
+        this.ENTITY_AUTO_ID += 1;
+        var newObj = {
+            ...this.ENTITY_DEFAULTS,
+            ...this.deepCopy(this.ENTITY_PROPS.forObject),
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _properties: props ?? [],
+            _parent: (parent ?? '')
+        };
         return newObj;
     };
 
 
     newString(key, required?, parent?) {
-        var newStr = { ...this.MODELS.Default, ...this.deepCopy(this.additional.forString) };
-        if (required) {
-            newStr._required = true;
-        }
-        this.MODELS._id_ += 1;
-        newStr.__ID__ = '$model' + this.MODELS._id_;
-        newStr._key = key;
-        newStr._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newStr = {
+            ...this.ENTITY_DEFAULTS,
+            ...this.deepCopy(this.ENTITY_PROPS.forString),
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? ''),
+            _required: required ?? false
+        };
         return newStr;
     };
 
 
     new$ref(key, value?, parent?, path?) {
-        var newRef = { ...this.deepCopy(this.additional.for$ref) };
-        if (path) newRef._path = path;
-        this.MODELS._id_ += 1;
-        newRef.__ID__ = '$model' + this.MODELS._id_;
-        newRef._key = key;
-        newRef._value = value;
-        newRef._parent = (parent || '');
+        this.ENTITY_AUTO_ID += 1;
+        var newRef = {
+            _type: ['$ref'],
+            _value: value ?? '',
+            _path: path ?? '#/definitions/',
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newRef;
     };
 
     newXOf(type, key, props?, parent?) {
-        var newXOf = { ...this.MODELS.Default, ...this.deepCopy(this.additional['for' + type]) };
-        this.MODELS._id_ += 1;
-        newXOf.__ID__ = '$model' + this.MODELS._id_;
-        newXOf._key = key;
-
-        if (props) {
-            newXOf._properties = props;
-        }
-        newXOf._parent = (parent || '');
-
+        this.ENTITY_AUTO_ID += 1;
+        var newXOf = {
+            ...this.ENTITY_DEFAULTS,
+            ...this.deepCopy(this.ENTITY_PROPS['for' + type]),
+            _properties: props,
+            __ID__: '$model' + this.ENTITY_AUTO_ID,
+            _key: key,
+            _parent: (parent ?? '')
+        };
         return newXOf;
     };
-
-    copy(data) {
-        if (data) return JSON.parse(JSON.stringify(data));
-        else return data
-    }
 
     getObjPropertyByKey(obj, key) {
         if (obj && obj._properties && obj._properties.length > 0) {
@@ -237,11 +237,11 @@ export class JsonSchemaService {
                     if (entity._maxProperties >= 0) {
                         schema.maxProperties = entity._maxProperties;
                     }
-                    if (entity._disallowAdditional) {
-                        schema.additionalProperties = !entity._disallowAdditional;
+                    if (entity._disallowENTITY_PROPS) {
+                        schema.ENTITY_PROPSProperties = !entity._disallowENTITY_PROPS;
                     }
-                    if (entity._additionalProperties && entity._additionalProperties.length > 0) {
-                        schema.additionalProperties = this.obj2schema(entity._additionalProperties[0], models);
+                    if (entity._ENTITY_PROPSProperties && entity._ENTITY_PROPSProperties.length > 0) {
+                        schema.ENTITY_PROPSProperties = this.obj2schema(entity._ENTITY_PROPSProperties[0], models);
                     }
                     if (entity._properties.length > 0) {
                         schema.properties = {};
@@ -478,16 +478,16 @@ export class JsonSchemaService {
                     if (schema.maxProperties >= 0) {
                         obj._maxProperties = schema.maxProperties;
                     }
-                    if (schema.hasOwnProperty('additionalProperties')) {
-                        if (typeof schema.additionalProperties === 'boolean') {
-                            obj._disallowAdditional = !schema.additionalProperties;
+                    if (schema.hasOwnProperty('ENTITY_PROPSProperties')) {
+                        if (typeof schema.ENTITY_PROPSProperties === 'boolean') {
+                            obj._disallowENTITY_PROPS = !schema.ENTITY_PROPSProperties;
                         } else {
-                            var additionalProp = this.schema2obj(schema.additionalProperties, 'additionalProperties', false, false, modelObjs, '');
-                            additionalProp._key = 'additionalProperties';
-                            additionalProp._readOnlyKey = true;
-                            additionalProp._hideKey = true;
+                            var ENTITY_PROPSProp = this.schema2obj(schema.ENTITY_PROPSProperties, 'ENTITY_PROPSProperties', false, false, modelObjs, '');
+                            ENTITY_PROPSProp._key = 'ENTITY_PROPSProperties';
+                            ENTITY_PROPSProp._readOnlyKey = true;
+                            ENTITY_PROPSProp._hideKey = true;
 
-                            obj._additionalProperties = [additionalProp]
+                            obj._ENTITY_PROPSProperties = [ENTITY_PROPSProp]
                         }
                     }
 

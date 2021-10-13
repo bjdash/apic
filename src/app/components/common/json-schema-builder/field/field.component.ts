@@ -12,9 +12,6 @@ export class FieldJsonSchemaComponent {
     type;
 
     @Input()
-    openMenu;
-
-    @Input()
     entity: Entity = {};
 
     @Input()

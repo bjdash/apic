@@ -12,6 +12,15 @@ import {
 import { JsonSchemaService } from './jsonschema.service';
 import { Utils } from '../../../services/utils.service'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+export interface JsonSchemaOption {
+  mode?: 'object' | 'list',
+  disableManualAdd?: boolean,
+  listModeMsg?: string,
+  disabledKeys?: string[],
+  showTestBuilder?: boolean
+}
+
 @Component({
   selector: 'ng-jsonschema',
   templateUrl: './jsonschema.component.html',
@@ -27,31 +36,25 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 
 export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
-  // public editorOptions: JsonEditorOptions;
+  private _defaultOption: JsonSchemaOption = {
+    mode: 'object',
+    disabledKeys: [],
+    showTestBuilder: false
+  }
 
-  // @ViewChild(JsonEditorComponent) editor: JsonEditorComponent; // , { static: true }
   @ViewChild('editor') editor;
 
   @Input()
+  options: JsonSchemaOption;
+
+  @Input()
   schema: any = null;
-
-  @Input()
-  mode;
-
-  @Input()
-  msg;
 
   @Input()
   models: any = [];
 
   @Input()
   responses: any = [];
-
-  @Input()
-  disabledKeys: string[] = []
-
-  @Input()
-  showTestBuilder: boolean
 
   @Output()
   onSchemaChange = new EventEmitter<number>();
@@ -84,24 +87,9 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   schemaStr = { original: '', dup: '' };
 
   constructor(private utils: Utils) {
-    // this.editorOptions = new JsonEditorOptions() // this.options.mode = 'code'; //set only one mode
-    // this.editorOptions.modes = ['code', 'text', 'tree', 'view']; // set all allowed modes
-    // this.state.getState().subscribe(
-    //   (res) => {
-    //     this.showSelectorModal = res.showSelectorModal;
-    //   },
-    //   (err) => {
-    //     console.error(`An error occurred: ${err.message}`);
-    //   }
-    // );
+
   }
-  // ngAfterViewChecked(): void {
-  //   if (this.pendingEditorRefresh) {
-  //     this.editor.getEditor().session.getUndoManager().markClean();
-  //     this.editor.getEditor().session.getUndoManager().reset()
-  //     this.pendingEditorRefresh = false;
-  //   }
-  // }
+  // ngAfterViewChecked(): void {}
   writeValue(value: any): void {
     if (value !== undefined) {
       this.schema = value;
@@ -118,6 +106,8 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
     alert('disable');
   }
   ngOnInit() {
+    this.options = { ...this._defaultOption, ...this.options }
+
     if (!this.schema) {
       this.schema = {
         type: 'object',
@@ -148,7 +138,6 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
 
   initRootElement(schema) {
     //  initialize the root
-    this.mode = this.mode ? this.mode : 'object';
     if (schema) {
       this.entity = this.JsonSchema.schema2obj(
         schema,
@@ -202,7 +191,8 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   }
 
   // recursively fine the parent and add the entity
-  addNewProp(entity, e) {
+  addNewProp($event) {
+    let { entity, event } = $event
     var addTo = 'Object';
     if (entity._type.indexOf('Object') >= 0) {
       addTo = 'Object';
@@ -227,7 +217,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
         entity._properties.push(apic);
         break;
       case 'Array':
-        this.addNewPropArrObj(entity, entity._items[0]._type[0], e);
+        this.addNewPropArrObj(entity, entity._items[0]._type[0], event);
         break;
       case 'XOf':
         var apic = this.JsonSchema.newString(
@@ -240,7 +230,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
         break;
     }
     setTimeout(() => {
-      e.target.closest('.objCont').querySelector('.propCont:last-child .model-key').focus()
+      event.target.closest('.objCont').querySelector('.propCont:last-child .model-key')?.focus()
     });
 
     this.refreshSchema();

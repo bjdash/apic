@@ -72,18 +72,19 @@
             </div>
             <mat-tab-group class="margV10" animationDuration="0ms">
                 <mat-tab label="Path Params">
-                    <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
-                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams">
+                    <ng-jsonschema (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams"
+                        [options]="{mode:'list', listModeMsg:'Define Path params here and reuse them with endpoints.'}">
                     </ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Query Params">
-                    <ng-jsonschema mode="list" msg="Define Query params here and reuse them with endpoints."
-                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams">
+                    <ng-jsonschema (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"
+                        [options]="{mode:'list', listModeMsg:'Define Query params here and reuse them with endpoints.'}">
                     </ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Headers">
-                    <ng-jsonschema mode="list" msg="Define Headers here and reuse them with endpoints."
-                        (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
+                    <ng-jsonschema (onSchemaChange)="setDirty()" name="headers" formControlName="headers"
+                        [options]="{mode:'list', listModeMsg:'Define Headers here and reuse them with endpoints.'}">
+                    </ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Responses">
                     <div class="pad10">

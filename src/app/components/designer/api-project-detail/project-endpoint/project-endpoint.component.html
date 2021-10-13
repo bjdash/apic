@@ -109,7 +109,7 @@
                     <mat-icon *ngIf="flags.more">expand_more</mat-icon>
                     <mat-icon *ngIf="!flags.more">chevron_right</mat-icon>
                 </button>
-                <span [hidden]="flags.more">Show more</span>
+                <span [hidden]="flags.more" class="t_color">Show more</span>
             </div>
 
             <div [hidden]="!flags.more">
@@ -202,18 +202,19 @@
                     </div>
                 </mat-tab>
                 <mat-tab label="Path Params">
-                    <ng-jsonschema mode="list" msg="Define Path params here and reuse them with endpoints."
+                    <ng-jsonschema
+                        [options]="{mode:'list', disableManualAdd:true, listModeMsg:'Define Path params here and reuse them with endpoints.'}"
                         (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
                     </ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Query Params">
-                    <ng-jsonschema [models]="selectedPROJ.models" mode="list"
-                        msg="Define Query params here and reuse them with endpoints." [disabledKeys]="flags.traitQP"
+                    <ng-jsonschema [models]="selectedPROJ.models"
+                        [options]="{mode:'list', disabledKeys:flags.traitQP, listModeMsg:'Define Query params here and reuse them with endpoints.'}"
                         (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"></ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Headers">
-                    <ng-jsonschema [models]="selectedPROJ.models" mode="list"
-                        msg="Define Headers here and reuse them with endpoints." [disabledKeys]="flags.traitHP"
+                    <ng-jsonschema [models]="selectedPROJ.models"
+                        [options]="{mode:'list', disabledKeys:flags.traitHP, listModeMsg:'Define Headers here and reuse them with endpoints.'}"
                         (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Responses">

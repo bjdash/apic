@@ -71,9 +71,14 @@ var buildExtn = {
         return gulp.src(['./dist/devtools-temp/build/**/*.*', '!./dist/devtools-temp/dist/asset-manifest.json', '!./dist/devtools-temp/dist/service-worker.js', '!./dist/devtools-temp/build/precache-manifest*.*'])
             .pipe(gulp.dest('./dist/extn/devtools'))
     },
-    zip: function () {
+    zipChrome: function () {
         return gulp.src('./dist/extn/**/*.*')
-            .pipe(zip('extn.zip'))
+            .pipe(zip('chrome.zip'))
+            .pipe(gulp.dest("./dist"));
+    },
+    zipEdge: function () {
+        return gulp.src('./dist/extn/**/*.*')
+            .pipe(zip('edge.zip'))
             .pipe(gulp.dest("./dist"));
     }
 }
@@ -136,7 +141,7 @@ exports.buildExtnChrome = gulp.series(
     devTools.cloneDevtools,
     buildExtn.copyDevtoolsSrc,
     devTools.cleanDevTools,
-    buildExtn.zip
+    buildExtn.zipChrome
 );
 exports.buildExtnEdge = gulp.series(
     buildExtn.copyExtnFiles,
@@ -145,7 +150,7 @@ exports.buildExtnEdge = gulp.series(
     devTools.cloneDevtools,
     buildExtn.copyDevtoolsSrc,
     devTools.cleanDevTools,
-    buildExtn.zip
+    buildExtn.zipEdge
 );
 
 exports.cleanElectron = gulp.series(

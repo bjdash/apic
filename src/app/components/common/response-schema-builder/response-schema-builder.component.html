@@ -27,8 +27,8 @@
         </div>
         <fieldset [disabled]="selectedResp?.fromTrait">
             <ng-jsonschema [models]="models" [responses]="responsesModels" (onSchemaChange)="onSchemaUpdate()"
-                name="data" formControlName="data" [showTestBuilder]="true" (onTestBuilder)="openTestBuilder($event)">
-            </ng-jsonschema>
+                name="data" formControlName="data" [options]="{showTestBuilder:true}"
+                (onTestBuilder)="openTestBuilder($event)"></ng-jsonschema>
             <label>Description</label>
             <textarea class="form-control" formControlName="desc"></textarea>
         </fieldset>

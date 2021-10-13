@@ -15,7 +15,7 @@ export interface Entity {
     _disallowAdditional?: boolean,
     _maxProperties?: number,
     _minProperties?: number,
-    _hasChild?: true,
+    _hasChild?: boolean,
     _format?: string,
     _pattern?: string,
     _maxLength?: number,
@@ -35,5 +35,5 @@ export interface Entity {
     root$$?: any,
     refTxt?: string,
     _refExp?: string,
-    _readOnlyKey?: string
+    _readOnlyKey?: boolean
 }

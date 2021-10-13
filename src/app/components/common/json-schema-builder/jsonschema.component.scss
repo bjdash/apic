@@ -48,7 +48,9 @@ fieldset[disabled] .mat-checkbox {
   box-shadow: 0 0px 7px 0px rgb(0 0 0 / 50%);
   z-index: 4;
 }
-
+.obj-add {
+  margin-left: -40px;
+}
 .faint {
   color: #9e9e9e;
   font-size: 12px;
@@ -165,7 +167,7 @@ button[disabled] {
   display: none;
 }
 .js-row {
-  padding: 2px 5px 1px;
+  padding: 2px 5px 1px 40px;
   min-height: 30px;
   position: relative;
   display: flex;
@@ -173,6 +175,9 @@ button[disabled] {
 }
 .js-row:hover {
   background: var(--main-bg);
+  .obj-exp {
+    visibility: visible;
+  }
 }
 
 .objProps .js-row {
@@ -197,7 +202,14 @@ button[disabled] {
 
 .obj-exp {
   cursor: pointer;
-  margin: 0 -8px;
+  margin: 0 -4px;
+  background-color: var(--content-bg);
+  padding: 1px 0 !important;
+  border: 1px solid var(--border-color);
+  visibility: hidden;
+  &.open {
+    visibility: visible;
+  }
 }
 
 .js-row .model-remove {
@@ -220,6 +232,8 @@ button[disabled] {
 .js-row .model-done {
   background: var(--accent-color);
   color: #fff;
+  border-radius: 0;
+  margin-bottom: -9px;
 }
 
 .js-row:hover .model-detail {
@@ -282,7 +296,7 @@ fieldset.js-fieldset {
 button.model-selector {
   font-family: apic-font;
   line-height: 17px;
-  padding: 0 0px 0 8px;
+  padding: 1px 0px 1px 8px;
   font-size: 12px;
   margin-right: 5px;
   max-height: 20px;
@@ -298,6 +312,7 @@ button.model-selector .material-icons {
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
   margin-bottom: 5px;
   border-radius: 10px;
+  border: 1px solid var(--accent-color);
 }
 
 form.model-detail-form .control-label {

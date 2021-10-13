@@ -1,5 +1,6 @@
 import { Entity } from '../entity.interface';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { JsonSchemaOption } from '../jsonschema.component';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -13,25 +14,22 @@ export class MainJsonSchemaComponent implements OnInit {
     entity: Entity;
 
     @Input()
+    options: JsonSchemaOption
+
+    @Input()
     openMenu;
 
     @Input()
     refreshSchema;
 
     @Input()
-    mode;
-
-    @Input()
     models;
-
-    @Input()
-    msg;
 
     @Input()
     removeEntity;
 
-    @Input()
-    addNewProp;
+    @Output()
+    onAddNewProp = new EventEmitter();
 
     @Input()
     expand$ref: Function;
@@ -40,13 +38,7 @@ export class MainJsonSchemaComponent implements OnInit {
     buildTest: Function
 
     @Input()
-    showTestBuilder: boolean
-
-    @Input()
     addAdditionalProp: Function;
-
-    @Input()
-    disabledKeys: string[] = []
 
     showDetailsPan = false;
     ctrl = {
@@ -57,9 +49,18 @@ export class MainJsonSchemaComponent implements OnInit {
 
     }
 
-    // keys(obj) {
-    //     return Object.keys(obj);
-    // }
+    addNewProp(event) {
+        let outData;
+        if (event instanceof MouseEvent) {
+            outData = {
+                entity: this.entity,
+                event
+            }
+        } else {
+            outData = event
+        }
+        this.onAddNewProp.emit(outData);
+    }
 
     checkTypeObject(entity) {
         return entity._items && entity._items[0] && entity._items[0]._type[0] && entity._items[0]._type[0] === 'Object';

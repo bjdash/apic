@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { JsonSchemaOption } from '../jsonschema.component';
 import { JsonSchemaService } from '../jsonschema.service';
 
 @Component({
@@ -30,7 +31,7 @@ export class SelectSchemaJsonSchemaComponent {
     setArrayType
 
     @Input()
-    mode;
+    options: JsonSchemaOption;
 
     @Input()
     models; //#/definitions
@@ -78,7 +79,7 @@ export class SelectSchemaJsonSchemaComponent {
 
     manageModelProps(type, entity, action) {
         let fieldsObj = {};
-        fieldsObj = this.JsonSchema.copy(this.JsonSchema.fields['for' + type]);
+        fieldsObj = this.JsonSchema.ENTITY_PROPS['for' + type];
         for (const key in fieldsObj) {
             if (!key) {
                 continue;
