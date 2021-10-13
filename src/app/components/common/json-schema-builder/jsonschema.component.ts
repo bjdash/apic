@@ -336,7 +336,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
     // this.$dirty = true;
     if (data.__ID__ === id) return i;
     var res;
-    for (var j = 0; j < data._type.length; j++) {
+    for (var j = 0; j < data._type?.length; j++) {
       var type = data._type[j];
       switch (type) {
         case 'Object':

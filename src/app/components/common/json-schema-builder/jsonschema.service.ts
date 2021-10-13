@@ -19,8 +19,8 @@ export class JsonSchemaService {
     readonly ENTITY_PROPS = {
         forObject: {
             _properties: [],
-            _ENTITY_PROPSProperties: [],
-            _disallowENTITY_PROPS: false,
+            _additionalProperties: [],
+            _disallowAdditional: false,
             _maxProperties: undefined,
             _minProperties: undefined,
             _type: ['Object'],
@@ -237,11 +237,11 @@ export class JsonSchemaService {
                     if (entity._maxProperties >= 0) {
                         schema.maxProperties = entity._maxProperties;
                     }
-                    if (entity._disallowENTITY_PROPS) {
-                        schema.ENTITY_PROPSProperties = !entity._disallowENTITY_PROPS;
+                    if (entity._disallowAdditional) {
+                        schema.additionalProperties = !entity._disallowAdditional;
                     }
-                    if (entity._ENTITY_PROPSProperties && entity._ENTITY_PROPSProperties.length > 0) {
-                        schema.ENTITY_PROPSProperties = this.obj2schema(entity._ENTITY_PROPSProperties[0], models);
+                    if (entity._additionalProperties && entity._additionalProperties.length > 0) {
+                        schema.additionalProperties = this.obj2schema(entity._additionalProperties[0], models);
                     }
                     if (entity._properties.length > 0) {
                         schema.properties = {};
@@ -478,16 +478,16 @@ export class JsonSchemaService {
                     if (schema.maxProperties >= 0) {
                         obj._maxProperties = schema.maxProperties;
                     }
-                    if (schema.hasOwnProperty('ENTITY_PROPSProperties')) {
-                        if (typeof schema.ENTITY_PROPSProperties === 'boolean') {
-                            obj._disallowENTITY_PROPS = !schema.ENTITY_PROPSProperties;
+                    if (schema.hasOwnProperty('additionalProperties')) {
+                        if (typeof schema.additionalProperties === 'boolean') {
+                            obj._disallowAdditional = !schema.additionalProperties;
                         } else {
-                            var ENTITY_PROPSProp = this.schema2obj(schema.ENTITY_PROPSProperties, 'ENTITY_PROPSProperties', false, false, modelObjs, '');
-                            ENTITY_PROPSProp._key = 'ENTITY_PROPSProperties';
-                            ENTITY_PROPSProp._readOnlyKey = true;
-                            ENTITY_PROPSProp._hideKey = true;
+                            var additionalProp = this.schema2obj(schema.additionalProperties, 'additionalProperties', false, false, modelObjs, '');
+                            additionalProp._key = 'additionalProperties';
+                            additionalProp._readOnlyKey = true;
+                            additionalProp._hideKey = true;
 
-                            obj._ENTITY_PROPSProperties = [ENTITY_PROPSProp]
+                            obj._additionalProperties = [additionalProp]
                         }
                     }
 
