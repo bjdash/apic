@@ -24,8 +24,9 @@
                     <mat-menu #exportMenu="matMenu">
                         <button mat-menu-item (click)="openExportModal('RAW',selectedPROJ._id)">Raw APIC
                             Project</button>
-                        <button mat-menu-item (click)="openExportModal('OAS',selectedPROJ._id)">Open API
-                            Specs(Swagger)</button>
+                        <button mat-menu-item (click)="openExportModal('OAS3', selectedPROJ._id)">Open API Spec
+                            3.0.1</button>
+                        <button mat-menu-item (click)="openExportModal('OAS',selectedPROJ._id)">Swagger (OAS 2)</button>
                         <button mat-menu-item>RAML (Soon)</button>
                     </mat-menu>
                 </div>

@@ -197,7 +197,7 @@ export class JsonSchemaService {
         var newXOf = {
             ...this.ENTITY_DEFAULTS,
             ...this.deepCopy(this.ENTITY_PROPS['for' + type]),
-            _properties: props,
+            _properties: props || [],
             __ID__: '$model' + this.ENTITY_AUTO_ID,
             _key: key,
             _parent: (parent ?? '')

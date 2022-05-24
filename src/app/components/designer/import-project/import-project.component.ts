@@ -8,11 +8,12 @@ import { Toaster } from 'src/app/services/toaster.service';
 import jsyaml from 'js-yaml';
 import { SwaggerService } from 'src/app/services/swagger.service';
 import { Store } from '@ngxs/store';
-import { map, take } from 'rxjs/operators';
-import helpers from 'src/app/utils/helpers';
-import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 import { ApiProject } from 'src/app/models/ApiProject.model';
-
+import { ERROR_CODES, ENTITIES } from 'src/app/utils/constants';
+interface ConflictResponse {
+  type: 'override' | 'keepBoth',
+  project: ApiProject
+}
 @Component({
   selector: 'app-import-project',
   templateUrl: './import-project.component.html',
@@ -20,9 +21,18 @@ import { ApiProject } from 'src/app/models/ApiProject.model';
 })
 export class ImportProjectComponent implements OnInit {
   form: FormGroup;
-  flags = {
-    impType: 'json'
-  }
+  projToImport: ApiProject;
+  flags: {
+    impType: 'json' | 'yaml',
+    inConflict: boolean,
+    conflictResolve: (value?: ConflictResponse | PromiseLike<ConflictResponse>) => void
+    conflictReject: (value?: ConflictResponse | PromiseLike<ConflictResponse>) => void
+  } = {
+      impType: 'json',
+      inConflict: false,
+      conflictResolve: null,
+      conflictReject: null
+    }
 
 
   constructor(fb: FormBuilder,
@@ -45,6 +55,7 @@ export class ImportProjectComponent implements OnInit {
   }
 
   async onSubmit() {
+    this.flags.inConflict = false;
     const formValue = { ...this.form.value };
     if (formValue.type === 'file' && !formValue.file) {
       this.toaster.error('Please browse a Swagger/OAS or APIC project file to import');
@@ -67,47 +78,87 @@ export class ImportProjectComponent implements OnInit {
 
     if (!importData) return;
 
-    var project: ApiProject;
     if (importData.TYPE === 'APIC Api Project') {
-      if (this.apiProjectService.validateImportData(importData)) {
-        project = this.sanitizeProjImport(importData.value);
+      if (this.apiProjectService.isImportValid(importData)) {
+        this.projToImport = this.sanitizeProjImport(importData.value);
       } else {
         this.toaster.error('Selected file doesn\'t contain valid Project information');
         return;
       }
     } else if (importData.swagger === '2.0') {
-      project = this.sanitizeProjImport(this.swaggerService.importOAS2(importData, { groupby: formValue.groupby }));
+      this.projToImport = this.sanitizeProjImport(this.swaggerService.importOAS2(importData, { groupby: formValue.groupby }));
     } else {
       this.toaster.error('Selected file doesn\'t contain valid Project information');
       return;
     }
-    if (!project.setting) project.setting = {};
+    if (!this.projToImport.setting) this.projToImport.setting = {};
 
-    const newProj = await this.apiProjectService.addProject(project, true);
-
-    var newEnv: Env = {
-      name: project.title + '-env',
-      vals: [{
-        key: 'host', val: project.setting.host, readOnly: true
-      }, {
-        key: 'basePath', val: project.setting.basePath, readOnly: true
-      }, {
-        key: 'scheme', val: project.setting.protocol + '://', readOnly: true
-      }],
-      _id: null, _created: null, _modified: null,
-      proj: {
-        id: (newProj._id),
-        name: project.title
-      }
-    };
-    const newEnvId = (await this.envService.addEnv(newEnv))._id;
-    project = { ...project, setting: { ...project.setting, envId: newEnvId } }
+    let newProj: ApiProject;
+    let conflictResp: ConflictResponse;
     try {
-      await this.apiProjectService.updateAPIProject(project);
+      newProj = await this.apiProjectService.addProject(this.projToImport, false);
+    } catch (e) {
+      if (e.message === ERROR_CODES.get(ERROR_CODES.ESISTS, ENTITIES.APIProject)) {
+        conflictResp = await this.resolveNameConflict();
+        newProj = conflictResp.project;
+      }
+    }
+
+    let newEnvId;
+    if (conflictResp?.type === 'override') {
+      newEnvId = newProj.setting?.envId;
+    } else {
+      var newEnv: Env = {
+        name: newProj.title + '-env',
+        vals: [{
+          key: 'host', val: newProj.setting.host, readOnly: true
+        }, {
+          key: 'basePath', val: newProj.setting.basePath, readOnly: true
+        }, {
+          key: 'scheme', val: newProj.setting.protocol + '://', readOnly: true
+        }],
+        _id: null, _created: null, _modified: null,
+        proj: {
+          id: (newProj._id),
+          name: newProj.title
+        }
+      };
+      newEnvId = (await this.envService.addEnv(newEnv))._id;
+    }
+
+    newProj = { ...newProj, setting: { ...newProj.setting, envId: newEnvId } }
+    try {
+      await this.apiProjectService.updateAPIProject(newProj);
       this.toaster.success(`Project "${newProj.title}" imported`);
       this.dialogRef.close();
     } catch (e) {
       this.toaster.error(`Import failed.${e?.message || e || ''}`);
+    }
+  }
+
+  async resolveNameConflict(): Promise<ConflictResponse> {
+    this.flags.inConflict = true;
+    return new Promise((resolve, reject) => {
+      this.flags.conflictResolve = resolve;
+      this.flags.conflictReject = reject;
+    })
+  }
+
+  async overrideImport() {
+    try {
+      let project = await this.apiProjectService.replaceExisting(this.projToImport);
+      this.flags.conflictResolve({ type: 'override', project })
+    } catch (e) {
+      this.flags.conflictReject(e)
+    }
+  }
+
+  async keepBoth() {
+    try {
+      let project = await this.apiProjectService.addProject(this.projToImport, true);
+      this.flags.conflictResolve({ type: 'keepBoth', project })
+    } catch (e) {
+      this.flags.conflictReject(e)
     }
   }
 

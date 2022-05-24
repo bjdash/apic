@@ -15,28 +15,31 @@
                     <mat-icon>help</mat-icon>
                 </a>
                 <div class="workspace-title">
-                    Workspace
-                    <button mat-fab class="t_bg" (click)="showProjImport()"
-                        aria-label="Import RAW API project or Open API spec (Swagger)"
-                        matTooltip="Import RAW API project or Open API spec (Swagger)" matTooltipPosition="right">
-                        <mat-icon>transit_enterexit</mat-icon>
-                    </button>
+                    API Projects
                 </div>
 
                 <div class="projects">
-                    <div class="title-txt">API Projects</div>
                     <div class="card-list">
-                        <div class="cl-item ic" [routerLink]="['/designer', project._id]"
-                            *ngFor="let project of projects$ | async">
-                            <div class="cl-item-name">{{project.title}}</div>
-                            <mat-icon *ngIf="!!project.owner && project.owner!=authUser?.UID"
-                                matTooltip="Shared with you" class="shared">share</mat-icon>
-                        </div>
                         <div class="cl-item" style="width: 120px">
                             <button mat-fab class="t_bg " aria-label="Create new project" (click)="openAddProject()"
                                 matTooltip="Create new project" matTooltipPosition="right">
                                 <mat-icon>add</mat-icon>
                             </button>
+                        </div>
+                        <div class="cl-item" style="width: 120px">
+                            <button mat-fab class="t_bg" (click)="showProjImport()"
+                                aria-label="Import RAW API project or Open API spec (Swagger)"
+                                matTooltip="Import RAW API project or Open API spec (Swagger)"
+                                matTooltipPosition="right">
+                                <mat-icon>transit_enterexit</mat-icon>
+                            </button>
+                        </div>
+                        <div class="cl-item ic" [routerLink]="['/designer', project._id]"
+                            [ngClass]="{rapidPulse:flags.justAdded == project._id}"
+                            *ngFor="let project of projects$ | async">
+                            <div class="cl-item-name">{{project.title}}</div>
+                            <mat-icon *ngIf="!!project.owner && project.owner!=authUser?.UID"
+                                matTooltip="Shared with you" class="shared">share</mat-icon>
                         </div>
                     </div>
                 </div>

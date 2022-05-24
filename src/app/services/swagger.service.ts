@@ -4,7 +4,8 @@ import apic from '../utils/apic';
 import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
 import { Utils } from './utils.service';
 import { METHOD_WITH_BODY } from '../utils/constants';
-
+import { OpenAPIV2, OpenAPIV3_1 } from 'openapi-types';
+import { OAS3Utils } from '../utils/OAS3.utils';
 export interface SwaggerOption {
     includeApicIds?: boolean
 }
@@ -15,7 +16,7 @@ export class SwaggerService {
 
     }
 
-    importOAS2(spec, optn) {
+    importOAS2(spec: OpenAPIV2.Document, optn) {
         if (!spec.swagger) {
             return;
         }
@@ -95,7 +96,7 @@ export class SwaggerService {
                             secdef.oauth2.authorizationUrl = def.authorizationUrl;
                         }
                         if (['password', 'application', 'accessCode'].includes(def.flow)) {
-                            secdef.oauth2.tokenUrl = def.tokenUrl;
+                            secdef.oauth2.tokenUrl = (def as (OpenAPIV2.SecuritySchemeOauth2AccessCode | OpenAPIV2.SecuritySchemeOauth2Password | OpenAPIV2.SecuritySchemeOauth2Application)).tokenUrl;
                         }
                         for (const [scope, desc] of Utils.objectEntries(def.scopes)) {
                             secdef.oauth2.scopes.push({ key: scope, val: desc });
@@ -161,8 +162,8 @@ export class SwaggerService {
         if (spec.parameters) {
             for (const [name, param] of Utils.objectEntries(spec.parameters)) {
                 let traitName = '';
-                if (name.indexOf('trait') === 0 && (name.match(/:/g) || []).length === 2) {
-                    traitName = name.split(':')[1];
+                if (name.indexOf('trait') === 0 && (name.match(/\./g) || []).length === 2) {
+                    traitName = name.split('.')[1];
                 } else {
                     traitName = name;
                 }
@@ -236,9 +237,9 @@ export class SwaggerService {
         if (spec.responses) {
             for (const [name, resp] of Utils.objectEntries(spec.responses)) {
                 let traitName = '', code = name, noneStatus;
-                if (name.indexOf('trait') === 0 && name.indexOf(':') > 0) {
-                    traitName = name.split(':')[1];
-                    code = name.split(':')[2];
+                if (name.indexOf('trait') === 0 && name.indexOf('.') > 0) {
+                    traitName = name.split('.')[1];
+                    code = name.split('.')[2];
                     if (!/^\d+$/.test(code)) {
                         noneStatus = true;
                     }
@@ -315,7 +316,7 @@ export class SwaggerService {
                     }
                 }
 
-                for (const [method, path] of Utils.objectEntries(apis)) {
+                for (const [method, path] of Utils.objectEntries(apis as { [key: string]: OpenAPIV2.OperationObject })) {
                     if (optn.groupby === 'tag') {
                         let fname = 'Untagged';
                         if (path.tags && path.tags[0]) {
@@ -378,67 +379,69 @@ export class SwaggerService {
                             for (var i = 0; i < path.parameters.length; i++) {
                                 var param = path.parameters[i];
                                 var ptype = undefined;
-                                switch (param.in) {
-                                    case 'header':
-                                        ptype = 'headers';
-                                        break;
-                                    case 'query':
-                                        ptype = 'queryParams';
-                                        break;
-                                    case 'path':
-                                        ptype = 'pathParams';
-                                        break;
-                                    case 'body':
-                                        ptype = 'body';
-                                        break;
-                                    case 'formData':
-                                        ptype = 'formData';
-                                        break;
-                                    default:
-                                        if (!param.$ref) {
-                                            console.error('not supported', param);
+                                if ('in' in param) {
+                                    switch (param.in) {
+                                        case 'header':
+                                            ptype = 'headers';
+                                            break;
+                                        case 'query':
+                                            ptype = 'queryParams';
+                                            break;
+                                        case 'path':
+                                            ptype = 'pathParams';
+                                            break;
+                                        case 'body':
+                                            ptype = 'body';
+                                            break;
+                                        case 'formData':
+                                            ptype = 'formData';
+                                            break;
+                                        default:
+                                            if (!param.$ref) {
+                                                console.error('not supported', param);
+                                            }
+                                    }
+                                    if (['headers', 'queryParams', 'pathParams'].indexOf(ptype) >= 0) {
+                                        tmpEndP[ptype].properties[param.name] = {
+                                            type: param.type,
+                                            default: param.default ? param.default : '',
+                                            description: param.description ? param.description : ''
+                                        };
+                                        if (param.items) {
+                                            tmpEndP[ptype].properties[param.name].items = param.items;
                                         }
-                                }
-                                if (['headers', 'queryParams', 'pathParams'].indexOf(ptype) >= 0) {
-                                    tmpEndP[ptype].properties[param.name] = {
-                                        type: param.type,
-                                        default: param.default ? param.default : '',
-                                        description: param.description ? param.description : ''
-                                    };
-                                    if (param.items) {
-                                        tmpEndP[ptype].properties[param.name].items = param.items;
-                                    }
-                                    if (param.required) {
-                                        tmpEndP[ptype].required.push(param.name);
-                                    }
-                                } else if (ptype === 'body') {
-                                    tmpEndP.body = {
-                                        type: 'raw',
-                                        data: Object.assign({}, param.schema)
-                                    };
-                                } else if (ptype === 'formData') {
-                                    tmpEndP.body.type = 'x-www-form-urlencoded';
-                                    if (tmpEndP.body.data.length === undefined)
-                                        tmpEndP.body.data = [];
-                                    tmpEndP.body.data.push({
-                                        key: param.name,
-                                        type: param.type,
-                                        desc: param.description,
-                                        required: param.required
-                                    });
-                                    if (param.type === 'file') {
-                                        tmpEndP.body.type = 'form-data';
+                                        if (param.required) {
+                                            tmpEndP[ptype].required.push(param.name);
+                                        }
+                                    } else if (ptype === 'body') {
+                                        tmpEndP.body = {
+                                            type: 'raw',
+                                            data: Object.assign({}, param.schema)
+                                        };
+                                    } else if (ptype === 'formData') {
+                                        tmpEndP.body.type = 'x-www-form-urlencoded';
+                                        if (tmpEndP.body.data.length === undefined)
+                                            tmpEndP.body.data = [];
+                                        tmpEndP.body.data.push({
+                                            key: param.name,
+                                            type: param.type,
+                                            desc: param.description,
+                                            required: param.required
+                                        });
+                                        if (param.type === 'file') {
+                                            tmpEndP.body.type = 'form-data';
+                                        }
                                     }
                                 } else if (param.$ref) {
-                                    var ref = param.$ref;
+                                    let ref = param.$ref;
                                     let traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
-                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/:/g) || []).length === 2) {
-                                        traitName = ref.split(':')[1];
+                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/\./g) || []).length === 2) {
+                                        traitName = ref.split('.')[1];
                                     }
-                                    var trait = this.getTraitByName(proj, traitName);
+                                    let trait = this.getTraitByName(proj, traitName);
                                     if (trait) {//if trait not added then push it
-                                        var existing = false;
-                                        for (var j = 0; j < tmpEndP.traits.length; j++) {
+                                        let existing = false;
+                                        for (let j = 0; j < tmpEndP.traits.length; j++) {
                                             if (tmpEndP.traits[j]._id === trait._id) {
                                                 existing = true;
                                                 break;
@@ -456,21 +459,21 @@ export class SwaggerService {
 
                         if (path.responses) {
                             for (const [statusCode, resp] of Utils.objectEntries(path.responses)) {
-                                var moveRespToTrait = false, refName;
-                                if (resp.$ref) {
-                                    var ref = resp.$ref;
-                                    var traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
+                                let moveRespToTrait = false, refName;
+                                if ('$ref' in resp) {
+                                    let ref = resp.$ref;
+                                    let traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
                                     refName = traitName;
-                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/:/g) || []).length === 2) {
-                                        var refSplit = ref.split(':');
+                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/\./g) || []).length === 2) {
+                                        let refSplit = ref.split('.');
                                         traitName = refSplit[1];
-                                        if (parseInt(refSplit[2]) == refSplit[2]) {
+                                        if (refSplit[2]?.match(/^\d+$/)) {
                                             moveRespToTrait = true;
                                         }
                                         refName = refSplit[2];
                                     }
                                     if (moveRespToTrait) {
-                                        var trait = this.getTraitByName(proj, traitName);
+                                        let trait = this.getTraitByName(proj, traitName);
                                         if (trait) {//if trait not added then push it
                                             var existing = false;
                                             for (var j = 0; j < tmpEndP.traits.length; j++) {
@@ -487,10 +490,10 @@ export class SwaggerService {
                                         }
                                     }
                                 }
-                                if (!resp.$ref || !moveRespToTrait) {
+                                if (!('$ref' in resp) || !moveRespToTrait) {
                                     let tmpResp = {
-                                        data: resp.$ref ? ({ $ref: resp.$ref.substring(0, resp.$ref.lastIndexOf('/') + 1) + refName }) : (resp.schema || { type: 'object' }),
-                                        desc: resp.description,
+                                        data: ('$ref' in resp) ? ({ $ref: resp.$ref.substring(0, resp.$ref.lastIndexOf('/') + 1) + refName }) : (resp.schema || { type: 'object' }),
+                                        desc: ('description' in resp) ? resp.description : '',
                                         code: statusCode
                                     };
                                     tmpEndP.responses.push(tmpResp);
@@ -515,345 +518,36 @@ export class SwaggerService {
         return proj;
     }
 
-    exportOAS(proj: ApiProject, options?: SwaggerOption) {
+    exportOAS(proj: ApiProject, options?: SwaggerOption): OpenAPIV2.Document {
         proj = Utils.clone(proj);
-        var obj: any = {};
-        obj.swagger = '2.0';
-        obj.info = {
-            title: proj.title,
-            description: proj.description,
-            version: proj.version,
-            termsOfService: proj.termsOfService
+        var obj: OpenAPIV2.Document = {
+            swagger: '2.0',
+            info: OAS3Utils.getInfo(proj),
+            ...(proj.setting?.basePath && { basePath: proj.setting.basePath }),
+            ...(proj.setting?.host && { host: proj.setting.host }),
+            ... (proj.setting?.protocol && { schemes: [proj.setting.protocol] }),
+            securityDefinitions: OAS3Utils.getSecuritySchemes(proj, "OAS2"),
+            tags: OAS3Utils.getTags(proj),
+            definitions: OAS3Utils.getSchemaDefinitions(proj, options, 'OAS2'),
+            responses: OAS3Utils.getResponses(proj, 'OAS2'),
+            parameters: OAS3Utils.getParams(proj, 'OAS2'),
+            paths: OAS3Utils.getPaths(proj, 'OAS2', options)
         };
+        return obj;
+    }
 
-        if (proj.contact) {
-            obj.info.contact = {
-                ... (proj.contact.name && { name: proj.contact.name }),
-                ... (proj.contact.url && { url: proj.contact.url }),
-                ... (proj.contact.email && { email: proj.contact.email })
-            };
-        }
-
-        if (proj.license?.name) {
-            obj.info.license = {
-                ... (proj.license.name && { name: proj.license.name }),
-                ... (proj.license.url && { url: proj.license.url })
-            };
-        }
-
-        if (proj.setting) {
-            if (proj.setting.basePath) {
-                obj.basePath = proj.setting.basePath;
-            }
-            if (proj.setting.host) {
-                obj.host = proj.setting.host;
-            }
-            if (proj.setting.protocol) {
-                obj.schemes = [proj.setting.protocol];
-            }
-        }
-
-        if (proj.securityDefinitions && proj.securityDefinitions.length > 0) {
-            var secDefs = {};
-            proj.securityDefinitions.forEach(function (def) {
-                var defObj: any = {
-                    type: def.type,
-                    description: def.description || ''
-                }
-                //process x-properties
-
-                def.xProperty?.forEach(function (prop) {
-                    if (prop.key?.startsWith('x-')) {
-                        defObj[prop.key] = prop.val
-                    }
-                })
-
-                switch (def.type) {
-                    case 'apiKey':
-                        defObj.in = def.apiKey.in;
-                        defObj.name = def.apiKey.name;
-                        break;
-                    case 'oauth2':
-                        defObj.flow = def.oauth2.flow;
-                        if (def.oauth2.flow == 'implicit' || def.oauth2.flow == 'accessCode') {
-                            defObj.authorizationUrl = def.oauth2.authorizationUrl;
-                        }
-                        if (['password', 'application', 'accessCode'].includes(def.oauth2.flow)) {
-                            defObj.tokenUrl = def.oauth2.tokenUrl;
-                        }
-                        defObj.scopes = {};
-                        if (def.oauth2.scopes.length > 0) {
-                            def.oauth2.scopes.forEach(function (s) {
-                                defObj.scopes[s.key] = s.val;
-                            })
-                        }
-                        break;
-                }
-                secDefs[def.name] = defObj;
-            })
-            obj.securityDefinitions = secDefs;
-        }
-
-        //export tags
-        if (proj.tags?.length > 0) {
-            obj.tags = proj.tags.map(tag => {
-                let specTag: any = {
-                    name: tag.name,
-                    description: tag.description
-                };
-                if (tag.externalDocs?.url) {
-                    specTag.externalDocs = tag.externalDocs
-                }
-                if (tag.xProperty?.length > 0) {
-                    tag.xProperty.forEach(kv => {
-                        if (kv.key) {
-                            specTag[kv.key] = kv.val
-                        }
-                    })
-                }
-                return specTag;
-            })
-        }
-
-        obj.definitions = {};
-        //add definitions/models
-        for (const [id, model] of Utils.objectEntries(proj.models)) {
-            model.data = JsonSchemaService.sanitizeModel(model.data);
-            obj.definitions[model.nameSpace] = model.data;
-            if (options?.includeApicIds) {
-                obj.definitions[model.nameSpace]['x-apic-id'] = model._id;
+    exportOAS3(proj: ApiProject, options?: SwaggerOption): OpenAPIV3_1.Document {
+        proj = Utils.clone(proj);
+        var obj: OpenAPIV3_1.Document = {
+            openapi: '3.0.1',
+            info: OAS3Utils.getInfo(proj),
+            ... (proj.setting && { servers: OAS3Utils.getServers(proj) }),
+            tags: OAS3Utils.getTags(proj),
+            paths: OAS3Utils.getPaths(proj, 'OAS3', options),
+            components: {
+                ...(OAS3Utils.getComponents(proj, options))
             }
         };
-
-        obj.responses = {};
-        obj.parameters = {};
-        //adding responses and parameters from traits
-        for (const [id, trait] of Utils.objectEntries(proj.traits)) {
-            var responses = trait.responses;
-            let tName = trait.name.replace(/\s/g, ' ');
-
-            for (var i = 0; i < responses.length; i++) {
-                var schema = responses[i].data;
-                var name = 'trait:' + tName + ':' + responses[i].code;
-                obj.responses[name] = {
-                    schema: schema,
-                    description: responses[i].desc ? responses[i].desc : ''
-                };
-            }
-
-            if (trait.pathParams) {
-                for (const [key, schema] of Utils.objectEntries(trait.pathParams.properties)) {
-                    let param = {
-                        name: key,
-                        in: 'path',
-                        description: schema.description ? schema.description : '',
-                        required: trait.pathParams.required && trait.pathParams.required.indexOf(key) >= 0 ? true : false
-                    };
-                    //var paramExtra = getParam(schema);
-                    param = Object.assign(param, schema);
-                    var name = 'trait:' + tName + ':' + key;
-                    obj.parameters[name] = param;
-                };
-            }
-
-            for (const [key, schema] of Utils.objectEntries(trait.queryParams.properties)) {
-                let param = {
-                    name: key,
-                    in: 'query',
-                    description: schema.description ? schema.description : '',
-                    required: trait.queryParams.required && trait.queryParams.required.indexOf(key) >= 0 ? true : false
-                };
-                param = Object.assign(param, schema);
-                var name = 'trait:' + tName + ':' + key;
-                obj.parameters[name] = param;
-            };
-
-            for (const [key, schema] of Utils.objectEntries(trait.headers.properties)) {
-                let param = {
-                    name: key,
-                    in: 'header',
-                    description: schema.description ? schema.description : '',
-                    required: trait.headers.required && trait.headers.required.indexOf(key) >= 0 ? true : false
-                };
-                param = Object.assign(param, schema);
-                var name = 'trait:' + tName + ':' + key;
-                obj.parameters[name] = param;
-            };
-        };
-
-
-        obj.paths = {};
-        //add paths
-        for (const [id, endp] of Utils.objectEntries(proj.endpoints)) {
-            if (obj.paths[endp.path] === undefined) {
-                obj.paths[endp.path] = {};
-            }
-            if (obj.paths[endp.path][endp.method] === undefined) {
-                obj.paths[endp.path][endp.method] = {};
-            }
-            let reqObj: any = {
-                tags: endp.tags,
-                summary: endp.summary,
-                description: endp.description,
-                consumes: endp.consumes,
-                produces: endp.produces,
-                schemes: [],
-            };
-            if (endp.security) {
-                reqObj.security = [];
-                endp.security.forEach(function (sec) {
-                    var secObj = {};
-                    secObj[sec.name] = [];
-                    reqObj.security.push(secObj);
-                });
-            }
-            if (endp.operationId) {
-                reqObj.operationId = endp.operationId;
-            }
-            if (endp.deprecated) {
-                reqObj.deprecated = true;
-            }
-            for (var i = 0; i < endp.schemes.length; i++) {
-                reqObj.schemes.push(endp.schemes[i].key);
-            }
-            if (options?.includeApicIds) {
-                reqObj['x-apic-id'] = endp._id;
-            }
-            reqObj.responses = {};
-            for (var j = 0; j < endp.responses.length; j++) {
-                let code = endp.responses[j].code;
-                reqObj.responses[code] = {};
-                var schema = endp.responses[j].data;
-                reqObj.responses[code].schema = schema;
-                //TODO: Add description
-                reqObj.responses[code].description = endp.responses[j].desc ? endp.responses[j].desc : '';
-            }
-
-            reqObj.parameters = [];
-            //add query parameters
-            for (const [key, schema] of Utils.objectEntries(endp.queryParams.properties)) {
-                let param = {
-                    name: key,
-                    in: 'query',
-                    description: schema.description ? schema.description : '',
-                    required: endp.queryParams.required && endp.queryParams.required.indexOf(key) >= 0 ? true : false
-                };
-                param = Object.assign(param, schema);
-                reqObj.parameters.push(param);
-            };
-
-            for (const [key, schema] of Utils.objectEntries(endp.headers.properties)) {
-                let param = {
-                    name: key,
-                    in: 'header',
-                    description: schema.description ? schema.description : '',
-                    required: endp.headers.required && endp.headers.required.indexOf(key) >= 0 ? true : false
-                };
-                param = Object.assign(param, schema);
-                reqObj.parameters.push(param);
-            };
-
-            for (const [key, schema] of Utils.objectEntries(endp.pathParams.properties)) {
-                let param = {
-                    name: key,
-                    in: 'path',
-                    description: schema.description ? schema.description : '',
-                    required: endp.pathParams.required && endp.pathParams.required.indexOf(key) >= 0 ? true : false
-                };
-                param = Object.assign(param, schema);
-                reqObj.parameters.push(param);
-            };
-
-            if (METHOD_WITH_BODY.includes(endp.method.toUpperCase()) && endp.body) { //if the trait has body add body params
-                switch (endp.body.type) {
-                    case 'raw':
-                        let param = {
-                            name: 'body',
-                            in: 'body',
-                            schema: endp.body.data
-                            //description: schema.description ? schema.description : '',
-                            //required: endp.body.data[x].required ? true : false
-                        };
-                        reqObj.parameters.push(param);
-                        break;
-                    case 'form-data':
-                    case 'x-www-form-urlencoded':
-                        for (var x = 0; x < endp.body.data.length; x++) {
-                            let param: any = {
-                                name: endp.body.data[x].key,
-                                in: 'formData',
-                                type: endp.body.data[x].type,
-                                description: endp.body.data[x].desc ? endp.body.data[x].desc : '',
-                                required: endp.body.data[x].required ? true : false
-                            };
-                            if (param.type === 'array') {
-                                param.items = {
-                                    type: 'string'
-                                };
-                            }
-                            reqObj.parameters.push(param);
-                        }
-                        break;
-                }
-            }
-
-            //importing details from traits
-            for (var j = 0; j < endp.traits.length; j++) {
-                var traitObj = proj.traits[endp.traits[j]._id];
-                let tName = traitObj.name;
-                //responses
-                for (var i = 0; i < traitObj.responses.length; i++) {
-                    var xPath = 'trait:' + tName + ':' + traitObj.responses[i].code;
-                    if (obj.responses[xPath] && !traitObj.responses[i].noneStatus) {
-                        let schema = {
-                            '$ref': '#/responses/' + xPath
-                        };
-                        reqObj.responses[traitObj.responses[i].code] = schema;
-                    }
-                }
-
-                if (traitObj.pathParams) {
-                    for (const [key, schema] of Utils.objectEntries(traitObj.pathParams.properties)) {
-                        var xPath = 'trait:' + tName + ':' + key;
-                        if (obj.parameters[xPath]) {
-                            reqObj.parameters.push({
-                                '$ref': '#/parameters/' + xPath
-                            });
-                        } else {
-                            console.error('Used path "' + xPath + '" not found in responses (from traits).');
-                        }
-                    };
-                }
-
-                for (const [key, schema] of Utils.objectEntries(traitObj.queryParams.properties)) {
-                    var xPath = 'trait:' + tName + ':' + key;
-                    if (obj.parameters[xPath]) {
-                        reqObj.parameters.push({
-                            '$ref': '#/parameters/' + xPath
-                        });
-                    } else {
-                        console.error('Used path "' + xPath + '" not found in responses (from traits).');
-                    }
-                };
-
-                //query params
-                for (const [key, schema] of Utils.objectEntries(traitObj.headers.properties)) {
-                    var xPath = 'trait:' + tName + ':' + key;
-                    if (obj.parameters[xPath]) {
-                        reqObj.parameters.push({
-                            '$ref': '#/parameters/' + xPath
-                        });
-                    } else {
-                        console.error('Used path "' + xPath + '" not found in responses (from traits).');
-                    }
-                };
-
-                //header params
-            }
-
-            obj.paths[endp.path][endp.method] = reqObj;
-        };
-
         return obj;
     }
 
@@ -877,7 +571,7 @@ export class SwaggerService {
 
 
 
-    private getTraitByName(proj, tName) {
+    private getTraitByName(proj: ApiProject, tName) {
         if (!proj || !proj.traits) {
             return;
         }

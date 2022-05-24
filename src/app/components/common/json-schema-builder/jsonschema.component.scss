@@ -10,12 +10,6 @@ input[type="checkbox"].small:checked:before {
   width: 6px;
   height: 8px;
 }
-fieldset[disabled] button {
-  cursor: not-allowed;
-}
-fieldset[disabled] .mat-checkbox {
-  cursor: not-allowed;
-}
 .json-schema {
   position: relative;
 }

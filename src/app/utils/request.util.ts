@@ -211,7 +211,7 @@ export class RequestUtils {
         //copy headers
         var headers = endp.headers;
         if (headers?.properties) {
-            Utils.objectEntries(headers.properties).forEach(([key, val]) => {
+            Utils.objectEntries(headers.properties as { [key: string]: any }).forEach(([key, val]) => {
                 var h = { key: key, val: val.default ? val.default : '' };
                 request.Req.headers.push(h);
             })
@@ -221,7 +221,7 @@ export class RequestUtils {
         //copy query params
         var queryParams = endp.queryParams
         if (queryParams?.properties) {
-            Utils.objectEntries(queryParams.properties).forEach(([key, val]) => {
+            Utils.objectEntries(queryParams.properties as { [key: string]: any }).forEach(([key, val]) => {
                 request.Req.url_params.push({ key: key, val: val.default ? val.default : '' });
             });
         } else {

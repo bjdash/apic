@@ -142,7 +142,7 @@ import { WebAgentComponent } from './components/settings/web-agent/web-agent.com
 import { IntroComponent } from './components/intro/intro.component';
 import { ProjectTagsComponent } from './components/designer/api-project-detail/project-home/project-tags/project-tags.component';
 import { MarkdownComponent } from './components/common/markdown/markdown.component';
-
+import { DataChangeNotifier } from './services/dataChangeNotifier.service';
 
 @NgModule({
   declarations: [
@@ -294,6 +294,7 @@ import { MarkdownComponent } from './components/common/markdown/markdown.compone
     TesterTabsService,
     TesterService,
     ReqHistoryService,
+    DataChangeNotifier,
     ProjectDetailRouteGuard,
     DashboardRouteGuard
   ],

@@ -1,51 +1,60 @@
 <h2 mat-dialog-title class="modal-title">Import Project</h2>
 <form [formGroup]="form" class="form-horizontal" name="import-project" (ngSubmit)="onSubmit()">
     <mat-dialog-content>
-        <div class="row vcenter">
-            <label class="control-label col-sm-3">Import from:</label>
-            <div class="col-sm-8">
-                <mat-radio-group aria-label="Select an option" formControlName="type">
-                    <mat-radio-button value="file">File</mat-radio-button>
-                    <mat-radio-button value="text">Text</mat-radio-button>
-                </mat-radio-group>
+        <div *ngIf="!flags.inConflict; else projNameConflict">
+            <div class="row vcenter">
+                <label class="control-label col-sm-3">Import from:</label>
+                <div class="col-sm-8">
+                    <mat-radio-group aria-label="Select an option" formControlName="type">
+                        <mat-radio-button value="file">File</mat-radio-button>
+                        <mat-radio-button value="text">Text</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+            <div class="row vcenter" *ngIf="form.value.type==='file'">
+                <label class="control-label col-sm-3">Browse File:</label>
+                <div class="col-sm-8">
+                    <input type="file" id="importProjFile" (change)="onFileChange($event)" class="btn btn-link">
+                </div>
+            </div>
+            <div class="row vcenter">
+                <label class="control-label col-sm-3">Group by: </label>
+                <div class="col-sm-8">
+                    <mat-radio-group aria-label="Select an option" formControlName="groupby">
+                        <mat-radio-button value="tag">Tag name</mat-radio-button>
+                        <mat-radio-button value="path">API Path</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+            <div class="row" *ngIf="form.value.type==='text'">
+                <label class="col-sm-12">Enter Text:</label>
+                <div class="btn-group toggle-group" role="group">
+                    <button type="button" mat-button [ngClass]="flags.impType == 'yaml'?'t_bg t_border':''" class="xs"
+                        (click)="flags.impType='yaml'">YAML</button>
+                    <button type="button" mat-button [ngClass]="flags.impType == 'json'?'t_bg t_border':''" class="xs"
+                        (click)="flags.impType='json'">JSON</button>
+                </div>
+                <div class="col-sm-12">
+                    <apic-ace id="import-ace" formControlName="text" [mode]="flags.impType">
+                    </apic-ace>
+                </div>
             </div>
         </div>
-        <div class="row vcenter" *ngIf="form.value.type==='file'">
-            <label class="control-label col-sm-3">Browse File:</label>
-            <div class="col-sm-8">
-                <input type="file" id="importProjFile" (change)="onFileChange($event)" class="btn btn-link">
-            </div>
-        </div>
-        <div class="row vcenter">
-            <label class="control-label col-sm-3">Group by: </label>
-            <div class="col-sm-8">
-                <mat-radio-group aria-label="Select an option" formControlName="groupby">
-                    <mat-radio-button value="tag">Tag name</mat-radio-button>
-                    <mat-radio-button value="path">API Path</mat-radio-button>
-                </mat-radio-group>
-            </div>
-        </div>
-        <div class="row" *ngIf="form.value.type==='text'">
-            <label class="col-sm-12">Enter Text:</label>
-            <div class="btn-group toggle-group" role="group">
-                <button type="button" mat-button [ngClass]="flags.impType == 'yaml'?'t_bg t_border':''" class="xs"
-                    (click)="flags.impType='yaml'">YAML</button>
-                <button type="button" mat-button [ngClass]="flags.impType == 'json'?'t_bg t_border':''" class="xs"
-                    (click)="flags.impType='json'">JSON</button>
-            </div>
-            <div class="col-sm-12">
-                <apic-ace id="import-ace" formControlName="text" [mode]="flags.impType">
-                </apic-ace>
-            </div>
-        </div>
-
-
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <div class="vcenter">
             <div class="gap">You can import swagger specs or APIC exported projects.</div>
-            <button mat-raised-button color="primary" class="left-auto sm gap">Import</button>
+            <button mat-raised-button color="primary" class="left-auto sm gap" *ngIf="!flags.inConflict">Import</button>
             <button mat-button type="button" class="sm" mat-dialog-close>Cancel</button>
         </div>
     </mat-dialog-actions>
 </form>
+
+<ng-template #projNameConflict>
+    <h3>
+        Another project with the same name already exists. How do you what to proceed?
+    </h3>
+    <button mat-raised-button type="button" class="sm gap" color="primary" (click)="overrideImport()">Override</button>
+    <button mat-raised-button type="button" class="sm gap" color="primary" (click)="keepBoth()">Keep both</button>
+    <button mat-button type="button" class="sm" (click)="flags.inConflict=false">Go back</button>
+</ng-template>

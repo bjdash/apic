@@ -36,7 +36,7 @@ export class Utils {
             .reduce((obj, item: KeyVal) => Object.assign(obj, { [item.key]: item.val }), {});
     }
 
-    static objectEntries<T>(obj: { [key: string]: T }): [string, T | any][] {
+    static objectEntries<T>(obj: { [key: string]: T }): [string, T][] {
         return obj ? (Object.entries(obj)) : [];
     }
 
@@ -342,6 +342,7 @@ export class Utils {
     }
 
     //https://github.com/angus-c/just/blob/master/packages/collection-clone/index.js
+    //TODO: Replace with structured clone
     static clone(obj) {
         if (typeof obj == 'function') {
             return obj;

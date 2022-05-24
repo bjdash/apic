@@ -102,7 +102,9 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
     display: none;
 }
-
+textarea[disabled], fieldset[disabled] button, fieldset[disabled] .mat-checkbox{
+    cursor: not-allowed;
+}
 /********** SCroll bar *******/
 ::-webkit-scrollbar {
     width: 8px;

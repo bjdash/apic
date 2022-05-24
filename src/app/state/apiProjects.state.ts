@@ -1,7 +1,8 @@
-import { State, Action, StateContext, Selector } from '@ngxs/store';
+import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { ApiProject } from './../models/ApiProject.model';
 import { ApiProjectsAction } from './../actions/apiProject.actions';
 import { Injectable } from '@angular/core';
+import { DataChangeNotifier } from '../services/dataChangeNotifier.service';
 
 // Section 2
 export class ApiProjectStateModel {
@@ -17,6 +18,11 @@ export class ApiProjectStateModel {
 })
 @Injectable()
 export class ApiProjectState {
+    constructor(store: Store, private dataChangeNotifier: DataChangeNotifier) {
+        this.dataChangeNotifier.apiProjects.onAdd$.subscribe(projects => {
+            store.dispatch(new ApiProjectsAction.Add(projects));
+        })
+    }
 
     @Action(ApiProjectsAction.Add)
     add({ getState, patchState }: StateContext<ApiProjectStateModel>, { payload }: ApiProjectsAction.Add) {

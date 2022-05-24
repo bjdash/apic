@@ -34,6 +34,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   flags = {
     allOptn: true,
     more: true,
+    traitPP: [], //path params from trait
     traitQP: [], //query params from trait
     traitHP: [] //header params from trait
   }
@@ -100,12 +101,14 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       }
     }
 
+    this.flags.traitPP = [];
     this.flags.traitQP = [];
     this.flags.traitHP = [];
     let processedEndp = { ...this.selectedEndp }
     if (this.selectedEndp.traits?.length > 0) {
       this.selectedEndp.traits.forEach((t: ApiTrait) => {
         processedEndp = ApiProjectUtils.importTraitData(t._id, processedEndp, this.selectedPROJ);
+        this.flags.traitPP = [...this.flags.traitPP, ...ApiProjectUtils.getTraitPathParamNames(t._id, this.selectedPROJ)]
         this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(t._id, this.selectedPROJ)]
         this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(t._id, this.selectedPROJ)]
       })
@@ -192,20 +195,25 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       this.toaster.warn('Path params should be alpha numeric and can only contain underscore (_). There are few in the url those are not. Please correct.');
     }
 
-    // let pathParams = { ...this.endpForm.value.pathParams };
-    let pathParams = { type: "object", properties: {}, required: [] }
-    if (!pathParams.properties) pathParams.properties = {};
-    if (!pathParams.required) pathParams.required = [];
+    let pathParams = this.endpForm.value.pathParams;
+    let traitPathParams = this.endpForm.value.traits.map(trait => {
+      return ApiProjectUtils.getTraitPathParamNames(trait._id, this.selectedPROJ);
+    }).flat();
+
+    Utils.objectKeys(pathParams.properties).forEach(key => {
+      if (!traitPathParams.includes(key)) {
+        delete pathParams.properties[key];
+        pathParams.required = pathParams.required.filter(e => e !== key);
+      }
+    })
+
     params.forEach(p => {
       if (!pathParams.properties[p]) {
         pathParams.properties[p] = { "type": "string" };
         pathParams.required.push(p)
       };
     })
-    //TODO: Preserve params imported from trait
     this.endpForm.patchValue({ pathParams })
-
-
   }
 
   importTraitData(traitId) {

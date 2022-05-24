@@ -49,6 +49,9 @@ export class ProjectExportModalComponent implements OnInit {
       case 'OAS':
         this.exportObj = this.swaggerService.exportOAS({ ...this.projToExport });
         break;
+      case 'OAS3':
+        this.exportObj = this.swaggerService.exportOAS3({ ...this.projToExport });
+        break;
       case 'RAW':
         this.exportObj = this.swaggerService.exportRAW({ ...this.projToExport }, '');
         break;
@@ -61,6 +64,12 @@ export class ProjectExportModalComponent implements OnInit {
   }
   jsonToString(json) {
     this.exportStr = JSON.stringify(json, null, '    ');
+    //TODO: Better handling of #/definitions/ for $ref
+    if (this.data.type === 'OAS3') {
+      this.exportStr = this.exportStr.replace(/#\/definitions\//g, '#\/components\/schemas\/')
+      this.exportStr = this.exportStr.replace(/#\/responses\//g, '#\/components\/responses\/')
+      this.exportStr = this.exportStr.replace(/#\/parameters\//g, '#\/components\/parameters\/')
+    }
   }
 
   download() {

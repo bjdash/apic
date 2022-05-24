@@ -3,15 +3,13 @@ import { Store } from '@ngxs/store';
 import { take } from 'rxjs/operators';
 import { EnvsAction } from '../actions/envs.action';
 import { CompiledApiRequest } from '../models/CompiledRequest.model';
-import { Env, ParsedEnv } from '../models/Envs.model';
-import { KeyVal } from '../models/KeyVal.model';
+import { ParsedEnv } from '../models/Envs.model';
 import { ApiRequest } from '../models/Request.model';
 import { RunResponse } from '../models/RunResponse.model';
 import { RunResult } from '../models/RunResult.model';
 import { TestResponse } from '../models/TestResponse.model';
 import { TestScript } from '../models/TestScript.model';
 import { EnvState } from '../state/envs.state';
-import apic from '../utils/apic';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { RequestUtils } from '../utils/request.util';
 import { ApicAgentService } from './apic-agent.service';
@@ -246,7 +244,7 @@ export class RequestRunnerService {
   }
 
   addHeadersFromObj(headers) {
-    for (let [key, val] of Utils.objectEntries(headers)) {
+    for (let [key, val] of Utils.objectEntries(headers as { [key: string]: string })) {
       if (key) {
         var headerName = key.toUpperCase().trim();
         if (RESTRICTED_HEADERS.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-')) {

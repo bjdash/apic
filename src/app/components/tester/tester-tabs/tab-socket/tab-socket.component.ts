@@ -6,7 +6,7 @@ import { InterpolationService } from 'src/app/services/interpolation.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import { RequestUtils } from 'src/app/utils/request.util';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { StompSocketService, StopSocketOption } from './stomp-socket.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';

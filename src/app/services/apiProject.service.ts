@@ -9,11 +9,12 @@ import { User } from '../models/User.model'
 import { SyncService } from './sync.service';
 import { UserState } from '../state/user.state';
 import { StompMessage } from '../models/StompMessage.model';
-import { SAVED_SETTINGS } from '../utils/constants';
+import { ENTITIES, ERROR_CODES, SAVED_SETTINGS } from '../utils/constants';
 import { ApiProjectStateSelector } from '../state/apiProjects.selector';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { delay, delayWhen, first } from 'rxjs/operators';
 import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
+import { DataChangeNotifier } from './dataChangeNotifier.service';
 
 @Injectable()
 export class ApiProjectService {
@@ -22,7 +23,7 @@ export class ApiProjectService {
     updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
 
 
-    constructor(private store: Store, private syncService: SyncService) {
+    constructor(private store: Store, private syncService: SyncService, private dataChangeNotifier: DataChangeNotifier) {
         this.store.select(UserState.getAuthUser).subscribe(user => {
             this.authUser = user;
         });
@@ -44,11 +45,9 @@ export class ApiProjectService {
         return this.store.select(ApiProjectStateSelector.getByIdDynamic(id))
     }
 
-    async addProject(proj: ApiProject, addWithSuffix?: boolean): Promise<ApiProject> {
+    async addProject(projToAdd: ApiProject, addWithSuffix?: boolean): Promise<ApiProject> {
         var ts = new Date().getTime();
-        proj._id = ts + '-' + apic.s12();
-        proj._created = ts;
-        proj._modified = ts;
+        let proj: ApiProject = { ...projToAdd, _id: ts + '-' + apic.s12(), _created: ts, _modified: ts }
         if (this.authUser?.UID) {
             proj.owner = this.authUser.UID;
         } else {
@@ -66,14 +65,14 @@ export class ApiProjectService {
                 }
             } while (duplicate);
         } else if (allProjs.find(p => p.title.toLowerCase() === proj.title.toLowerCase() && p.owner === proj.owner)) {
-            throw new Error('A project with the same name already exists.')
+            throw new Error(ERROR_CODES.get(ERROR_CODES.ESISTS, ENTITIES.APIProject))
         }
 
         return iDB.insert(iDB.TABLES.API_PROJECTS, proj).then((data: string[]) => {
             if (this.authUser?.UID) {
                 this.syncService.prepareAndSync('addAPIProject', [proj]);
             }
-            this.store.dispatch(new ApiProjectsAction.Add([proj]));
+            this.dataChangeNotifier.apiProjects.onAdd$.next([proj]);
             return proj;
         });
     }
@@ -81,7 +80,7 @@ export class ApiProjectService {
 
     async deleteAPIProject(id: string, owner: string) {
         if (owner && this.authUser?.UID !== owner) {
-            throw new Error('You can\'t delete this Project as you are not the owner. If you have permission you can edit it though.');
+            throw new Error(ERROR_CODES.get(ERROR_CODES.UNAUTHORIZED_NO_OWNER, ENTITIES.APIProject));
         }
         return iDB.delete(iDB.TABLES.API_PROJECTS, id).then((data) => { //data doesnt contain deleted ids
             if (this.authUser?.UID) {
@@ -95,7 +94,7 @@ export class ApiProjectService {
     async updateAPIProject(project: ApiProject): Promise<ApiProject> {
         let allProjs = await this.store.select(ApiProjectStateSelector.getPartial).pipe(first()).toPromise();
         if (allProjs.find(p => p.title.toLowerCase() === project.title.toLowerCase() && p._id != project._id && p.owner === project.owner)) {
-            throw new Error('A project with the same name already exists.')
+            throw new Error(ERROR_CODES.get(ERROR_CODES.ESISTS, ENTITIES.APIProject))
         }
         project._modified = Date.now();
         let data = await iDB.upsert('ApiProjects', project);
@@ -107,6 +106,31 @@ export class ApiProjectService {
         }
         this.store.dispatch(new ApiProjectsAction.Update([project]));
         return project;
+    }
+
+    async replaceExisting(project: ApiProject): Promise<ApiProject> {
+        let allProjs: ApiProject[] = await this.store.select(ApiProjectStateSelector.getAll).pipe(first()).toPromise();
+        let existing = allProjs.find(p => p.title.toLowerCase() == project.title.toLowerCase());
+        if (existing) {
+            let { _id, _created, _modified, owner, publishedId, simKey, team } = existing;
+            let toAdd: ApiProject = { ...project, _id, _created, _modified, owner, publishedId, simKey, team };
+            if (existing?.setting?.envId) {
+                toAdd.setting = { ... (toAdd.setting || existing.setting), envId: existing.setting.envId }
+            }
+
+            let data = await iDB.upsert('ApiProjects', toAdd);
+            if (data && this.authUser?.UID) {
+                var projsToSync = apic.removeDemoItems(toAdd); //returns list
+                if (projsToSync.length > 0) {
+                    this.syncService.prepareAndSync('updateAPIProject', projsToSync);
+
+                }
+            }
+            this.store.dispatch(new ApiProjectsAction.Update([toAdd]));
+            return toAdd;
+        } else {
+            throw new Error(ERROR_CODES.get(ERROR_CODES.NOT_FOUND, ENTITIES.APIProject))
+        }
     }
 
     async updateEndpoint(endpId, projId, delta) {
@@ -178,7 +202,7 @@ export class ApiProjectService {
 
     }
 
-    validateImportData(importData) {
+    isImportValid(importData) {
         const schema = {
             "type": "object",
             "properties": {

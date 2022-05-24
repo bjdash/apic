@@ -891,6 +891,10 @@ div.mat-menu-panel.noti-panel {
   transform: scale(1);
   animation: pulse-anim 2s infinite;
 }
+.rapidPulse {
+  transform: scale(1);
+  animation: pulse-anim 1s infinite;
+}
 @keyframes pulse-anim {
   0% {
     box-shadow: 0 0 0 0 var(--accent-color);

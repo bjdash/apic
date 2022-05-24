@@ -22,15 +22,15 @@
     </div>
     <div class="new-folder" *ngIf="flags.newFolder;">
         <form [formGroup]="newFolderForm">
-            <div class="input-group">
+            <div class="input-group margB5">
                 <input type="text" maxlength="30" class="form-control" formControlName="name" placeholder="Folder Name"
                     (keydown.enter)="createFolder()" id="newFolderName" />
                 <span class="input-group-btn">
-                    <button mat-icon-button class="green" (click)="createFolder();" [disabled]="newFolderForm.invalid"
-                        title="Create" type="button">
+                    <button mat-icon-button class="green sm" (click)="createFolder();"
+                        [disabled]="newFolderForm.invalid" title="Create" type="button">
                         <mat-icon>done_outline</mat-icon>
                     </button>
-                    <button mat-icon-button (click)="flags.newFolder= false;newFolderForm.reset()" class="red"
+                    <button mat-icon-button (click)="flags.newFolder= false;newFolderForm.reset()" class="red sm"
                         title="Cancel">
                         <mat-icon>close</mat-icon>
                     </button>

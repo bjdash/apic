@@ -203,7 +203,7 @@
                 </mat-tab>
                 <mat-tab label="Path Params">
                     <ng-jsonschema
-                        [options]="{mode:'list', disableManualAdd:true, listModeMsg:'Define Path params here and reuse them with endpoints.'}"
+                        [options]="{mode:'list', disableManualAdd:true, disabledKeys:flags.traitPP, listModeMsg:'Define Path params here and reuse them with endpoints.'}"
                         (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
                     </ng-jsonschema>
                 </mat-tab>

@@ -1,6 +1,6 @@
 <section class="json-schema">
     <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0" class="sm"
-        *ngIf="options.mode=='object'">
+        *ngIf="options.mode=='object'" #tabGroup>
         <mat-tab label="Designer">
             <div index="0" heading="Designer">
                 <ng-container [ngTemplateOutlet]="SchemaRef">
@@ -8,7 +8,8 @@
             </div>
         </mat-tab>
         <mat-tab label="Json Schema">
-            <apic-ace id="json-schema" [(text)]="schemaStr.original" [mode]="'json'" #editor>
+            <apic-ace id="json-schema" [readOnly]="options?.readOnly" [(text)]="schemaStr.original" [mode]="'json'"
+                #editor>
             </apic-ace>
         </mat-tab>
     </mat-tab-group>
@@ -27,7 +28,7 @@
 
 <ng-template #SchemaRef>
     <div>
-        <fieldset [disabled]="readonly" class="js-fieldset">
+        <fieldset [disabled]="options?.readOnly" class="js-fieldset">
             <div class="main">
                 <ng-jsonschema-main [options]="options" [refreshSchema]="refreshSchema.bind(this)" [models]="models"
                     (onAddNewProp)="addNewProp($event)" [removeEntity]="removeEntity.bind(this)"

@@ -102,6 +102,10 @@ function getConstants() {
 export const Const = getConstants();
 export const ApicUrls = getURLs();
 export const DemoData = getDemoData();
+export enum ENTITIES {
+    APIProject = 'API Project',
+    Environment = 'Environment'
+}
 export const HTTP_HEADERS = ['Accept', 'Accept-Charset', 'Accept-Encoding', 'Accept-Language', 'Accept-Datetime', 'Authorization', 'Cache-Control', 'Connection', 'Cookie', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'Expect', 'Forwarded', 'From', 'Host', 'If-Match', 'If-Modified-Since', 'If-None-Match', 'If-Range', 'If-Unmodified-Since', 'Max-Forwards', 'Origin', 'Pragma', 'Proxy-Authorization', 'Range', 'Referer', 'Referer [sic]', 'TE', 'User-Agent', 'Upgrade', 'Via', 'Warning', 'X-Requested-With', 'DNT', 'X-Forwarded-For', 'X-Forwarded-Host', 'X-Forwarded-Proto', 'Front-End-Https', 'X-Http-Method-Override', 'X-ATT-DeviceId', 'X-Wap-Profile', 'Proxy-Connection', 'X-UIDH', 'X-Csrf-Token'];
 export const HTTP_METHODES = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 export const MIMEs = ['application/json', 'application/javascript', 'application/x-www-form-urlencoded', 'application/xml', 'multipart/form-data', 'text/html', 'text/plain', 'application/zip', 'application/EDI-X12', 'application/EDIFACT', 'application/atom+xml', 'application/font-woff', 'application/gzip', 'application/octet-stream', 'application/ogg', 'application/pdf', 'application/postscript', 'application/soap+xml', 'application/x-bittorrent', 'application/x-tex', 'application/xhtml+xml', 'application/xml-dtd', 'application/xop+xml'];
@@ -265,3 +269,10 @@ export const SAVED_SETTINGS = {
 }
 
 export const AGENT_DEFAULT_CONF = { port: 8008, timeoutMs: 120000 }
+
+export const ERROR_CODES = {
+    ESISTS: 'A/an %s with the same name already exists.',
+    NOT_FOUND: 'Specified %s not found',
+    UNAUTHORIZED_NO_OWNER: 'You can\'t delete this %s as you are not the owner. If you have permission you can still edit it.',
+    get: (str: string, ...args) => args.reduce((s, v) => s.replace('%s', v), str)
+}

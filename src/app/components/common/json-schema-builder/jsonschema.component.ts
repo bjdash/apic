@@ -8,17 +8,22 @@ import {
   forwardRef,
   Output,
   EventEmitter,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { JsonSchemaService } from './jsonschema.service';
 import { Utils } from '../../../services/utils.service'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatTabGroup } from '@angular/material/tabs';
 
 export interface JsonSchemaOption {
   mode?: 'object' | 'list',
   disableManualAdd?: boolean,
   listModeMsg?: string,
   disabledKeys?: string[],
-  showTestBuilder?: boolean
+  showTestBuilder?: boolean,
+  readOnly?: boolean,
+  requiredOnAdd?: boolean
 }
 
 @Component({
@@ -35,7 +40,7 @@ export interface JsonSchemaOption {
   encapsulation: ViewEncapsulation.None,
 })
 
-export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
+export class JsonSchemaComponent implements OnInit, ControlValueAccessor, OnChanges {
   private _defaultOption: JsonSchemaOption = {
     mode: 'object',
     disabledKeys: [],
@@ -43,6 +48,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   }
 
   @ViewChild('editor') editor;
+  @ViewChild('tabGroup') tabGroup: MatTabGroup;
 
   @Input()
   options: JsonSchemaOption;
@@ -78,7 +84,6 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
     menuOpen: true,
   };
   modelRef: string = '';
-  readonly;
   entity;
   selectedEntity;
   JsonSchema = new JsonSchemaService();
@@ -89,11 +94,19 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
   constructor(private utils: Utils) {
 
   }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes?.options) {
+      this.options = { ... this._defaultOption, ...changes.options.currentValue };
+    }
+  }
   // ngAfterViewChecked(): void {}
   writeValue(value: any): void {
     if (value !== undefined) {
       this.schema = value;
       this.initRootElement(this.schema);
+    }
+    if (this.tabGroup?.selectedIndex == 1) {
+      this.convertObj2Schema();
     }
   }
   registerOnChange(fn: any): void {
@@ -211,7 +224,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
       case 'Object':
         var apic = this.JsonSchema.newString(
           '',
-          false,
+          this.options?.requiredOnAdd,
           entity._parent + '.' + entity._key.replace('##ROOT##', 'data')
         );
         entity._properties.push(apic);
@@ -222,7 +235,7 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor {
       case 'XOf':
         var apic = this.JsonSchema.newString(
           '',
-          false,
+          this.options?.requiredOnAdd,
           entity._parent + '.' + entity._key.replace('##ROOT##', 'data')
         );
         apic._hideKey = true;

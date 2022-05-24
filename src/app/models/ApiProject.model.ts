@@ -88,11 +88,20 @@ export interface ApiProject {
     owner?: string,
     team?: string,
     description?: string,
-    contact?: any,
+    contact?: {
+        name?: string,
+        url?: string,
+        email?: string
+    },
     folders?: { [key: string]: ApiFolder },
     models?: { [key: string]: ApiModel },
     traits?: { [key: string]: ApiTrait },
-    setting?: any,
+    setting?: {
+        basePath?: string,
+        envId?: string,
+        host?: string,
+        protocol?: string
+    },
     endpoints?: { [key: string]: ApiEndp },
     termsOfService?: string,
     license?: {

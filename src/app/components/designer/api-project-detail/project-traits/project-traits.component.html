@@ -73,7 +73,7 @@
             <mat-tab-group class="margV10" animationDuration="0ms">
                 <mat-tab label="Path Params">
                     <ng-jsonschema (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams"
-                        [options]="{mode:'list', listModeMsg:'Define Path params here and reuse them with endpoints.'}">
+                        [options]="{mode:'list', requiredOnAdd:true, listModeMsg:'Define Path params here and reuse them with endpoints.'}">
                     </ng-jsonschema>
                 </mat-tab>
                 <mat-tab label="Query Params">

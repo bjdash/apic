@@ -10,7 +10,7 @@ import { ImportProjectComponent } from './import-project/import-project.componen
 import { ApiProjectStateSelector } from '../../state/apiProjects.selector';
 import { User } from 'src/app/models/User.model';
 import { UserState } from 'src/app/state/user.state';
-
+import { DataChangeNotifier } from 'src/app/services/dataChangeNotifier.service';
 
 @Component({
   selector: 'app-designer',
@@ -20,11 +20,21 @@ import { UserState } from 'src/app/state/user.state';
 export class DesignerComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
   authUser: User;
+  flags = {
+    justAdded: ''
+  }
 
-  constructor(private store: Store, private dialog: MatDialog) {
+  constructor(private store: Store, private dialog: MatDialog, dataChangeNotifier: DataChangeNotifier) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
     });
+
+    dataChangeNotifier.apiProjects.onAdd$.subscribe(projects => {
+      this.flags.justAdded = projects[0]?._id;
+      setTimeout(() => {
+        this.flags.justAdded = '';
+      }, 15000);
+    })
   }
   ngOnDestroy(): void {
   }
