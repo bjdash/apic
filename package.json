@@ -60,7 +60,7 @@
     "@types/jasminewd2": "^2.0.10",
     "@types/node": "^12.20.24",
     "codelyzer": "^6.0.2",
-    "electron": "^13.3.0",
+    "electron": "^13.6.6",
     "electron-builder": "^22.11.7",
     "gulp": "^4.0.2",
     "gulp-bump": "^3.2.0",
