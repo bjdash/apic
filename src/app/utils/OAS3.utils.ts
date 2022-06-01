@@ -1,9 +1,11 @@
-import { ApiProject } from '../models/ApiProject.model';
+import { ApiEndp, ApiFolder, ApiModel, ApiProject, ApiTag, ApiTrait, SecurityDef } from '../models/ApiProject.model';
 import { OpenAPIV2, OpenAPIV3_1 } from 'openapi-types';
 import { Utils } from '../services/utils.service';
 import { SwaggerOption } from '../services/swagger.service';
 import { METHOD_WITH_BODY } from './constants';
 import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
+import { Env } from '../models/Envs.model';
+import apic from './apic';
 
 type OasTypes = 'OAS2' | 'OAS3';
 type SchemaType<T> =
@@ -22,6 +24,12 @@ type PathType<T> =
     T extends "OAS3" ? { [key: string]: OpenAPIV3_1.PathItemObject } :
     T extends "OAS2" ? { [key: string]: OpenAPIV2.PathItemObject } :
     never;
+type PathXType<T extends {} = {}> = {
+    $ref?: string,
+    parameters?: (OpenAPIV2.Parameters | (OpenAPIV2.ReferenceObject | OpenAPIV2.ParameterObject)[])
+} & {
+        [method in (OpenAPIV2.HttpMethods | OpenAPIV3_1.HttpMethods)]?: (OpenAPIV3_1.OperationObject<T> | OpenAPIV2.OperationObject<T>)
+    };
 
 export class OAS3Utils {
     static getInfo(proj: ApiProject): OpenAPIV3_1.InfoObject {
@@ -50,13 +58,19 @@ export class OAS3Utils {
         return info;
     }
 
-    static getServers(proj: ApiProject): OpenAPIV3_1.ServerObject[] {
-        //TODO: Read other env vars if any and add to variables
+    static getServers(proj: ApiProject, env: Env): OpenAPIV3_1.ServerObject[] {
         if (!proj.setting.protocol) proj.setting.protocol = '';
+        let variables = {};
+        env?.vals.forEach(kv => {
+            if (!kv.readOnly) {
+                variables[kv.key] = { default: kv.val }
+            }
+        })
         return (Array.isArray(proj.setting.protocol) ? proj.setting.protocol : [proj.setting.protocol]).map(scheme => {
             let basePath = (proj.setting.basePath || '').replace(/\/$/, '') // Trailing slashes generally shouldn't be included
             let server = {
-                url: (scheme ? scheme + ':' : '') + '//' + (proj.setting.host || '') + basePath
+                url: (scheme ? scheme + ':' : '') + '//' + (proj.setting.host || '') + basePath,
+                variables
             }
             return server;
         });
@@ -88,7 +102,7 @@ export class OAS3Utils {
 
     static getSecuritySchemes(proj: ApiProject, type: OasTypes) {
         var secDefs = {};
-        proj.securityDefinitions.forEach(function (def) {
+        proj.securityDefinitions?.forEach(function (def) {
             var defObj: any = {
                 type: def.type,
                 description: def.description || ''
@@ -113,7 +127,7 @@ export class OAS3Utils {
                         break;
                     case 'oauth2':
                         let flow: any = {};
-                        let flowName = def.name;
+                        let flowName = def.oauth2.flow;
                         if (def.oauth2.flow == 'application') {
                             flowName = 'clientCredentials';
                         }
@@ -489,36 +503,690 @@ export class OAS3Utils {
 
     }
 
-    static parseOasSpecBase(spec: OpenAPIV3_1.Document) {
+    static parseOasSpecBase(spec: OpenAPIV3_1.Document | OpenAPIV2.Document) {
         var proj: ApiProject = {
             title: spec.info.title,
             description: spec.info.description || '',
             version: spec.info.version || '',
             termsOfService: spec.info.termsOfService || '',
-            setting: {}
+            setting: {},
+            folders: {},
+            models: {},
+            traits: {},
+            endpoints: {}
         }
         if (spec.info.license) {
             proj.license = {
                 name: spec.info.license.name || '',
                 url: spec.info.license.url || ''
-            };
-            proj.license.name = spec.info.license.name ? spec.info.license.name : '';
-            proj.license.url = spec.info.license.url ? spec.info.license.url : '';
+            }; '';
+        }
+        if (spec.info.contact) {
+            proj.contact = {
+                name: spec.info.contact.name ?? '',
+                email: spec.info.contact.email ?? '',
+                url: spec.info.contact.url ?? '',
+            }
         }
         return proj;
     }
 
-    static parseServers(spec: OpenAPIV3_1.Document) {
-        var server = spec.servers && spec.servers[0];
-        if (server) {
-            let serverUrl = server.url, variables = server.variables;
-            for (var variable in variables) {
-                var variableObject = variables[variable] || {};
-                if (variableObject['default']) {
-                    var re = RegExp('{' + variable + '}', 'g');
-                    serverUrl = serverUrl.replace(re, variableObject['default']);
+    static parseServers(spec: OpenAPIV3_1.Document | OpenAPIV2.Document): Env[] {
+        if ('openapi' in spec) {
+            return spec.servers?.map((server, i) => {
+                let env: Env = {
+                    name: spec.info.title + '-env' + (i > 0 && i),
+                    vals: Utils.objectEntries(server.variables).map(([key, val]) => {
+                        return { key, val: val.default }
+                    }),
+                }
+                //populate host, basePath & scheme
+                var urlObj = new URL(server.url);
+                env.vals.push({ key: 'host', val: urlObj.host, readOnly: true });
+                env.vals.push({ key: 'basePath', val: urlObj.pathname, readOnly: true });
+                env.vals.push({ key: 'scheme', val: urlObj.protocol.slice(0, -1), readOnly: true });
+                return env;
+            })
+        } else if ('swagger' in spec) {
+            return [{
+                name: spec.info.title + '-env',
+                vals: [{
+                    key: 'basePath',
+                    val: spec.basePath || ''
+                }, {
+                    key: 'host',
+                    val: spec.host || ''
+                }, {
+                    key: 'scheme',
+                    val: spec.schemes.length > 0 ? spec.schemes[0] : 'http'
+                }]
+            }]
+        }
+    }
+
+    static parseTags(spec: OpenAPIV3_1.Document | OpenAPIV2.Document): ApiTag[] {
+        return (spec.tags || []).map(tag => {
+            return {
+                name: tag.name,
+                description: tag.description,
+                ...(tag.externalDocs && {
+                    externalDocs: {
+                        url: tag.externalDocs.url,
+                        description: tag.externalDocs.description
+                    }
+                }),
+                xProperty: Utils.objectEntries(tag as { [key: string]: any })
+                    .filter(props => !['name', 'description', 'externalDocs'].includes(props[0]))
+                    .map(([key, val]) => { return { key, val } })
+            }
+        })
+    }
+
+    static parseSecuritySchemes(spec: OpenAPIV3_1.Document | OpenAPIV2.Document): SecurityDef[] {
+        if ('openapi' in spec) {
+            return Utils.objectEntries(spec.components.securitySchemes).map(([name, scheme]) => {
+                let secDef: SecurityDef = {
+                    name,
+                    type: 'basic',
+                    description: ('description' in scheme) ? scheme.description : '',
+                    xProperty: Utils.objectEntries(scheme as { [key: string]: any })
+                        .filter(([key, val]) => key.startsWith('x-'))
+                        .map(([key, val]) => {
+                            return {
+                                key,
+                                val: typeof val === 'string' ? val : JSON.stringify(val)
+                            }
+                        })
+                }
+                if ('type' in scheme) {
+                    switch (scheme.type) {
+                        case 'http':
+                            secDef.type = 'basic';
+                            break;
+                        case 'apiKey':
+                            secDef.type = 'apiKey';
+                            secDef.apiKey = {
+                                name: scheme.name,
+                                in: scheme.in
+                            }
+                            break;
+                        case 'oauth2':
+                            secDef.type = 'oauth2';
+                            let flowName = Object.keys(scheme.flows)[0],
+                                flow = scheme.flows[flowName];
+                            let oauth2: any = {}
+                            if (flowName = 'clientCredentials') {
+                                oauth2.flow = 'application';
+                            } else if (flowName = 'authorizationCode') {
+                                oauth2.flow = 'accessCode';
+                            } else {
+                                oauth2.flow = flowName;
+                            }
+                            oauth2.authorizationUrl = flow.authorizationUrl ?? '';
+                            oauth2.tokenUrl = flow.tokenUrl ?? '';
+                            secDef.oauth2 = oauth2;
+                            oauth2.scopes = Utils.objectEntries(flow.scopes).map(([key, val]) => { return { key, val } });
+                            break;
+                        default:
+                            console.warn(`Security scheme ${scheme.type} not supported yet.`)
+                    }
+                }
+                return secDef;
+            })
+        } else {
+            return Utils.objectEntries(spec.securityDefinitions).map(([name, def]) => {
+                var secdef: SecurityDef = {
+                    name: name,
+                    type: def.type,
+                    description: def.description,
+                    xProperty: []
+                }
+
+                //import x-properties
+                Utils.objectKeys(def).forEach((key) => {
+                    if (key.startsWith('x-')) {
+                        secdef.xProperty.push({
+                            key: key,
+                            val: def[key]
+                        })
+                    }
+                })
+                switch (def.type) {
+                    case 'apiKey':
+                        secdef.apiKey = {
+                            in: def.in,
+                            name: def.name
+                        }
+                        break;
+                    case 'oauth2':
+                        secdef.oauth2 = {
+                            flow: def.flow,
+                            // authorizationUrl: def. authorizationUrl,
+                            scopes: []
+                        }
+                        if (def.flow == 'implicit' || def.flow == 'accessCode') {
+                            secdef.oauth2.authorizationUrl = def.authorizationUrl;
+                        }
+                        if (['password', 'application', 'accessCode'].includes(def.flow)) {
+                            secdef.oauth2.tokenUrl = (def as (OpenAPIV2.SecuritySchemeOauth2AccessCode | OpenAPIV2.SecuritySchemeOauth2Password | OpenAPIV2.SecuritySchemeOauth2Application)).tokenUrl;
+                        }
+                        for (const [scope, desc] of Utils.objectEntries(def.scopes)) {
+                            secdef.oauth2.scopes.push({ key: scope, val: desc });
+                        }
+                        if (secdef.oauth2.scopes.length == 0) {
+                            secdef.oauth2.scopes.push({ key: '', val: '' });
+                        }
+                        break;
+                }
+                return secdef;
+            })
+        }
+    }
+
+
+    static parseSchemaDefinitions(spec: OpenAPIV3_1.Document | OpenAPIV2.Document): { folders: { [key: string]: ApiFolder }, models: { [key: string]: ApiModel } } {
+        let modelFolder = {
+            _id: apic.s12(),
+            name: 'Models',
+            desc: 'This folder will contain all the models.'
+        };
+        let models = {}
+
+        let definitions = 'openapi' in spec ? spec.components.schemas : spec.definitions;
+        for (const [name, model] of Utils.objectEntries(definitions as { [key: string]: any })) {
+            var id = apic.s12(), newModel: any = {};
+            newModel._id = id; newModel.name = name;
+            newModel.nameSpace = name;
+
+            //add type if missing
+            if (!model.type) {
+                if (model.properties) model.type = 'object';
+                else if ('items' in model) model.type = 'array';
+                // else if ($ref' in model) delete model.type; //TODO: check if required
+                else model.type = 'string';
+            }
+            newModel.data = JsonSchemaService.sanitizeModel(model);
+            newModel.folder = modelFolder._id;
+            models[newModel._id] = newModel;
+        }
+        return {
+            folders: {
+                [modelFolder._id]: modelFolder
+            },
+            models
+        };
+    }
+
+    static parseParameters(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, proj: ApiProject): { [key: string]: ApiTrait } {
+        let parameters = 'openapi' in spec ? spec.components.parameters : spec.parameters;
+        let traits: ApiTrait[] = Utils.objectValues(proj.traits);
+        //TODO: Add support for body params available in OAS3 in traits
+        if (parameters) {
+            for (const [name, param] of Utils.objectEntries(parameters as { [key: string]: any })) {
+                let traitName = '';
+                if (name.indexOf('trait') === 0 && (name.match(/\./g) || []).length === 2) {
+                    traitName = name.split('.')[1];
+                } else {
+                    traitName = name;
+                }
+                //check if trait is already there
+                var tmpTrait = traits.find(t => t.name === traitName);
+
+                //if trait is not there create one
+                if (!tmpTrait) {
+                    tmpTrait = {
+                        _id: apic.s12(),
+                        name: traitName,
+                        queryParams: {
+                            type: ["object"],
+                            properties: {},
+                            required: []
+                        },
+                        folder: '',
+                        headers: {
+                            type: ["object"],
+                            properties: {},
+                            required: []
+                        },
+                        pathParams: {
+                            type: ["object"],
+                            properties: {},
+                            required: []
+                        },
+                        responses: []
+                    };
+                    traits.push(tmpTrait);
+                }
+
+                let type;
+                if ('in' in param) {
+                    switch (param.in) {
+                        case 'header':
+                            type = 'headers';
+                            break;
+                        case 'query':
+                            type = 'queryParams';
+                            break;
+                        case 'path':
+                            type = 'pathParams';
+                            break;
+                        default:
+                            console.error(`${param.in} is not yet supported in params (trait).`);
+                    }
+
+                    if (['header', 'query', 'path'].indexOf(param.in) >= 0) {
+                        let schema: any = param.schema;
+                        tmpTrait[type].properties[param.name] = {
+                            type: schema.type,
+                            default: schema.default ?? '',
+                            description: schema.description ? schema.description : ''
+                        };
+                        if ('items' in schema) {
+                            tmpTrait[type].properties[param.name].items = schema.items;
+                        }
+                        if (param.required) {
+                            tmpTrait[type].required.push(param.name);
+                        }
+                    } else {
+                        //TODO:add support for other params
+                        console.warn(`${param.in} is not supported yet.`)
+                    }
                 }
             }
+        }
+
+        return traits.reduce((obj, trait) => {
+            const key = trait._id;
+            return ({ ...obj, [key]: trait })
+        }, {});
+    }
+
+    static parseResponses(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, proj: ApiProject): { [key: string]: ApiTrait } {
+        let responses = 'openapi' in spec ? spec.components.responses : spec.responses;
+        let traits: ApiTrait[] = Utils.objectValues(proj.traits);
+        if (responses) {
+            for (const [name, resp] of Utils.objectEntries(responses as { [key: string]: any })) {
+                let traitName = '', code = name, noneStatus = false;
+                if (name.indexOf('trait') === 0 && name.indexOf('.') > 0) {
+                    traitName = name.split('.')[1];
+                    code = name.split('.')[2];
+                    if (!/^\d+$/.test(code)) {
+                        noneStatus = true;
+                    }
+                } else {
+                    traitName = name;
+                    noneStatus = true;
+                }
+
+                //check if trait is already there
+                var tmpTrait = traits.find(t => t.name === traitName);
+                //if trait is not there create one
+                if (!tmpTrait) {
+                    tmpTrait = {
+                        _id: apic.s12(),
+                        name: traitName,
+                        queryParams: {
+                            type: ["object"],
+                            properties: {},
+                            required: []
+                        },
+                        folder: '',
+                        headers: {
+                            type: ["object"],
+                            properties: {},
+                            required: []
+                        },
+                        pathParams: {
+                            type: ["object"],
+                            properties: {},
+                            required: []
+                        },
+                        responses: []
+                    };
+                    traits.push(tmpTrait);
+                }
+
+                //resp ->description, schema
+                if ('openapi' in spec) {
+                    Utils.objectEntries(resp.content as { content?: { [media: string]: OpenAPIV3_1.MediaTypeObject } })
+                        .forEach(([mime, schemaData], index) => {
+                            let tmpResp = {
+                                code: code + (index > 0 ? ('-' + mime) : ''),
+                                data: schemaData.schema,
+                                desc: resp.description,
+                                noneStatus
+                            };
+                            tmpTrait.responses.push(tmpResp);
+                        })
+                } else {
+                    let tmpResp = {
+                        code: code,
+                        data: resp.schema,
+                        desc: resp.description,
+                        noneStatus: noneStatus
+                    };
+                    tmpTrait.responses.push(tmpResp);
+                }
+            };
+        }
+        return traits.reduce((obj, trait) => {
+            const key = trait._id
+            return ({ ...obj, [key]: trait })
+        }, {})
+    }
+
+    static parsePaths(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, optn, proj: ApiProject): { folders: { [key: string]: ApiFolder }, endpoints: { [key: string]: ApiEndp } } {
+        let paths = spec.paths;
+        let endpoints: ApiEndp[] = [];
+        //parsing endpoints
+        var folders: ApiFolder[] = []
+        if (paths) {
+            for (const [pathName, apis] of Utils.objectEntries(paths as PathXType)) {
+                var fname = '';
+                if (optn.groupby === 'path') {
+                    fname = pathName.substring(1, pathName.length);
+                    fname = fname.substring(0, fname.indexOf('/') > 0 ? fname.indexOf('/') : fname.length);
+                }
+                var folderId;
+                if (fname) {
+                    let existingFolder = folders.find(f => f.name === fname);
+                    if (!existingFolder) {
+                        let pathFolder = {
+                            _id: apic.s12(),
+                            name: fname,
+                            desc: `This folder contains the requests for endpoint ${pathName}`
+                        };
+                        folders.push(pathFolder);
+                        folderId = pathFolder._id;
+                    } else {
+                        folderId = existingFolder._id;
+                    }
+                }
+
+                for (const [method, path] of Utils.objectEntries(apis as { [key: string]: (OpenAPIV3_1.OperationObject | OpenAPIV2.OperationObject) })) {
+                    if (optn.groupby === 'tag') {
+                        let fname = 'Untagged';
+                        if (path.tags && path.tags[0]) {
+                            fname = path.tags[0];
+                        }
+                        let existingFolder = folders.find(f => f.name === fname);
+                        if (!existingFolder) {
+                            let pathFolder = {
+                                _id: apic.s12(),
+                                name: fname,
+                                desc: `This folder contains the requests for endpoint ${pathName}`
+                            }
+                            folders.push(pathFolder);
+                            folderId = pathFolder._id;
+                        } else {
+                            folderId = existingFolder._id;
+                        }
+                    }
+                    if (['get', 'post', 'put', 'delete', 'options', 'head', 'patch', 'trace'].indexOf(method) >= 0) {
+                        var tmpEndP: ApiEndp = {
+                            _id: apic.s12(),
+                            path: pathName,
+                            method,
+                            headers: {
+                                properties: {},
+                                type: ['object'],
+                                required: []
+                            },
+                            queryParams: {
+                                properties: {},
+                                type: ['object'],
+                                required: []
+                            },
+                            pathParams: {
+                                properties: {},
+                                type: ['object'],
+                                required: []
+                            },
+                            body: null,
+                            prerun: '',
+                            postrun: '',
+                            traits: [],
+                            responses: [],
+                            folder: folderId,
+                            tags: path.tags || [],
+                            summary: path.summary || '',
+                            description: path.description || '',
+                            operationId: path.operationId || '',
+                            deprecated: !!path.deprecated,
+                            schemes: []
+                        }
+                        let produces = new Set<string>(), consumes = new Set<string>();
+                        if ('produces' in path) {
+                            path.produces.forEach(produces.add.bind(produces))
+                        }
+                        if ('consumes' in path) {
+                            path.consumes.forEach(consumes.add.bind(produces))
+                        }
+
+                        if ('schemes' in path) {
+                            tmpEndP.schemes = path.schemes?.map((s) => {
+                                return { key: s.toLowerCase(), val: s };
+                            }) || [];
+                        }
+
+                        if (path.parameters) {
+                            for (var i = 0; i < path.parameters.length; i++) {
+                                var param = path.parameters[i];
+                                var ptype = undefined;
+                                if ('in' in param) {
+                                    switch (param.in) {
+                                        case 'header':
+                                            ptype = 'headers';
+                                            break;
+                                        case 'query':
+                                            ptype = 'queryParams';
+                                            break;
+                                        case 'path':
+                                            ptype = 'pathParams';
+                                            break;
+                                        case 'body':
+                                            ptype = 'body';
+                                            break;
+                                        case 'formData':
+                                            ptype = 'formData';
+                                            break;
+                                        default:
+                                            if (!('ref' in param)) {
+                                                console.error('not supported', param);
+                                            }
+                                    }
+
+                                    let schema = 'schema' in param ? (param as OpenAPIV3_1.ParameterBaseObject).schema : param as (OpenAPIV2.InBodyParameterObject | OpenAPIV2.GeneralParameterObject);
+                                    if (['headers', 'queryParams', 'pathParams'].indexOf(ptype) >= 0) {
+                                        //if not a $ref
+                                        if ('$ref' in schema) {
+                                            tmpEndP[ptype].properties[param.name] = schema
+                                        } else {
+                                            tmpEndP[ptype].properties[param.name] = {
+                                                type: schema.type,
+                                                default: schema.default ?? '',
+                                                description: schema.description ?? ''
+                                            };
+                                            if ('items' in schema) {
+                                                tmpEndP[ptype].properties[param.name].items = schema.items;
+                                            }
+                                            if (param.required) {
+                                                tmpEndP[ptype].required.push(param.name);
+                                            }
+                                        }
+                                    } else if (ptype === 'body') { //applicable for OAS2
+                                        tmpEndP.body = {
+                                            type: 'raw',
+                                            data: Object.assign({}, param.schema)
+                                        };
+                                    } else if (ptype === 'formData') { //applicable for QAS2
+                                        tmpEndP.body = {
+                                            type: 'x-www-form-urlencoded',
+                                            data: []
+                                        };
+                                        if ('$ref' in schema) {
+                                            //TODO:
+                                        } else {
+                                            tmpEndP.body.data.push({
+                                                key: param.name,
+                                                type: schema.type,
+                                                desc: param.description,
+                                                required: param.required
+                                            });
+                                            if (schema.type === 'file') {
+                                                tmpEndP.body.type = 'form-data';
+                                            }
+                                        }
+                                    }
+                                } else if (param.$ref) {
+                                    let ref = param.$ref;
+                                    let traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
+                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/\./g) || []).length === 2) {
+                                        traitName = ref.split('.')[1];
+                                    } let trait = Utils.objectValues(proj.traits).find(t => t.name === traitName); if (trait) {//if trait not added then push it
+                                        let existing = false;
+                                        for (let j = 0; j < tmpEndP.traits.length; j++) {
+                                            if (tmpEndP.traits[j]._id === trait._id) {
+                                                existing = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!existing) {
+                                            tmpEndP.traits.push({ _id: trait._id, name: trait.name });
+                                        }
+                                    } else {
+                                        console.error(`unresolved $ref: ${ref}`);
+                                    }
+                                }
+                            }
+                        }
+
+                        //for OAS3 parse bodyParam
+                        if ('requestBody' in path && path.requestBody && 'content' in path.requestBody) {
+                            let reqBodyContent = path.requestBody.content; //currently apic only supports single body type per endpoint
+                            let [contentType, schemaData] = Utils.objectEntries(reqBodyContent)[0] ?? [];
+                            if (contentType && schemaData) {
+                                consumes.add(contentType);
+                                let body: {
+                                    type: 'raw' | 'form-data' | 'x-www-form-urlencoded' | 'graphql',
+                                    data: any
+                                } = {
+                                    type: "raw", data: {}
+                                }
+                                switch (contentType) {
+                                    case 'multipart/form-data':
+                                    case 'application/x-www-form-urlencoded':
+                                        body.type = contentType === 'multipart/form-data' ? 'form-data' : 'x-www-form-urlencoded';
+                                        //TODO:Test this
+                                        if ('$ref' in schemaData.schema) {
+                                            body.data = schemaData.schema;
+                                        } else {
+                                            let required = schemaData.schema?.required || [];
+                                            body.data = Utils.objectEntries(schemaData.schema?.properties)
+                                                .filter(([name, detail]) => 'type' in detail)
+                                                .map(([name, detail]) => {
+                                                    return {
+                                                        key: name,
+                                                        type: 'type' in detail ? (detail.format == 'binary' ? 'file' : detail.type) : 'string',
+                                                        required: required.includes(name),
+                                                        desc: detail.description
+                                                    }
+                                                })
+                                        }
+                                        break
+                                    default:
+                                        body.data = body;
+                                }
+                                tmpEndP.body = body
+                            }
+                        }
+
+                        if (path.responses) {
+                            for (const [statusCode, resp] of Utils.objectEntries(path.responses as { [key: string]: any })) {
+                                let moveRespToTrait = false, refName;
+                                if ('$ref' in resp) {
+                                    let ref = resp.$ref;
+                                    let traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
+                                    refName = traitName;
+                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/\./g) || []).length === 2) {
+                                        let refSplit = ref.split('.');
+                                        traitName = refSplit[1];
+                                        if (refSplit[2]?.match(/^\d+$/)) {
+                                            moveRespToTrait = true;
+                                        }
+                                        refName = refSplit[2];
+                                    }
+
+                                    if (moveRespToTrait) {
+                                        let trait = Utils.objectValues(proj.traits).find(t => t.name === traitName);
+                                        if (trait) {//if trait not added then push it
+                                            var existing = false;
+                                            for (var j = 0; j < tmpEndP.traits.length; j++) {
+                                                if (tmpEndP.traits[j]._id === trait._id) {
+                                                    existing = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!existing) {
+                                                tmpEndP.traits.push({ _id: trait._id, name: trait.name });
+                                            }
+                                        } else {
+                                            console.error(`Unresolved $ref ${ref}`)
+                                        }
+                                    }
+                                }
+
+                                if (!('$ref' in resp) || !moveRespToTrait) {
+                                    if ('content' in resp) { //for OAS3
+                                        let content = resp.content;
+                                        Utils.objectEntries(content as { [media: string]: OpenAPIV3_1.MediaTypeObject }).forEach(([mimetype, schemaObj], index) => {
+                                            produces.add(mimetype);
+                                            let tmpResp = {
+                                                //TODO: test this
+                                                // data: ('$ref' in resp) ? ({ $ref: resp. $ref.substring(0, resp. $ref.lastIndexOf('/') + 1) + refName )) (resp
+                                                desc: ('description' in resp) ? resp.description : '',
+                                                code: statusCode + (index > 0 ? `-${i}` : ''),
+                                                data: schemaObj.schema
+                                            };
+                                            //if exact same response already exists but just has a different content type dont add it again
+                                            if (!tmpEndP.responses.find(resp => Utils.deepEquals(resp.data, schemaObj.schema))) {
+                                                tmpEndP.responses.push(tmpResp);
+                                            }
+                                        })
+                                    } else { //For OAS2
+                                        let tmpResp = {
+                                            data: ('$ref' in resp) ? ({ $ref: resp.$ref.substring(0, resp.$ref.lastIndexOf('/') + 1) + refName }) : (resp.schema || { type: 'object' }),
+                                            desc: ('description' in resp) ? resp.description : '',
+                                            code: statusCode
+                                        };
+                                        tmpEndP.responses.push(tmpResp);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (path.security) {
+                            tmpEndP.security = [];
+                            path.security.forEach((sec) => {
+                                tmpEndP.security.push({ name: Object.keys(sec)[0] });
+                            })
+                        }
+                        tmpEndP.consumes = Array.from(consumes);
+                        tmpEndP.produces = Array.from(produces);
+                        endpoints.push(tmpEndP);
+                    };
+                };
+            }
+        }
+        return {
+            folders: folders.reduce((obj, f) => {
+                const key = f._id;
+                return ({ ...obj, [key]: f })
+            }, {}),
+            endpoints: endpoints.reduce((obj, endp) => {
+                const key = endp._id;
+                return ({ ...obj, [key]: endp })
+            }, {}),
         }
     }
 }

@@ -87,6 +87,12 @@ export class ImportProjectComponent implements OnInit {
       }
     } else if (importData.swagger === '2.0') {
       this.projToImport = this.sanitizeProjImport(this.swaggerService.importOAS2(importData, { groupby: formValue.groupby }));
+    } else if (importData.openapi) {
+      let importStr = JSON.stringify(importData)
+        .replace(/#\/components\/schemas\//g, '#\/definitions\/')
+        .replace(/#\/components\/responses\//g, '#\/responses\/')
+        .replace(/#\/components\/parameters\//g, '#\/parameters\/');
+      this.projToImport = this.sanitizeProjImport(this.swaggerService.importOAS3(JSON.parse(importStr), { groupBy: formValue.groupBy }))
     } else {
       this.toaster.error('Selected file doesn\'t contain valid Project information');
       return;

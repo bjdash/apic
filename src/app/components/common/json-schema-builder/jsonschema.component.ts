@@ -44,7 +44,8 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor, OnChan
   private _defaultOption: JsonSchemaOption = {
     mode: 'object',
     disabledKeys: [],
-    showTestBuilder: false
+    showTestBuilder: false,
+    requiredOnAdd: false
   }
 
   @ViewChild('editor') editor;

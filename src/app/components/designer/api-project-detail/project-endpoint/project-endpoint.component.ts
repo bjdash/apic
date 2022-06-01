@@ -116,7 +116,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
 
     let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
     if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
+    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...(tags || [])], security: [...(security || [])], operationId, schemes: [...(schemes || [])], consumes: [...(consumes || [])], produces: [...(produces || [])], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...(responses || [])], postrun, prerun });
 
     this.addDefaultResponse();
     this.endpForm.markAsPristine();
@@ -195,7 +195,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       this.toaster.warn('Path params should be alpha numeric and can only contain underscore (_). There are few in the url those are not. Please correct.');
     }
 
-    let pathParams = this.endpForm.value.pathParams;
+    let pathParams = Utils.clone(this.endpForm.value.pathParams);
     let traitPathParams = this.endpForm.value.traits.map(trait => {
       return ApiProjectUtils.getTraitPathParamNames(trait._id, this.selectedPROJ);
     }).flat();
@@ -228,6 +228,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   onTraitRemove(traitId: string) {
     let { responses, pathParams, headers, queryParams } = ApiProjectUtils.removeTraitData(traitId, this.endpForm.value, this.selectedPROJ);
     this.endpForm.patchValue({ responses, pathParams, headers, queryParams });
+    this.checkForPathParams();
   }
 
   async duplicateEndp(id: string) {

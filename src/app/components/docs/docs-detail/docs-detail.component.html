@@ -268,11 +268,10 @@
 
 <ng-template #OpRef2 let-operation="operation" let-operationName="operationName" let-pathName="pathName">
     <header [ngClass]="{deprecated:operation.deprecated}">
-        <button mat-icon-button class="sm run" matTooltip="Run endpoint" (click)="run(operation['x-apic-id'])">
-            <mat-icon>play_arrow</mat-icon>
+        <span class="http-path gap f18"> {{operation.path}}</span>
+        <button mat-flat-button class="sm" matTooltip="Run endpoint" (click)="run(operation['x-apic-id'])">
+            <mat-icon class="gap green">play_arrow</mat-icon> Run
         </button>
-        <div class="http-summary">{{operation.summary}}</div>
-        <span class="http-path"> {{operation.path}}</span>
         <div *ngIf="operation.deprecated">Deprecated</div>
         <div class="apiTags gap" title="Tags">
             <span class="tag gap" *ngFor="let tag of operation.tags;">
@@ -281,11 +280,16 @@
         </div>
     </header>
     <div class='content'>
-        <section class="description" *ngIf="operation.description">
-            {{operation.description || '(no description specified)'}}
-        </section>
-        <div class="margV10 section-header sm">Operation id: <span class="badge">{{operation.operationId || '(not
-                defined)'}}</span></div>
+        <div class="margB25">
+            <div class="vcenter">
+                <div class="f20 bold">{{operation.summary}}</div>
+                <div *ngIf="operation.operationId" class="badge left-auto" matTooltip="Operation Id">
+                    {{operation.operationId}}</div>
+            </div>
+            <section class="description" *ngIf="operation.description">
+                {{operation.description || '(no description specified)'}}
+            </section>
+        </div>
         <div class="vcenter eq-col">
             <div *ngIf="operation.consumes?.length>0">
                 <div class="section-header sm">Consumes</div>

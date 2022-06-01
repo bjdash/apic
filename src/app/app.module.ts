@@ -115,7 +115,7 @@ import { ProjectDetailRouteGuard } from './components/designer/api-project-detai
 import { GraphqlComponent } from './components/tester/tester-tabs/tab-request/graphql/graphql.component';
 import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/graphql/gql-schema/gql-schema.component';
 import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tree-selector/left-menu-tree-selector.component';
-import { ApicListComponent } from './components/common/apic-list/apic-list.component';
+import { ApicListComponent, AsApicListItemObj } from './components/common/apic-list/apic-list.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { TeamsComponent } from './components/dashboard/teams/teams.component';
@@ -218,6 +218,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     SharingComponent,
     ApiBuilderComponent,
     CustomFilter,
+    AsApicListItemObj,
     AppUpdateComponent,
     UpdateDownloadedComponent,
     DigestAuthComponent,

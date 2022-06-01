@@ -153,7 +153,7 @@ h4.head {
   font-size: 18px;
 }
 .f16 {
-  font-size: 18px;
+  font-size: 16px;
 }
 .bold {
   font-weight: bold;
@@ -178,6 +178,9 @@ h4.head {
 }
 .margB5 {
   margin-bottom: 5px;
+}
+.margT5 {
+  margin-top: 5px;
 }
 .nopad {
   padding: 0 !important;
@@ -654,6 +657,7 @@ textarea {
   margin-bottom: 8px;
 }
 textarea:focus,
+select:focus,
 textarea.form-control:focus,
 input.form-control:focus,
 input[type="text"]:focus,

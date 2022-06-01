@@ -30,7 +30,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
   private _destroy: Subject<boolean> = new Subject<boolean>();
   error;
 
-  flags = {
+  flags: { parsing: boolean, groupBy: 'url' | 'tags' } = {
     parsing: false,
     groupBy: 'url'
   }

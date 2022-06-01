@@ -107,7 +107,7 @@ export enum ENTITIES {
     Environment = 'Environment'
 }
 export const HTTP_HEADERS = ['Accept', 'Accept-Charset', 'Accept-Encoding', 'Accept-Language', 'Accept-Datetime', 'Authorization', 'Cache-Control', 'Connection', 'Cookie', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'Expect', 'Forwarded', 'From', 'Host', 'If-Match', 'If-Modified-Since', 'If-None-Match', 'If-Range', 'If-Unmodified-Since', 'Max-Forwards', 'Origin', 'Pragma', 'Proxy-Authorization', 'Range', 'Referer', 'Referer [sic]', 'TE', 'User-Agent', 'Upgrade', 'Via', 'Warning', 'X-Requested-With', 'DNT', 'X-Forwarded-For', 'X-Forwarded-Host', 'X-Forwarded-Proto', 'Front-End-Https', 'X-Http-Method-Override', 'X-ATT-DeviceId', 'X-Wap-Profile', 'Proxy-Connection', 'X-UIDH', 'X-Csrf-Token'];
-export const HTTP_METHODES = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+export const HTTP_METHODES = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE'];
 export const MIMEs = ['application/json', 'application/javascript', 'application/x-www-form-urlencoded', 'application/xml', 'multipart/form-data', 'text/html', 'text/plain', 'application/zip', 'application/EDI-X12', 'application/EDIFACT', 'application/atom+xml', 'application/font-woff', 'application/gzip', 'application/octet-stream', 'application/ogg', 'application/pdf', 'application/postscript', 'application/soap+xml', 'application/x-bittorrent', 'application/x-tex', 'application/xhtml+xml', 'application/xml-dtd', 'application/xop+xml'];
 export const METHOD_WITH_BODY = ['POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 export const RAW_BODY_TYPES = [

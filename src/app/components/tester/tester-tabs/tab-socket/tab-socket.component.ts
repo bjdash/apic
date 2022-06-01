@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ApicListItem } from 'src/app/components/common/apic-list/apic-list.component';
+import { ApicListItem, ApicListItemObj } from 'src/app/components/common/apic-list/apic-list.component';
 import { KeyVal } from 'src/app/models/KeyVal.model';
 import { InterpolationService } from 'src/app/services/interpolation.service';
 import { Toaster } from 'src/app/services/toaster.service';
@@ -306,14 +306,14 @@ export class TabSocketComponent implements OnInit, OnDestroy {
     }];
   }
   onSseConnect() {
-    let listeners: ApicListItem[] = this.form.value.sse.listeners;
+    let listeners: ApicListItemObj[] = this.form.value.sse.listeners;
     listeners?.forEach(l => {
       if (l.active) this.wsAddListener(l, 'sse');
     })
   }
 
   onSioConect() {
-    let listeners: ApicListItem[] = this.form.value.socketio.listeners;
+    let listeners: ApicListItemObj[] = this.form.value.socketio.listeners;
     listeners?.forEach(l => {
       if (l.active) this.wsAddListener(l, 'socketio');
     })
@@ -414,7 +414,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
     this.toastr.error(`Connection failed. Error:${body}`)
   }
 
-  wsAddListener(listener: ApicListItem, type: 'socketio' | 'sse') {
+  wsAddListener(listener: ApicListItemObj, type: 'socketio' | 'sse') {
     if (this.client) {
       let name = this.interpolationService.interpolate(listener.name);;
       switch (type) {
@@ -443,7 +443,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
     }
   }
 
-  wsRemoveListener(listener: ApicListItem, type: 'socketio' | 'sse') {
+  wsRemoveListener(listener: ApicListItemObj, type: 'socketio' | 'sse') {
     let name = this.interpolationService.interpolate(listener.name);
     if (this.client) {
       switch (type) {
@@ -463,7 +463,7 @@ export class TabSocketComponent implements OnInit, OnDestroy {
     }
   }
 
-  wsToggleListener(listener: ApicListItem, type: 'socketio' | 'sse') {
+  wsToggleListener(listener: ApicListItemObj, type: 'socketio' | 'sse') {
     if (listener.active) this.wsAddListener(listener, type);
     else this.wsRemoveListener(listener, type);
   }

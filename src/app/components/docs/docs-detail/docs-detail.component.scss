@@ -209,22 +209,16 @@
         padding: 0px 15px;
         flex-wrap: wrap;
         align-items: center;
-        height: 35px;
+        height: 45px;
         box-shadow: 0 0 3px rgb(0 0 0 / 19%);
         color: #fff;
         background-color: #949493;
 
         .http-path {
-            padding: 0 20px;
+            padding: 0 5px;
             font-family: Source Code Pro, monospace;
             font-weight: 600;
             word-break: break-all;
-        }
-        .http-summary {
-            font-size: 16px;
-            height: 16px;
-            font-weight: bold;
-            font-family: Open Sans, sans-serif;
         }
         .run {
             background: var(--content-bg);
@@ -345,7 +339,7 @@ json-schema-view .property {
     color: var(--text-color);
     .tag {
         background-color: var(--header-bg);
-        padding: 0 5px;
+        padding: 2px 10px;
         border-radius: 2px;
     }
 }

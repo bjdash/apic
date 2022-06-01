@@ -1,7 +1,7 @@
 import { KeyVal } from "./KeyVal.model";
 
 export interface SecurityDef {
-    type: string,
+    type: 'basic' | 'apiKey' | 'oauth2',
     name: string,
     description?: string,
     apiKey?: {
@@ -53,7 +53,7 @@ export interface ApiEndp {
         type: 'raw' | 'form-data' | 'x-www-form-urlencoded' | 'graphql',
         data: any
     },
-    responses?: any[],
+    responses?: ApiResponse[],
     postrun?: string,
     prerun?: string,
 }
@@ -66,7 +66,7 @@ export interface ApiTrait {
     headers?: any,
     pathParams?: any,
     queryParams?: any,
-    responses?: any[]
+    responses?: ApiResponse[]
 }
 
 export interface ApiTag {
@@ -78,7 +78,15 @@ export interface ApiTag {
     },
     xProperty?: KeyVal[]
 }
-
+export interface ApiResponse {
+    data: any,
+    code: string,
+    desc?: string,
+    noneStatus?: boolean,
+    fromTrait?: boolean,
+    traitId?: string,
+    traitName?: string
+}
 export interface ApiProject {
     _id?: string,
     title: string,

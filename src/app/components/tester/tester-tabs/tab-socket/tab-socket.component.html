@@ -109,7 +109,8 @@
                         <div *ngIf="method=='SSE'" formGroupName="sse">
                             <div class="row">
                                 <div class="col-xs-7">
-                                    <apic-list label="Listeners" (onToggle)="wsToggleListener($event, 'sse')"
+                                    <apic-list [options]="{label:'Listeners', itemType:'object'}"
+                                        (onToggle)="wsToggleListener($event, 'sse')"
                                         (onRemove)="wsRemoveListener($event, 'sse')"
                                         (onAdd)="wsAddListener($event, 'sse')" formControlName="listeners"></apic-list>
                                 </div>
@@ -139,7 +140,8 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
-                                    <apic-list label="Listeners" (onToggle)="wsToggleListener($event, 'socketio')"
+                                    <apic-list [options]="{label:'Listeners', itemType:'object'}"
+                                        (onToggle)="wsToggleListener($event, 'socketio')"
                                         (onRemove)="wsRemoveListener($event, 'socketio')"
                                         (onAdd)="wsAddListener($event, 'socketio')" formControlName="listeners">
                                     </apic-list>

@@ -299,13 +299,7 @@ export class JsonSchemaService {
                         schema.default = entity._default;
                     }
                     if (entity._enum) {
-                        const _enum = '[' + entity._enum.replace(/'/g, '"') + ']';
-                        try {
-                            schema.enum = JSON.parse(_enum);
-                        } catch (e) {
-                            console.error('Failed to parse enum', e, _enum);
-                            delete schema.enum;
-                        }
+                        const _enum = entity._enum;
                     }
                     break;
                 case 'Array':
@@ -584,11 +578,8 @@ export class JsonSchemaService {
                     if (schema.default) {
                         obj._default = schema.default;
                     }
-                    if (schema.hasOwnProperty('enum') && schema.enum.length > 0) {
-                        var _enum = JSON.stringify(schema.enum);
-                        _enum = _enum.substr(1, _enum.length - 2);
-                        _enum = _enum.replace(/,/g, ',\n');
-                        obj._enum = _enum;
+                    if (schema.hasOwnProperty('enum')) {
+                        obj._enum = schema.enum;
                     }
                     break;
                 case 'integer':
