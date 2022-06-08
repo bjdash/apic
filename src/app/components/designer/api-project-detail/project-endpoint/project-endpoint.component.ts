@@ -34,6 +34,8 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   flags = {
     allOptn: true,
     more: true,
+    showReq: true,
+    showResp: true,
     traitPP: [], //path params from trait
     traitQP: [], //query params from trait
     traitHP: [] //header params from trait
