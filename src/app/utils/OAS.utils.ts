@@ -1,7 +1,7 @@
 import { ApiEndp, ApiFolder, ApiModel, ApiProject, ApiTag, ApiTrait, SecurityDef } from '../models/ApiProject.model';
 import { OpenAPIV2, OpenAPIV3_1 } from 'openapi-types';
 import { Utils } from '../services/utils.service';
-import { SwaggerOption } from '../services/swagger.service';
+import { ExportOption } from '../services/importExport.service';
 import { METHOD_WITH_BODY } from './constants';
 import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
 import { Env } from '../models/Envs.model';
@@ -31,7 +31,7 @@ type PathXType<T extends {} = {}> = {
         [method in (OpenAPIV2.HttpMethods | OpenAPIV3_1.HttpMethods)]?: (OpenAPIV3_1.OperationObject<T> | OpenAPIV2.OperationObject<T>)
     };
 
-export class OAS3Utils {
+export class OASUtils {
     static getInfo(proj: ApiProject): OpenAPIV3_1.InfoObject {
         let info: OpenAPIV3_1.InfoObject = {
             title: proj.title,
@@ -179,21 +179,21 @@ export class OAS3Utils {
         return secDefs;
     }
 
-    static getComponents(proj: ApiProject, options?: SwaggerOption): OpenAPIV3_1.ComponentsObject {
+    static getComponents(proj: ApiProject, options?: ExportOption): OpenAPIV3_1.ComponentsObject {
         let components: OpenAPIV3_1.ComponentsObject = {};
 
         if (proj.securityDefinitions && proj.securityDefinitions.length > 0) {
-            components.securitySchemes = OAS3Utils.getSecuritySchemes(proj, 'OAS3')
+            components.securitySchemes = OASUtils.getSecuritySchemes(proj, 'OAS3')
         }
 
-        components.schemas = OAS3Utils.getSchemaDefinitions(proj, options, 'OAS3')
-        components.parameters = OAS3Utils.getParams(proj, 'OAS3')
-        components.responses = OAS3Utils.getResponses(proj, 'OAS3');
+        components.schemas = OASUtils.getSchemaDefinitions(proj, options, 'OAS3')
+        components.parameters = OASUtils.getParams(proj, 'OAS3')
+        components.responses = OASUtils.getResponses(proj, 'OAS3');
 
         return components;
     }
 
-    static getPaths<T extends OasTypes>(proj: ApiProject, type: T, options?: SwaggerOption): PathType<T> {
+    static getPaths<T extends OasTypes>(proj: ApiProject, type: T, options?: ExportOption): PathType<T> {
         let paths: { [key: string]: OpenAPIV3_1.PathItemObject | OpenAPIV2.PathItemObject } = {};
         //add paths
         for (const [id, endp] of Utils.objectEntries(proj.endpoints)) {
@@ -302,9 +302,15 @@ export class OAS3Utils {
                                 //description: schema.description ? schema.description : "",
                                 //required: endp.body.data[x].required ? true: false
                             };
-                            for (let mimetype of consumes) {
-                                reqBody.content[mimetype] = {};
-                                reqBody.content[mimetype].schema = endp.body.data;
+                            if(consumes?.length>0){
+                              for (let mimetype of consumes) {
+                                  reqBody.content[mimetype] = {};
+                                  reqBody.content[mimetype].schema = endp.body.data;
+                              }
+                            }else{
+                              reqBody.content['*/*'] = {
+                                schema: endp.body.data
+                              }
                             }
                             break;
                         case 'form-data':
@@ -329,6 +335,7 @@ export class OAS3Utils {
                                 }
                                 schema.properties[input.key] = item;
                             });
+                            if(schema.required.length === 0) delete schema.required;
                             reqBody = {
                                 content: {
                                     [contentType]: { schema }
@@ -419,7 +426,7 @@ export class OAS3Utils {
         return paths as PathType<T>;
     }
 
-    static getSchemaDefinitions<T extends OasTypes>(proj: ApiProject, options: SwaggerOption, type: T): SchemaType<T> {
+    static getSchemaDefinitions<T extends OasTypes>(proj: ApiProject, options: ExportOption, type: T): SchemaType<T> {
         let componentSchemas: { [key: string]: OpenAPIV3_1.SchemaObject | OpenAPIV2.SchemaObject } = {}
 
         //add definitions/models
@@ -436,7 +443,7 @@ export class OAS3Utils {
     static getResponses<T extends OasTypes>(proj: ApiProject, type: T): ResponseType<T> {
         let componentResponses: { [key: string]: OpenAPIV3_1.ResponseObject | OpenAPIV2.ResponseObject } = {};
 
-        ////responses and parameters are added from traits 
+        ////responses and parameters are added from traits
         for (const [id, trait] of Utils.objectEntries(proj.traits)) {
             var responses = trait.responses;
             let tName = trait.name.replace(/\s/g, ' ');
@@ -499,7 +506,7 @@ export class OAS3Utils {
 
     static importOAS3(spec: OpenAPIV3_1.Document): ApiProject {
         if (spec.openapi) return;
-        var proj: ApiProject = OAS3Utils.parseOasSpecBase(spec);
+        var proj: ApiProject = OASUtils.parseOasSpecBase(spec);
 
     }
 
@@ -615,9 +622,9 @@ export class OAS3Utils {
                             let flowName = Object.keys(scheme.flows)[0],
                                 flow = scheme.flows[flowName];
                             let oauth2: any = {}
-                            if (flowName = 'clientCredentials') {
+                            if (flowName === 'clientCredentials') {
                                 oauth2.flow = 'application';
-                            } else if (flowName = 'authorizationCode') {
+                            } else if (flowName === 'authorizationCode') {
                                 oauth2.flow = 'accessCode';
                             } else {
                                 oauth2.flow = flowName;
@@ -970,7 +977,7 @@ export class OAS3Utils {
                         }
 
                         if (path.parameters) {
-                            for (var i = 0; i < path.parameters.length; i++) {
+                            for (let i = 0; i < path.parameters.length; i++) {
                                 var param = path.parameters[i];
                                 var ptype = undefined;
                                 if ('in' in param) {
@@ -1005,7 +1012,7 @@ export class OAS3Utils {
                                             tmpEndP[ptype].properties[param.name] = {
                                                 type: schema.type,
                                                 default: schema.default ?? '',
-                                                description: schema.description ?? ''
+                                                description: param.description || schema.description || ''
                                             };
                                             if ('items' in schema) {
                                                 tmpEndP[ptype].properties[param.name].items = schema.items;
@@ -1095,7 +1102,7 @@ export class OAS3Utils {
                                         }
                                         break
                                     default:
-                                        body.data = body;
+                                        body.data = schemaData.schema;
                                 }
                                 tmpEndP.body = body
                             }
@@ -1145,11 +1152,11 @@ export class OAS3Utils {
                                                 //TODO: test this
                                                 // data: ('$ref' in resp) ? ({ $ref: resp. $ref.substring(0, resp. $ref.lastIndexOf('/') + 1) + refName )) (resp
                                                 desc: ('description' in resp) ? resp.description : '',
-                                                code: statusCode + (index > 0 ? `-${i}` : ''),
+                                                code: statusCode + (index > 0 ? `-${index}` : ''),
                                                 data: schemaObj.schema
                                             };
                                             //if exact same response already exists but just has a different content type dont add it again
-                                            if (!tmpEndP.responses.find(resp => Utils.deepEquals(resp.data, schemaObj.schema))) {
+                                            if (!tmpEndP.responses.find(resp => Utils.deepEquals(resp.data, schemaObj.schema) && statusCode === resp.code)) {
                                                 tmpEndP.responses.push(tmpResp);
                                             }
                                         })
@@ -1171,8 +1178,8 @@ export class OAS3Utils {
                                 tmpEndP.security.push({ name: Object.keys(sec)[0] });
                             })
                         }
-                        tmpEndP.consumes = Array.from(consumes);
-                        tmpEndP.produces = Array.from(produces);
+                        tmpEndP.consumes = Array.from(consumes).filter(mime=>mime!=='*/*');
+                        tmpEndP.produces = Array.from(produces).filter(mime=>mime!=='*/*');;
                         endpoints.push(tmpEndP);
                     };
                 };

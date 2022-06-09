@@ -6,7 +6,7 @@ import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ApiProjectService } from 'src/app/services/apiProject.service';
-import { SwaggerService } from 'src/app/services/swagger.service';
+import { ImportExportService } from 'src/app/services/importExport.service';
 // import SwaggerParser from "@apidevtools/swagger-parser";
 // import * as SwaggerParser from '../../../utils/bundle2';
 import { Utils } from 'src/app/services/utils.service';
@@ -43,7 +43,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     private store: Store,
     private apiProjectDetailService: ApiProjectDetailService,
     private apiProjectService: ApiProjectService,
-    private swaggerService: SwaggerService
+    private swaggerService: ImportExportService
   ) {
     this.route.params.subscribe(params => {
       this.selectedPROJ$ = this.apiProjectService.getApiProjectById(params.projectId);

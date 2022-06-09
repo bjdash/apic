@@ -60,7 +60,7 @@ import { EnvsComponent } from './components/envs/envs.component';
 import { OnlyAlphaNumericInputDirective } from './directives/only-alpha-numeric-input.directive';
 import { FileSystem } from './services/fileSystem.service';
 import { ImportProjectComponent } from './components/designer/import-project/import-project.component';
-import { SwaggerService } from './services/swagger.service';
+import { ImportExportService } from './services/importExport.service';
 import { ProjectExportModalComponent } from './components/designer/api-project-detail/project-export-modal/project-export-modal.component';
 import { LoginComponent } from './components/login/login.component';
 import { HttpService } from './services/http.service';
@@ -287,7 +287,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     Utils,
     ConfirmService,
     FileSystem,
-    SwaggerService,
+    ImportExportService,
     HttpService,
     StompService,
     SyncService,

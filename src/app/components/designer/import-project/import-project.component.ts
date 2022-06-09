@@ -6,7 +6,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import jsyaml from 'js-yaml';
-import { SwaggerService } from 'src/app/services/swagger.service';
+import { ImportExportService } from 'src/app/services/importExport.service';
 import { Store } from '@ngxs/store';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ERROR_CODES, ENTITIES } from 'src/app/utils/constants';
@@ -40,7 +40,7 @@ export class ImportProjectComponent implements OnInit {
     private apiProjectService: ApiProjectService,
     private envService: EnvService,
     private dialogRef: MatDialogRef<ImportProjectComponent>,
-    private swaggerService: SwaggerService,
+    private swaggerService: ImportExportService,
     private store: Store,
     private cd: ChangeDetectorRef) {
     this.form = fb.group({
@@ -92,7 +92,7 @@ export class ImportProjectComponent implements OnInit {
         .replace(/#\/components\/schemas\//g, '#\/definitions\/')
         .replace(/#\/components\/responses\//g, '#\/responses\/')
         .replace(/#\/components\/parameters\//g, '#\/parameters\/');
-      this.projToImport = this.sanitizeProjImport(this.swaggerService.importOAS3(JSON.parse(importStr), { groupBy: formValue.groupBy }))
+      this.projToImport = this.sanitizeProjImport(this.swaggerService.importOAS3(JSON.parse(importStr), { groupby: formValue.groupby }))
     } else {
       this.toaster.error('Selected file doesn\'t contain valid Project information');
       return;
