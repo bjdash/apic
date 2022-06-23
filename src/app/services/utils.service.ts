@@ -1,3 +1,4 @@
+import structuredClone from '@ungap/structured-clone'
 import { Toaster } from './toaster.service';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
@@ -341,28 +342,8 @@ export class Utils {
         return req;
     }
 
-    //https://github.com/angus-c/just/blob/master/packages/collection-clone/index.js
-    //TODO: Replace with structured clone
-    static clone(obj) {
-        if (typeof obj == 'function') {
-            return obj;
-        }
-        var result = Array.isArray(obj) ? [] : {};
-        for (var key in obj) {
-            // include prototype properties
-            var value = obj[key];
-            var type = {}.toString.call(value).slice(8, -1);
-            if (type == 'Array' || type == 'Object') {
-                result[key] = this.clone(value);
-            } else if (type == 'Date') {
-                result[key] = new Date(value.getTime());
-            } else if (type == 'RegExp') {
-                result[key] = RegExp(value.source, this.getRegExpFlags(value));
-            } else {
-                result[key] = value;
-            }
-        }
-        return result;
+    static clone<T>(obj: T): T {
+        return structuredClone(obj);
     }
 
     static getRegExpFlags(regExp) {

@@ -3,6 +3,8 @@ import { Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild }
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AceEditorComponent } from 'ng2-ace-editor';
 import * as ace from 'brace';
+import { environment } from 'src/environments/environment';
+import { ApicAgentService } from 'src/app/services/apic-agent.service';
 
 @Component({
   selector: 'app-graphql',
@@ -26,6 +28,7 @@ export class GraphqlComponent implements OnInit, ControlValueAccessor {
   gqlTypes: any;
   gqlSuggests: any;
   gqlPath = ['Root'];
+  platform = environment.PLATFORM;
   private propagateChange = (_: any) => { };
   private propagateTouch = () => { };
   text: string;
@@ -39,7 +42,7 @@ export class GraphqlComponent implements OnInit, ControlValueAccessor {
     enableLiveAutocompletion: true
   };
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private apicAgentService: ApicAgentService) { }
 
   writeValue(obj: any): void {
     this.text = obj;
@@ -80,7 +83,24 @@ export class GraphqlComponent implements OnInit, ControlValueAccessor {
 
   async loadSchema(url, method) {
     let body = { "query": "\n    query IntrospectionQuery {\n      __schema {\n        queryType { name }\n        mutationType { name }\n        subscriptionType { name }\n        types {\n          ...FullType\n        }\n        directives {\n          name\n          description\n          locations\n          args {\n            ...InputValue\n          }\n        }\n      }\n    }\n\n    fragment FullType on __Type {\n      kind\n      name\n      description\n      fields(includeDeprecated: true) {\n        name\n        description\n        args {\n          ...InputValue\n        }\n        type {\n          ...TypeRef\n        }\n        isDeprecated\n        deprecationReason\n      }\n      inputFields {\n        ...InputValue\n      }\n      interfaces {\n        ...TypeRef\n      }\n      enumValues(includeDeprecated: true) {\n        name\n        description\n        isDeprecated\n        deprecationReason\n      }\n      possibleTypes {\n        ...TypeRef\n      }\n    }\n\n    fragment InputValue on __InputValue {\n      name\n      description\n      type { ...TypeRef }\n      defaultValue\n    }\n\n    fragment TypeRef on __Type {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  ", "operationName": "IntrospectionQuery" }
-    let res: any = await this.httpClient.request(method, url, { body }).toPromise();
+    let res: any;
+    if (this.apicAgentService.isOnline()) {
+      let response = await this.apicAgentService.runRequest({
+        method,
+        url,
+        name: '',
+        Req: {},
+        Body: {
+          type: 'raw',
+          rawData: JSON.stringify(body),
+          selectedRaw: { val: 'application/json' }
+        }
+      }, { inMem: {}, saved: {} });
+      res = response.$response.data;
+    } else {
+      res = await this.httpClient.request(method, url, { body }).toPromise();
+    }
+
     var typeObjs: any = {};
     var schema = res.data.__schema;
     schema.types.forEach(function (type) {

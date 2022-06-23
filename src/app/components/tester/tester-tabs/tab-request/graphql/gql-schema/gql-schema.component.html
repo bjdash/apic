@@ -13,13 +13,21 @@
                 <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: i}"></ng-container>
             </div>
         </div>
-        <div class="mono" *ngIf="types[path[path.length-1]].interfaces?.length>0">Fields</div>
-        <div style="margin-bottom:15px;" *ngFor="let f of types[path[path.length-1]].fields;let last = last">
-            <span class="GET">{{f.name}}</span> <span *ngIf="f.args?.length>0">(
-                <span class="gqlArg" *ngFor="let a of f.args">{{a.name}}: <ng-container [ngTemplateOutlet]="GqlTypeRef"
-                        [ngTemplateOutletContext]="{f: a.type}"></ng-container><span class="POST"
-                        *ngIf="a.defaultValue">= {{a.defaultValue}}</span><span *ngIf="!last">,</span></span>
-                )</span>: <span>
+        <div class="mono" *ngIf="types[path[path.length-1]].fields?.length>0">Fields</div>
+        <div style="margin-bottom:15px;"
+            *ngFor="let f of types[path[path.length-1]].fields | orderBy :'name';let last = last">
+            <span class="GET">{{f.name}}</span>
+            <span *ngIf="f.args?.length>0">(
+                <span class="gqlArg" *ngFor="let a of f.args">
+                    {{a.name}}:
+                    <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: a.type}">
+                    </ng-container>
+                    <span class="POST" *ngIf="a.defaultValue">= {{a.defaultValue}}</span>
+                    <span *ngIf="!last">,</span>
+                </span>
+                )
+            </span>:
+            <span>
                 <ng-container [ngTemplateOutlet]="GqlTypeRef" [ngTemplateOutletContext]="{f: f.type}"></ng-container>
             </span>
             <div style="margin-top:-7px;" class="OPTIONS">{{f.description}}</div>

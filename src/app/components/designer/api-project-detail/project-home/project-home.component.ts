@@ -182,6 +182,10 @@ export class ProjectHomeComponent implements OnInit, OnDestroy {
     }
 
     async runMockedEndp(endpId) {
+        if (!this.selectedPROJ.simKey) {
+            this.toaster.error('Please enable response mocking first.');
+            return;
+        }
         this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ, true);
     }
 

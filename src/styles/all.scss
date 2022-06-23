@@ -173,6 +173,9 @@ h4.head {
 .margB10 {
   margin-bottom: 10px !important;
 }
+.margB20 {
+  margin-bottom: 20px !important;
+}
 .margB25 {
   margin-bottom: 25px !important;
 }
@@ -484,6 +487,9 @@ a.panel-fab {
 .MODEL {
   color: #e3008c;
 }
+.EXAMPLE {
+  color: #4ae597;
+}
 .TRAIT {
   color: #2196f3;
 }
@@ -511,8 +517,14 @@ a.panel-fab {
 .method.OPTIONS:after {
   content: "OPTN";
 }
+.method.TRACE:after {
+  content: "TRACE";
+}
 .method.MODEL:after {
   content: "Model";
+}
+.method.EXAMPLE:after {
+  content: "Eg:";
 }
 .method.TRAIT:after {
   content: "Trait";

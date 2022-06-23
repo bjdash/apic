@@ -1,0 +1,121 @@
+<div class="content" *ngIf="selectedPROJ">
+    <div class="submodMenu">
+        <div class="submodMenuOptn">
+            <span *ngIf="selectedExample._id === 'NEW'">
+                <button type="button" type="submit" form="exampleForm" class="sm gap" mat-raised-button
+                    color="primary">Create</button>
+                <button mat-button class="sm" type="reset" (click)="exampleForm.reset()">Reset</button>
+            </span>
+            <span *ngIf="selectedExample._id !== 'NEW'">
+                <button type="button" type="submit" form="exampleForm" class="sm gap" mat-raised-button
+                    color="primary">Save</button>
+                <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
+                    (click)="deleteExample (selectedExample._id)">Delete</button>
+                <button type="button" type="button" *ngIf="exampleForm.dirty" class="sm gap" mat-button
+                    (click)="discardChange()">Discard</button>
+                <div class="bar"></div>
+                <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
+                    <mat-icon class="sm">add</mat-icon>New Example
+                </a>
+            </span>
+        </div>
+        <div class="tip"></div>
+    </div>
+
+    <h4 class="t_color head vcenter">
+        <span class="gap">Examples: </span>
+        <div class="margL10">
+            <button mat-stroked-button="" class="sm gap" [matMenuTrigger For ]="examplesList">
+                <span class="gap">{{selectedExample?.name || 'Create new Example'}}</span>
+                <mat-icon>arrow_drop_down</mat-icon>
+                <span *ngIf="exampleForm.dirty"> (Unsaved)</span>
+            </button>
+            <mat-menu #examplesList="matMenu">
+                <a href="" mat-menu-item [routerLink]="['../', 'new']">Create new Example</a>
+                <mat-divider> </mat-divider>
+                <a href="" *ngFor="let ex of selectedPROJ.examples | keyvalue" [routerLink]="['../', ex.value._id]"
+                    mat-menu-item>{{ex.value.name}}</a>
+            </mat-menu>
+        </div>
+        <a class="f18 pull-right" mat-icon-button href="https://docs.apic.app/designer/create-example" target="_new">
+            <mat-icon>help</mat-icon>
+        </a>
+    </h4>
+
+    <div>
+        <form class="form-horizontal form-compact" [formGroup]="exampleForm" id="exampleForm"
+            (submit)="createExample()">
+            <div class="row">
+                <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" required="" placeholder="Example Name" maxlength="100"
+                        formControlName="name">
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Folder: </label>>
+                <div class="col-sm-8">
+                    <mat-select formControlName="Folder">
+                        <mat-option value="">Un-grouped</mat-option>
+                        <mat-option *ngFor="let folder of selectedPROJ. folders | keyvalue" [value]="folder.value._id">
+                            {{folder.value.name}}
+                        </mat-option>
+                        <mat-divider></mat-divider>
+                    </mat-select>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Summary: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" formControlName="summary">
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Description: </label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" formControlName="description"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <label class="control-label col-sm-2">Value type: </label>
+                <div class="col-sm-8">
+                    <mat-radio-group aria-label="Select an option" class="" formControlName="valueType">
+                        <mat-radio-button value="inline">Inline</mat-radio-button>
+                        <mat-radio-button value="external">External</mat-radio-button>
+                        <mat-radio-button value="$ref">$ref</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+            <div class="row" *ngIf="exampleForm.value.valueType=== 'inline'">
+                <div class="col-sm-8 col-xs-offset-2">
+                    <span role="group" class="btn-group toggle-group pull-right" style="margin-top: -17px;"
+                        matTooltip="Value type">
+                        <button type="button" mat-button [ngClass]="flags.mode == 'json'?'t_bg t_border':''" class="sm"
+                            (click)="flags.mode='json'">JSON</button>
+                        <button type="button" mat-button [ngClass]="flags.mode == 'text'?'t_bg t_border':''" class="sm"
+                            (click)="flags.mode='text'">Text</button>
+                    </span>
+                    <apic-ace class="test editor" formControlName="valueInline" [mode]="flags.mode">
+                    </apic-ace>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="exampleForm.value.valueType==='external'">
+                <label class="control-label col-sm-2">External URL: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" formControlName="valueExternal" placeholder="External URL">
+                </div>
+            </div>
+            <div class="row" *ngIf="exampleForm.value.valueType==='$ref'">
+                <label class="control-label col-sm-2">Ref value: </label>
+                <div class="col-sm-8">
+                    <mat-select formControlName="value$ref">
+                        <mat-option *ngFor="let ex of selectedPROJ.examples | keyvalue" [value]="ex.value._id">
+                            {{ex.value.name}}
+                        </mat-option>
+
+                    </mat-select>
+                </div>
+            </div>
+        </form>
+    </div>

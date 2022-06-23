@@ -65,12 +65,7 @@
                 <label class="control-label col-sm-2">Method: </label>
                 <div class="col-sm-2">
                     <select class="form-control" formControlName="method">
-                        <option value="get">GET</option>
-                        <option value="post">POST</option>
-                        <option value="put">PUT</option>
-                        <option value="patch">PATCH</option>
-                        <option value="delete">DELETE</option>
-                        <option value="options">OPTIONS</option>
+                        <option *ngFor="let method of HTTP_METHODS" [value]="method.toLowerCase()">{{method}}</option>
                     </select>
                 </div>
             </div>
@@ -235,7 +230,7 @@
                 <mat-tab-group class="margV10" animationDuration="0ms" *ngIf="flags.showResp">
                     <mat-tab label="Responses">
                         <div class="pad10">
-                            <response-schema-builder [models]="selectedPROJ.models" [responsesModels]="traitResponses"
+                            <response-schema-builder [project]="selectedPROJ" [responsesModels]="traitResponses"
                                 [onChange]="setDirty.bind(this)" (onTestBuilder)="openTestBuilder($event)"
                                 formControlName="responses">
                             </response-schema-builder>

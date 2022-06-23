@@ -3,7 +3,7 @@ import { ApiEndp, ApiProject, ApiTrait, NewApiEndp } from 'src/app/models/ApiPro
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Toaster } from 'src/app/services/toaster.service';
-import { METHOD_WITH_BODY, MIMEs } from 'src/app/utils/constants';
+import { METHOD_WITH_BODY, MIMEs, HTTP_METHODS } from 'src/app/utils/constants';
 import { Utils } from 'src/app/services/utils.service';
 import apic from 'src/app/utils/apic';
 import { Subject } from 'rxjs';
@@ -31,6 +31,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
   MIMEs = MIMEs;
   METHOD_WITH_BODY = METHOD_WITH_BODY;
+  HTTP_METHODS = HTTP_METHODS;
   flags = {
     allOptn: true,
     more: true,

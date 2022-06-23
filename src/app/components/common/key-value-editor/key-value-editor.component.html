@@ -26,14 +26,18 @@
 
         <div class="val gap">
             <input class="form-control"
-                *ngIf="!options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')"
+                *ngIf="!options.useRichText && !options.useSelectForVal && (!options.allowFileType || kv.controls.type?.value=='text')"
                 (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" [placeholder]="options.placeholderVal" />
             <apic-rich-input [formControl]="kv.controls.val" class="form-control" (focus)="onRowFocus(last, i)"
-                *ngIf="options.useRichText && (!options.allowFileType || kv.controls.type?.value=='text')"
+                *ngIf="options.useRichText && !options.useSelectForVal && (!options.allowFileType || kv.controls.type?.value=='text')"
                 [placeholder]="options.placeholderVal">
             </apic-rich-input>
-            <input type="file" class="form-control" *ngIf="options.allowFileType && kv.controls.type?.value=='file'"
+            <input type="file" class="form-control"
+                *ngIf="options.allowFileType && !options.useSelectForVal && kv.controls.type?.value=='file'"
                 (change)="onFileChange($event, i)" />
+            <select [formControl]="kv.controls.val" class="form-control" *ngIf="options.useSelectForVal">
+                <option *ngFor="let op of valueOptions | orderBy 'name'" [value]="op._id">{{op.name}}</option>
+            </select>
         </div>
 
         <div class="kvCtrls vcenter">
@@ -58,7 +62,7 @@
         </div>
     </div>
 </fieldset>
-<button type="button" (click)="addKv()" mat-icon-button class="sm green"
+<button type="button" (click)="addKv()" mat-stroked-button class="sm green"
     *ngIf="options.allowZeroItem && options.allowAdd && keyValueForm?.controls.length == 0">
-    <mat-icon>add</mat-icon>
+    <mat-icon>add</mat-icon> Add new
 </button>

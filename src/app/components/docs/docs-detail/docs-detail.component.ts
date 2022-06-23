@@ -32,7 +32,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
 
   flags: { parsing: boolean, groupBy: 'url' | 'tags' } = {
     parsing: false,
-    groupBy: 'url'
+    groupBy: 'tags'
   }
   hiddenPaths = {
 
@@ -92,10 +92,17 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
 
   scrollInView(f: string, i, j) {
     this.tabs.get(0).selectedIndex = 2;
-    this.tabs.get(i + 1).selectedIndex = j;
+    if (this.flags.groupBy === 'url') {
+      this.tabs.get(i + 1).selectedIndex = j;
+    }
     setTimeout(() => {
       const element = document.getElementById(f)
       if (element) element.scrollIntoView()
+      if (this.flags.groupBy === 'tags') {
+        let operation = element.nextSibling.childNodes[j] as HTMLElement;
+        (operation.querySelector('details:not([open]) summary') as HTMLElement)?.click();
+        operation?.scrollIntoView();
+      }
     }, 0);
   }
 

@@ -33,6 +33,9 @@ export class ImportExportService {
         proj.folders = { ...proj.folders, ...modelsData.folders }
         //parse parameter
         proj.traits = { ...proj.traits, ...OASUtils.parseParameters(spec, proj) }
+        let traitData = OASUtils.parseResponses(spec, proj);
+        proj.traits = { ...proj.traits, ...traitData.traits };
+        // proj.examples = {...proj.examples, ...traitData.examples};
         //parse paths
         let endpointsData = OASUtils.parsePaths(spec, optn, proj);
         proj.endpoints = endpointsData.endpoints;
@@ -55,12 +58,19 @@ export class ImportExportService {
         let modelsData = OASUtils.parseSchemaDefinitions(spec);
         proj.models = { ...proj.models, ...modelsData.models }
         proj.folders = { ...proj.folders, ...modelsData.folders }
+        //parse examples
+        let examplesData = OASUtils.parseExamples(spec);
+        proj.examples = { ...proj.examples, ...examplesData.examples }
         //parse parameter
         proj.traits = { ...proj.traits, ...OASUtils.parseParameters(spec, proj) }
+        let traitData = OASUtils.parseResponses(spec, proj);
+        proj.traits = { ...proj.traits, ...traitData.traits };
+        proj.examples = { ...proj.examples, ...traitData.examples };
         //parse paths
         let endpointsData = OASUtils.parsePaths(spec, optn, proj);
         proj.endpoints = endpointsData.endpoints;
         proj.folders = { ...proj.folders, ...endpointsData.folders }
+        proj.examples = { ...proj.examples, ...endpointsData.examples };
         return proj;
     }
 

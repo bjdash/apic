@@ -35,7 +35,7 @@
                     <div class="folder" (click)="toggleExpand(item.value.folder._id)"
                         [ngClass]="leftPanel.expanded[item.value.folder._id]?'opened':'closed'">
                         <div class="l-sec">
-                            <i class="icon  bj-folder"
+                            <i class="icon  bj-folder" *ngIf="item.key != 'ungrouped'"
                                 [ngClass]="leftPanel.expanded[item.value.folder._id]?'bj-folder-open':'bj-folder'"></i>
                         </div>
                         <div class="folder-name m-sec">
@@ -118,6 +118,37 @@
                             </a>
                         </div>
 
+                        <!--examples TODO: sort by name-->
+                        <div *ngFor="let example of item.value.examples | keyvalue">
+                            <a href="" class="savedReq" matRipple [routerLink]="['examples', example.value._id]"
+                                [routerLinkActive]="['active']">
+                                <div class="l-sec">
+                                    <div class="method EXAMPLE"></div>
+                                </div>
+                                <div class="m-sec_name">{{example.value.name}}</div>
+                                <div class="r-sec">
+                                    <button type="button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                                        [ngClass]="{t_bg: m.menuOpen}" mat-icon-button [matMenuTriggerFor]="exampleMenu"
+                                        #m="matMenuTrigger">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+                                    <mat-menu #exampleMenu="matMenu">
+                                        <a href="" [routerLink]="['examples', example.value._id]" mat-menu-item>
+                                            <mat-icon>edit</mat-icon> Edit
+                                        </a>
+                                        <button mat-menu-item
+                                            (click)="duplicateItem(example.value._id, 'examples'); $event.stopPropagation()">
+                                            <mat-icon>content_copy</mat-icon> Duplicate
+                                        </button>
+                                        <button mat-menu-item
+                                            (click)="deleteItem(example.value._id, 'examples'); $event.stopPropagation()">
+                                            <mat-icon class="red">delete</mat-icon>Delete
+                                        </button>
+                                    </mat-menu>
+                                </div>
+                            </a>
+                        </div>
+
                         <!--Traits TODO: sort by name-->
                         <div *ngFor="let trait of item.value.traits | keyvalue">
                             <a href="" class="savedReq" matRipple [routerLink]="['traits', trait.value._id]"
@@ -166,7 +197,8 @@
                         <a href="" class="btn-link bold" [routerLink]="['./']">{{selectedPROJ.title}}</a>
                     </li>
                     <li>
-                        <button class="btn-link capitalize" [matMenuTriggerFor]="brcmbMenu">{{flags.stage}} ⯆</button>
+                        <button class="btn-link capitalize" [matMenuTriggerFor]="brcmbMenu">{{flags.stage}}
+                            ⯆</button>
                         <mat-menu #brcmbMenu="matMenu">
                             <a [routerLink]="['./']" mat-menu-item>Dashboard</a>
                             <a [routerLink]="['api-builder']" mat-menu-item>API Builder</a>
@@ -174,6 +206,7 @@
                             <a [routerLink]="['models', 'new']" mat-menu-item>Models</a>
                             <a [routerLink]="['endpoints', 'new']" mat-menu-item>Endpoints</a>
                             <a [routerLink]="['traits', 'new']" mat-menu-item>Traits</a>
+                            <a [routerLink]="['examples', 'new']" mat-menu-item>Examples</a>
                         </mat-menu>
                     </li>
                 </ol>

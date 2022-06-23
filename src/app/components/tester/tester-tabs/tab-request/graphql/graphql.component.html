@@ -15,7 +15,24 @@
             <div *ngIf="flags.gqlTab=='schema'">
                 <div *ngIf="flags.loading" class="f18 margV10">Loading schema ...</div>
                 <gql-schema *ngIf="gqlTypes" [types]="gqlTypes" [path]="gqlPath"></gql-schema>
-                <span class="text16" *ngIf="gqlTypes === null">Could not load Graphql schema with current URL</span>
+                <div class="text16" *ngIf="gqlTypes === null">
+                    <h2>Could not load Graphql schema with current URL</h2>
+                    <p *ngIf="platform === 'WEB'">Since you are using APIC web app chances are the <a class="t_color"
+                            href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS"
+                            target="_new">preflight OPTIONS request(CORS)</a> didn't pass. </p>
+                    <ul>
+                        <li>Use <a href="https://docs.apic.app/apic-web-agent-apic-cli" target="_new"
+                                class="t_color">APIC Web Agent</a> to bypass browser cors limitations.</li>
+                        <li>Or use <a class="t_color"
+                                href="https://chrome.google.com/webstore/detail/apic-extension/dejjobgejdajdjjhjcindbjcfohoiehn"
+                                target="_new">apic's web extension for Chrome/Edge</a> along with the web app.
+                            Alternatively you can use other CORS enabler extentions for other browsers.</li>
+                        <li>Or you could use the standalone version of apic available for <a class="t_color"
+                                href="https://chrome.google.com/webstore/detail/apic-complete-api-solutio/ggnhohnkfcpcanfekomdkjffnfcjnjam"
+                                target="_new">Chrome</a>, Windows, Mac & Linux without any dependency.</li>
+                        <li>Otherwise please make sure that your API responds to OPTIONS request</li>
+                    </ul>
+                </div>
                 <button mat-icon-button class="t_color reload-gql" (click)="init()">
                     <mat-icon>refresh</mat-icon>
                 </button>

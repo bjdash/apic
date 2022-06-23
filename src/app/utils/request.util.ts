@@ -1,3 +1,4 @@
+import jsf from 'json-schema-faker';
 import { ApiEndp, ApiProject } from "../models/ApiProject.model";
 import { CompiledApiRequest } from "../models/CompiledRequest.model";
 import { ApiRequest, SavedResp } from "../models/Request.model";
@@ -8,8 +9,10 @@ import { ApiProjectUtils } from "./ApiProject.utils";
 import { METHOD_WITH_BODY } from "./constants";
 import { SchemaDref } from "./SchemaDref";
 
-declare let jsf: any
 export class RequestUtils {
+    static {
+        jsf.option('fillProperties', false);
+    }
     static checkForHTTP(url: string) {
         if (url.toLowerCase().indexOf('http') !== 0) {
             url = 'http://' + url;
@@ -88,7 +91,7 @@ export class RequestUtils {
                     }
                     break;
                 case 'graphql':
-                    req.Body.type = 'raw';
+                    // req.Body.type = 'raw';
                     newReq.headers['Content-Type'] = 'application/json';
                     newReq.body = {
                         query: req.Body.rawData
@@ -257,7 +260,7 @@ export class RequestUtils {
                         schema.definitions = modelRefs;
                         var sampleData = {};
                         try {
-                            sampleData = jsf(schema);
+                            sampleData = jsf.generate(Utils.clone(schema));
                         } catch (e) {
                             console.error('Failed to generate sample data', e);
                         }

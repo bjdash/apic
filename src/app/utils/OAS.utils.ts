@@ -1,5 +1,5 @@
-import { ApiEndp, ApiFolder, ApiModel, ApiProject, ApiTag, ApiTrait, SecurityDef } from '../models/ApiProject.model';
-import { OpenAPIV2, OpenAPIV3_1 } from 'openapi-types';
+import { ApiEndp, ApiExample, ApiExampleRef, ApiFolder, ApiModel, ApiProject, ApiResponse, ApiTag, ApiTrait, SecurityDef } from '../models/ApiProject.model';
+import { OpenAPIV2, OpenAPIV3_1, OpenAPI } from 'openapi-types';
 import { Utils } from '../services/utils.service';
 import { ExportOption } from '../services/importExport.service';
 import { METHOD_WITH_BODY } from './constants';
@@ -11,6 +11,10 @@ type OasTypes = 'OAS2' | 'OAS3';
 type SchemaType<T> =
     T extends "OAS3" ? { [key: string]: OpenAPIV3_1.SchemaObject } :
     T extends "OAS2" ? { [key: string]: OpenAPIV2.SchemaObject } :
+    never;
+type ExampleType<T> =
+    T extends "OAS3" ? { [key: string]: OpenAPIV3_1.ExampleObject } :
+    T extends "OAS2" ? { [key: string]: OpenAPIV2.ExampleObject } :
     never;
 type ResponseType<T> =
     T extends "OAS3" ? { [key: string]: OpenAPIV3_1.ResponseObject } :
@@ -121,6 +125,11 @@ export class OASUtils {
                         defObj.type = 'http';
                         defObj.scheme = 'basic';
                         break;
+                    case 'bearer':
+                        defObj.type = 'http';
+                        defObj.scheme = 'bearer';
+                        if (def.bearer?.bearerFormat) defObj.bearerFormat = def.bearer.bearerFormat;
+                        break;
                     case 'apiKey':
                         defObj.in = def.apiKey.in;
                         defObj.name = def.apiKey.name;
@@ -157,6 +166,10 @@ export class OASUtils {
                         defObj.in = def.apiKey.in;
                         defObj.name = def.apiKey.name;
                         break;
+                    case 'bearer':
+                        defObj.type = 'apiKey';
+                        defObj.in = 'header';
+                        break;
                     case 'oauth2':
                         defObj.flow = def.oauth2.flow;
                         if (def.oauth2.flow == 'implicit' || def.oauth2.flow == 'accessCode') {
@@ -189,6 +202,7 @@ export class OASUtils {
         components.schemas = OASUtils.getSchemaDefinitions(proj, options, 'OAS3')
         components.parameters = OASUtils.getParams(proj, 'OAS3')
         components.responses = OASUtils.getResponses(proj, 'OAS3');
+        components.examples = OASUtils.getExamples(proj, options, 'OAS3');
 
         return components;
     }
@@ -228,24 +242,37 @@ export class OASUtils {
             //}}
 
             reqObj.responses = {};
-            let produces = endp.produces || ['*/*'];
+            let produces = endp.produces?.length > 0 ? endp.produces : ['*/*'];
             for (var j = 0; j < endp.responses.length; j++) {
                 let code = endp.responses[j].code;
                 let response: any = {
                     description: endp.responses[j].desc ? endp.responses[j].desc : '',
                 };
                 if (type === 'OAS3') {
-                    response.content = {};
                     for (let mimetype of produces) {
-                        response.content[mimetype] = {};
-                        response.content[mimetype].schema = endp.responses[j].data;
-                        //TODO: Add support for examples in json schema builder
-                        if (response.content[mimetype].schema.type == 'file') {
-                            response.content[mimetype].schema = { type: 'string', format: 'binary' };
+                        if (endp.responses[j].data?.$ref?.startsWith('#/responses/')) {
+                            response = endp.responses[j].data;
+                        } else {
+                            response.content = {};
+                            response.content[mimetype] = {};
+                            response.content[mimetype].schema = endp.responses[j].data;
+                            if (endp.responses[j].examples?.length > 0) {
+                                response.content[mimetype].examples = endp.responses[j].examples?.reduce((obj, ex) => {
+                                    const key = ex.key;
+                                    return ({ ...obj, [key]: { $ref: `#/components/examples/${proj.examples[ex.val]?.name}` } })
+                                })
+                            }
+                            if (response.content[mimetype].schema.type == 'file') {
+                                response.content[mimetype].schema = { type: 'string', format: 'binary' };
+                            }
                         }
                     }
                 } else {
-                    response.schema = endp.responses[j].data;
+                    if (endp.responses[j].data?.$ref?.startsWith('#/responses/')) {
+                        response = endp.responses[j].data;
+                    } else {
+                        response.schema = endp.responses[j].data;
+                    }
                 }
                 reqObj.responses[code] = response;
             }
@@ -302,15 +329,15 @@ export class OASUtils {
                                 //description: schema.description ? schema.description : "",
                                 //required: endp.body.data[x].required ? true: false
                             };
-                            if(consumes?.length>0){
-                              for (let mimetype of consumes) {
-                                  reqBody.content[mimetype] = {};
-                                  reqBody.content[mimetype].schema = endp.body.data;
-                              }
-                            }else{
-                              reqBody.content['*/*'] = {
-                                schema: endp.body.data
-                              }
+                            if (consumes?.length > 0) {
+                                for (let mimetype of consumes) {
+                                    reqBody.content[mimetype] = {};
+                                    reqBody.content[mimetype].schema = endp.body.data;
+                                }
+                            } else {
+                                reqBody.content['*/*'] = {
+                                    schema: endp.body.data
+                                }
                             }
                             break;
                         case 'form-data':
@@ -335,7 +362,7 @@ export class OASUtils {
                                 }
                                 schema.properties[input.key] = item;
                             });
-                            if(schema.required.length === 0) delete schema.required;
+                            if (schema.required.length === 0) delete schema.required;
                             reqBody = {
                                 content: {
                                     [contentType]: { schema }
@@ -383,7 +410,7 @@ export class OASUtils {
                 var traitObj = proj.traits[endp.traits[j]._id];
                 let tName = traitObj.name;
                 //responses
-                for (var i = 0; i < traitObj.responses.length; i++) {
+                for (let i = 0; i < traitObj.responses.length; i++) {
                     var xPath = 'trait.' + tName + '.' + traitObj.responses[i].code;
                     if (!traitObj.responses[i].noneStatus) {
                         let schema: OpenAPIV3_1.ReferenceObject = {
@@ -440,6 +467,25 @@ export class OASUtils {
         return componentSchemas as SchemaType<T>;
     }
 
+    static getExamples<T extends OasTypes>(proj: ApiProject, options: ExportOption, type: T): ExampleType<T> {
+        let componentExamples: { [key: string]: OpenAPIV3_1.ExampleObject | OpenAPIV2.ExampleObject } = {}
+
+        for (const [id, example] of Utils.objectEntries(proj.examples)) {
+            let specEx = {
+                Summary: example.summary,
+                description: example.description,
+                ...(example.valueType === 'external' && { externalValue: example.value }),
+                ...(example.valueType === 'inline' && { value: example.value }),
+                ...(example.valueType === '$ref' && { $ref: `#/components/examples/${proj.examples[example.value].name}` })
+            }
+            componentExamples[example.name] = specEx;
+            if (options?.includeApicIds) {
+                componentExamples[example.name]['x-apic-id'] = example._id;
+            }
+        }
+        return componentExamples as ExampleType<T>;
+    }
+
     static getResponses<T extends OasTypes>(proj: ApiProject, type: T): ResponseType<T> {
         let componentResponses: { [key: string]: OpenAPIV3_1.ResponseObject | OpenAPIV2.ResponseObject } = {};
 
@@ -450,10 +496,23 @@ export class OASUtils {
 
             for (var i = 0; i < responses.length; i++) {
                 var schema = responses[i].data;
-                var name = 'trait.' + tName + '.' + responses[i].code;
+                // var name = 'trait.' + tName + '.' + responses[i].code;
+                var name = responses[i].code;
                 componentResponses[name] = {
                     description: responses[i].desc ? responses[i].desc : '',
-                    ...(type === 'OAS3' ? { content: { '*/*': { schema } } } : { schema })
+                    ...(type === 'OAS3' ? {
+                        content: {
+                            '*/*': {
+                                schema,
+                                ...(responses[i].examples?.length > 0 && {
+                                    examples: responses[i].examples?.reduce((obj, ex) => {
+                                        const key = ex.key;
+                                        return ({ ...obj, [key]: { $ref: `#/components/examples/${proj.examples[ex.val].name}` } })
+                                    })
+                                })
+                            }
+                        }
+                    } : { schema })
                 };
             }
         }
@@ -565,7 +624,7 @@ export class OASUtils {
                     val: spec.host || ''
                 }, {
                     key: 'scheme',
-                    val: spec.schemes.length > 0 ? spec.schemes[0] : 'http'
+                    val: spec.schemes?.length > 0 ? spec.schemes[0] : 'http'
                 }]
             }]
         }
@@ -591,12 +650,12 @@ export class OASUtils {
 
     static parseSecuritySchemes(spec: OpenAPIV3_1.Document | OpenAPIV2.Document): SecurityDef[] {
         if ('openapi' in spec) {
-            return Utils.objectEntries(spec.components.securitySchemes).map(([name, scheme]) => {
+            return Utils.objectEntries(spec.components.securitySchemes).map(([name, security]) => {
                 let secDef: SecurityDef = {
                     name,
                     type: 'basic',
-                    description: ('description' in scheme) ? scheme.description : '',
-                    xProperty: Utils.objectEntries(scheme as { [key: string]: any })
+                    description: ('description' in security) ? security.description : '',
+                    xProperty: Utils.objectEntries(security as { [key: string]: any })
                         .filter(([key, val]) => key.startsWith('x-'))
                         .map(([key, val]) => {
                             return {
@@ -605,22 +664,29 @@ export class OASUtils {
                             }
                         })
                 }
-                if ('type' in scheme) {
-                    switch (scheme.type) {
+                if ('type' in security) {
+                    switch (security.type) {
                         case 'http':
-                            secDef.type = 'basic';
+                            if (security.scheme === 'basic') {
+                                secDef.type = 'basic';
+                            } else if (security.scheme === 'bearer') {
+                                secDef.type = 'bearer';
+                                secDef.bearer = {
+                                    bearerFormat: security.bearerFormat
+                                }
+                            }
                             break;
                         case 'apiKey':
                             secDef.type = 'apiKey';
                             secDef.apiKey = {
-                                name: scheme.name,
-                                in: scheme.in
+                                name: security.name,
+                                in: security.in
                             }
                             break;
                         case 'oauth2':
                             secDef.type = 'oauth2';
-                            let flowName = Object.keys(scheme.flows)[0],
-                                flow = scheme.flows[flowName];
+                            let flowName = Object.keys(security.flows)[0],
+                                flow = security.flows[flowName];
                             let oauth2: any = {}
                             if (flowName === 'clientCredentials') {
                                 oauth2.flow = 'application';
@@ -635,7 +701,7 @@ export class OASUtils {
                             oauth2.scopes = Utils.objectEntries(flow.scopes).map(([key, val]) => { return { key, val } });
                             break;
                         default:
-                            console.warn(`Security scheme ${scheme.type} not supported yet.`)
+                            console.warn(`Security scheme ${security.type} not supported yet.`)
                     }
                 }
                 return secDef;
@@ -706,12 +772,12 @@ export class OASUtils {
             newModel.nameSpace = name;
 
             //add type if missing
-            if (!model.type) {
-                if (model.properties) model.type = 'object';
-                else if ('items' in model) model.type = 'array';
-                // else if ($ref' in model) delete model.type; //TODO: check if required
-                else model.type = 'string';
-            }
+            // if (!model.type) {
+            //     if (model.properties) model.type = 'object';
+            //     else if ('items' in model) model.type = 'array';
+            //     // else if ($ref' in model) delete model.type; //TODO: check if required
+            //     else model.type = 'string';
+            // }
             newModel.data = JsonSchemaService.sanitizeModel(model);
             newModel.folder = modelFolder._id;
             models[newModel._id] = newModel;
@@ -722,6 +788,56 @@ export class OASUtils {
             },
             models
         };
+    }
+
+    static parseExamples(spec: OpenAPIV3_1.Document): { folders: { [key: string]: ApiFolder }, examples: { [key: string]: ApiExample } } {
+        let folder: ApiFolder = {
+            _id: apic.s12(),
+            name: 'Examples',
+            desc: 'This folder will contain all the example objects.'
+        }
+        let examples: { [key: string]: ApiExample } = {}
+        let examplesMap = spec.components.examples;
+        for (const [name, example] of Utils.objectEntries(examplesMap)) {
+            let _id = apic.s12();
+            let newExample: ApiExample = {
+                _id,
+                name,
+                folder: folder._id
+            };
+            newExample.summary = example.summary;
+            newExample.description = example.description;
+            if ('$ref' in example) {
+                newExample.valueType = '$ref';
+                newExample.value = example.$ref
+            } else {
+                if (example.value) {
+                    newExample.value = example.value;
+                    newExample.valueType = 'inline'
+                } else if (example.externalValue) {
+                    newExample.value = example.externalValue;
+                    newExample.valueType = 'external'
+                }
+            }
+            examples[newExample._id] = newExample;
+        }
+        //once all examples are parsed, update the $refs with the _id of corresponding $ref value
+        for (const [_id, example] of Utils.objectEntries(examples)) {
+            if (example.valueType === '$ref') {
+                let refName = example.value.substring(example.value.lastIndexOf('/') + 1);
+                let resolvedRef: ApiExample = Utils.objectValues(examples).find(ex => ex.name === refName);
+                example.value = resolvedRef?._id;
+                //$refs wont have any sibling values like summary and description so copy it from resolved ref 
+                example.summary = resolvedRef.summary ?? example.summary
+                example.description = resolvedRef.description ?? example.description
+            }
+        }
+        return {
+            folders: {
+                [folder._id]: folder
+            },
+            examples
+        }
     }
 
     static parseParameters(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, proj: ApiProject): { [key: string]: ApiTrait } {
@@ -762,43 +878,17 @@ export class OASUtils {
                         },
                         responses: []
                     };
-                    traits.push(tmpTrait);
                 }
 
-                let type;
-                if ('in' in param) {
-                    switch (param.in) {
-                        case 'header':
-                            type = 'headers';
-                            break;
-                        case 'query':
-                            type = 'queryParams';
-                            break;
-                        case 'path':
-                            type = 'pathParams';
-                            break;
-                        default:
-                            console.error(`${param.in} is not yet supported in params (trait).`);
+                let parsedParams = OASUtils.parsePathParams([param], proj);
+                ['queryParams', 'pathParams', 'headers'].forEach(pType => {
+                    tmpTrait[pType] = {
+                        properties: { ...tmpTrait[pType].properties, ...parsedParams[pType].properties },
+                        type: ['object'],
+                        required: [...tmpTrait[pType].required, ...parsedParams[pType].required]
                     }
-
-                    if (['header', 'query', 'path'].indexOf(param.in) >= 0) {
-                        let schema: any = param.schema;
-                        tmpTrait[type].properties[param.name] = {
-                            type: schema.type,
-                            default: schema.default ?? '',
-                            description: schema.description ? schema.description : ''
-                        };
-                        if ('items' in schema) {
-                            tmpTrait[type].properties[param.name].items = schema.items;
-                        }
-                        if (param.required) {
-                            tmpTrait[type].required.push(param.name);
-                        }
-                    } else {
-                        //TODO:add support for other params
-                        console.warn(`${param.in} is not supported yet.`)
-                    }
-                }
+                })
+                traits.push(tmpTrait);
             }
         }
 
@@ -808,9 +898,10 @@ export class OASUtils {
         }, {});
     }
 
-    static parseResponses(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, proj: ApiProject): { [key: string]: ApiTrait } {
+    static parseResponses(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, proj: ApiProject): { traits: { [key: string]: ApiTrait }, examples: { [key: string]: ApiExample } } {
         let responses = 'openapi' in spec ? spec.components.responses : spec.responses;
         let traits: ApiTrait[] = Utils.objectValues(proj.traits);
+        let examples: ApiExample[] = [];
         if (responses) {
             for (const [name, resp] of Utils.objectEntries(responses as { [key: string]: any })) {
                 let traitName = '', code = name, noneStatus = false;
@@ -857,18 +948,24 @@ export class OASUtils {
                 if ('openapi' in spec) {
                     Utils.objectEntries(resp.content as { content?: { [media: string]: OpenAPIV3_1.MediaTypeObject } })
                         .forEach(([mime, schemaData], index) => {
-                            let tmpResp = {
+                            let tmpResp: ApiResponse = {
                                 code: code + (index > 0 ? ('-' + mime) : ''),
                                 data: schemaData.schema,
+                                examples: [],
                                 desc: resp.description,
                                 noneStatus
                             };
+                            //parse examples
+                            let parsedExamples = OASUtils.parseResponseExamples(schemaData, proj, traitName);
+                            tmpResp.examples = parsedExamples.exampleRefs;
+                            examples = [...examples, ...parsedExamples.examples];
                             tmpTrait.responses.push(tmpResp);
                         })
                 } else {
-                    let tmpResp = {
+                    let tmpResp: ApiResponse = {
                         code: code,
                         data: resp.schema,
+                        examples: [],
                         desc: resp.description,
                         noneStatus: noneStatus
                     };
@@ -876,17 +973,25 @@ export class OASUtils {
                 }
             };
         }
-        return traits.reduce((obj, trait) => {
-            const key = trait._id
-            return ({ ...obj, [key]: trait })
-        }, {})
+        return {
+            traits: traits.reduce((obj, trait) => {
+                const key = trait._id
+                return ({ ...obj, [key]: trait })
+            }, {}),
+            examples: examples.reduce((obj, ex) => {
+                const key = ex._id
+                return ({ ...obj, [key]: ex })
+            }, {})
+        }
     }
 
-    static parsePaths(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, optn, proj: ApiProject): { folders: { [key: string]: ApiFolder }, endpoints: { [key: string]: ApiEndp } } {
+    static parsePaths(spec: OpenAPIV3_1.Document | OpenAPIV2.Document, optn, proj: ApiProject): { folders: { [key: string]: ApiFolder }, endpoints: { [key: string]: ApiEndp }, examples: { [key: string]: ApiExample } } {
         let paths = spec.paths;
         let endpoints: ApiEndp[] = [];
+        let folders: ApiFolder[] = [];
+        let examples: ApiExample[] = [];
+
         //parsing endpoints
-        var folders: ApiFolder[] = []
         if (paths) {
             for (const [pathName, apis] of Utils.objectEntries(paths as PathXType)) {
                 var fname = '';
@@ -909,15 +1014,17 @@ export class OASUtils {
                         folderId = existingFolder._id;
                     }
                 }
+                //parse common params at path level that are applicable for al the operations under this path
+                let commonParams = OASUtils.parsePathParams((typeof apis === 'object' && 'parameters' in apis) ? apis.parameters : [], proj)
 
                 for (const [method, path] of Utils.objectEntries(apis as { [key: string]: (OpenAPIV3_1.OperationObject | OpenAPIV2.OperationObject) })) {
                     if (optn.groupby === 'tag') {
-                        let fname = 'Untagged';
+                        let fname = '';
                         if (path.tags && path.tags[0]) {
                             fname = path.tags[0];
                         }
                         let existingFolder = folders.find(f => f.name === fname);
-                        if (!existingFolder) {
+                        if (!existingFolder && fname) {
                             let pathFolder = {
                                 _id: apic.s12(),
                                 name: fname,
@@ -925,7 +1032,7 @@ export class OASUtils {
                             }
                             folders.push(pathFolder);
                             folderId = pathFolder._id;
-                        } else {
+                        } else if (existingFolder) {
                             folderId = existingFolder._id;
                         }
                     }
@@ -934,29 +1041,17 @@ export class OASUtils {
                             _id: apic.s12(),
                             path: pathName,
                             method,
-                            headers: {
-                                properties: {},
-                                type: ['object'],
-                                required: []
-                            },
-                            queryParams: {
-                                properties: {},
-                                type: ['object'],
-                                required: []
-                            },
-                            pathParams: {
-                                properties: {},
-                                type: ['object'],
-                                required: []
-                            },
-                            body: null,
+                            summary: path.summary || '',
+                            headers: Utils.clone(commonParams.headers),
+                            queryParams: Utils.clone(commonParams.queryParams),
+                            pathParams: Utils.clone(commonParams.pathParams),
+                            body: Utils.clone(commonParams.body),
                             prerun: '',
                             postrun: '',
-                            traits: [],
+                            traits: Utils.clone(commonParams.traits),
                             responses: [],
                             folder: folderId,
                             tags: path.tags || [],
-                            summary: path.summary || '',
                             description: path.description || '',
                             operationId: path.operationId || '',
                             deprecated: !!path.deprecated,
@@ -977,95 +1072,16 @@ export class OASUtils {
                         }
 
                         if (path.parameters) {
-                            for (let i = 0; i < path.parameters.length; i++) {
-                                var param = path.parameters[i];
-                                var ptype = undefined;
-                                if ('in' in param) {
-                                    switch (param.in) {
-                                        case 'header':
-                                            ptype = 'headers';
-                                            break;
-                                        case 'query':
-                                            ptype = 'queryParams';
-                                            break;
-                                        case 'path':
-                                            ptype = 'pathParams';
-                                            break;
-                                        case 'body':
-                                            ptype = 'body';
-                                            break;
-                                        case 'formData':
-                                            ptype = 'formData';
-                                            break;
-                                        default:
-                                            if (!('ref' in param)) {
-                                                console.error('not supported', param);
-                                            }
-                                    }
-
-                                    let schema = 'schema' in param ? (param as OpenAPIV3_1.ParameterBaseObject).schema : param as (OpenAPIV2.InBodyParameterObject | OpenAPIV2.GeneralParameterObject);
-                                    if (['headers', 'queryParams', 'pathParams'].indexOf(ptype) >= 0) {
-                                        //if not a $ref
-                                        if ('$ref' in schema) {
-                                            tmpEndP[ptype].properties[param.name] = schema
-                                        } else {
-                                            tmpEndP[ptype].properties[param.name] = {
-                                                type: schema.type,
-                                                default: schema.default ?? '',
-                                                description: param.description || schema.description || ''
-                                            };
-                                            if ('items' in schema) {
-                                                tmpEndP[ptype].properties[param.name].items = schema.items;
-                                            }
-                                            if (param.required) {
-                                                tmpEndP[ptype].required.push(param.name);
-                                            }
-                                        }
-                                    } else if (ptype === 'body') { //applicable for OAS2
-                                        tmpEndP.body = {
-                                            type: 'raw',
-                                            data: Object.assign({}, param.schema)
-                                        };
-                                    } else if (ptype === 'formData') { //applicable for QAS2
-                                        tmpEndP.body = {
-                                            type: 'x-www-form-urlencoded',
-                                            data: []
-                                        };
-                                        if ('$ref' in schema) {
-                                            //TODO:
-                                        } else {
-                                            tmpEndP.body.data.push({
-                                                key: param.name,
-                                                type: schema.type,
-                                                desc: param.description,
-                                                required: param.required
-                                            });
-                                            if (schema.type === 'file') {
-                                                tmpEndP.body.type = 'form-data';
-                                            }
-                                        }
-                                    }
-                                } else if (param.$ref) {
-                                    let ref = param.$ref;
-                                    let traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
-                                    if (traitName.indexOf('trait') === 0 && (traitName.match(/\./g) || []).length === 2) {
-                                        traitName = ref.split('.')[1];
-                                    } let trait = Utils.objectValues(proj.traits).find(t => t.name === traitName); if (trait) {//if trait not added then push it
-                                        let existing = false;
-                                        for (let j = 0; j < tmpEndP.traits.length; j++) {
-                                            if (tmpEndP.traits[j]._id === trait._id) {
-                                                existing = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!existing) {
-                                            tmpEndP.traits.push({ _id: trait._id, name: trait.name });
-                                        }
-                                    } else {
-                                        console.error(`unresolved $ref: ${ref}`);
-                                    }
+                            let parsedParams = OASUtils.parsePathParams(path.parameters || [], proj);
+                            tmpEndP.traits = [...tmpEndP.traits, ...parsedParams.traits];
+                            tmpEndP.body = parsedParams.body;
+                            ['queryParams', 'pathParams', 'headers'].forEach(pType => {
+                                tmpEndP[pType] = {
+                                    properties: { ...tmpEndP[pType].properties, ...parsedParams[pType].properties },
+                                    type: ['object'],
+                                    required: [...tmpEndP[pType].required, ...parsedParams[pType].required]
                                 }
-                            }
+                            })
                         }
 
                         //for OAS3 parse bodyParam
@@ -1148,23 +1164,30 @@ export class OASUtils {
                                         let content = resp.content;
                                         Utils.objectEntries(content as { [media: string]: OpenAPIV3_1.MediaTypeObject }).forEach(([mimetype, schemaObj], index) => {
                                             produces.add(mimetype);
-                                            let tmpResp = {
+                                            let tmpResp: ApiResponse = {
                                                 //TODO: test this
                                                 // data: ('$ref' in resp) ? ({ $ref: resp. $ref.substring(0, resp. $ref.lastIndexOf('/') + 1) + refName )) (resp
                                                 desc: ('description' in resp) ? resp.description : '',
                                                 code: statusCode + (index > 0 ? `-${index}` : ''),
-                                                data: schemaObj.schema
+                                                data: schemaObj.schema,
+                                                examples: []
                                             };
+                                            //parse examples
+                                            let parsedExamples = OASUtils.parseResponseExamples(schemaObj, proj, path.summary);
+                                            tmpResp.examples = parsedExamples.exampleRefs;
+                                            examples = [...examples, ...parsedExamples.examples];
+
                                             //if exact same response already exists but just has a different content type dont add it again
                                             if (!tmpEndP.responses.find(resp => Utils.deepEquals(resp.data, schemaObj.schema) && statusCode === resp.code)) {
                                                 tmpEndP.responses.push(tmpResp);
                                             }
                                         })
                                     } else { //For OAS2
-                                        let tmpResp = {
+                                        let tmpResp: ApiResponse = {
                                             data: ('$ref' in resp) ? ({ $ref: resp.$ref.substring(0, resp.$ref.lastIndexOf('/') + 1) + refName }) : (resp.schema || { type: 'object' }),
                                             desc: ('description' in resp) ? resp.description : '',
-                                            code: statusCode
+                                            code: statusCode,
+                                            examples: []
                                         };
                                         tmpEndP.responses.push(tmpResp);
                                     }
@@ -1178,8 +1201,8 @@ export class OASUtils {
                                 tmpEndP.security.push({ name: Object.keys(sec)[0] });
                             })
                         }
-                        tmpEndP.consumes = Array.from(consumes).filter(mime=>mime!=='*/*');
-                        tmpEndP.produces = Array.from(produces).filter(mime=>mime!=='*/*');;
+                        tmpEndP.consumes = Array.from(consumes).filter(mime => mime !== '*/*');
+                        tmpEndP.produces = Array.from(produces).filter(mime => mime !== '*/*');;
                         endpoints.push(tmpEndP);
                     };
                 };
@@ -1194,6 +1217,159 @@ export class OASUtils {
                 const key = endp._id;
                 return ({ ...obj, [key]: endp })
             }, {}),
+            examples: examples.reduce((obj, ex) => {
+                const key = ex._id;
+                return ({ ...obj, [key]: ex })
+            }, {}),
         }
     }
+
+    static parsePathParams(parameters: OpenAPI.Parameters, proj: ApiProject) {
+        let parsedParams = {
+            headers: {
+                properties: {},
+                type: ['object'],
+                required: []
+            },
+            queryParams: {
+                properties: {}, type: ['object'],
+                required: []
+            },
+            pathParams: {
+                properties: {},
+                type: ['object'],
+                required: []
+            },
+            body: null,
+            traits: []
+        }
+        for (let i = 0; i < parameters?.length; i++) {
+            var param = parameters[i];
+            var ptype = undefined;
+            if ('in' in param) {
+                switch (param.in) {
+                    case 'header':
+                        ptype = 'headers';
+                        break;
+                    case 'query':
+                        ptype = 'queryParams';
+                        break;
+                    case 'path':
+                        ptype = 'pathParams';
+                        break;
+                    case 'body':
+                        ptype = 'body';
+                        break;
+                    case 'formData':
+                        ptype = 'formData';
+                        break;
+                    default:
+                        if (('ref' in param)) {
+                            console.error('not supported', param);
+                        }
+                }
+                let schema = 'schema' in param ? (param as OpenAPIV3_1.ParameterBaseObject).schema : param as (OpenAPIV2.InBodyParameterObject | OpenAPIV2.GeneralParameterObject);
+                if (['headers', 'queryParams', 'pathParams'].indexOf(ptype) >= 0) {
+                    //if not a Sref
+                    if ('$ref' in schema) {
+                        parsedParams[ptype].properties[param.name] = schema
+                    } else {
+                        parsedParams[ptype].properties[param.name] = {
+                            type: schema.type,
+                            default: schema.default ?? "",
+                            description: param.description || schema.description || ''
+                        };
+                        if ('items' in schema) {
+                            parsedParams[ptype].properties[param.name].items = schema.items;
+                        }
+                        if (param.required) {
+                            parsedParams[ptype].required.push(param.name);
+                        }
+                    }
+                } else if (ptype == 'body') { //applicable for OAS2 
+                    parsedParams.body = {
+                        type: 'raw',
+                        data: Object.assign({}, param.schema)
+                    };
+                } else if (ptype === 'formData') { //applicable for QAS2
+                    parsedParams.body = {
+                        data: [],
+                        type: 'x-www-form-urlencoded'
+                    };
+                    if ('$ref' in schema) {
+                        //TODO:
+
+                    } else {
+                        parsedParams.body.data.push({
+                            key: param.name,
+                            type: schema.type,
+                            desc: param.description,
+                            required: param.required
+                        });
+                        if (schema.type === 'file') {
+                            parsedParams.body.type = 'form-data';
+                        }
+                    }
+                }
+            } else if (param.$ref) {
+                let ref = param.$ref;
+                let traitName = ref.substring(ref.lastIndexOf('/') + 1, ref.length);
+                if (traitName.indexOf('trait') === 0 && (traitName.match(/\./g) || []).length === 2) {
+                    traitName = ref.split('.')[1];
+                }
+                let trait = Utils.objectValues(proj.traits).find(t => t.name === traitName); if (trait) {//if trait not added then push it
+                    let existing = false;
+                    for (let j = 0; j < parsedParams.traits.length; j++) {
+                        if (parsedParams.traits[j]._id = trait._id) {
+                            existing = true; break;
+                        }
+                    }
+                    if (!existing) {
+                        parsedParams.traits.push({ _id: trait._id, name: trait.name });
+                    }
+                } else {
+                    console.error(`Unresolved $ref: ${ref}`);
+                }
+            }
+        }
+        return parsedParams;
+    }
+
+    static parseResponseExamples(schemaObj: OpenAPIV3_1.MediaTypeObject, proj: ApiProject, pathName: string) {
+        let examples: ApiExample[] = []
+        let exampleRefs: ApiExampleRef[] = [];
+        let specExamples = schemaObj.examples || (schemaObj.example ? { [`eg.${pathName}`]: { value: schemaObj.example } } : null)
+
+        if (specExamples) {
+            exampleRefs = Utils.objectEntries(specExamples).map(([name, specExample]) => {
+                if (`$ref` in specExample) {
+                    let refName = specExample.$ref.substring(specExample.$ref.lastIndexOf('/') + 1);
+                    let resolvedRef: ApiExample = Utils.objectValues(proj.examples).find(ex => ex.name === refName);
+                    return { key: name, val: resolvedRef._id }
+                } else {
+                    let example: ApiExample = {
+                        _id: apic.s12(),
+                        name: name.replace(/\s/g, '_'),
+                        summary: specExample.summary || '',
+                        folder: Utils.objectValues(proj.folders).find(f => f.name == 'Examples')._id,
+                        description: specExample.description
+                    }
+                    if (specExample.externalValue) {
+                        example.valueType = 'external';
+                        example.value = specExample.externalValue;
+                    } else {
+                        example.valueType = 'inline';
+                        example.value = specExample.value
+                    }
+                    examples.push(example);
+                    return { key: name, val: example._id };
+                }
+            })
+        }
+        return {
+            examples,
+            exampleRefs
+        }
+    }
+
 }

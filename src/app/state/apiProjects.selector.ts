@@ -41,6 +41,7 @@ export class ApiProjectStateSelector {
                         models: {},
                         traits: {},
                         endps: {},
+                        examples: {},
                         folder: {
                             _id: 'ungrouped',
                             name: "Ungrouped",
@@ -56,7 +57,8 @@ export class ApiProjectStateSelector {
                         folder: { ...project.folders[fId], expand: false },
                         models: {},
                         traits: {},
-                        endps: {}
+                        endps: {},
+                        examples: {}
                     };
                 })
 
@@ -70,6 +72,20 @@ export class ApiProjectStateSelector {
                         leftTree[model.folder].models[model._id] = modelX;
                     } else {
                         leftTree.ungrouped.models[model._id] = modelX;
+                    }
+                });
+
+
+                project.examples && Object.keys(project.examples).forEach(eId => {
+                    const example = project.examples[eId];
+                    var exampleX = {
+                        _id: example._id,
+                        name: example.name
+                    };
+                    if (leftTree[example.folder]) {
+                        leftTree[example.folder].examples[example._id] = exampleX;
+                    } else {
+                        leftTree.ungrouped.examples[example._id] = exampleX;
                     }
                 });
 

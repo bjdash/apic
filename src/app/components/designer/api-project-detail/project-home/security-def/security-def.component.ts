@@ -72,6 +72,9 @@ export class SecurityDefComponent implements OnInit, OnChanges {
         name: [secDef?.apiKey?.name || ''],
         in: [secDef?.apiKey?.in || 'header']
       }),
+      bearer: this.formBuilder.group({
+        bearerFormat: [secDef?.bearer?.bearerFormat || '']
+      }),
       oauth2: this.formBuilder.group({
         authorizationUrl: [secDef?.oauth2?.authorizationUrl || ''],
         tokenUrl: [secDef?.oauth2?.tokenUrl || ''],
@@ -145,6 +148,9 @@ export class SecurityDefComponent implements OnInit, OnChanges {
       }
       if (sanitized.type === 'oauth2') {
         sanitized.oauth2 = { ...secDef.oauth2 }
+      }
+      if (sanitized.type === 'bearer') {
+        sanitized.bearer = { ...secDef.bearer }
       }
       return sanitized;
     })

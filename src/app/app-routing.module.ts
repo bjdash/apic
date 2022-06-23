@@ -21,6 +21,7 @@ import { PublishedDocsDetailComponent } from './components/dashboard/published-d
 import { DocsDetailComponent } from './components/docs/docs-detail/docs-detail.component';
 import { ApiBuilderComponent } from './components/designer/api-project-detail/api-builder/api-builder.component';
 import LocalStore from './services/localStore';
+import { ProjectExampleComponent } from './components/designer/api-project-detail/project-example/project-example.component';
 
 
 const routes: Routes = [
@@ -50,6 +51,7 @@ const routes: Routes = [
       { path: "endpoints/:endpId", component: ProjectEndpointComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "traits/:traitId", component: ProjectTraitsComponent, canDeactivate: [ProjectDetailRouteGuard] },
       { path: "api-builder", component: ApiBuilderComponent, canDeactivate: [ProjectDetailRouteGuard] },
+      { path: "examples/:exampleId", component: ProjectExampleComponent, canDeactivate: [ProjectDetailRouteGuard] },
     ]
   },
   {

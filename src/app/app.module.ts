@@ -143,6 +143,8 @@ import { IntroComponent } from './components/intro/intro.component';
 import { ProjectTagsComponent } from './components/designer/api-project-detail/project-home/project-tags/project-tags.component';
 import { MarkdownComponent } from './components/common/markdown/markdown.component';
 import { DataChangeNotifier } from './services/dataChangeNotifier.service';
+import { ProjectExampleComponent } from './components/designer/api-project-detail/project-example/project-example.component';
+import { OrderByPipe } from './utils/orderBy.pipe';
 
 @NgModule({
   declarations: [
@@ -158,6 +160,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     ProjectHomeComponent,
     ProjectFolderComponent,
     ProjectModelsComponent,
+    ProjectExampleComponent,
     ProjectEndpointComponent,
     ApicTagEditorComponent,
     ProjectTraitsComponent,
@@ -218,6 +221,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     SharingComponent,
     ApiBuilderComponent,
     CustomFilter,
+    OrderByPipe,
     AsApicListItemObj,
     AppUpdateComponent,
     UpdateDownloadedComponent,

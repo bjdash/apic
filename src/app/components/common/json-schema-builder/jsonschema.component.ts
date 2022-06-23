@@ -50,24 +50,12 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor, OnChan
 
   @ViewChild('editor') editor;
   @ViewChild('tabGroup') tabGroup: MatTabGroup;
-
-  @Input()
-  options: JsonSchemaOption;
-
-  @Input()
-  schema: any = null;
-
-  @Input()
-  models: any = [];
-
-  @Input()
-  responses: any = [];
-
-  @Output()
-  onSchemaChange = new EventEmitter<number>();
-
-  @Output()
-  onTestBuilder = new EventEmitter<number>()
+  @Input() options: JsonSchemaOption;
+  @Input() schema: any = null;
+  @Input() models: any = [];
+  @Input() responses: any = [];
+  @Output() onSchemaChange = new EventEmitter<number>();
+  @Output() onTestBuilder = new EventEmitter<number>()
 
   propagateChange: any = () => { };
   propagateTouch: any = () => { };

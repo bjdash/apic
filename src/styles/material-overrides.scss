@@ -321,6 +321,10 @@ div.mat-menu-content {
   padding: 5px;
   min-height: 30px;
   color: var(--text-color);
+  &.ng-invalid {
+    box-shadow: inset 0 -1px 0 #f9250f !important;
+    border: 1px solid #f9250f !important;
+  }
 }
 .mat-select-value {
   color: var(--text-color);

@@ -16,10 +16,8 @@ import { ApiProjectDetailService } from './api-project-detail.service';
 import apic from 'src/app/utils/apic';
 import { DetachedRouteHandlerService } from 'src/app/detached-route-handler.service';
 import { SharingService } from 'src/app/services/sharing.service';
-import { Utils } from 'src/app/services/utils.service';
-import { ApiRequest } from 'src/app/models/Request.model';
-import { ReqFolder } from 'src/app/models/ReqFolder.model';
-import { RequestUtils } from 'src/app/utils/request.util';
+
+type ItemTypes = 'models' | 'traits' | 'endpoints' | 'examples';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -165,7 +163,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.apiProjectDetailService.selectProj(proj);
     }
 
-    async duplicateItem(id: string, type: 'models' | 'traits' | 'endpoints') {
+    async duplicateItem(id: string, type: ItemTypes) {
         var toCopy = { ...this.selectedPROJ[type][id] };
         toCopy._id = apic.s12();
         let nameProperty = this.getNameProperty(type);
@@ -203,7 +201,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    deleteItem(id: string, type: 'models' | 'traits' | 'endpoints') {
+    deleteItem(id: string, type: ItemTypes) {
         if (!id || !this.selectedPROJ[type]) return;
 
         const { [id]: toRemove, ...remaining } = this.selectedPROJ[type];
@@ -229,16 +227,17 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
             }).catch(() => { });
     }
 
-    checkExistingItem(nameProperty: string, nameValue: string, type: 'models' | 'traits' | 'endpoints'): boolean {
+    checkExistingItem(nameProperty: string, nameValue: string, type: ItemTypes): boolean {
         if (!nameValue || !nameProperty) return false;
 
         return this.selectedPROJ[type] && Object.values(this.selectedPROJ[type]).find((item) => item[nameProperty].toLowerCase() ===
             nameValue.toLowerCase()) !== undefined;
     }
-    private getNameProperty(type) {
+    private getNameProperty(type: ItemTypes) {
         switch (type) {
             case 'models':
             case 'traits':
+            case 'examples':
                 return 'name';
             case 'endpoints':
                 return 'summary';
