@@ -25,10 +25,10 @@
             <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
                 module</a> to edit it.
         </div>
-        <mat-tab-group animationDuration="ems" class="smv marg825">
+        <mat-tab-group animationDuration="ems" class="smv margB25">
             <mat-tab label="Schema">
                 <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
-                    [responses]="responsesModels" (onSchemach formControlName="data"
+                    (onSchemaChange)="onSchemaUpdate()" name="data" [responses]="responsesModels" formControlName="data"
                     [options]="{showTestBuilder: false, readOnly: selectedResp?.fromTrait}"
                     (onTestBuilder)="openTestBuilder($event)">
                 </ng-jsonschema>
@@ -47,7 +47,7 @@
             <mat-tab label="Description">
                 <div class="pad10" *ngIf="responses.length>0; else noResp">
                     <label>Description</label>
-                    <textarea class="form-control margB18" formControlName="desc"
+                    <textarea class="form-control margB10" formControlName="desc"
                         [attr.disabled]="selectedResp?.fromTrait"></textarea>
                 </div>
             </mat-tab>
@@ -56,7 +56,7 @@
         <span *ngIf="selectedRespForm.value.noneStatus && responses.length>0">
             <i class="icon bj-alert warning"></i>
             This response won't be auto imported when this trait is added to an endpoint as it is not defined against a
-            status code.
+            status code. You can use this by selecting it in the designer section as $ref
             <a href="TODO://" class="t_color">Know more</a>
         </span>
     </div>

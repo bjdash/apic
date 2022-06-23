@@ -4,7 +4,7 @@ import { ApiProject } from './../../../models/ApiProject.model';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, Event as NavigationEvent, NavigationEnd } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { filter, observeOn, switchMap, takeUntil, takeWhile } from 'rxjs/operators';
+import { filter, observeOn, switchMap, takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectExportModalComponent } from './project-export-modal/project-export-modal.component';
 import { ConfirmService } from '../../../directives/confirm.directive';

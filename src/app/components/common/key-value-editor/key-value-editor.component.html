@@ -36,7 +36,7 @@
                 *ngIf="options.allowFileType && !options.useSelectForVal && kv.controls.type?.value=='file'"
                 (change)="onFileChange($event, i)" />
             <select [formControl]="kv.controls.val" class="form-control" *ngIf="options.useSelectForVal">
-                <option *ngFor="let op of valueOptions | orderBy 'name'" [value]="op._id">{{op.name}}</option>
+                <option *ngFor="let op of valueOptions | orderBy: 'name'" [value]="op._id">{{op.name}}</option>
             </select>
         </div>
 

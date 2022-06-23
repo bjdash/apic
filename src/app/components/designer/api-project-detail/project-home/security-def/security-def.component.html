@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            <div [hidden]="item.value.type == 'bearer'" formGroupName="bearer">
+            <div [hidden]="item.value.type !== 'bearer'" formGroupName="bearer">
                 <div class="row">
                     <label class="control-label col-xs-3">Bearer format</label>
                     <div class="col-xs-6">

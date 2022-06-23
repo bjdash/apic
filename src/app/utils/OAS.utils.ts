@@ -29,7 +29,7 @@ type PathType<T> =
     T extends "OAS2" ? { [key: string]: OpenAPIV2.PathItemObject } :
     never;
 type PathXType<T extends {} = {}> = {
-    $ref?: string,
+    // $ref?: string,
     parameters?: (OpenAPIV2.Parameters | (OpenAPIV2.ReferenceObject | OpenAPIV2.ParameterObject)[])
 } & {
         [method in (OpenAPIV2.HttpMethods | OpenAPIV3_1.HttpMethods)]?: (OpenAPIV3_1.OperationObject<T> | OpenAPIV2.OperationObject<T>)
@@ -472,7 +472,7 @@ export class OASUtils {
 
         for (const [id, example] of Utils.objectEntries(proj.examples)) {
             let specEx = {
-                Summary: example.summary,
+                summary: example.summary,
                 description: example.description,
                 ...(example.valueType === 'external' && { externalValue: example.value }),
                 ...(example.valueType === 'inline' && { value: example.value }),
@@ -508,7 +508,7 @@ export class OASUtils {
                                     examples: responses[i].examples?.reduce((obj, ex) => {
                                         const key = ex.key;
                                         return ({ ...obj, [key]: { $ref: `#/components/examples/${proj.examples[ex.val].name}` } })
-                                    })
+                                    }, {})
                                 })
                             }
                         }
@@ -1015,7 +1015,7 @@ export class OASUtils {
                     }
                 }
                 //parse common params at path level that are applicable for al the operations under this path
-                let commonParams = OASUtils.parsePathParams((typeof apis === 'object' && 'parameters' in apis) ? apis.parameters : [], proj)
+                let commonParams = OASUtils.parsePathParams(('parameters' in apis) ? apis.parameters : [], proj)
 
                 for (const [method, path] of Utils.objectEntries(apis as { [key: string]: (OpenAPIV3_1.OperationObject | OpenAPIV2.OperationObject) })) {
                     if (optn.groupby === 'tag') {
@@ -1232,7 +1232,8 @@ export class OASUtils {
                 required: []
             },
             queryParams: {
-                properties: {}, type: ['object'],
+                properties: {},
+                type: ['object'],
                 required: []
             },
             pathParams: {

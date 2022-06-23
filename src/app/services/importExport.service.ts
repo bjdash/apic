@@ -61,6 +61,7 @@ export class ImportExportService {
         //parse examples
         let examplesData = OASUtils.parseExamples(spec);
         proj.examples = { ...proj.examples, ...examplesData.examples }
+        proj.folders = { ...proj.folders, ...examplesData.folders }
         //parse parameter
         proj.traits = { ...proj.traits, ...OASUtils.parseParameters(spec, proj) }
         let traitData = OASUtils.parseResponses(spec, proj);
