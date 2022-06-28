@@ -7,7 +7,6 @@ import { Observable, Subject } from 'rxjs';
 import { first, map, take, takeUntil } from 'rxjs/operators';
 import { Env } from '../../models/Envs.model';
 import { EnvState } from '../../state/envs.state';
-import { AceEditorDirective } from 'ng2-ace-editor';
 import { FileSystem } from '../../services/fileSystem.service';
 import { env } from 'process';
 import { User } from '../../models/User.model';

@@ -9,8 +9,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { AceEditorModule } from 'ng2-ace-editor';
-
+import { AceConfigInterface, AceModule, ACE_CONFIG } from 'ngx-ace-wrapper';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -146,6 +145,9 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
 import { ProjectExampleComponent } from './components/designer/api-project-detail/project-example/project-example.component';
 import { OrderByPipe } from './utils/orderBy.pipe';
 
+const DEFAULT_ACE_CONFIG: AceConfigInterface = {
+};
+
 @NgModule({
   declarations: [
     FormValidatorDirective,
@@ -254,7 +256,7 @@ import { OrderByPipe } from './utils/orderBy.pipe';
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     BrowserAnimationsModule,
-    AceEditorModule,
+    AceModule,
     MatButtonModule,
     MatIconModule,
     MatRippleModule,
@@ -282,6 +284,9 @@ import { OrderByPipe } from './utils/orderBy.pipe';
     {
       provide: RouteReuseStrategy,
       useClass: ApicRouteReuseStrategy,
+    }, {
+      provide: ACE_CONFIG,
+      useValue: DEFAULT_ACE_CONFIG
     },
     AppBootstrap,
     MigrationService,

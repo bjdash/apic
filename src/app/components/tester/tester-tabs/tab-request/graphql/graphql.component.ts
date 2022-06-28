@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AceEditorComponent } from 'ng2-ace-editor';
 import * as ace from 'brace';
 import { environment } from 'src/environments/environment';
 import { ApicAgentService } from 'src/app/services/apic-agent.service';
@@ -23,7 +22,6 @@ export class GraphqlComponent implements OnInit, ControlValueAccessor {
   @Input() method: string;
   @Input() gqlVars: string;
   @Output() onGqlVarsChange = new EventEmitter();
-  @ViewChild('gqlAce') ace: AceEditorComponent;
 
   gqlTypes: any;
   gqlSuggests: any;

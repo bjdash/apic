@@ -7,6 +7,7 @@ import 'brace/mode/yaml';
 import 'brace/mode/xml';
 import 'brace/mode/javascript';
 import 'brace/ext/searchbox';
+import 'brace/theme/monokai';
 import 'brace/ext/language_tools';
 import './utils/mode-graphql'
 

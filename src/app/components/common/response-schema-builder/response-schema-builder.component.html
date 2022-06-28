@@ -25,7 +25,7 @@
             <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
                 module</a> to edit it.
         </div>
-        <mat-tab-group animationDuration="ems" class="smv margB25">
+        <mat-tab-group animationDuration="0ms" class="smv margB25">
             <mat-tab label="Schema">
                 <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
                     (onSchemaChange)="onSchemaUpdate()" name="data" [responses]="responsesModels" formControlName="data"

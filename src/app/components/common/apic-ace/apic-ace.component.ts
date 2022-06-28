@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, EventEmitter, forwardRef, Inject, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AceEditorComponent } from 'ng2-ace-editor';
+import { AceComponent } from 'ngx-ace-wrapper';
 
 @Component({
   selector: 'apic-ace',
@@ -20,7 +20,7 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   @Input() options: any;
   @Output() textChange = new EventEmitter();
   @ViewChild('editor', { read: ElementRef }) editor: ElementRef;
-  @ViewChild('editor') ace: AceEditorComponent;
+  @ViewChild('editor') ace: AceComponent;
 
   private _onChange = (_: any) => { };
   private _onTouched = () => { };
@@ -76,14 +76,16 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   }
 
   refresh() {
-    this.ace.getEditor().resize()
+    console.log(this.ace);
+
+    this.ace.directiveRef.ace().resize()
   }
 
   focus() {
-    this.ace.getEditor().focus();
+    this.ace.directiveRef.ace().focus();
   }
 
   getEditor() {
-    return this.ace.getEditor();
+    return this.ace.directiveRef.ace();
   }
 }
