@@ -2,7 +2,7 @@ import { Directive, ElementRef, HostListener } from '@angular/core';
 import { FormGroupDirective } from '@angular/forms';
 
 @Directive({
-  selector: 'form'
+  selector: 'form[formGroup]'
 })
 export class FormValidatorDirective {
 

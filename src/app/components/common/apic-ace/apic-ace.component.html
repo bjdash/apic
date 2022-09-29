@@ -2,5 +2,5 @@
     [theme]="'monokai'" [readOnly]="readOnly">
 </ace-editor> -->
 <ace #editor class="apic-ace" [config]="options" [mode]="mode" [theme]="'monokai'" [value]="text"
-    (valueChange)="textChanged($event)" [disabled]="readOnly"></ace>
+    (valueChange)="throttledChange($event)" [disabled]="readOnly"></ace>
 <div class="ace-drag" (mousedown)="startResize($event)"></div>

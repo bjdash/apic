@@ -18,6 +18,7 @@ import { delayWhen, takeUntil } from 'rxjs/operators';
 import { TesterTabsService } from '../tester-tabs.service';
 import apic from 'src/app/utils/apic';
 import { RequestsService } from 'src/app/services/requests.service';
+import { TesterTabInterface } from '../tester-tabs.interface';
 
 type Method = 'Websocket' | 'Stomp' | 'Socketio' | 'SSE';
 interface SocketioForm {
@@ -34,8 +35,9 @@ interface SocketioForm {
   templateUrl: './tab-socket.component.html',
   styleUrls: ['./tab-socket.component.scss']
 })
-export class TabSocketComponent implements OnInit, OnDestroy {
+export class TabSocketComponent implements OnInit, OnDestroy, TesterTabInterface {
   @Input() requestId: string;
+  @Input() initialdata: ApiRequest;
   form: FormGroup;
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
@@ -51,7 +53,6 @@ export class TabSocketComponent implements OnInit, OnDestroy {
     argTypes: ['json'],
     curArg: 0,
   }
-
 
   flags = {
     showConnection: true,
@@ -113,6 +114,9 @@ export class TabSocketComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (!this.requestId.includes('new_tab') && !this.requestId.includes('suit_req')) {
       this.listenForUpdate()
+    }
+    if (this.initialdata) {
+      this.processSelectedReq(this.initialdata)
     }
   }
   listenForUpdate() {

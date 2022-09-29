@@ -1,15 +1,15 @@
 <div class="objCont" *ngIf="entity && entity._type">
-    <fieldset [disabled]="entity.disabled || options.disabledKeys?.includes(entity._key)" class="js-fieldset">
+    <fieldset [disabled]="entity.disabled || options.disabledKeys?.includes(entity._key)" class="js-fieldset objProps">
         <div class="js-row" [ngClass]="showDetailsPan?'t_glow':''">
             <button type="button" mat-icon-button aria-label="Add new prop" class="obj-add sm"
                 (click)="addNewProp($event)" [disabled]="options.disableManualAdd"
-                *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0]) && !entity.refTxt">
+                *ngIf="canAddChild(entity._type, entity._items?.[0]?._type?.[0]) && !entity.refTxt">
                 <mat-icon>add_box</mat-icon>
             </button>
             <span *ngIf="(options.mode != 'list') || !entity.root$$" class="model-type-cont vcenter">
                 <button type="button" mat-icon-button class="obj-exp xs" [ngClass]="{open:!ctrl.expanded}"
                     (click)="ctrl.expanded=!ctrl.expanded"
-                    *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0])">
+                    *ngIf="canAddChild(entity._type, entity._items?.[0]?._type?.[0])">
                     <mat-icon class="" *ngIf="ctrl.expanded">expand_more</mat-icon>
                     <mat-icon *ngIf="!ctrl.expanded">chevron_right</mat-icon>
                 </button>
@@ -22,9 +22,9 @@
                 <button type="button" mat-button class="model-selector" (click)="openMenu(entity,$event)">
                     <span *ngFor="let t of entity._type;let last=last">
                         <span [ngClass]="t">{{t}}</span>
-                        <span *ngIf="t==='Array' && entity._items[0]" [ngClass]="entity._items[0]._type[0]"
-                            class="unspecified">[{{entity._items[0]._type[0]}}
-                            <span *ngIf="entity._items[0]._type[0]=='$ref'">
+                        <span *ngIf="t==='Array' && entity._items[0]" [ngClass]="entity._items?.[0]?._type?.[0]"
+                            class="unspecified">[{{entity._items?.[0]?._type?.[0]}}
+                            <span *ngIf="entity._items?.[0]?._type?.[0]=='$ref'">
                                 {{entity._items[0]._path}}
                                 <span
                                     *ngIf="models[entity._items[0]._value]">{{models[entity._items[0]._value].nameSpace}}</span>
@@ -44,10 +44,9 @@
                     <span class="caret"></span>
                 </button>
 
-                <span *ngIf="canAddChild(entity._type, entity._items && entity._items[0] && entity._items[0]._type[0])"
-                    class="faint">[
-                    <span>{{(entity._properties && entity._properties.length) || (entity._items &&
-                        entity._items[0]._properties && entity._items[0]._properties.length)||0}}</span>
+                <span *ngIf="canAddChild(entity._type, entity._items?.[0]?._type?.[0])" class="faint">[
+                    <span>{{(entity._properties && entity._properties.length) ||
+                        entity._items?.[0]?._properties?.length||0}}</span>
                     ]
                 </span>
 
@@ -57,12 +56,12 @@
             <span class="vcenter js-right-cont">
                 <a href="" mat-icon-button title="Expand $ref" class="xs"
                     (click)="$event.preventDefault();expand$ref(entity)"
-                    *ngIf="entity._type.indexOf('$ref')>=0 || (entity._items && entity._items[0] && entity._items[0]._type.indexOf('$ref'))>=0">
+                    *ngIf="entity._type.indexOf('$ref')>=0 || entity._items?.[0]?._type?.indexOf('$ref')>=0">
                     <!--TODO: Use Optional chaining operator (?)-->
                     <mat-icon
-                        *ngIf="!entity._refExp && (!entity._items || !entity._items[0] || !entity._items[0]._refExp)">
+                        *ngIf="!entity._refExp && (!entity._items || !entity._items[0] || !entity._items?.[0]?._refExp)">
                         expand</mat-icon>
-                    <mat-icon *ngIf="entity._refExp || (entity._items && entity._items[0] && entity._items[0]._refExp)">
+                    <mat-icon *ngIf="entity._refExp || entity._items?.[0]?._refExp">
                         compress</mat-icon>
                 </a>
                 <a href="" mat-icon-button title="Open test builder" class="xs"
@@ -107,7 +106,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-xs-2">Desc: </label>
+                            <label class="control-label col-xs-2">Desc:</label>
                             <div class="col-xs-9">
                                 <textarea class="form-control" [(ngModel)]="entity._description"
                                     (ngModelChange)="refreshSchema($event)"
@@ -163,7 +162,7 @@
         </div>
         <!-- ITEMS: {{entity._items}} -->
         <div
-            *ngIf="entity._items && entity._items[0] && entity._type.indexOf('Object')<0 && hasChild.indexOf(entity._items[0]._type[0])>=0">
+            *ngIf="entity._items && entity._items[0] && entity._type.indexOf('Object')<0 && hasChild.indexOf(entity._items?.[0]?._type?.[0])>=0">
             <div *ngFor="let prop of entity._items[0]._properties" class="propCont" [hidden]="!ctrl.expanded">
                 <ng-jsonschema-main [refreshSchema]="refreshSchema" (onAddNewProp)="addNewProp($event)"
                     [models]="models" [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"

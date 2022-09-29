@@ -6,7 +6,7 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./gql-schema.component.scss']
 })
 export class GqlSchemaComponent implements OnInit {
-  @Input() types: any;//TODO: Check if required
+  @Input() types: any;
   @Input() path: any;
   constructor() { }
 

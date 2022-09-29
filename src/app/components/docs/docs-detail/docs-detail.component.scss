@@ -227,10 +227,13 @@
         }
         .http_method {
             background: var(--content-bg);
+            color: var(--text-color);
             padding: 3px;
             text-transform: uppercase;
             width: 70px;
             text-align: center;
+            border-radius: 3px;
+            margin-right: 5px;
         }
 
         .http-path {
@@ -246,6 +249,7 @@
             border: none;
             color: var(--text-color);
             cursor: pointer;
+            margin-left: auto;
             .mat-icon {
                 font-size: 30px;
                 width: 30px;
@@ -373,7 +377,7 @@ json-schema-view .property {
 .definition {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .apiheader {

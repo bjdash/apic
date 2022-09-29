@@ -62,13 +62,14 @@ export class ProjectExampleComponent {
 
     private handleExampleSelect(exampleId: string) {
         this.selectedExample = this.selectedPROJ?.examples?.[exampleId];
-        if (this.selectedExample) {
-            if (exampleId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase())
+        if (!this.selectedExample) {
+            if (exampleId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
                 // this.toaster.warn('Selected folder doesn\'t exist.');
                 this.router.navigate(['../', 'new'], { relativeTo: this.route });
-            return;
-        } else {
-            this.selectedExample = NewApiExample;
+                return;
+            } else {
+                this.selectedExample = NewApiExample;
+            }
         }
 
         const { name, summary, folder, description, value, valueType } = this.selectedExample;
@@ -89,14 +90,12 @@ export class ProjectExampleComponent {
         }
 
         this.exampleForm.patchValue(patchvalue);
-        setTimeout(() => {
-            this.exampleForm.markAsPristine();
-            this.exampleForm.markAsUntouched();
-        }, 0);
+        this.exampleForm.markAsPristine();
+        this.exampleForm.markAsUntouched();
     }
 
     async createExample(allowDup?: boolean) {
-        if (this.exampleForm.valid) return;
+        if (!this.exampleForm.valid) return;
         let { name, summary, folder, description, valueType, valueInline, valueExternal, value$ref } = this.exampleForm.value;
         const example: ApiExample = {
             _id: this.isEditing() ? this.selectedExample._id : new Date().getTime() + apic.s8(),
@@ -208,7 +207,7 @@ export class ProjectExampleComponent {
     }
 
     isEditing() {
-        return (this.selectedExample._id === 'NEW');
+        return !(this.selectedExample._id === 'NEW');
     }
 
     setDirty() {

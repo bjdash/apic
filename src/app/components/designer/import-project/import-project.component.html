@@ -35,7 +35,6 @@
                         (click)="flags.impType='json'">JSON</button>
                 </div>
                 <div class="col-sm-12">
-                    {{form.value|json}}
                     <apic-ace id="import-ace" formControlName="text" [mode]="flags.impType">
                     </apic-ace>
                 </div>

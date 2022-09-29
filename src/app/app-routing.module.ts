@@ -40,9 +40,7 @@ const routes: Routes = [
     path: 'designer/:projectId',
     component: ApiProjectDetailComponent,
     data: {
-      //TODO: Enable reuse for this. Current issue: Designer->ProjectDetail->Endpoints->Designer (skipping ProjectDetail)
-      //Now opening any project errors as new route is designer/:id and last saved was designer/:id/endpoints
-      reuse: false
+      reuse: true
     },
     children: [
       { path: '', component: ProjectHomeComponent, pathMatch: 'full' },

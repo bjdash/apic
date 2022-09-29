@@ -7,12 +7,11 @@ import { takeUntil } from 'rxjs/operators';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { ImportExportService } from 'src/app/services/importExport.service';
-// import SwaggerParser from "@apidevtools/swagger-parser";
-// import * as SwaggerParser from '../../../utils/bundle2';
+import SwaggerParser from "swagger-parser";
 import { Utils } from 'src/app/services/utils.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
 import { ApiProjectDetailService } from '../../designer/api-project-detail/api-project-detail.service';
-declare var SwaggerParser;
+// declare var SwaggerParser;
 @Component({
   selector: 'app-docs-detail',
   templateUrl: './docs-detail.component.html',
@@ -66,7 +65,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     this.selectedPROJ = project;
     this.error = '';
     let spec = this.swaggerService.exportOAS(project, { includeApicIds: true });
-    this.resolvedSpec = await SwaggerParser.dereference(spec, { dereference: { circular: false } });
+    this.resolvedSpec = await SwaggerParser.dereference(spec, { dereference: { circular: 'ignore' } });
 
     this.tagGroups = { Untagged: [] }
     Utils.objectKeys(this.resolvedSpec.paths).forEach(path => {

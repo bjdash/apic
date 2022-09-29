@@ -22,10 +22,11 @@
                 </div>
             </ng-template>
             <div>
-                <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data"
+                <app-tab-request *ngSwitchCase="'req'" [requestId]="tab.id" [initialData]="tab.data" #tabRefs
                     [projId]="tab.projId"></app-tab-request>
-                <app-tab-socket *ngSwitchCase="'ws'" [requestId]="tab.id"></app-tab-socket>
-                <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id" [reqToOpen]="tab.data?.reqToOpen">
+                <app-tab-socket *ngSwitchCase="'ws'" [initialdata]="tab.data" [requestId]="tab.id" #tabRefs>
+                </app-tab-socket>
+                <app-tab-suite *ngSwitchCase="'suite'" [suiteId]="tab.id" [reqToOpen]="tab.data?.reqToOpen" #tabRefs>
                 </app-tab-suite>
             </div>
         </mat-tab>
@@ -35,6 +36,7 @@
     </div>
     <mat-menu #contextMenu="matMenu">
         <ng-template matMenuContent let-item="item">
+            <button mat-menu-item (click)="duplicateTab(item)" *ngIf="item.type !== 'suite'">Close all but this</button>
             <button mat-menu-item (click)="closeAllButThis(item)">Close all but this</button>
             <button mat-menu-item (click)="closeAllRight(item)">Close all to the right</button>
             <!--TODO: <button mat-menu-item (click)="closeAllRight(item)">Duplicate</button> -->

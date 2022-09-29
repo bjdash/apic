@@ -1,5 +1,5 @@
 import { createSelector, Selector } from "@ngxs/store";
-import { ApiProject } from "../models/ApiProject.model";
+import { ApiProject, LeftTreeItem } from "../models/ApiProject.model";
 import { Utils } from "../services/utils.service";
 import { ApiProjectState, ApiProjectStateModel } from "./apiProjects.state";
 
@@ -34,94 +34,74 @@ export class ApiProjectStateSelector {
     static getLeftTree(id: string) {
         return createSelector(
             [ApiProjectStateSelector.getById],
-            (filterFn: (id: any) => ApiProject) => {
+            (filterFn: (id: any) => ApiProject): LeftTreeItem[] => {
                 var project = filterFn(id);
-                var leftTree = {
-                    ungrouped: {
-                        models: {},
-                        traits: {},
-                        endps: {},
-                        examples: {},
-                        folder: {
-                            _id: 'ungrouped',
-                            name: "Ungrouped",
-                            expand: true
-                        }
+                var leftTree: { [key: string]: LeftTreeItem } = {
+                    'ungrouped': {
+                        _id: 'ungrouped',
+                        name: "Ungrouped",
+                        children: []
                     }
-                };
+                }
 
-                if (!project) return leftTree;
+                if (!project) return Utils.objectValues(leftTree);
 
-                project.folders && Object.keys(project.folders).forEach(fId => {
-                    leftTree[fId] = {
-                        folder: { ...project.folders[fId], expand: false },
-                        models: {},
-                        traits: {},
-                        endps: {},
-                        examples: {}
+                project.folders && Utils.objectValues(project.folders).forEach((folder) => {
+                    leftTree[folder._id] = {
+                        _id: folder._id,
+                        name: folder.name,
+                        children: []
                     };
-                })
+                });
 
-                project.models && Object.keys(project.models).forEach(mId => {
-                    const model = project.models[mId];
-                    var modelX = {
+                project.models && Utils.objectValues(project.models).forEach(model => {
+                    let folderId = leftTree[model.folder]?._id || 'ungrouped';
+                    leftTree[folderId].children.push({
                         _id: model._id,
-                        name: model.name
-                    };
-                    if (leftTree[model.folder]) {
-                        leftTree[model.folder].models[model._id] = modelX;
-                    } else {
-                        leftTree.ungrouped.models[model._id] = modelX;
-                    }
+                        name: model.name,
+                        type: 'models',
+                        label: 'MODEL', desc: model.nameSpace
+                    })
                 });
 
-
-                project.examples && Object.keys(project.examples).forEach(eId => {
-                    const example = project.examples[eId];
-                    var exampleX = {
+                project.examples && Utils.objectValues(project.examples).forEach(example => {
+                    let folderId = leftTree[example.folder]?._id || 'ungrouped';
+                    leftTree[folderId].children.push({
                         _id: example._id,
-                        name: example.name
-                    };
-                    if (leftTree[example.folder]) {
-                        leftTree[example.folder].examples[example._id] = exampleX;
-                    } else {
-                        leftTree.ungrouped.examples[example._id] = exampleX;
-                    }
+                        name: example.name,
+                        type: 'examples',
+                        label: 'EXAMPLE',
+                        desc: `${example.summary || ''} ${example.description || ''}`
+                    })
                 });
 
-                project.traits && Object.keys(project.traits).forEach(tId => {
-                    const trait = project.traits[tId];
-                    var traitX = {
+                project.traits && Utils.objectValues(project.traits).forEach(trait => {
+                    let folderId = leftTree[trait.folder]?._id || 'ungrouped';
+                    leftTree[folderId].children.push({
                         _id: trait._id,
-                        name: trait.name
-                    };
-                    if (leftTree[trait.folder]) {
-                        leftTree[trait.folder].traits[trait._id] = traitX;
-                    } else {
-                        leftTree.ungrouped.traits[trait._id] = traitX;
-                    }
+                        name: trait.name,
+                        type: 'traits',
+                        label: 'TRAIT',
+                        desc: trait.summary || ''
+                    })
                 });
 
-                project.endpoints && Object.keys(project.endpoints).forEach(eId => {
-                    const endp = project.endpoints[eId];
-                    var endpX = {
+                project.endpoints && Utils.objectValues(project.endpoints).forEach(endp => {
+                    let folderId = leftTree[endp.folder]?._id || 'ungrouped';
+                    leftTree[folderId].children.push({
                         _id: endp._id,
                         name: endp.summary,
-                        method: endp.method,
-                        deprecated: endp.deprecated
-                    };
-                    if (leftTree[endp.folder]) {
-                        leftTree[endp.folder].endps[endp._id] = endpX;
-                    } else {
-                        leftTree.ungrouped.endps[endp._id] = endpX;
-                    }
+                        label: endp.method.toUpperCase(),
+                        deprecated: endp.deprecated,
+                        type: 'endpoints',
+                        desc: endp.description || ''
+                    })
                 });
 
-
-                return leftTree;
+                return Utils.objectValues(leftTree);
             }
         );
-    };
+    }
 
     @Selector([ApiProjectStateSelector.getAll])
     static getTesterTree(projects: ApiProject[]) {

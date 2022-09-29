@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, EventEmitter, forwardRef, Inject, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AceComponent } from 'ngx-ace-wrapper';
+import throttle from 'lodash.throttle';
 
 @Component({
   selector: 'apic-ace',
@@ -24,11 +25,14 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
 
   private _onChange = (_: any) => { };
   private _onTouched = () => { };
+  throttledChange: any;
 
   originalHeight: 0;
   Y = 0;
 
-  constructor(private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) { }
+  constructor(private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) {
+    this.throttledChange = throttle(this.textChanged, { 'leading': false })
+  }
   ngOnDestroy(): void {
 
   }

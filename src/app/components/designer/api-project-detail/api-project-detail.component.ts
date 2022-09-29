@@ -1,6 +1,6 @@
 import { ApiProjectService } from './../../../services/apiProject.service';
 import { asapScheduler, BehaviorSubject, NEVER, Observable, Subject } from 'rxjs';
-import { ApiProject } from './../../../models/ApiProject.model';
+import { ApiProject, LeftTreeItem } from './../../../models/ApiProject.model';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, Event as NavigationEvent, NavigationEnd } from '@angular/router';
 import { Store } from '@ngxs/store';
@@ -34,13 +34,32 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
     authUser: User;
 
     paused$ = new BehaviorSubject(false);
-    leftPanel = {
-        expanded: { ungrouped: true }, //list of expanded folders
-        tree: null
-    };
+    leftPanel: {
+        expanded: { [key: string]: boolean },
+        expandAll: boolean,
+        tree: LeftTreeItem[],
+        sort: { [key: string]: { by: string, ascending: boolean } }
+    } = {
+            sort: {
+                folder: {
+                    by: 'name',
+                    ascending: true
+                },
+                children: {
+                    by: 'name',
+                    ascending: true
+                }
+            },
+            expanded: { ungrouped: true }, //list of expanded folders, 
+            expandAll: false,
+            tree: null,
+        };
+
     flags = {
         stage: 'Dashboard',
-        loading: true
+        loading: true,
+        showSearch: false,
+        searchText: ''
     }
 
     constructor(private detachedRouteHandlesService: DetachedRouteHandlerService,
@@ -188,7 +207,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                         ? toCopy['nameSpace'].substring(0, toCopy['nameSpace'].length - 1)
                         : toCopy['nameSpace']
                     ).trim() +
-                    ' ' +
+                    '_' +
                     counter;
             }
         }
@@ -244,11 +263,6 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    sortLeftTreeFolder = (a, b): number => {
-        if (b && b.value.folder._id === 'ungrouped') return -1;
-        return a.value.folder.name.localeCompare(b.value);
-    }
-
     run(endpId: string) {
         this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
     }
@@ -263,11 +277,34 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.leftPanel.expanded[id] = !this.leftPanel.expanded[id];
     }
 
+    toggleExpandAll() {
+        this.leftPanel.expandAll = !this.leftPanel.expandAll;
+        this.leftPanel.tree.forEach(folder => {
+            this.leftPanel.expanded[folder._id] = this.leftPanel.expandAll;
+        })
+    }
+
     openExportModal(type, id) {
         this.dialog.open(ProjectExportModalComponent, { data: { type, id }, width: '1100px' });
     }
 
     async buildRequests() {
         this.apiProjectDetailService.buildRequests(this.selectedPROJ);
+    }
+
+    sortTree(type, by, event?) {
+        if (this.leftPanel.sort[type].by === by) {
+            this.leftPanel.sort[type].ascending = !this.leftPanel.sort[type].ascending;
+        } else {
+            this.leftPanel.sort[type].by = by;
+        }
+        event?.stopPropagation()
+    }
+
+    showSearch() {
+        this.flags.showSearch = true;
+        document.getElementById('proj-search')?.focus();
+        this.leftPanel.expandAll = false;
+        this.toggleExpandAll();
     }
 }

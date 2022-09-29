@@ -260,7 +260,7 @@ export class OASUtils {
                                 response.content[mimetype].examples = endp.responses[j].examples?.reduce((obj, ex) => {
                                     const key = ex.key;
                                     return ({ ...obj, [key]: { $ref: `#/components/examples/${proj.examples[ex.val]?.name}` } })
-                                })
+                                }, {})
                             }
                             if (response.content[mimetype].schema.type == 'file') {
                                 response.content[mimetype].schema = { type: 'string', format: 'binary' };

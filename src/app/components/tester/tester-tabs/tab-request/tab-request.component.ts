@@ -31,6 +31,7 @@ import { Beautifier } from 'src/app/utils/Beautifier';
 import { HTTP_HEADERS, HTTP_METHODS, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS } from 'src/app/utils/constants';
 import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
+import { TesterTabInterface } from '../tester-tabs.interface';
 import { TesterTabsService } from '../tester-tabs.service';
 
 @Component({
@@ -39,7 +40,7 @@ import { TesterTabsService } from '../tester-tabs.service';
   styleUrls: ['./tab-request.component.scss'],
   providers: [RequestRunnerService] //to make sure each tab gets one instance of runner service
 })
-export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
+export class TabRequestComponent implements OnInit, OnDestroy, OnChanges, TesterTabInterface {
   @Input() requestId: string;
   @Input() initialData: ApiRequest;
   @Input() suiteRequest: boolean;

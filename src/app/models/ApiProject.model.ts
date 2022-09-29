@@ -136,6 +136,19 @@ export interface ApiProject {
     tags?: ApiTag[]
 }
 
+export interface LeftTreeItem {
+    _id: string,
+    name: string,
+    children: {
+        _id: string,
+        name: string,
+        type: 'models' | 'examples' | 'traits' | 'endpoints',
+        deprecated?: boolean,
+        label: string,
+        desc: string
+    }[]
+}
+
 export const NewApiFolder: ApiFolder = {
     _id: 'NEW',
     name: '',
