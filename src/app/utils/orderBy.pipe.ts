@@ -20,7 +20,7 @@ export class OrderByPipe implements PipeTransform {
         return [...items.sort(function (a: any, b: any) {
             if (type === 'string') {
                 if (excludeValues.includes(a[column])) return 1
-                if (a[column].toUpperCase() < b[column].toUpperCase() || excludeValues.includes(b[column])) return -1;
+                if (`${a[column]}`.toUpperCase() < `${b[column]}`.toUpperCase() || excludeValues.includes(b[column])) return -1;
             } else {
                 return a[column] - b[column];
             }
@@ -31,7 +31,7 @@ export class OrderByPipe implements PipeTransform {
         return [...items.sort(function (a: any, b: any) {
             if (type === 'string') {
                 if (excludeValues.includes(a[column])) return 1;
-                if (a[column].toUpperCase() > b[column].toUpperCase()) return -1;
+                if (`${a[column]}`.toUpperCase() > `${b[column]}`.toUpperCase()) return -1;
             } else {
                 return b[column] - a[column];
             }

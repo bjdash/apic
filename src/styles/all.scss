@@ -200,6 +200,13 @@ h4.head {
 .flex-full {
   flex: 1;
 }
+.sup{
+  vertical-align: super;
+  font-size: 10px;
+}
+.faint{
+  opacity: 0.7;
+}
 .truncate {
   white-space: nowrap;
   overflow: hidden;

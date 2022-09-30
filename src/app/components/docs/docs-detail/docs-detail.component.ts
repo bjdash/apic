@@ -7,11 +7,12 @@ import { takeUntil } from 'rxjs/operators';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ApiProjectService } from 'src/app/services/apiProject.service';
 import { ImportExportService } from 'src/app/services/importExport.service';
-import SwaggerParser from "swagger-parser";
 import { Utils } from 'src/app/services/utils.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
+import { SchemaDref } from 'src/app/utils/SchemaDref';
+import { JsonSchemaService } from '../../common/json-schema-builder/jsonschema.service';
 import { ApiProjectDetailService } from '../../designer/api-project-detail/api-project-detail.service';
-// declare var SwaggerParser;
+
 @Component({
   selector: 'app-docs-detail',
   templateUrl: './docs-detail.component.html',
@@ -24,6 +25,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
   @ViewChildren(MatTabGroup) tabs: QueryList<MatTabGroup>
 
+  objRef = Object
   resolvedSpec;
   tagGroups: any;
   private _destroy: Subject<boolean> = new Subject<boolean>();
@@ -33,9 +35,7 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     parsing: false,
     groupBy: 'tags'
   }
-  hiddenPaths = {
-
-  }
+  hiddenPaths = {}
 
   constructor(
     private route: ActivatedRoute,
@@ -64,8 +64,9 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     this.flags.parsing = true;
     this.selectedPROJ = project;
     this.error = '';
-    let spec = this.swaggerService.exportOAS(project, { includeApicIds: true });
-    this.resolvedSpec = await SwaggerParser.dereference(spec, { dereference: { circular: 'ignore' } });
+    let spec = this.swaggerService.exportOAS3(project, null, { includeApicIds: true });
+    let deref = new SchemaDref();
+    this.resolvedSpec = deref.dereference(Utils.clone(spec))
 
     this.tagGroups = { Untagged: [] }
     Utils.objectKeys(this.resolvedSpec.paths).forEach(path => {
@@ -109,8 +110,22 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
   }
 
-  open(i, j) {
-    console.log(this.tabs, i, j);
+  generateExample(schemaAndExamples: { examples?: { [key: string]: any }, example?: any, schema?: any }) {
+    if (schemaAndExamples?.examples) {
+      return Utils.objectValues(schemaAndExamples.examples)[0]?.value;
+    }
+    if (schemaAndExamples?.example) {
+      return schemaAndExamples.example;
+    } else
+      return JsonSchemaService.schemaToExample(schemaAndExamples?.schema, {});
+  }
 
+  shouldShowSchema(schema) {
+    if (!schema) {
+      return false
+    } else {
+      if (schema.type === 'object' && (!schema.properties || Object.keys(schema.properties).length === 0)) return false;
+    }
+    return true;
   }
 }

@@ -1,7 +1,5 @@
 import { NewApiProjectModal } from './newApiProject/newApiProject.modal.component';
-import { Toaster } from '../../services/toaster.service';
 import { ApiProject } from './../../models/ApiProject.model';
-import { ApiProjectService } from './../../services/apiProject.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Select, Store } from '@ngxs/store';
@@ -11,6 +9,7 @@ import { ApiProjectStateSelector } from '../../state/apiProjects.selector';
 import { User } from 'src/app/models/User.model';
 import { UserState } from 'src/app/state/user.state';
 import { DataChangeNotifier } from 'src/app/services/dataChangeNotifier.service';
+import LocalStore from 'src/app/services/localStore';
 
 @Component({
   selector: 'app-designer',
@@ -21,7 +20,9 @@ export class DesignerComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
   authUser: User;
   flags = {
-    justAdded: ''
+    justAdded: '',
+    sortBy: LocalStore.getOrDefault(LocalStore.PROJ_SORT_BY, 'title'),
+    sortAscending: (LocalStore.getOrDefault(LocalStore.PROJ_SORT_ORDER, 'true') === 'true')
   }
 
   constructor(private store: Store, private dialog: MatDialog, dataChangeNotifier: DataChangeNotifier) {
@@ -49,5 +50,26 @@ export class DesignerComponent implements OnInit, OnDestroy {
   showProjImport() {
     this.dialog.open(ImportProjectComponent, { width: '900px' });
   }
+
+
+  sortList(by, event?) {
+    if (this.flags.sortBy === by) {
+      this.flags.sortAscending = !this.flags.sortAscending;
+      LocalStore.set(LocalStore.PROJ_SORT_ORDER, this.flags.sortAscending)
+    } else {
+      this.flags.sortBy = by;
+      LocalStore.set(LocalStore.PROJ_SORT_BY, by)
+    }
+    event?.stopPropagation()
+  }
+  // async onChg (event) {
+  // let output = document.getElementById("listing");
+  // for (const file of event.target.files) {
+  // //let item = document.createElement("li");
+  //   let etxt = await file.text();
+  //   console.log(etxt);
+  //   item.textContent = file.webkit RelativePath;
+  //   output.appendChild(item);
+  // };
 
 }

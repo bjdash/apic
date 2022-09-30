@@ -5,7 +5,6 @@
     "ng": "ng",
     "start": "ng serve --port=5000",
     "start-hmr": "ng serve --port=5000 --hmr",
-    "start1": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -52,7 +51,6 @@
     "rxjs": "~6.5.4",
     "socket.io-client": "^4.5.1",
     "sockjs-client": "^1.6.0",
-    "swagger-parser": "^10.0.3",
     "tslib": "^2.4.0",
     "zone.js": "^0.11.5"
   },

@@ -72,13 +72,6 @@ export class ProjectExportModalComponent implements OnInit {
   }
   jsonToString(json) {
     this.exportStr = JSON.stringify(json, null, '    ');
-    //TODO: Better handling of #/definitions/ for $ref
-    if (this.data.type === 'OAS3') {
-      this.exportStr = this.exportStr.replace(/#\/definitions\//g, '#\/components\/schemas\/')
-      this.exportStr = this.exportStr.replace(/#\/responses\//g, '#\/components\/responses\/')
-      this.exportStr = this.exportStr.replace(/#\/parameters\//g, '#\/components\/parameters\/')
-      this.exportObj = JSON.parse(this.exportStr)
-    }
   }
 
   download() {

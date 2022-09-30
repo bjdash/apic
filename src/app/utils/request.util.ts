@@ -198,13 +198,14 @@ export class RequestUtils {
         //copy response codes and their respective schema
         if (endp.responses && endp.responses.length > 0) {
             for (var j = 0; j < endp.responses.length; j++) {
-                var tmpSchema: any = { ...endp.responses[j].data };
+                var tmpSchema: any = Utils.clone(endp.responses[j].data);
                 tmpSchema.definitions = modelRefs;
                 tmpSchema.responses = { ...responseRefs };
                 try {
+                    let deref = new SchemaDref()
                     request.respCodes.push({
                         code: endp.responses[j].code,
-                        data: SchemaDref.parse(Utils.clone(tmpSchema))
+                        data: deref.dereference(Utils.clone(tmpSchema))
                     });
                 } catch (e) {
                     console.error('Circular JSON schema reference encountered.', e)

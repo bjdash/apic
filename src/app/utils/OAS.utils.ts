@@ -411,7 +411,8 @@ export class OASUtils {
                 let tName = traitObj.name;
                 //responses
                 for (let i = 0; i < traitObj.responses.length; i++) {
-                    var xPath = 'trait.' + tName + '.' + traitObj.responses[i].code;
+                    // var xPath = 'trait.' + tName + '.' + traitObj.responses[i].code;
+                    let xPath = traitObj.responses[i].code;
                     if (!traitObj.responses[i].noneStatus) {
                         let schema: OpenAPIV3_1.ReferenceObject = {
                             '$ref': (type === 'OAS3' ? '#/components/responses/' : '#/responses/') + xPath
@@ -607,10 +608,21 @@ export class OASUtils {
                     }),
                 }
                 //populate host, basePath & scheme
-                var urlObj = new URL(server.url);
-                env.vals.push({ key: 'host', val: urlObj.host, readOnly: true });
-                env.vals.push({ key: 'basePath', val: urlObj.pathname, readOnly: true });
-                env.vals.push({ key: 'scheme', val: urlObj.protocol.slice(0, -1), readOnly: true });
+                if (server.url) {
+                    let urlObj: any = {};
+                    try {
+                        urlObj = new URL(server.url);
+                    } catch {
+                        let urlRegex = /^((http[s]?|ftp):\/\/)?([^:\/\s]+)(:([^\/]*))?({\/[\_\w]+)*\/?}(\?([^]))((.*))}$/;
+                        let groups = server.url.match(urlRegex);
+                        urlObj.protocol = groups?.[1];
+                        urlObj.host = groups?.[3] + groups?.[4];
+                        urlObj.pathname = groups?.[6];
+                    }
+                    env.vals.push({ key: 'host', val: urlObj.host, readOnly: true });
+                    env.vals.push({ key: 'basePath', val: urlObj.pathname, readOnly: true });
+                    env.vals.push({ key: 'scheme', val: urlObj.protocol.slice(0, -1), readOnly: true });
+                }
                 return env;
             })
         } else if ('swagger' in spec) {
@@ -685,7 +697,7 @@ export class OASUtils {
                             break;
                         case 'oauth2':
                             secDef.type = 'oauth2';
-                            let flowName = Object.keys(security.flows)[0],
+                            let flowName = Object.keys(security.flows)[0], //TODO: Handle others
                                 flow = security.flows[flowName];
                             let oauth2: any = {}
                             if (flowName === 'clientCredentials') {
@@ -827,7 +839,7 @@ export class OASUtils {
                 let refName = example.value.substring(example.value.lastIndexOf('/') + 1);
                 let resolvedRef: ApiExample = Utils.objectValues(examples).find(ex => ex.name === refName);
                 example.value = resolvedRef?._id;
-                //$refs wont have any sibling values like summary and description so copy it from resolved ref 
+                //$refs wont have any sibling values like summary and description so copy it from resolved ref
                 example.summary = resolvedRef.summary ?? example.summary
                 example.description = resolvedRef.description ?? example.description
             }
@@ -1087,6 +1099,8 @@ export class OASUtils {
                         //for OAS3 parse bodyParam
                         if ('requestBody' in path && path.requestBody && 'content' in path.requestBody) {
                             let reqBodyContent = path.requestBody.content; //currently apic only supports single body type per endpoint
+                            //TODO: Add support for multiple body types
+                            //TODO: Add support for body examples
                             let [contentType, schemaData] = Utils.objectEntries(reqBodyContent)[0] ?? [];
                             if (contentType && schemaData) {
                                 consumes.add(contentType);
@@ -1160,6 +1174,7 @@ export class OASUtils {
                                 }
 
                                 if (!('$ref' in resp) || !moveRespToTrait) {
+                                    //TODO: Add support for response headers
                                     if ('content' in resp) { //for OAS3
                                         let content = resp.content;
                                         Utils.objectEntries(content as { [media: string]: OpenAPIV3_1.MediaTypeObject }).forEach(([mimetype, schemaObj], index) => {
@@ -1173,7 +1188,7 @@ export class OASUtils {
                                                 examples: []
                                             };
                                             //parse examples
-                                            let parsedExamples = OASUtils.parseResponseExamples(schemaObj, proj, path.summary);
+                                            let parsedExamples = OASUtils.parseResponseExamples(schemaObj, proj, `${path.summary}=${statusCode}`);
                                             tmpResp.examples = parsedExamples.exampleRefs;
                                             examples = [...examples, ...parsedExamples.examples];
 
@@ -1287,7 +1302,7 @@ export class OASUtils {
                             parsedParams[ptype].required.push(param.name);
                         }
                     }
-                } else if (ptype == 'body') { //applicable for OAS2 
+                } else if (ptype == 'body') { //applicable for OAS2
                     parsedParams.body = {
                         type: 'raw',
                         data: Object.assign({}, param.schema)

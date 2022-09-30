@@ -201,7 +201,7 @@
     background: var(--content-bg);
     border: 1px solid #949493;
     border-left-width: 5px !important;
-    &.deprecated header .http-path {
+    &.deprecated .http-path {
         text-decoration: line-through;
     }
 
@@ -216,7 +216,7 @@
     header {
         display: flex;
         padding: 0px 10px;
-        flex-wrap: wrap;
+        // flex-wrap: wrap;
         align-items: center;
         height: 45px;
         box-shadow: 0 0 3px rgb(0 0 0 / 19%);
@@ -237,12 +237,15 @@
         }
 
         .http-path {
-            padding: 0 5px;
-            font-family: Source Code Pro, monospace;
-            font-weight: 600;
-            width: calc(100% - 160px);
+            white-space:nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        .name{
+          margin-left: 15px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
         .run {
             background: transparent;

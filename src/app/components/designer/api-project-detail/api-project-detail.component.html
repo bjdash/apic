@@ -118,7 +118,7 @@
                                     <div class="l-sec">
                                         <div class="method" [ngClass]="child.label"></div>
                                     </div>
-                                    <div class="m-sec name" [ngClass]="child.deprecated?'deprecated':''">
+                                    <div class="m-sec name" [ngClass]="child.deprecated?'deprecated':''" [title]="child.name">
                                         {{child.name}}
                                     </div>
                                     <div class="r-sec">
