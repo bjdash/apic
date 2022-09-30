@@ -37,7 +37,7 @@ interface SocketioForm {
 })
 export class TabSocketComponent implements OnInit, OnDestroy, TesterTabInterface {
   @Input() requestId: string;
-  @Input() initialdata: ApiRequest;
+  @Input() initialData: ApiRequest;
   form: FormGroup;
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
@@ -115,8 +115,8 @@ export class TabSocketComponent implements OnInit, OnDestroy, TesterTabInterface
     if (!this.requestId.includes('new_tab') && !this.requestId.includes('suit_req')) {
       this.listenForUpdate()
     }
-    if (this.initialdata) {
-      this.processSelectedReq(this.initialdata)
+    if (this.initialData) {
+      this.processSelectedReq(this.initialData)
     }
   }
   listenForUpdate() {
@@ -128,8 +128,8 @@ export class TabSocketComponent implements OnInit, OnDestroy, TesterTabInterface
       .subscribe(req => {
         if (req && (req._modified > this.selectedReq?._modified || !this.selectedReq)) {
           if (this.selectedReq) {
-            //TODO: Implement a field level matching logic 
-            //so that if any non form fields are updated such as name, savedResponse etc 
+            //TODO: Implement a field level matching logic
+            //so that if any non form fields are updated such as name, savedResponse etc
             //then directly just update the request instead of asking the user if they want to reload
             this.reloadRequest = req;
           } else {

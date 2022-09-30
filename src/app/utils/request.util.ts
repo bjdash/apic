@@ -202,7 +202,7 @@ export class RequestUtils {
                 tmpSchema.definitions = modelRefs;
                 tmpSchema.responses = { ...responseRefs };
                 try {
-                    let deref = new SchemaDref()
+                    let deref = new SchemaDref();
                     request.respCodes.push({
                         code: endp.responses[j].code,
                         data: deref.dereference(Utils.clone(tmpSchema))

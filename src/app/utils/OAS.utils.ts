@@ -613,7 +613,7 @@ export class OASUtils {
                     try {
                         urlObj = new URL(server.url);
                     } catch {
-                        let urlRegex = /^((http[s]?|ftp):\/\/)?([^:\/\s]+)(:([^\/]*))?({\/[\_\w]+)*\/?}(\?([^]))((.*))}$/;
+                        let urlRegex = /^((http[s]?|ftp):\/\/)?([^:\/\s]+)(:([^\/]*))?((\/[\.\w]+)*\/?)(\?([^#]*))?(#(.*))?$/;
                         let groups = server.url.match(urlRegex);
                         urlObj.protocol = groups?.[1];
                         urlObj.host = groups?.[3] + groups?.[4];
@@ -1188,7 +1188,7 @@ export class OASUtils {
                                                 examples: []
                                             };
                                             //parse examples
-                                            let parsedExamples = OASUtils.parseResponseExamples(schemaObj, proj, `${path.summary}=${statusCode}`);
+                                            let parsedExamples = OASUtils.parseResponseExamples(schemaObj, proj, `${path.summary}-${statusCode}`);
                                             tmpResp.examples = parsedExamples.exampleRefs;
                                             examples = [...examples, ...parsedExamples.examples];
 

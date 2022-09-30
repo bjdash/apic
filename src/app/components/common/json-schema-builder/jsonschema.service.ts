@@ -804,7 +804,7 @@ export class JsonSchemaService {
       case 'ipv4':
         return '198.51.100.42';
       case 'ipv6':
-        return '2001: 0db8:5b96: 0000:0000:426f:8e17:642a';
+        return '2001:0db8:5b96:0000:0000:426f:8e17:642a';
       case 'circular':
         return 'CIRCULAR REF';
       default:

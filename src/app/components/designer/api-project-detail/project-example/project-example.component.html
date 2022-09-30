@@ -53,11 +53,11 @@
                 </div>
             </div>
             <div class="row">
-                <label class="control-label col-sm-2">Folder: </label>>
+                <label class="control-label col-sm-2">Folder: </label>
                 <div class="col-sm-8">
-                    <mat-select formControlName="Folder">
+                    <mat-select formControlName="folder">
                         <mat-option value="">Un-grouped</mat-option>
-                        <mat-option *ngFor="let folder of selectedPROJ. folders | keyvalue" [value]="folder.value._id">
+                        <mat-option *ngFor="let folder of selectedPROJ.folders | keyvalue" [value]="folder.value._id">
                             {{folder.value.name}}
                         </mat-option>
                         <mat-divider></mat-divider>
