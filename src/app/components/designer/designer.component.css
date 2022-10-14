@@ -53,3 +53,9 @@
     top: 0;
     color: var(--accent-color);
 }
+.sort-pan{
+  padding: 5px 10px;
+}
+.sort-pan button.t_border{
+  border: 1px solid var(--accent-color);
+}

@@ -1,5 +1,62 @@
 <!-- Object-schema.html -->
 <div *ngIf="type=='Object'">
+    <ng-container [ngTemplateOutlet]="objectFileds" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
+</div>
+
+<!-- String-schema.html -->
+<div *ngIf="type=='String'">
+    <ng-container [ngTemplateOutlet]="stringFields" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
+</div>
+
+
+<!-- Array-schema.html', ArraySchema); -->
+<div *ngIf="type=='Array'">
+    <div>
+        <div class="checkbox padding">
+            <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems" (ngModelChange)="onChanged()">
+                Allow only unique
+                items?</label>
+        </div>
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">minItems:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minItems" min="0"
+            (ngModelChange)="onChanged()" placeholder=">=0" />
+    </div>
+    <div class="form-group col-xs-12">
+        <label class="model-label-x">maxItems:</label>
+        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxItems" min="0"
+            (ngModelChange)="onChanged()" placeholder=">=0" />
+    </div>
+    <div class="t_color margT5">Array items properties</div>
+    <ng-container *ngIf="entity._items[0]?._type=='String' ||entity._items[0]?._type[0]=='String'"
+        [ngTemplateOutlet]="stringFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+    <ng-container *ngIf="entity._items[0]?._type=='Number' ||entity._items[0]?._type[0]=='Number'"
+        [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+    <ng-container *ngIf="entity._items[0]?._type=='Integer' ||entity._items[0]?._type[0]=='Integer'"
+        [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+    <ng-container *ngIf="entity._items[0]?._type=='Object' ||entity._items[0]?._type[0]=='Object'"
+        [ngTemplateOutlet]="objectFileds" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+</div>
+
+<!-- Integer-schema.html', IntNumSchema); -->
+<div *ngIf="type=='Integer'">
+    <ng-container [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
+</div>
+
+<div *ngIf="type=='Boolean'">
+    No additional validations for this type..
+</div>
+
+<div *ngIf="type=='Null'">
+    No additional validations for this type..
+</div>
+
+<div *ngIf="type=='refSchema'">
+    No additional validations for this type..
+</div>
+
+<ng-template #objectFileds let-entity="entity">
     <div class="form-group col-xs-12">
         <label class="model-label-x">minProperties:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minProperties" min="0"
@@ -27,10 +84,8 @@
                 properties schema</button>
         </div>
     </div>
-</div>
-
-<!-- String-schema.html -->
-<div *ngIf="type=='String'">
+</ng-template>
+<ng-template #stringFields let-entity="entity">
     <div class="form-group col-xs-12">
         <label class="model-label-x">minLength:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minLength" min="0"
@@ -59,36 +114,11 @@
         </select>
     </div>
     <div class="form-group col-xs-12">
-        <label class="model-label-x">Enum:</label>
-        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum" (ngModelChange)="onChanged()"
-            [ngModelOptions]="{ updateOn: 'blur' }" placeholder="'' abcd', 1 1.5,etc"></textarea>
+        <apic-list [options]="{label:'Enum', itemType:'string'}" [(ngModel)]="entity._enum"></apic-list>
     </div>
-</div>
+</ng-template>
 
-
-<!-- Array-schema.html', ArraySchema); -->
-<div *ngIf="type=='Array'">
-    <div>
-        <div class="checkbox padding">
-            <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems" (ngModelChange)="onChanged()">
-                Allow only unique
-                items?</label>
-        </div>
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">minItems:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minItems" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">maxItems:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxItems" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
-    </div>
-</div>
-
-<!-- Integer-schema.html', IntNumSchema); -->
-<div *ngIf="type=='Integer'">
+<ng-template #integerFields let-entity="entity">
     <div class="form-group col-xs-12">
         <label class="model-label-x">minimum:</label>
         <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minimum" min="0"
@@ -118,16 +148,4 @@
         <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum" (ngModelChange)="onChanged()"
             [ngModelOptions]="{ updateOn: 'blur' }" placeholder=" abcd, 1,1.5,etc"></textarea>
     </div>
-</div>
-
-<div *ngIf="type=='Boolean'">
-    No additional validations for this type..
-</div>
-
-<div *ngIf="type=='Null'">
-    No additional validations for this type..
-</div>
-
-<div *ngIf="type=='refSchema'">
-    No additional validations for this type..
-</div>
+</ng-template>

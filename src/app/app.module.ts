@@ -9,8 +9,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { AceEditorModule } from 'ng2-ace-editor';
-
+import { AceConfigInterface, AceModule, ACE_CONFIG } from 'ngx-ace-wrapper';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -60,7 +59,7 @@ import { EnvsComponent } from './components/envs/envs.component';
 import { OnlyAlphaNumericInputDirective } from './directives/only-alpha-numeric-input.directive';
 import { FileSystem } from './services/fileSystem.service';
 import { ImportProjectComponent } from './components/designer/import-project/import-project.component';
-import { SwaggerService } from './services/swagger.service';
+import { ImportExportService } from './services/importExport.service';
 import { ProjectExportModalComponent } from './components/designer/api-project-detail/project-export-modal/project-export-modal.component';
 import { LoginComponent } from './components/login/login.component';
 import { HttpService } from './services/http.service';
@@ -115,7 +114,7 @@ import { ProjectDetailRouteGuard } from './components/designer/api-project-detai
 import { GraphqlComponent } from './components/tester/tester-tabs/tab-request/graphql/graphql.component';
 import { GqlSchemaComponent } from './components/tester/tester-tabs/tab-request/graphql/gql-schema/gql-schema.component';
 import { LeftMenuTreeSelectorComponent } from './components/common/left-menu-tree-selector/left-menu-tree-selector.component';
-import { ApicListComponent } from './components/common/apic-list/apic-list.component';
+import { ApicListComponent, AsApicListItemObj } from './components/common/apic-list/apic-list.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardHomeComponent } from './components/dashboard/dashboard-home/dashboard-home.component';
 import { TeamsComponent } from './components/dashboard/teams/teams.component';
@@ -143,6 +142,11 @@ import { IntroComponent } from './components/intro/intro.component';
 import { ProjectTagsComponent } from './components/designer/api-project-detail/project-home/project-tags/project-tags.component';
 import { MarkdownComponent } from './components/common/markdown/markdown.component';
 import { DataChangeNotifier } from './services/dataChangeNotifier.service';
+import { ProjectExampleComponent } from './components/designer/api-project-detail/project-example/project-example.component';
+import { OrderByPipe } from './utils/orderBy.pipe';
+
+const DEFAULT_ACE_CONFIG: AceConfigInterface = {
+};
 
 @NgModule({
   declarations: [
@@ -158,6 +162,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     ProjectHomeComponent,
     ProjectFolderComponent,
     ProjectModelsComponent,
+    ProjectExampleComponent,
     ProjectEndpointComponent,
     ApicTagEditorComponent,
     ProjectTraitsComponent,
@@ -218,6 +223,8 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     SharingComponent,
     ApiBuilderComponent,
     CustomFilter,
+    OrderByPipe,
+    AsApicListItemObj,
     AppUpdateComponent,
     UpdateDownloadedComponent,
     DigestAuthComponent,
@@ -249,7 +256,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     }),
     NgxsReduxDevtoolsPluginModule.forRoot(),
     BrowserAnimationsModule,
-    AceEditorModule,
+    AceModule,
     MatButtonModule,
     MatIconModule,
     MatRippleModule,
@@ -277,6 +284,9 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     {
       provide: RouteReuseStrategy,
       useClass: ApicRouteReuseStrategy,
+    }, {
+      provide: ACE_CONFIG,
+      useValue: DEFAULT_ACE_CONFIG
     },
     AppBootstrap,
     MigrationService,
@@ -286,7 +296,7 @@ import { DataChangeNotifier } from './services/dataChangeNotifier.service';
     Utils,
     ConfirmService,
     FileSystem,
-    SwaggerService,
+    ImportExportService,
     HttpService,
     StompService,
     SyncService,

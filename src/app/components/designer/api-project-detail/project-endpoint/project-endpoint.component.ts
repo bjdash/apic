@@ -3,7 +3,7 @@ import { ApiEndp, ApiProject, ApiTrait, NewApiEndp } from 'src/app/models/ApiPro
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Toaster } from 'src/app/services/toaster.service';
-import { METHOD_WITH_BODY, MIMEs } from 'src/app/utils/constants';
+import { METHOD_WITH_BODY, MIMEs, HTTP_METHODS } from 'src/app/utils/constants';
 import { Utils } from 'src/app/services/utils.service';
 import apic from 'src/app/utils/apic';
 import { Subject } from 'rxjs';
@@ -31,9 +31,12 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
   MIMEs = MIMEs;
   METHOD_WITH_BODY = METHOD_WITH_BODY;
+  HTTP_METHODS = HTTP_METHODS;
   flags = {
     allOptn: true,
     more: true,
+    showReq: true,
+    showResp: true,
     traitPP: [], //path params from trait
     traitQP: [], //query params from trait
     traitHP: [] //header params from trait
@@ -116,7 +119,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
 
     let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
     if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...tags], security: [...(security || [])], operationId, schemes: [...schemes], consumes: [...consumes], produces: [...produces], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...responses], postrun, prerun });
+    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...(tags || [])], security: [...(security || [])], operationId, schemes: [...(schemes || [])], consumes: [...(consumes || [])], produces: [...(produces || [])], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...(responses || [])], postrun, prerun });
 
     this.addDefaultResponse();
     this.endpForm.markAsPristine();
@@ -195,7 +198,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       this.toaster.warn('Path params should be alpha numeric and can only contain underscore (_). There are few in the url those are not. Please correct.');
     }
 
-    let pathParams = this.endpForm.value.pathParams;
+    let pathParams = Utils.clone(this.endpForm.value.pathParams);
     let traitPathParams = this.endpForm.value.traits.map(trait => {
       return ApiProjectUtils.getTraitPathParamNames(trait._id, this.selectedPROJ);
     }).flat();
@@ -228,6 +231,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   onTraitRemove(traitId: string) {
     let { responses, pathParams, headers, queryParams } = ApiProjectUtils.removeTraitData(traitId, this.endpForm.value, this.selectedPROJ);
     this.endpForm.patchValue({ responses, pathParams, headers, queryParams });
+    this.checkForPathParams();
   }
 
   async duplicateEndp(id: string) {

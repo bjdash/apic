@@ -1,7 +1,7 @@
-import { T } from '@angular/cdk/keycodes';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import apic from 'src/app/utils/apic';
+import { TesterTabInterface } from './tester-tabs.interface';
 import { TesterTab, TesterTabsService } from './tester-tabs.service';
 
 @Component({
@@ -14,8 +14,8 @@ export class TesterTabsComponent implements OnInit {
   overFlowtabsCount = 0;
   selectedTabIndex = 0;
   contextMenuPosition = { x: '0px', y: '0px' };
-  @ViewChild(MatMenuTrigger)
-  contextMenu: MatMenuTrigger;
+  @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
+  @ViewChildren("tabRefs") private tabRefs: QueryList<TesterTabInterface>;
 
   constructor(private tabsService: TesterTabsService) { }
 
@@ -82,6 +82,15 @@ export class TesterTabsComponent implements OnInit {
     this.contextMenu.menuData = { 'item': item };
     this.contextMenu.openMenu();
   }
+
+  duplicateTab(item: TesterTab) {
+    let value = this.tabRefs.find(tab => tab.requestId === item.id).getReqFromForm();
+    let tab: TesterTab = {
+      action: 'add', type: item.type, name: 'New tab', data: value, id: 'new_tab:' + apic.s8()
+    };
+    this.tabsService.addTab(tab);
+  }
+
   closeAllButThis(item: TesterTab) {
     this.tabs = this.tabs.filter(tab => tab.id === item.id)
   }

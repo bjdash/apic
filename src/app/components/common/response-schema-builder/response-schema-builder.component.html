@@ -25,14 +25,40 @@
             <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
                 module</a> to edit it.
         </div>
-        <ng-jsonschema [models]="models" [responses]="responsesModels" (onSchemaChange)="onSchemaUpdate()" name="data"
-            formControlName="data" [options]="{showTestBuilder:true, readOnly: selectedResp?.fromTrait}"
-            (onTestBuilder)="openTestBuilder($event)"></ng-jsonschema>
-        <label>Description</label>
-        <textarea class="form-control" formControlName="desc" [attr.disabled]="selectedResp?.fromTrait"></textarea>
-        <span *ngIf="selectedRespForm.value.noneStatus">
-            <i class="icon bj-alert warning"></i>This response won't be
-            auto imported when this trait is added to an endpoint as it
-            is not defined against a status code.</span>
+        <mat-tab-group animationDuration="0ms" class="smv margB25">
+            <mat-tab label="Schema">
+                <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
+                    (onSchemaChange)="onSchemaUpdate()" name="data" [responses]="responsesModels" formControlName="data"
+                    [options]="{showTestBuilder: false, readOnly: selectedResp?.fromTrait}"
+                    (onTestBuilder)="openTestBuilder($event)">
+                </ng-jsonschema>
+            </mat-tab>
+            <mat-tab label="Examples">
+                <div class="examples" *ngIf="responses.length>0; else noResp">
+                    <div class="vcenter">
+                        <div class="bold full-w">Name</div>
+                        <div class="bold full-w">Value</div>
+                        <div class="bold" style="width: 110px;"> </div>
+                    </div>
+                    <app-key-value-editor formControlName="examples" [valueOptions]="allExamples" [options]="kvOptions">
+                    </app-key-value-editor>
+                </div>
+            </mat-tab>
+            <mat-tab label="Description">
+                <div class="pad10" *ngIf="responses.length>0; else noResp">
+                    <label>Description</label>
+                    <textarea class="form-control margB10" formControlName="desc"
+                        [attr.disabled]="selectedResp?.fromTrait"></textarea>
+                </div>
+            </mat-tab>
+
+        </mat-tab-group>
+        <span *ngIf="selectedRespForm.value.noneStatus && responses.length>0">
+            <i class="icon bj-alert warning"></i>
+            This response won't be auto imported when this trait is added to an endpoint as it is not defined against a
+            status code. You can use this by selecting it in the designer section as $ref
+            <a href="TODO://" class="t_color">Know more</a>
+        </span>
     </div>
 </div>
+<ng-template #noResp>Please add a response on the left...</ng-template>

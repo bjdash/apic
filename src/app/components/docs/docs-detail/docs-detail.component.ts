@@ -6,13 +6,13 @@ import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiProject } from 'src/app/models/ApiProject.model';
 import { ApiProjectService } from 'src/app/services/apiProject.service';
-import { SwaggerService } from 'src/app/services/swagger.service';
-// import SwaggerParser from "@apidevtools/swagger-parser";
-// import * as SwaggerParser from '../../../utils/bundle2';
+import { ImportExportService } from 'src/app/services/importExport.service';
 import { Utils } from 'src/app/services/utils.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
+import { SchemaDref } from 'src/app/utils/SchemaDref';
+import { JsonSchemaService } from '../../common/json-schema-builder/jsonschema.service';
 import { ApiProjectDetailService } from '../../designer/api-project-detail/api-project-detail.service';
-declare var SwaggerParser;
+
 @Component({
   selector: 'app-docs-detail',
   templateUrl: './docs-detail.component.html',
@@ -25,25 +25,24 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
   @Select(ApiProjectStateSelector.getPartial) projects$: Observable<ApiProject[]>;
   @ViewChildren(MatTabGroup) tabs: QueryList<MatTabGroup>
 
+  objRef = Object
   resolvedSpec;
   tagGroups: any;
   private _destroy: Subject<boolean> = new Subject<boolean>();
   error;
 
-  flags = {
+  flags: { parsing: boolean, groupBy: 'url' | 'tags' } = {
     parsing: false,
-    groupBy: 'url'
+    groupBy: 'tags'
   }
-  hiddenPaths = {
-
-  }
+  hiddenPaths = {}
 
   constructor(
     private route: ActivatedRoute,
     private store: Store,
     private apiProjectDetailService: ApiProjectDetailService,
     private apiProjectService: ApiProjectService,
-    private swaggerService: SwaggerService
+    private swaggerService: ImportExportService
   ) {
     this.route.params.subscribe(params => {
       this.selectedPROJ$ = this.apiProjectService.getApiProjectById(params.projectId);
@@ -65,8 +64,9 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     this.flags.parsing = true;
     this.selectedPROJ = project;
     this.error = '';
-    let spec = this.swaggerService.exportOAS(project, { includeApicIds: true });
-    this.resolvedSpec = await SwaggerParser.dereference(spec, { dereference: { circular: false } });
+    let spec = this.swaggerService.exportOAS3(project, null, { includeApicIds: true });
+    let deref = new SchemaDref();
+    this.resolvedSpec = deref.dereference(Utils.clone(spec))
 
     this.tagGroups = { Untagged: [] }
     Utils.objectKeys(this.resolvedSpec.paths).forEach(path => {
@@ -92,10 +92,17 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
 
   scrollInView(f: string, i, j) {
     this.tabs.get(0).selectedIndex = 2;
-    this.tabs.get(i + 1).selectedIndex = j;
+    if (this.flags.groupBy === 'url') {
+      this.tabs.get(i + 1).selectedIndex = j;
+    }
     setTimeout(() => {
       const element = document.getElementById(f)
       if (element) element.scrollIntoView()
+      if (this.flags.groupBy === 'tags') {
+        let operation = element.nextSibling.childNodes[j] as HTMLElement;
+        (operation.querySelector('details:not([open]) summary') as HTMLElement)?.click();
+        operation?.scrollIntoView();
+      }
     }, 0);
   }
 
@@ -103,8 +110,22 @@ export class DocsDetailComponent implements OnInit, OnDestroy {
     this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
   }
 
-  open(i, j) {
-    console.log(this.tabs, i, j);
+  generateExample(schemaAndExamples: { examples?: { [key: string]: any }, example?: any, schema?: any }) {
+    if (schemaAndExamples?.examples) {
+      return Utils.objectValues(schemaAndExamples.examples)[0]?.value;
+    }
+    if (schemaAndExamples?.example) {
+      return schemaAndExamples.example;
+    } else
+      return JsonSchemaService.schemaToExample(schemaAndExamples?.schema, {});
+  }
 
+  shouldShowSchema(schema) {
+    if (!schema) {
+      return false
+    } else {
+      if (schema.type === 'object' && (!schema.properties || Object.keys(schema.properties).length === 0)) return false;
+    }
+    return true;
   }
 }

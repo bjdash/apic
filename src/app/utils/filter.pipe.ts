@@ -11,7 +11,7 @@ export class CustomFilter implements PipeTransform {
         }
         return items.filter(item => {
             return propertiesToFilter.map(prop => {
-                return item[prop].toLowerCase().includes(filterStr.toLowerCase())
+                return item[prop]?.toLowerCase().includes(filterStr.toLowerCase())
             }).includes(true)
         })
     }

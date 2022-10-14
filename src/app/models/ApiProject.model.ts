@@ -1,7 +1,7 @@
 import { KeyVal } from "./KeyVal.model";
 
 export interface SecurityDef {
-    type: string,
+    type: 'basic' | 'apiKey' | 'oauth2' | 'bearer',
     name: string,
     description?: string,
     apiKey?: {
@@ -13,7 +13,10 @@ export interface SecurityDef {
         flow?: string,
         tokenUrl?: string,
         scopes?: KeyVal[]
-    }
+    },
+    bearer?: {
+        bearerFormat?: string
+    },
     xProperty?: KeyVal[]
 }
 
@@ -53,7 +56,7 @@ export interface ApiEndp {
         type: 'raw' | 'form-data' | 'x-www-form-urlencoded' | 'graphql',
         data: any
     },
-    responses?: any[],
+    responses?: ApiResponse[],
     postrun?: string,
     prerun?: string,
 }
@@ -66,7 +69,7 @@ export interface ApiTrait {
     headers?: any,
     pathParams?: any,
     queryParams?: any,
-    responses?: any[]
+    responses?: ApiResponse[]
 }
 
 export interface ApiTag {
@@ -78,7 +81,25 @@ export interface ApiTag {
     },
     xProperty?: KeyVal[]
 }
-
+export interface ApiResponse {
+    data: any,
+    examples: ApiExampleRef[],
+    code: string,
+    desc?: string,
+    noneStatus?: boolean,
+    fromTrait?: boolean,
+    traitId?: string,
+    traitName?: string
+}
+export type ApiExampleRef = KeyVal;
+export interface ApiExample {
+    _id: string,
+    folder: string
+    name: string
+    summary?: string;
+    value?: any;
+    description?: string; valueType?: '$ref' | 'inline' | 'external'
+}
 export interface ApiProject {
     _id?: string,
     title: string,
@@ -96,6 +117,7 @@ export interface ApiProject {
     folders?: { [key: string]: ApiFolder },
     models?: { [key: string]: ApiModel },
     traits?: { [key: string]: ApiTrait },
+    examples?: { [key: string]: ApiExample },
     setting?: {
         basePath?: string,
         envId?: string,
@@ -114,6 +136,19 @@ export interface ApiProject {
     tags?: ApiTag[]
 }
 
+export interface LeftTreeItem {
+    _id: string,
+    name: string,
+    children: {
+        _id: string,
+        name: string,
+        type: 'models' | 'examples' | 'traits' | 'endpoints',
+        deprecated?: boolean,
+        label: string,
+        desc: string
+    }[]
+}
+
 export const NewApiFolder: ApiFolder = {
     _id: 'NEW',
     name: '',
@@ -125,6 +160,16 @@ export const NewApiModel: ApiModel = {
     nameSpace: '',
     folder: '',
     data: { type: "object" }
+}
+
+export const NewApiExample: ApiExample = {
+    _id: 'NEW',
+    name: '',
+    summary: '',
+    folder: '',
+    description: '',
+    value: {},
+    valueType: 'inline'
 }
 
 export const NewApiTrait: ApiTrait = {
@@ -159,7 +204,7 @@ export const NewApiEndp: ApiEndp = {
         type: 'raw',
         data: { type: 'object' }
     },
-    responses: [{ code: '200', data: { type: 'object' } }],
+    responses: [{ code: '200', data: { type: 'object' }, examples: [] }],
     postrun: '',
     prerun: '',
 }

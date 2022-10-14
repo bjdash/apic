@@ -1,8 +1,8 @@
 .tags {
     position: relative;
     overflow: auto;
-    border-bottom: 1px dashed var(--border-color);
-    padding: 10px;
+    border-bottom: 2px solid var(--border-color);
+    padding: 30px 10px;
 }
 .tags:nth-last-child(2) {
     border-bottom: none;
@@ -13,7 +13,7 @@
     top: 10px;
 }
 fieldset {
-    border: 1px solid var(--border-color);
+    border: 1px dashed var(--border-color);
     margin-bottom: 10px;
     border-radius: 10px;
     legend {

@@ -103,6 +103,10 @@
                 Folders can be used to group and organize related components in one place.</div>
             <div class="ac-head t_bg">Folders</div>
         </a>
+        <a class="landing-action" href="" [routerLink]="['examples', 'new']">
+            <div class="ac-text">Define reusable exampple objects.</div>
+            <div class="ac-head t_bg">Examples</div>
+        </a>
         <a class="f18 pull-right" mat-icon-button href="https://apic.app/docs/designer/working-with-api-design.html"
             target="_new">
             <mat-icon>help</mat-icon>
@@ -176,7 +180,7 @@
         </div>
 
         <div class="paper">
-            <h3 class="panel-title vcenter" (click)="flags.hideMocks = !flags.hideMocks">
+            <h3 class="panel-title vcenter pointer" (click)=" flags.hideMocks=!flags.hideMocks">
                 Mocked response
                 <span class="spinner wh" *ngIf="flags.mocking"></span>
             </h3>
@@ -216,7 +220,7 @@
                 <div *ngFor="let endp of selectedPROJ.endpoints |keyvalue" class="endp"
                     [matTooltip]="endp.value.summary">
                     <span class="method" [ngClass]="endp.value.method.toUpperCase()"></span>
-                    <span class="endpUrl pointer" (click)="runMockedEndp(endp.key)"
+                    <span class="endpUrl pointer mono" (click)="runMockedEndp(endp.key)"
                         [ngClass]="{deprecated:endp.value.deprecated}">
                         <span class="host-sh" *ngIf="selectedPROJ.simKey">https://apic.app/mock/... </span>
                         <span class="host"

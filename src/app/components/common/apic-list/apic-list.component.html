@@ -1,8 +1,10 @@
-<label>{{label}}</label>
+<label>{{options.label}}</label>
 <div *ngFor="let item of items; trackBy: trackByIndex; let i = index" class="vcenter">
-    <mat-checkbox class="gap" [(ngModel)]="item.active" (ngModelChange)="toggle(i)"></mat-checkbox>
-    <span>{{item.name}}</span>
-    <button mat-icon-button class="sm remove red" *ngIf="!item.readonly" (click)="remove(i)">
+    <mat-checkbox *ngIf="options.itemType === 'object'" class="gap" [ngModel]="(item|asApicListItemObj).active"
+        (ngModelChange)="toggle(i)"></mat-checkbox>
+    <span *ngIf="options.itemType === 'object'">{{(item|asApicListItemObj).name}}</span>
+    <span *ngIf="options.itemType === 'string'">{{item}}</span>
+    <button mat-icon-button class="sm remove red" *ngIf="!(item|asApicListItemObj).readonly" (click)="remove(i)">
         <mat-icon>close</mat-icon>
     </button>
 </div>

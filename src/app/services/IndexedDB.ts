@@ -125,8 +125,7 @@ const idbKeyval = {
     return (await dbPromise).getFromIndex(table, key, value);
   },
 
-  //TODO: Check if extra is used anywhere
-  async getByIds(table, key, ids, extra) {
+  async getByIds(table, ids) {
     var db = await dbPromise;
     return await Promise.all(
       ids.map((id) => {

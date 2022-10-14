@@ -18,8 +18,9 @@ export interface KVEditorOptn {
   placeholderVal?: string,
   enableAutocomplete?: boolean,
   allowFileType?: boolean,
-  useRichText?: false,//TODO
-  autocompletes?: string[]
+  useRichText?: false,
+  autocompletes?: string[],
+  useSelectForVal?: boolean
 }
 
 @Component({
@@ -35,8 +36,9 @@ export interface KVEditorOptn {
   ],
 })
 export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
-  @Input()
-  options: KVEditorOptn;
+  @Input() options: KVEditorOptn;
+  @Input() valueOptions: any[] = []
+
   private defaultOptions: KVEditorOptn = {
     allowAdd: true,
     allowZeroItem: false,
@@ -50,7 +52,8 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     enableAutocomplete: false,
     allowFileType: false,
     useRichText: false,
-    autocompletes: []
+    autocompletes: [],
+    useSelectForVal: false
   }
   keyValueForm: FormArray;
   focusedIndex: number = 0;
@@ -70,7 +73,11 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
 
   writeValue(initialValue: KeyVal[]): void {
     if (!initialValue || initialValue.length === 0) {
-      initialValue = [{ key: '', val: '', ...(this.options.allowToggle && { active: true }) }]
+      if (this.options.allowZeroItem) {
+        initialValue = []
+      } else {
+        initialValue = [{ key: '', val: '', ...(this.options.allowToggle && { active: true }) }]
+      }
     }
     while (this.keyValueForm.length !== 0) {
       this.keyValueForm.removeAt(0)

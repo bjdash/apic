@@ -2,11 +2,6 @@ import { Injectable } from "@angular/core";
 import LocalStore from "./localStore";
 import { Utils } from "./utils.service";
 import iDB from './IndexedDB';
-import { ApiRequest } from "../models/Request.model";
-import { CompiledApiRequest } from "../models/CompiledRequest.model";
-import { RequestRunnerService } from "./request-runner.service";
-import { HistoryRequest } from "../models/ReqHistory.model";
-import { RequestUtils } from "../utils/request.util";
 import { RequestsService } from "./requests.service";
 
 @Injectable()
