@@ -153,8 +153,8 @@ export class ProjectExampleComponent {
     deleteExample(exampleId: string) {
         if (!exampleId || !this.selectedPROJ.examples) return;
 
-        const { [exampleId]: exampleToRemove, ...remainingModels } = this.selectedPROJ.models;
-        let project: ApiProject = { ...this.selectedPROJ, models: remainingModels }
+        const { [exampleId]: exampleToRemove, ...remainingExamples } = this.selectedPROJ.examples;
+        let project: ApiProject = { ...this.selectedPROJ, examples: remainingExamples }
 
         this.confirmService
             .confirm({

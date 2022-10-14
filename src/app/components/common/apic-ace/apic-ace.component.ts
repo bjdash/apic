@@ -31,7 +31,7 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   Y = 0;
 
   constructor(private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) {
-    this.throttledChange = throttle(this.textChanged, { 'leading': false })
+    this.throttledChange = throttle(this.textChanged, 100, { 'leading': false })
   }
   ngOnDestroy(): void {
 

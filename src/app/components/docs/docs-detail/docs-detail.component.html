@@ -182,7 +182,7 @@
                                 </div>
                             </div>
                         </div>
-                        <img *ngIf="['{}', undefined].includes((resolvedSpec.components.securitySchemesson|json))"
+                        <img *ngIf="['{}', undefined].includes((resolvedSpec.components.securitySchemes|json))"
                             src="assets/images/blank.svg" class="blank-img margV10" alt="blank" />
                     </div>
                 </mat-tab>
@@ -364,13 +364,13 @@
                 <div *ngIf="operation.requestBody.description" class="margB20">{{operation.requestBody.description}}
                 </div>
                 <mat-tab-group animationDuration="0ms">
-                    <mat-tab label="Example">
-                        <apic-ace [text]="generateExample(operation.requestBody.content[mimeType.value])|json"
-                            [mode]="'json'" [readOnly]="true"></apic-ace>
-                    </mat-tab>
                     <mat-tab label="Schema">
                         <json-schema-viewer [schema]="operation.requestBody.content[mimeType.value]?.schema">
                         </json-schema-viewer>
+                    </mat-tab>
+                    <mat-tab label="Example">
+                        <apic-ace [text]="generateExample(operation.requestBody.content[mimeType.value])|json"
+                            [mode]="'json'" [readOnly]="true"></apic-ace>
                     </mat-tab>
                 </mat-tab-group>
             </section>
@@ -402,15 +402,15 @@
                                 <div
                                     *ngIf="shouldShowSchema (response.value.content[mimeType.value]?.schema); else notSpecified">
                                     <mat-tab-group animationDuration="0ms">
-                                        <mat-tab label="Example">
-                                            <apic-ace
-                                                [text]="generateExample(response.value.content[mimeType.value])|json"
-                                                [mode]="'json'" [readOnly]="true"></apic-ace>
-                                        </mat-tab>
                                         <mat-tab label="Schema">
                                             <json-schema-viewer
                                                 [schema]="response.value.content[mimeType.value]?.schema">
                                             </json-schema-viewer>
+                                        </mat-tab>
+                                        <mat-tab label="Example">
+                                            <apic-ace
+                                                [text]="generateExample(response.value.content[mimeType.value])|json"
+                                                [mode]="'json'" [readOnly]="true"></apic-ace>
                                         </mat-tab>
                                     </mat-tab-group>
                                 </div>
