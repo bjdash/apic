@@ -229,6 +229,10 @@ div.mat-menu-item {
 a.mat-menu-item:hover {
   text-decoration: none;
 }
+.mat-menu-item .mat-icon-no-color,
+.mat-menu-submenu-icon {
+  color: var(--text-color) !important;
+}
 .mat-select-panel {
   .mat-optgroup-label {
     line-height: 36px;
@@ -321,6 +325,10 @@ div.mat-menu-content {
   padding: 5px;
   min-height: 30px;
   color: var(--text-color);
+  &.ng-invalid {
+    box-shadow: inset 0 -1px 0 #f9250f !important;
+    border: 1px solid #f9250f !important;
+  }
 }
 .mat-select-value {
   color: var(--text-color);

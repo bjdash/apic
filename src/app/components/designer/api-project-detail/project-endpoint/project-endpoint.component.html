@@ -49,13 +49,6 @@
     <div>
         <form class="form-horizontal form-compact " [formGroup]="endpForm" id="endpForm" (submit)="createEndp()">
             <div class="row">
-                <label class="control-label col-sm-2">Name/Summary: <span class="red">*</span></label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" required="" placeholder="Endpoint Name/Summary"
-                        maxlength="255" formControlName="summary">
-                </div>
-            </div>
-            <div class="row">
                 <label class="control-label col-sm-2">Path: <span class="red">*</span></label>
                 <div class="col-sm-6">
                     <input type="text" (input)="checkForPathParams()" class="form-control" required=""
@@ -65,13 +58,16 @@
                 <label class="control-label col-sm-2">Method: </label>
                 <div class="col-sm-2">
                     <select class="form-control" formControlName="method">
-                        <option value="get">GET</option>
-                        <option value="post">POST</option>
-                        <option value="put">PUT</option>
-                        <option value="patch">PATCH</option>
-                        <option value="delete">DELETE</option>
-                        <option value="options">OPTIONS</option>
+                        <option *ngFor="let method of HTTP_METHODS" [value]="method.toLowerCase()">{{method}}</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="control-label col-sm-2">Name/Summary: <span class="red">*</span></label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" required="" placeholder="Endpoint Name/Summary"
+                        maxlength="255" formControlName="summary">
                 </div>
             </div>
 
@@ -177,60 +173,77 @@
                 </div>
             </div>
 
-            <mat-tab-group class="margV10" animationDuration="0ms">
-                <mat-tab label="Request body" *ngIf="METHOD_WITH_BODY.includes(endpForm.value.method.toUpperCase())">
-                    <div class="pad10" formGroupName="body">
-                        <mat-radio-group aria-label="Select an option" formControlName="type">
-                            <mat-radio-button value="raw" (click)="resetBodyType('raw')">raw</mat-radio-button>
-                            <mat-radio-button value="form-data" (click)="resetBodyType('form-data')">form-data
-                            </mat-radio-button>
-                            <mat-radio-button value="x-www-form-urlencoded"
-                                (click)="resetBodyType('x-www-form-urlencoded')">x-www-form-urlencoded
-                            </mat-radio-button>
-                        </mat-radio-group>
-                        <ng-jsonschema [models]="selectedPROJ.models" *ngIf="endpForm.value.body?.type=='raw'"
-                            (onSchemaChange)="setDirty()" name="data" formControlName="data"></ng-jsonschema>
-                        <div *ngIf="endpForm.value.body?.type=='form-data'">
-                            <app-endp-body-params formControlName="data" [options]="['string', 'file']">
-                            </app-endp-body-params>
+            <div>
+                <h2 class="t_color pointer" (click)="flags.showReq = !flags.showReq">
+                    <mat-icon *ngIf="!flags.showReq">chevron_right</mat-icon>
+                    Request
+                </h2>
+                <mat-tab-group class="margV10" animationDuration="0ms" *ngIf="flags.showReq">
+                    <mat-tab label="Request body"
+                        *ngIf="METHOD_WITH_BODY.includes(endpForm.value.method.toUpperCase())">
+                        <div class="pad10" formGroupName="body">
+                            <mat-radio-group aria-label="Select an option" formControlName="type">
+                                <mat-radio-button value="raw" (click)="resetBodyType('raw')">raw</mat-radio-button>
+                                <mat-radio-button value="form-data" (click)="resetBodyType('form-data')">form-data
+                                </mat-radio-button>
+                                <mat-radio-button value="x-www-form-urlencoded"
+                                    (click)="resetBodyType('x-www-form-urlencoded')">x-www-form-urlencoded
+                                </mat-radio-button>
+                            </mat-radio-group>
+                            <ng-jsonschema [models]="selectedPROJ.models" *ngIf="endpForm.value.body?.type=='raw'"
+                                (onSchemaChange)="setDirty()" name="data" formControlName="data"></ng-jsonschema>
+                            <div *ngIf="endpForm.value.body?.type=='form-data'">
+                                <app-endp-body-params formControlName="data" [options]="['string', 'file']">
+                                </app-endp-body-params>
+                            </div>
+                            <div *ngIf="endpForm.value.body?.type=='x-www-form-urlencoded'">
+                                <app-endp-body-params formControlName="data"
+                                    [options]="['string', 'integer','boolean','number','array']">
+                                </app-endp-body-params>
+                            </div>
                         </div>
-                        <div *ngIf="endpForm.value.body?.type=='x-www-form-urlencoded'">
-                            <app-endp-body-params formControlName="data"
-                                [options]="['string', 'integer','boolean','number','array']">
-                            </app-endp-body-params>
+                    </mat-tab>
+                    <mat-tab label="Path Params">
+                        <ng-jsonschema
+                            [options]="{mode:'list', disableManualAdd:true, disabledKeys:flags.traitPP, listModeMsg:'Define Path params here and reuse them with endpoints.'}"
+                            (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
+                        </ng-jsonschema>
+                    </mat-tab>
+                    <mat-tab label="Query Params">
+                        <ng-jsonschema [models]="selectedPROJ.models"
+                            [options]="{mode:'list', disabledKeys:flags.traitQP, listModeMsg:'Define Query params here and reuse them with endpoints.'}"
+                            (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams">
+                        </ng-jsonschema>
+                    </mat-tab>
+                    <mat-tab label="Headers">
+                        <ng-jsonschema [models]="selectedPROJ.models"
+                            [options]="{mode:'list', disabledKeys:flags.traitHP, listModeMsg:'Define Headers here and reuse them with endpoints.'}"
+                            (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+
+            <div>
+                <h2 class="t_color pointer" (click)="flags.showResp = !flags.showResp">
+                    <mat-icon *ngIf="!flags.showResp">chevron_right</mat-icon>
+                    Response
+                </h2>
+                <mat-tab-group class="margV10" animationDuration="0ms" *ngIf="flags.showResp">
+                    <mat-tab label="Responses">
+                        <div class="pad10">
+                            <response-schema-builder [project]="selectedPROJ" [responsesModels]="traitResponses"
+                                [onChange]="setDirty.bind(this)" (onTestBuilder)="openTestBuilder($event)"
+                                formControlName="responses">
+                            </response-schema-builder>
                         </div>
-                    </div>
-                </mat-tab>
-                <mat-tab label="Path Params">
-                    <ng-jsonschema
-                        [options]="{mode:'list', disableManualAdd:true, listModeMsg:'Define Path params here and reuse them with endpoints.'}"
-                        (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
-                    </ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Query Params">
-                    <ng-jsonschema [models]="selectedPROJ.models"
-                        [options]="{mode:'list', disabledKeys:flags.traitQP, listModeMsg:'Define Query params here and reuse them with endpoints.'}"
-                        (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"></ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Headers">
-                    <ng-jsonschema [models]="selectedPROJ.models"
-                        [options]="{mode:'list', disabledKeys:flags.traitHP, listModeMsg:'Define Headers here and reuse them with endpoints.'}"
-                        (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Responses">
-                    <div class="pad10">
-                        <response-schema-builder [models]="selectedPROJ.models" [responsesModels]="traitResponses"
-                            [onChange]="setDirty.bind(this)" (onTestBuilder)="openTestBuilder($event)"
-                            formControlName="responses">
-                        </response-schema-builder>
-                    </div>
-                </mat-tab>
-                <mat-tab label="Test Scripts">
-                    <pre-post-run-script [prerun]="endpForm.value.prerun" [postrun]="endpForm.value.postrun"
-                        (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
-                    </pre-post-run-script>
-                </mat-tab>
-            </mat-tab-group>
+                    </mat-tab>
+                    <mat-tab label="Test Scripts">
+                        <pre-post-run-script [prerun]="endpForm.value.prerun" [postrun]="endpForm.value.postrun"
+                            (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
+                        </pre-post-run-script>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
         </form>
         <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt" (close)="testBuilderOpt.show=false"
             (onSave)="saveBuilderTests($event)">

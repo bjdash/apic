@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 import { RecaptchaComponent } from 'ng-recaptcha';
 import { GoogleLoginService } from 'src/app/services/google-login.service';
 import { SocialUser } from 'src/app/models/SocialUser.model';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { ApicUrls } from 'src/app/utils/constants';
 import apic from 'src/app/utils/apic';
 
@@ -173,7 +173,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   googleLoginExternalBrowser() {
-    this.socketClient = io.connect(ApicUrls.host, {
+    this.socketClient = io(ApicUrls.host, {
       path: '/api/socket.io',
       reconnection: false
     });

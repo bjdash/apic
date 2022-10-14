@@ -1,7 +1,8 @@
 <div class="tbh_cont" [style]="{top:options.top+'px'}">
     <div class="tbh_h fullwidth">{{options.parent}}{{getKey(options.key)}}
-        <a href="" class="icon bj-files-empty" title="Copy"
-            (click)="copyToClipboard(options.parent+'.'+options.key)"></a>
+        <button mat-icon-button class="sm" title="Copy" (click)="copyToClipboard(options.parent+'.'+options.key)">
+            <mat-icon>content_copy</mat-icon>
+        </button>
         <span class="red pull-right bold" *ngIf="!flags.saved" style="margin-right: 20px;">Not saved</span>
     </div>
     <div class="flex">

@@ -8,6 +8,7 @@
                     <select formControlName="type" ng-change="vm.secDefTypeChange(def)" class="form-control input-sm">
                         <option value="basic">Basic</option>
                         <option value="apiKey">Api Key</option>
+                        <option value="bearer">Bearer</option>
                         <option value="oauth2">OAuth2</option>
                     </select>
                 </div>
@@ -25,6 +26,15 @@
                 </div>
             </div>
 
+            <div [hidden]="item.value.type !== 'bearer'" formGroupName="bearer">
+                <div class="row">
+                    <label class="control-label col-xs-3">Bearer format</label>
+                    <div class="col-xs-6">
+                        <input class="form-control input-sm" formControlName="bearerFormat" />
+                    </div>
+                </div>
+            </div>
+
             <div [hidden]="item.value.type !== 'apiKey'" formGroupName="apiKey">
                 <div class="row">
                     <label class="control-label col-xs-3">In</label>
@@ -32,6 +42,7 @@
                         <select formControlName="in" class="form-control input-sm">
                             <option value="header">Header</option>
                             <option value="query">Query</option>
+                            <option value="cookie">Cookie</option>
                         </select>
                     </div>
                 </div>

@@ -6,10 +6,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Store } from '@ngxs/store';
 import { ApiProjectState } from 'src/app/state/apiProjects.state';
 import { map, take } from 'rxjs/operators';
-import { SwaggerService } from 'src/app/services/swagger.service';
+import { ImportExportService } from 'src/app/services/importExport.service';
 import jsyaml from 'js-yaml';
 import { Utils } from 'src/app/services/utils.service';
 import { ApiProjectStateSelector } from 'src/app/state/apiProjects.selector';
+import { Env } from 'src/app/models/Envs.model';
+import { EnvState } from 'src/app/state/envs.state';
 
 @Component({
   selector: 'project-export-modal',
@@ -24,7 +26,7 @@ export class ProjectExportModalComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { type: string, id: string },
     private store: Store,
-    private swaggerService: SwaggerService,
+    private swaggerService: ImportExportService,
     private fileSystem: FileSystem,
     private utils: Utils,
     private toaster: Toaster) {
@@ -44,10 +46,19 @@ export class ProjectExportModalComponent implements OnInit {
     this.prepareForExport();
   }
 
-  prepareForExport() {
+  async prepareForExport() {
     switch (this.data.type) {
       case 'OAS':
         this.exportObj = this.swaggerService.exportOAS({ ...this.projToExport });
+        break;
+      case 'OAS3':
+        let projEnv: Env;
+        if (this.projToExport.setting?.envId) {
+          projEnv = await this.store.select(EnvState.getById)
+            .pipe(map(filterFn => filterFn(this.projToExport.setting.envId)))
+            .pipe(take(1)).toPromise();
+        }
+        this.exportObj = this.swaggerService.exportOAS3({ ...this.projToExport }, projEnv);
         break;
       case 'RAW':
         this.exportObj = this.swaggerService.exportRAW({ ...this.projToExport }, '');

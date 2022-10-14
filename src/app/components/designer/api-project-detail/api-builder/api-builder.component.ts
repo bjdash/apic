@@ -119,6 +119,7 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     postEndp.responses = [{
       code: '201',
       data: { $ref: `#/definitions/${outModel.nameSpace}` },
+      examples: [],
       desc: 'Returns response 201 with the details of the newly created ' + name
     }];
     postEndp.body = {
@@ -138,6 +139,7 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     getEndp.responses = [{
       code: '200',
       data: { type: "array", items: { $ref: `#/definitions/${outModel.nameSpace}` } },
+      examples: [],
       desc: `Returns 200 with list of ${name}s`
     }];
 
@@ -162,6 +164,7 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     getIdEndp.responses = [{
       code: '200',
       data: { $ref: `#/definitions/${outModel.nameSpace}` },
+      examples: [],
       desc: 'Returns 200 with the detail of ' + name + ' for the specified ' + name.toLowerCase() + 'Id'
     }];
 
@@ -186,6 +189,7 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     putEndp.responses = [{
       code: '200',
       data: { $ref: `#/definitions/${outModel.nameSpace}` },
+      examples: [],
       desc: 'Returns 200 with the detail of updated ' + name
     }];
     putEndp.body = {
@@ -214,6 +218,7 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     delEndp.responses = [{
       code: '200',
       data: { $ref: `#/definitions/${outModel.nameSpace}` },
+      examples: [],
       desc: 'Returns 200 with the detail of updated ' + name
     }];
 

@@ -104,6 +104,11 @@ export class ApiProjectUtils {
         if (!trait) return [];
         return Utils.objectKeys(trait.headers.properties)
     }
+    static getTraitPathParamNames(traitId, project: ApiProject) {
+        var trait: ApiTrait = project.traits[traitId];
+        if (!trait) return [];
+        return Utils.objectKeys(trait.pathParams?.properties)
+    }
 
     static getModeldefinitions(project: ApiProject) {
         var modelRefs = {};

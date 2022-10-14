@@ -22,7 +22,7 @@ export class ThemesService {
     if (!themeAccent) themeAccent = this.currentAccent;
     var root = document.documentElement;
     var themeData = Const.themes.types[themeType];
-    for (const [key, val] of Utils.objectEntries(themeData)) {
+    for (const [key, val] of Utils.objectEntries(themeData as { [key: string]: string })) {
       root.style.setProperty(key, val);
     }
     root.style.setProperty("--accent-color", themeAccent);

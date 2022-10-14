@@ -169,15 +169,15 @@
                     <div *ngIf="(loggedInUser$|async)?.UID">
                         <div class="greet">Hi {{(loggedInUser$|async).name}}</div>
                         <mat-divider></mat-divider>
-                        <button mat-menu-item>
+                        <a [routerLink]="'/dashboard/account'" mat-menu-item>
                             <mat-icon>manage_accounts</mat-icon>Account
-                        </button>
-                        <button mat-menu-item>
+                        </a>
+                        <a [routerLink]="'/dashboard/'" mat-menu-item>
                             <mat-icon>dashboard</mat-icon> Dashboard
-                        </button>
-                        <button mat-menu-item>
+                        </a>
+                        <!-- <button mat-menu-item>
                             <mat-icon>sync</mat-icon> Sync
-                        </button>
+                        </button> -->
                         <button mat-menu-item (click)="logout()">
                             <mat-icon>logout</mat-icon> Logout
                         </button>

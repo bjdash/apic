@@ -1,3 +1,4 @@
+import structuredClone from '@ungap/structured-clone'
 import { Toaster } from './toaster.service';
 import { Injectable } from "@angular/core";
 import apic from '../utils/apic';
@@ -36,7 +37,7 @@ export class Utils {
             .reduce((obj, item: KeyVal) => Object.assign(obj, { [item.key]: item.val }), {});
     }
 
-    static objectEntries<T>(obj: { [key: string]: T }): [string, T | any][] {
+    static objectEntries<T>(obj: { [key: string]: T }): [string, T][] {
         return obj ? (Object.entries(obj)) : [];
     }
 
@@ -341,27 +342,8 @@ export class Utils {
         return req;
     }
 
-    //https://github.com/angus-c/just/blob/master/packages/collection-clone/index.js
-    static clone(obj) {
-        if (typeof obj == 'function') {
-            return obj;
-        }
-        var result = Array.isArray(obj) ? [] : {};
-        for (var key in obj) {
-            // include prototype properties
-            var value = obj[key];
-            var type = {}.toString.call(value).slice(8, -1);
-            if (type == 'Array' || type == 'Object') {
-                result[key] = this.clone(value);
-            } else if (type == 'Date') {
-                result[key] = new Date(value.getTime());
-            } else if (type == 'RegExp') {
-                result[key] = RegExp(value.source, this.getRegExpFlags(value));
-            } else {
-                result[key] = value;
-            }
-        }
-        return result;
+    static clone<T>(obj: T): T {
+        return structuredClone(obj);
     }
 
     static getRegExpFlags(regExp) {
@@ -390,5 +372,28 @@ export class Utils {
         return uri;
     }
 
+    static deepEquals(object1, object2) {
+        const keys1 = Object.keys(object1);
+        const keys2 = Object.keys(object2);
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+        for (const key of keys1) {
+            const val1 = object1[key];
+            const val2 = object2[key];
+            const areObjects = Utils.isObject(val1) && Utils.isObject(val2);
+            if (
+                areObjects && !this.deepEquals(val1, val2) ||
+                !areObjects && val1 !== val2
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static isObject(object) {
+        return object != null && typeof object === 'object';
+    }
 
 }

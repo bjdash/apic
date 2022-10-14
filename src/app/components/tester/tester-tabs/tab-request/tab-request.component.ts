@@ -28,9 +28,10 @@ import { Utils } from 'src/app/services/utils.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import apic from 'src/app/utils/apic';
 import { Beautifier } from 'src/app/utils/Beautifier';
-import { HTTP_HEADERS, HTTP_METHODES, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS } from 'src/app/utils/constants';
+import { HTTP_HEADERS, HTTP_METHODS, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS } from 'src/app/utils/constants';
 import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
+import { TesterTabInterface } from '../tester-tabs.interface';
 import { TesterTabsService } from '../tester-tabs.service';
 
 @Component({
@@ -39,7 +40,7 @@ import { TesterTabsService } from '../tester-tabs.service';
   styleUrls: ['./tab-request.component.scss'],
   providers: [RequestRunnerService] //to make sure each tab gets one instance of runner service
 })
-export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
+export class TabRequestComponent implements OnInit, OnDestroy, OnChanges, TesterTabInterface {
   @Input() requestId: string;
   @Input() initialData: ApiRequest;
   @Input() suiteRequest: boolean;
@@ -54,7 +55,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   selectedReq: ApiRequest;
   selectedReq$: Observable<ApiRequest>;
 
-  httpMethods = HTTP_METHODES;
+  httpMethods = HTTP_METHODS;
   RAW_BODY_TYPES = RAW_BODY_TYPES;
   HTTP_HEADERS = HTTP_HEADERS;
   REQ_BODY_SNIPS = REQ_BODY_SNIPS;
@@ -154,7 +155,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit(): void {
-    if (!this.requestId.includes('new_tab') && !this.suiteRequest && !this.projId) {
+    if (!this.requestId?.includes('new_tab') && !this.suiteRequest && !this.projId) {
       this.listenForUpdate()
     } else {
 
@@ -480,7 +481,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges {
       data: null,
       timeTaken: parseInt(`${savedResp.time}`),
       timeTakenStr: Utils.formatTime(parseInt(`${savedResp.time}`)),
-      respSize: savedResp.statusText,
+      respSize: savedResp.size,
       logs: ['Loaded from saved response'],
       tests: [],
       meta: this.savedRespIdentifier,

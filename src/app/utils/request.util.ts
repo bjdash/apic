@@ -1,3 +1,4 @@
+import jsf from 'json-schema-faker';
 import { ApiEndp, ApiProject } from "../models/ApiProject.model";
 import { CompiledApiRequest } from "../models/CompiledRequest.model";
 import { ApiRequest, SavedResp } from "../models/Request.model";
@@ -8,8 +9,10 @@ import { ApiProjectUtils } from "./ApiProject.utils";
 import { METHOD_WITH_BODY } from "./constants";
 import { SchemaDref } from "./SchemaDref";
 
-declare let jsf: any
 export class RequestUtils {
+    static {
+        jsf.option('fillProperties', false);
+    }
     static checkForHTTP(url: string) {
         if (url.toLowerCase().indexOf('http') !== 0) {
             url = 'http://' + url;
@@ -88,7 +91,7 @@ export class RequestUtils {
                     }
                     break;
                 case 'graphql':
-                    req.Body.type = 'raw';
+                    // req.Body.type = 'raw';
                     newReq.headers['Content-Type'] = 'application/json';
                     newReq.body = {
                         query: req.Body.rawData
@@ -195,13 +198,14 @@ export class RequestUtils {
         //copy response codes and their respective schema
         if (endp.responses && endp.responses.length > 0) {
             for (var j = 0; j < endp.responses.length; j++) {
-                var tmpSchema: any = { ...endp.responses[j].data };
+                var tmpSchema: any = Utils.clone(endp.responses[j].data);
                 tmpSchema.definitions = modelRefs;
                 tmpSchema.responses = { ...responseRefs };
                 try {
+                    let deref = new SchemaDref();
                     request.respCodes.push({
                         code: endp.responses[j].code,
-                        data: SchemaDref.parse(Utils.clone(tmpSchema))
+                        data: deref.dereference(Utils.clone(tmpSchema))
                     });
                 } catch (e) {
                     console.error('Circular JSON schema reference encountered.', e)
@@ -211,7 +215,7 @@ export class RequestUtils {
         //copy headers
         var headers = endp.headers;
         if (headers?.properties) {
-            Utils.objectEntries(headers.properties).forEach(([key, val]) => {
+            Utils.objectEntries(headers.properties as { [key: string]: any }).forEach(([key, val]) => {
                 var h = { key: key, val: val.default ? val.default : '' };
                 request.Req.headers.push(h);
             })
@@ -221,7 +225,7 @@ export class RequestUtils {
         //copy query params
         var queryParams = endp.queryParams
         if (queryParams?.properties) {
-            Utils.objectEntries(queryParams.properties).forEach(([key, val]) => {
+            Utils.objectEntries(queryParams.properties as { [key: string]: any }).forEach(([key, val]) => {
                 request.Req.url_params.push({ key: key, val: val.default ? val.default : '' });
             });
         } else {
@@ -257,7 +261,7 @@ export class RequestUtils {
                         schema.definitions = modelRefs;
                         var sampleData = {};
                         try {
-                            sampleData = jsf(schema);
+                            sampleData = jsf.generate(Utils.clone(schema));
                         } catch (e) {
                             console.error('Failed to generate sample data', e);
                         }

@@ -3,7 +3,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Injectable()
 export class Toaster {
-    config: MatSnackBarConfig = { horizontalPosition: 'right', verticalPosition: 'bottom', duration: 2500 }
+    config: MatSnackBarConfig = { horizontalPosition: 'center', verticalPosition: 'bottom', duration: 2500 }
 
     constructor(private snackBar: MatSnackBar) { }
 
