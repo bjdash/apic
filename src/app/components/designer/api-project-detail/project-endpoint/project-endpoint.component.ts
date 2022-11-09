@@ -37,6 +37,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     more: true,
     showReq: true,
     showResp: true,
+    showTest: true,
     traitPP: [], //path params from trait
     traitQP: [], //query params from trait
     traitHP: [] //header params from trait
@@ -61,18 +62,23 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       security: [[]],
       operationId: ['', [Validators.maxLength(255)]],
       schemes: [[]],
-      consumes: [[]],
-      produces: [[]],
       description: [''],
       deprecated: [false],
-      pathParams: [{ type: 'object' }],
+      pathParams: [{ type: 'object', properties: {}, required: [] }],
       queryParams: [{ type: 'object' }],
       headers: [{ type: 'object' }],
-      responses: [[{ code: '200', data: { type: 'object' } }]],
-      body: fb.group({
-        type: [''],
-        data: ['']
-      }),
+      responses: [[{
+        code: '200',
+        data: [{
+          schema: { type: 'object' },
+          mime: 'application/json',
+          examples: []
+        }]
+      }]],
+      body: [{
+        desc: [''],
+        data: [[]]
+      }],
       postrun: [''],
       prerun: [''],
     });
@@ -117,9 +123,9 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       })
     }
 
-    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
+    let { summary, path, method, folder, traits, tags, security, operationId, schemes, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
     if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...(tags || [])], security: [...(security || [])], operationId, schemes: [...(schemes || [])], consumes: [...(consumes || [])], produces: [...(produces || [])], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...(responses || [])], postrun, prerun });
+    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...(tags || [])], security: [...(security || [])], operationId, schemes: [...(schemes || [])], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...(responses || [])], postrun, prerun });
 
     this.addDefaultResponse();
     this.endpForm.markAsPristine();
@@ -295,7 +301,11 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       this.endpForm.patchValue({
         responses: [{
           code: '200',
-          data: { "type": ["object"] },
+          data: [{
+            schema: { type: 'object' },
+            mime: 'application/json',
+            examples: []
+          }],
           desc: '',
           noneStatus: false
         }]

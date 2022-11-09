@@ -1,13 +1,19 @@
-<section class="json-schema">
-    <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0" class="sm"
+<section class="json-schema" [ngClass]="{vertical:options.mode=='object'}">
+    <mat-tab-group (selectedTabChange)="tabChange($event)" animationDuration="0ms" [selectedIndex]="0"
         *ngIf="options.mode=='object'" #tabGroup>
-        <mat-tab label="Designer">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon matTooltip="Design">draw</mat-icon>
+            </ng-template>
             <div index="0" heading="Designer">
                 <ng-container [ngTemplateOutlet]="SchemaRef">
                 </ng-container>
             </div>
         </mat-tab>
-        <mat-tab label="Json Schema">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon matTooltip="Json Schema">code</mat-icon>
+            </ng-template>
             <apic-ace id="json-schema" [readOnly]="options?.readOnly" [(text)]="schemaStr.original" [mode]="'json'"
                 #editor>
             </apic-ace>
@@ -17,18 +23,19 @@
     <ng-container [ngTemplateOutlet]="SchemaRef" *ngIf="options.mode == 'list'"></ng-container>
 
     <div class="tab-action" [ngClass]="{static:options.mode == 'list'}">
-        <button type="button" class="sm" mat-icon-button aria-label="Download" (click)="downloadJSON();">
+        <button type="button" mat-icon-button aria-label="Download" matTooltip="Download" (click)="downloadJSON();">
             <mat-icon>vertical_align_bottom</mat-icon>
         </button>
-        <button type="button" class="sm" mat-icon-button aria-label="Copy" (click)="copyToClipboard()">
-            <mat-icon>file_copy</mat-icon>
+        <button type="button" mat-icon-button aria-label="Copy" matTooltip="Copy json schema"
+            (click)="copyToClipboard()">
+            <mat-icon>content_copy</mat-icon>
         </button>
     </div>
 </section>
 
 <ng-template #SchemaRef>
     <div>
-        <fieldset [disabled]="options?.readOnly" class="js-fieldset">
+        <fieldset [disabled]="options?.readOnly" class="js-fieldset first">
             <div class="main">
                 <ng-jsonschema-main [options]="options" [refreshSchema]="refreshSchema.bind(this)" [models]="models"
                     (onAddNewProp)="addNewProp($event)" [removeEntity]="removeEntity.bind(this)"

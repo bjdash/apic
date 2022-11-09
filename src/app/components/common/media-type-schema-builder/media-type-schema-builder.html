@@ -1,0 +1,74 @@
+<div class="" [formGroup]="schemaForm">
+    <div class="mimeTabCont">
+        <mat-tab-group animationDuration="0ms" class="mimeTabs marg825" [(selectedIndex)]="flags.selectMimeIndex">
+            <mat-tab formArrayName="data" *ngFor="let content of schemaForm.get('data')['controls']; let i = index;">
+                <div [formGroupName]="i">
+                    <ng-template mat-tab-label>
+                        <input type="text" formControlName="mime" placeholder="content type" class="form-control"
+                            *ngIf="i=== flags.selectMimeIndex" (keydown)="keyDown($event)" />
+                        <span class="gap" *ngIf="flags.selectMimeIndex">{{schemaForm.get('data').value[i].mime}}</span>
+                        <mat-icon class="pointer red xs" (click)="removeMime(i, $event)">close</mat-icon>
+                    </ng-template>
+                    <div>
+                        <mat-tab-group animationDuration="0ms">
+                            <mat-tab label="Schema" class="pad10">
+                                <div
+                                    *ngIf="schemaForm.get('data').value[i].mime === 'application/x-www-form-urlencoded'">
+                                    <app-endp-body-params formControlName="schema"
+                                        [options]="['string', 'integer', 'boolean', 'number', 'array']">
+                                    </app-endp-body-params>
+                                </div>
+
+                                <div *ngIf="schemaForm.get('data').value[i].mime?.indexOf('multipart/') === 0">
+                                    <app-endp-body-params formControlName="schema" [options]="['string', 'file']">
+                                    </app-endp-body-params>
+                                </div>
+
+                                <div
+                                    *ngIf="schemaForm.get('data').value[i].mime !== 'application/x-www-form-urlencoded' && schemaForm.get('data').value[i].mime?.indexOf('multipart/') !== 0">
+                                    <ng-jsonschema [models]="project?.models" (onSchemaChange)="onSchemaUpdate()"
+                                        name="schema" formControlName="schema" class=""
+                                        [options]="{showTestBuilder: false}">
+                                    </ng-jsonschema>
+                                </div>
+                            </mat-tab>
+
+                            <mat-tab label="Examples">
+                                <div class="examples pad10">
+                                    <div class="vcenter">
+                                        <div class="bold full-w">Name</div>
+                                        <div class="bold full-w">Value</div>
+                                        <div class="bold" style="width: 110px;"> </div>
+                                    </div>
+                                    <app-key-value-editor formControlName="examples" [valueOptions]="allExamples"
+                                        [options]="kvOptions">
+                                    </app-key-value-editor>
+                                </div>
+                            </mat-tab>
+                        </mat-tab-group>
+                    </div>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+        <button mat-stroked-button class="sm t_border gap-left add-mime" type="button" [matMenuTriggerFor]="addMimeList"
+            [ngStyle]="{left:schemaForm.get('data')['controls'].length>flags.overflowTabsCount?'auto':
+(schemaForm.get('data')['controls'].length*150)+'px', right: schemaForm.get('data')['controls'].length
+<=flags.overflowTabsCount?'auto':'0px'}">
+            <mat-icon>add</mat-icon>
+        </button>
+
+        <mat-menu #addMimeList="matMenu">
+            <button mat-menu-item (click)="addMime('*/*')">Raw</button>
+            <button mat-menu-item (click)="addMime('multipart/form-data')">multipart/...</button>
+            <button mat-menu-item
+                (click)="addMime('application/x-www-form-urlencoded')">application/x-www-form-urlencoded</button>
+        </mat-menu>
+        <div *ngIf="schemaForm.value.data.length==0" class="vcenter">Add request body by clicking the <mat-icon
+                class="t_color">add</mat-icon> button
+        </div>
+    </div>
+    <div *ngIf="schemaForm.value.data.length>0">
+        <label>Description</label>
+        <textarea class="form-control marg810" formControlName="desc"></textarea>
+    </div>
+</div>

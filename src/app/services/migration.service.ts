@@ -3,51 +3,121 @@ import LocalStore from "./localStore";
 import { Utils } from "./utils.service";
 import iDB from './IndexedDB';
 import { RequestsService } from "./requests.service";
+import { ApiProjectService } from "./apiProject.service";
+import { ApiEndp, ApiProject, ApiResponse, EndpBody } from "../models/ApiProject.model";
+import { METHOD_WITH_BODY } from "../utils/constants";
 
 @Injectable()
 export class MigrationService {
     migrations = [{
-        name: 'Stomp requests: move field connection to stomp',
+        name: 'Project endpoints: Modify response to support OAS3',
         conditions: [{
-            on: 'newVersion',
-            check: 'isVersionEqual',
-            value: '3.0.0'
-        }, {
             on: 'oldVersion',
             check: 'isVersionLower',
-            value: '3.0.0'
+            value: '3.1.1'
         }],
         action: async () => {
-            //migrate Stomp requests
-            let allReqs = await iDB.read(iDB.TABLES.SAVED_REQUESTS);
-            let migrated = allReqs.filter(r => {
-                return r.type == 'ws' && r.method == 'Stomp'
-            }).map(r => {
-                let newReq = { ...r };
-                let stomp = {
-                    subscUrl: r.connection.subscUrl,
-                    host: r.connection.vhost,
-                    login: r.connection.id,
-                    passcode: r.connection.psd,
-                    headers: r.connection.headers,
-                    destQ: r.destQ
-                }
-                delete newReq.tabId;
-                delete newReq.destQ;
-                delete newReq.connection;
-                newReq.stomp = stomp;
-                return newReq;
-            })
-            await Promise.all(migrated.map(async (req) => {
-                await this.requestsService.updateRequest(req);
+            //migrate to OAS3 response and body type
+            let allProjects: ApiProject[] = await iDB.read(iDB.TABLES.API_PROJECTS);
+            let migrated: ApiProject[] = allProjects
+                .map(proj => {
+                    proj.endpoints = Utils.objectValues(proj.endpoints).map(endpoint => {
+                        let { produces, consumes, responses, body, ...rest } = endpoint as any;
+                        //update responses
+                        if (!produces || produces?.length === 0) {
+                            produces = ['application/json']
+                        }
+                        let updatedResponses: ApiResponse[];
+                        if (endpoint.hasOwnProperty('produces')) {
+                            console.log('Updating endpoint response.');
+                            updatedResponses = this.migrations[0].transform(responses, produces);
+                        } else {
+                            //response is already updated
+                            console.log('Endpoint response already updated. ');
+                            updatedResponses = responses;
+                        }
+
+                        //update body
+                        if (!consumes || consumes?.length === 0) {
+                            consumes = ['application/json']
+                        }
+                        let updatedBody: EndpBody = body;
+                        if (METHOD_WITH_BODY.includes(endpoint.method.toUpperCase())) {
+                            if (body.hasOwnProperty('type')) {//old endpoint
+                                console.log('Updating endp body.');
+                                if (body.type === 'form-data') {
+                                    consumes = ['multipart/form-data']
+                                }
+                                if (body.type === 'x-www-form-urlencoded') {
+                                    consumes = ['application/x-www-form-urlencoded']
+                                }
+                                updatedBody = {
+                                    data: consumes.map(c => {
+                                        return { schema: body.data, mime: c, examples: [] }
+                                    }),
+                                    desc: ''
+                                }
+                            } else {
+                                console.log('Endpoint body already updated.');
+                            }
+                        }
+                        return {
+                            ...rest,
+                            responses: updatedResponses,
+                            ...(METHOD_WITH_BODY.includes(endpoint.method.toUpperCase()) && { body: updatedBody })
+                        } as ApiEndp;
+                    }).reduce((obj, f) => {
+                        const key = f._id; return ({ ...obj, [key]: f })
+                    }, {})
+
+                    //update trait
+                    proj.traits = Utils.objectValues(proj.traits).map(trait => {
+                        let { responses, ...rest } = trait as any;
+                        let updatedResponses: ApiResponse[];
+                        if (!(responses[0]?.data instanceof Array)) {
+                            console.log('Updating trait response. ');
+                            updatedResponses = this.migrations[0].transform(responses, ['application/json']);
+                        } else {
+                            //response is already updated
+                            console.log('Trait response already updated.');
+                            updatedResponses = responses;
+                        }
+
+                        return { ...rest, responses: updatedResponses } as ApiEndp;
+                    }).reduce((obj, f) => {
+                        const key = f._id; return ({ ...obj, [key]: f })
+                    }, {})
+                    return proj;
+                });
+
+            await Promise.all(migrated.map(async (proj) => {
+                await this.apiProjectService.updateAPIProject(proj);
             }));
 
+            //migrate saved request responses to OAS3
+        },
+
+        transform: (responses, produces) => {
+            return responses.map(oldResp => {
+                let { data, examples, ...restOfResponse } = oldResp;
+                return {
+                    ...restOfResponse,
+                    data: produces.map(mime => {
+                        return {
+                            mime,
+                            schema: data,
+                            examples: examples || []
+                        }
+                    }),
+                    headers: { type: 'object', properties: {}, required: [] }
+                }
+            })
         }
     }];
     newVersion: string;
     oldVersion: string;
 
-    constructor(private requestsService: RequestsService) { }
+    constructor(private apiProjectService: ApiProjectService) { }
 
     async migrate(newVesrion: string, oldVersion: string) {
         this.newVersion = newVesrion;

@@ -118,14 +118,11 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     postEndp.tags = [name];
     postEndp.responses = [{
       code: '201',
-      data: { $ref: `#/definitions/${outModel.nameSpace}` },
-      examples: [],
+      data: [{schema:{ $ref: `#/definitions/${outModel.nameSpace}` }, mime:'application/json', examples:[]}],
+      headers:{type:'object'},
       desc: 'Returns response 201 with the details of the newly created ' + name
     }];
-    postEndp.body = {
-      type: 'raw',
-      data: { $ref: `#/definitions/${inModel.nameSpace}` }
-    }
+    postEndp.body = {data:[{mime:'application/json', schema:{ $ref: `#/definitions/${inModel.nameSpace}` }, examples:[]}]}
 
     //Create list GET req
     var getEndp: ApiEndp = Utils.clone(NewApiEndp);
@@ -138,8 +135,8 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     getEndp.tags = [name];
     getEndp.responses = [{
       code: '200',
-      data: { type: "array", items: { $ref: `#/definitions/${outModel.nameSpace}` } },
-      examples: [],
+      data: [{schema:{ type: "array", items: { $ref: `#/definitions/${outModel.nameSpace}` } }, mime:'application/json', examples:[]}],
+      headers:{type:'object'},
       desc: `Returns 200 with list of ${name}s`
     }];
 
@@ -163,8 +160,8 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     }
     getIdEndp.responses = [{
       code: '200',
-      data: { $ref: `#/definitions/${outModel.nameSpace}` },
-      examples: [],
+      data: [{schema:{ $ref: `#/definitions/${outModel.nameSpace}` }, mime:'application/json', examples:[]}],
+      headers:{type:'object'},
       desc: 'Returns 200 with the detail of ' + name + ' for the specified ' + name.toLowerCase() + 'Id'
     }];
 
@@ -188,14 +185,11 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     }
     putEndp.responses = [{
       code: '200',
-      data: { $ref: `#/definitions/${outModel.nameSpace}` },
-      examples: [],
+      data:[{schema:{ $ref: `#/definitions/${outModel.nameSpace}` }, mime:'application/json', examples:[]}],
+      headers:{type:'object'},
       desc: 'Returns 200 with the detail of updated ' + name
     }];
-    putEndp.body = {
-      type: 'raw',
-      data: { $ref: `#/definitions/${inModel.nameSpace}` }
-    }
+    putEndp.body = {data:[{mime:'application/json', schema:{ $ref: `#/definitions/${inModel.nameSpace}` }, examples:[]}]}
 
     //create Delete by Id req
     var delEndp: ApiEndp = Utils.clone(NewApiEndp);
@@ -217,8 +211,8 @@ export class ApiBuilderComponent implements OnInit, OnDestroy {
     }
     delEndp.responses = [{
       code: '200',
-      data: { $ref: `#/definitions/${outModel.nameSpace}` },
-      examples: [],
+      data:[{schema:{ $ref: `#/definitions/${outModel.nameSpace}` }, mime:'application/json', examples:[]}],
+      headers:{type:'object'},
       desc: 'Returns 200 with the detail of updated ' + name
     }];
 

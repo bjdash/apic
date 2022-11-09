@@ -155,6 +155,9 @@ h4.head {
 .f16 {
   font-size: 16px;
 }
+.f12{
+    font-size: 12px;
+}
 .bold {
   font-weight: bold;
 }
@@ -223,6 +226,9 @@ h4.head {
 .glyphicon.gap,
 .gap {
   margin-right: 5px !important;
+}
+.gap-left{
+    margin-left: 10px !important;
 }
 .gap-lg {
   margin-right: 40px;
@@ -498,7 +504,7 @@ a.panel-fab {
   color: #4ae597;
 }
 .TRAIT {
-  color: #2196f3;
+  color: #ea005e;
 }
 .Stomp,
 .Socketio,
@@ -571,7 +577,7 @@ a.panel-fab {
   margin-top: -10px;
   padding: 0 0 0 45px;
   height: 43px;
-  z-index: 21;
+  z-index: 2;
   background: transparent;
   overflow: hidden;
 }

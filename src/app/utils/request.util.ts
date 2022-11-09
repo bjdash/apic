@@ -1,5 +1,6 @@
 import jsf from 'json-schema-faker';
-import { ApiEndp, ApiProject } from "../models/ApiProject.model";
+import { JsonSchemaService } from '../components/common/json-schema-builder/jsonschema.service';
+import { ApiEndp, ApiProject, MediaTypeSchema } from "../models/ApiProject.model";
 import { CompiledApiRequest } from "../models/CompiledRequest.model";
 import { ApiRequest, SavedResp } from "../models/Request.model";
 import { RunResponse } from "../models/RunResponse.model";
@@ -202,10 +203,12 @@ export class RequestUtils {
                 tmpSchema.definitions = modelRefs;
                 tmpSchema.responses = { ...responseRefs };
                 try {
-                    let deref = new SchemaDref();
+                    let dereferedSchema = new SchemaDref().dereference(tmpSchema);
+                    delete dereferedSchema.definitions;
+                    delete dereferedSchema.responses;
                     request.respCodes.push({
                         code: endp.responses[j].code,
-                        data: deref.dereference(Utils.clone(tmpSchema))
+                        data: dereferedSchema
                     });
                 } catch (e) {
                     console.error('Circular JSON schema reference encountered.', e)
@@ -252,37 +255,50 @@ export class RequestUtils {
 
         //prepare body
         if (endp.body) {
-            request.Body.type = endp.body.type;
-            switch (request.Body.type) {
-                case 'raw':
-                    request.Body.selectedRaw = { name: 'JSON', val: 'application/json' };
-                    var schema = { ...endp.body.data };
-                    if (schema) {
-                        schema.definitions = modelRefs;
-                        var sampleData = {};
-                        try {
-                            sampleData = jsf.generate(Utils.clone(schema));
-                        } catch (e) {
-                            console.error('Failed to generate sample data', e);
-                        }
-                        request.Body.rawData = JSON.stringify(sampleData, null, '\t');
+            let bodyToUse: MediaTypeSchema = endp.body.data?.find(bodyItem => bodyItem.mime === 'application/json');
+            if (!bodyToUse)
+                bodyToUse = endp.body.data
+                    ?.find(bodyItem => bodyItem.mime === 'application/x-www-form-urlencoded' || bodyItem.mime.indexOf("multipart/") == 0);
+            if (!bodyToUse) {
+                if (endp.body.data.length > 0) {
+                    bodyToUse = endp.body.data[0];
+                } else {
+                    bodyToUse = {
+                        schema: JsonSchemaService.getEmptySchema(),
+                        mime: 'application/json',
+                        examples: []
                     }
-                    break;
-                case 'form-data':
-                    request.Body.formData = [];
-                    for (var x = 0; x < endp.body.data.length; x++) {
-                        request.Body.formData.push({ key: endp.body.data[x].key, val: '' });
+                }
+            }
+
+            if (bodyToUse.mime === 'application/x-www-form-urlencoded') {
+                request.Body.type = 'x-www-form-urlencoded'
+                request.Body.xForms = [];
+                for (var x = 0; x < bodyToUse.schema.length; x++) {
+                    request.Body.xForms.push({ key: bodyToUse.schema[x].key, val: '' });
+                }
+            } else if (bodyToUse.mime.indexOf('multipart/') == 0) {
+                request.Body.type = 'form-data';
+                request.Body.formData = [];
+                for (var x = 0; x < bodyToUse.schema.length; x++) {
+                    request.Body.formData.push({ key: bodyToUse.schema[x].key, val: '' });
+                }
+            } else {
+                request.Body.type = 'raw';
+                request.Body.selectedRaw = { name: bodyToUse.mime, val: bodyToUse.mime };
+                var schema = { ...bodyToUse.schema };
+                if (schema) {
+                    schema.definitions = modelRefs;
+                    var sampleData = {};
+                    try {
+                        sampleData = jsf.generate(Utils.clone(schema));
+                    } catch (e) {
+                        console.error('Failed to generate sample data', e);
                     }
-                    break;
-                case 'x-www-form-urlencoded':
-                    request.Body.xForms = [];
-                    for (var x = 0; x < endp.body.data.length; x++) {
-                        request.Body.xForms.push({ key: endp.body.data[x].key, val: '' });
-                    }
-                    break;
+                    request.Body.rawData = JSON.stringify(sampleData, null, '\t');
+                }
             }
         }
-
         return request
     }
 }

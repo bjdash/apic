@@ -1,14 +1,23 @@
 <div class="row resp-builder">
     <div class="resp-codes">
-        <div class="head">Name or Status Code</div>
+        <div class="head" *ngIf="options.allowNamedResp">
+            Name or Status Code
+            <mat-icon class="sm"
+                matTooltip="If using a status code (eg: 404) the responsewill be automatically imported when the trait is added to an endpoint. If using a name you will have to manually add this response against a status code in the endpoint using $ref">
+                help
+            </mat-icon>
+        </div>
+        <div class="head" *ngIf="!options.allowNamedResp">Status code</div>
         <div class="resp-code" *ngFor="let resp of responses;trackBy: trackByFn; let i = index" (click)="selectResp(i);"
             [ngClass]="{active:resp.code == selectedRespForm.value.code}">
-            <response-builder-item [resp]="resp" (onChange)="onChange()" (onRemove)="removeResp($event)" [index]="i">
+            <response-builder-item [resp]="resp" (onChange)="onRespItemChange($event)" (onRemove)="removeResp($event)"
+                [index]="i" [allowNamedResponse]="options.allowNamedResp">
             </response-builder-item>
         </div>
         <div class="input-group" style="margin-top: 15px;">
             <input type="text" class="form-control input-sm" placeholder="Add response"
-                (keydown.enter)="addResp(undefined, true, $event)" maxlength="20" [(ngModel)]="newResponseInput" />
+                (keydown.enter)="addResp(undefined, true, $event)" pattern="^[a-zA-Z0-9\_\_]+$" maxlength="100"
+                [(ngModel)]="newResponseInput" />
             <span class="input-group-btn vcenter">
                 <button mat-icon-button class="sm" type="button" (click)="addResp(undefined, true, $event)">
                     <mat-icon>add_box</mat-icon>
@@ -17,48 +26,103 @@
         </div>
     </div>
     <div class="col-xs" [formGroup]="selectedRespForm">
-        <div *ngIf="selectedResp?.fromTrait">This
-            response is imported from the trait <a class="t_color"
-                [routerLink]="['../../', 'traits', selectedResp.traitId]">{{selectedResp.traitName}}</a> and can't be
-            edited
-            here.
+        <div class="margB10">
+            <mat-radio-group [(ngModel)]="flags.use$refResponse" [ngModelOptions]="{standalone:true}"
+                *ngIf="selectedResp?.importedVia !='Trait' && !options.allowNamedResp">
+                <mat-radio-button [value]="false">Specify your own response</mat-radio-button>
+                <mat-radio-button [value]="true">Import predefined response from traits</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <span *ngIf="flags.use$refResponse">
+            <span class="bold"> Value: </span> #/responses/
+            <select (change)="on$refRespChange()" [(ngModel)]="flags.selected$refResponse"
+                [ngModelOptions]="{standalone:true}">
+                <option *ngFor="let resp of responsesModels" [value]="resp.name">{{resp.name}}</option>
+            </select>
+        </span>
+
+        <div *ngIf="!!selectedResp?.importedVia" class="f12 vcenter margB10">
+            <mat-icon class="sm warning">warning</mat-icon>
+            This response is imported from {{selectedResp.importedVia==='Trait'?'the':'a'}} trait <a class="t_color"
+                [routerLink]="['../../', 'traits', selectedResp.traitId]">{{selectedResp.importedViaName}}</a> and can't
+            be edited here.
             <a class="t_color" href="" [routerLink]="['../../', 'traits', selectedResp.traitId]">Move to traits
                 module</a> to edit it.
         </div>
-        <mat-tab-group animationDuration="0ms" class="smv margB25">
-            <mat-tab label="Schema">
-                <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
-                    (onSchemaChange)="onSchemaUpdate()" name="data" [responses]="responsesModels" formControlName="data"
-                    [options]="{showTestBuilder: false, readOnly: selectedResp?.fromTrait}"
-                    (onTestBuilder)="openTestBuilder($event)">
-                </ng-jsonschema>
-            </mat-tab>
-            <mat-tab label="Examples">
-                <div class="examples" *ngIf="responses.length>0; else noResp">
-                    <div class="vcenter">
-                        <div class="bold full-w">Name</div>
-                        <div class="bold full-w">Value</div>
-                        <div class="bold" style="width: 110px;"> </div>
-                    </div>
-                    <app-key-value-editor formControlName="examples" [valueOptions]="allExamples" [options]="kvOptions">
-                    </app-key-value-editor>
-                </div>
-            </mat-tab>
-            <mat-tab label="Description">
-                <div class="pad10" *ngIf="responses.length>0; else noResp">
-                    <label>Description</label>
-                    <textarea class="form-control margB10" formControlName="desc"
-                        [attr.disabled]="selectedResp?.fromTrait"></textarea>
-                </div>
-            </mat-tab>
 
-        </mat-tab-group>
-        <span *ngIf="selectedRespForm.value.noneStatus && responses.length>0">
-            <i class="icon bj-alert warning"></i>
+        <span *ngIf="selectedRespForm.value.noneStatus && responses.length>0" class="f12 vcenter margB10">
+            <mat-icon class="sm warning">warning</mat-icon>
             This response won't be auto imported when this trait is added to an endpoint as it is not defined against a
             status code. You can use this by selecting it in the designer section as $ref
             <a href="TODO://" class="t_color">Know more</a>
         </span>
+
+        <div [hidden]="flags.use$refResponse && !flags.selected$refResponse">
+            <div class="mimeTabCont">
+                <mat-tab-group animationDuration="0ms" class="smv margB25" [(selectedIndex)]="flags.selectedIndex">
+                    <mat-tab formArrayName="data"
+                        *ngFor="let content of selectedRespForm.get('data')['controls']; let i = index;">
+                        <div [formGroupName]="i">
+                            <ng-template mat-tab-label>
+                                <input type="text" formControlName="mime" placeholder="Content type"
+                                    (keydown)="keyDown($event)"
+                                    [attr.readonly]="(!!selectedResp.importedVia || flags.use$refResponse)?'readonly':null"
+                                    class="form-control" *ngIf="i=== flags.selectedRespMimeIndex" />
+                                <span class="gap"
+                                    *ngIf="i != flags.selectedRespMimeIndex">{{selectedRespForm.get('data').value[i].mime}}</span>
+                                <mat-icon class="pointer red sx" (click)="removeMime(i, $event)">close</mat-icon>
+                            </ng-template>
+
+                            <div>
+                                <mat-tab-group animationDuration="0">
+                                    <mat-tab label="Schema">
+                                        <ng-jsonschema *ngIf="responses.length>0; else noResp"
+                                            [models]="project?.models" (onSchemaChange)="onSchemaUpdate()" name="schema"
+                                            [responses]="responsesModels" formControlName="schema"
+                                            [options]="{showTestBuilder: false, readOnly: !!selectedResp?.importedVia || flags.use$refResponse}"
+                                            (onTestBuilder)="openTestBuilder($event)">
+                                        </ng-jsonschema>
+                                    </mat-tab>
+                                    <mat-tab label="Examples">
+                                        <div class="examples pad10" *ngIf="responses.length>0; else noResp">
+                                            <div class="vcenter">
+                                                <div class="bold full-w">Name</div>
+                                                <div class="bold full-w">Value</div>
+                                                <div class="bold" style="width: 110px;"> </div>
+                                            </div>
+                                            <app-key-value-editor formControlName="examples"
+                                                [valueOptions]="allExamples" [options]="kvOptions">
+                                            </app-key-value-editor>
+                                        </div>
+                                    </mat-tab>
+                                </mat-tab-group>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+                <button mat-stroked-button class="sm t_border gap-left add-mime" type="button" (click)="addMime()"
+                    [disabled]="!!selectedResp?.importedVia || flags.use$refResponse" [ngStyle]="{left:selectedRespForm.get('data')['controls'].length>flags.overflowTabsCount?'auto':
+(selectedRespForm.get('data')['controls'].length*150)+'px', right: selectedRespForm.get('data')['controls'].length
+<=flags.overflowTabsCount?'auto':'0px'}">
+                    <mat-icon>add</mat-icon>
+                </button>
+                <div class="margV10" *ngIf="selectedRespForm.get('data')['controls'].length === 0">
+                    No response schema defined. You can add a schema by clicking the Add button above.
+                </div>
+            </div>
+
+            <label>Description</label>
+            <textarea class="form-control margB10" formControlName="desc"
+                [attr.disabled]="!!(selectedResp?. importedVia || flags.use$refResponse)?'disabled':null"></textarea>
+
+            <label>Response Headers </label>
+
+            <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
+                [options]="{mode: 'list', disabledKeys: [], listModeMsg: 'Define Response Headers here', readonly:!!selectedResp?.importedVia || flags.use$refResponse}"
+                (onSchemaChange)="onSchemaUpdate()" name="headers" [responses]="responsesModels"
+                formControlName="headers">
+            </ng-jsonschema>
+        </div>
     </div>
 </div>
 <ng-template #noResp>Please add a response on the left...</ng-template>

@@ -52,7 +52,7 @@
 
                 <span *ngIf="entity.refTxt" class="margL90">{{entity.refTxt}}</span>
             </span>
-            <span *ngIf="options.mode == 'list' && entity.root$$">{{options.listModeMsg}}</span>
+            <span *ngIf="options.mode == 'list' && entity.root$$" class="gap-left">{{options.listModeMsg}}</span>
             <span class="vcenter js-right-cont">
                 <a href="" mat-icon-button title="Expand $ref" class="xs"
                     (click)="$event.preventDefault();expand$ref(entity)"

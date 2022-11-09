@@ -2,19 +2,17 @@
     <div class="submodMenu">
         <div class="submodMenuOptn">
             <span *ngIf="selectedTrait._id === 'NEW'">
-                <button type="button" type="button" (click)="createTrait()" form="traitForm" class="sm gap"
-                    mat-raised-button color="primary">Create</button>
+                <button type="submit" form="traitForm" class="sm gap" mat-raised-button color="primary">Create</button>
                 <button mat-button class="sm" type="reset" (click)="traitForm.reset()">Reset</button>
             </span>
             <span *ngIf="selectedTrait._id !== 'NEW'">
-                <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
-                    (click)="createTrait()">Save</button>
-                <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
+                <button type="submit" form="traitForm" class="sm gap" mat-raised-button color="primary">Save</button>
+                <button type="button" class="sm gap" mat-raised-button color="warn"
                     (click)="deleteTrait(selectedTrait._id)">Delete</button>
-                <button type="button" type="button" *ngIf="traitForm.dirty" class="sm gap" mat-raised-button
+                <button type="button" *ngIf="traitForm.dirty" class="sm gap" mat-button
                     (click)="discardChange()">Discard</button>
                 <div class="bar"></div>
-                <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
+                <a href="" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
                     <mat-icon class="sm">add</mat-icon>New Trait
                 </a>
             </span>
@@ -43,11 +41,12 @@
     </h4>
 
     <div>
-        <form class="form-horizontal form-compact " [formGroup]="traitForm" id="traitForm">
+        <form class="form-horizontal form-compact" [formGroup]="traitForm" id="traitForm">
             <div class="row">
                 <label class="control-label col-sm-2">Name: <span class="red">*</span></label>
                 <div class="col-sm-8">
-                    <input type="text" class="form-control" required="" placeholder="Trait Name" maxlength="100"
+                    <input type="text" class="form-control" required=""
+                        placeholder="Trait Name. Can only contain A-Z a-z 0-9 - _" maxlength="100"
                         formControlName="name">
                 </div>
             </div>
@@ -70,30 +69,45 @@
                     <textarea class="form-control" formControlName="summary"></textarea>
                 </div>
             </div>
-            <mat-tab-group class="margV10" animationDuration="0ms">
-                <mat-tab label="Path Params">
-                    <ng-jsonschema (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams"
-                        [options]="{mode:'list', requiredOnAdd:true, listModeMsg:'Define Path params here and reuse them with endpoints.'}">
-                    </ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Query Params">
-                    <ng-jsonschema (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams"
-                        [options]="{mode:'list', listModeMsg:'Define Query params here and reuse them with endpoints.'}">
-                    </ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Headers">
-                    <ng-jsonschema (onSchemaChange)="setDirty()" name="headers" formControlName="headers"
-                        [options]="{mode:'list', listModeMsg:'Define Headers here and reuse them with endpoints.'}">
-                    </ng-jsonschema>
-                </mat-tab>
-                <mat-tab label="Responses">
+            <div class="pad10">
+                <h2 class="t_color pointer vcenter" (click)="flags.showReq = !flags.showReq">
+                    <mat-icon *ngIf="!flags.showReq">chevron_right</mat-icon>
+                    Request
+                </h2>
+                <div *ngIf="flags.showReq">
+                    <mat-tab-group class="" animationDuration="0ms">
+                        <mat-tab label="Path Params">
+                            <ng-jsonschema (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams"
+                                [options]="{mode:'list', requiredOnAdd:true, listModeMsg:'Define Path params here and reuse them with endpoints.'}">
+                            </ng-jsonschema>
+                        </mat-tab>
+                        <mat-tab label="Query Params">
+                            <ng-jsonschema (onSchemaChange)="setDirty()" name="queryParams"
+                                formControlName="queryParams"
+                                [options]="{mode:'list', listModeMsg:'Define Query params here and reuse them with endpoints.'}">
+                            </ng-jsonschema>
+                        </mat-tab>
+                        <mat-tab label="Request Headers">
+                            <ng-jsonschema (onSchemaChange)="setDirty()" name="headers" formControlName="headers"
+                                [options]="{mode:'list', listModeMsg:'Define Headers here and reuse them with endpoints.'}">
+                            </ng-jsonschema>
+                        </mat-tab>
+                    </mat-tab-group>
+                </div>
+            </div>
+            <div class="pad10">
+                <h2 class="t_color pointer vcenter" (click)="flags.showResp = !flags.showResp">
+                    <mat-icon *ngIf="!flags.showResp">chevron_right</mat-icon>
+                    Response
+                </h2>
+                <div *ngIf="flags.showResp">
                     <div class="pad10">
                         <response-schema-builder [onChange]="setDirty.bind(this)" [project]="selectedPROJ"
-                            [noDefault200]="true" formControlName="responses">
+                            [options]="{noDefault200: true, allowNamedResp:true}" formControlName="responses">
                         </response-schema-builder>
                     </div>
-                </mat-tab>
-            </mat-tab-group>
+                </div>
+            </div>
         </form>
     </div>
 </div>

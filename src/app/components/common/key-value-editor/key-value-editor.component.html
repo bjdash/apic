@@ -1,4 +1,4 @@
-<fieldset class="kvCont"
+<fieldset class="kvCont" [attr.disabled]="options.disabled?'disabled':null"
     *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
     <div class="vcenter">
         <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
@@ -63,6 +63,7 @@
     </div>
 </fieldset>
 <button type="button" (click)="addKv()" mat-stroked-button class="sm green"
+    [disabled]="options.disabled?'disabled':null"
     *ngIf="options.allowZeroItem && options.allowAdd && keyValueForm?.controls.length == 0">
     <mat-icon>add</mat-icon> Add new
 </button>

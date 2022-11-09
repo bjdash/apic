@@ -1,25 +1,70 @@
 /******** response builder section ******/
 .resp-builder {
-  .resp-codes {
-    width: 200px;
-  }
-  .resp-code {
-    height: 30px;
-    border-left: 2px solid transparent;
-    border-bottom: 1px dashed var(--border-color);
-    font-weight: bold;
-    font-size: 16px;
-    font-family: apic-font;
-    cursor: pointer;
-    padding-left: 8px;
+    .resp-codes {
+        width: 200px;
+    }
+
+    .resp-code {
+        height: 30px;
+        border-left: 2px solid transparent;
+        border-bottom: 1px dashed var(--border-color);
+        font-weight: bold;
+        font-size: 16px;
+        font-family: apic-font;
+        cursor: pointer;
+        padding-left: 8px;
+        position: relative;
+    }
+
+    .resp-code.active {
+        border-left: 5px solid var(--accent-color);
+    }
+
+    .status {
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 20px;
+    }
+}
+
+.mimeTabCont {
     position: relative;
-  }
-  .resp-code.active {
-    border-left: 5px solid var(--accent-color);
-  }
-  .status {
-    font-weight: bold;
-    font-size: 14px;
-    margin-right: 20px;
-  }
+
+    .add-mime {
+        position: absolute;
+        top: 2px;
+        z-index: 1;
+        padding: 0;
+    }
+}
+
+:host::ng-deep {
+    .mimeTabCont {
+        &>.mimeTabs {
+            &>.mat-tab-header {
+                &>.mat-tab-label-container {
+                    &>.mat-tab-list {
+                        &>.mat-tab-labels {
+                            .mat-tab-label {
+                                padding: 0 5px;
+                                width: 150px;
+                                border-right: 1px solid var (--border-color);
+
+                                .pointer.red.xs {
+                                    position: absolute;
+                                    right: 0px;
+                                }
+
+                                .mat-tab-label-active {
+                                    padding: 0 !important;
+                                    border-right: none;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

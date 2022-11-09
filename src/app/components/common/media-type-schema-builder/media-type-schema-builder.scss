@@ -1,0 +1,40 @@
+.mimeTabCont {
+    position: relative;
+    width: 100%;
+    padding: 10px;
+
+    .add-mime {
+        position: absolute;
+        top: 13px;
+        z-index: 1;
+        padding: 0;
+    }
+}
+
+:host::ng-deep {
+    .mimeTabCont &>.mimeTabs {
+        &>.mat-tab-header {
+            &>.mat-tab-label-container {
+                &>.mat-tab-list {
+                    &>.mat-tab-labels {
+                        .mat-tab-label {
+                            padding: 5px;
+                            width: 150px;
+                            border-right: 1px solid var (--border-color);
+
+                            .pointer.red.xs {
+                                position: absolute;
+                                right: 0px;
+                            }
+                        }
+
+                        .mat-tab-label-active {
+                            padding: 0 !important;
+                            border-right: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
