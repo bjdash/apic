@@ -203,12 +203,12 @@ export class RequestUtils {
                 tmpSchema.definitions = modelRefs;
                 tmpSchema.responses = { ...responseRefs };
                 try {
-                    let dereferedSchema = new SchemaDref().dereference(tmpSchema);
-                    delete dereferedSchema.definitions;
-                    delete dereferedSchema.responses;
+                    let derefedSchema = new SchemaDref().dereference(tmpSchema);
+                    delete derefedSchema.definitions;
+                    delete derefedSchema.responses;
                     request.respCodes.push({
                         code: endp.responses[j].code,
-                        data: dereferedSchema
+                        data: derefedSchema
                     });
                 } catch (e) {
                     console.error('Circular JSON schema reference encountered.', e)

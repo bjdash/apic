@@ -103,7 +103,7 @@ export class ImportExportService {
             tags: OASUtils.prepareOasTags(proj),
             paths: OASUtils.prepareOasPaths(proj, 'OAS3', options),
             components: {
-                ...(OASUtils.prepareOasComponents(proj, options))
+                ...(OASUtils.prepareOas3Components(proj, options))
             }
         };
 

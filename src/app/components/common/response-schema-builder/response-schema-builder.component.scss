@@ -38,7 +38,7 @@
     }
 }
 
-:host::ng-deep {
+:host ::ng-deep {
     .mimeTabCont {
         &>.mimeTabs {
             &>.mat-tab-header {
@@ -54,12 +54,11 @@
                                     position: absolute;
                                     right: 0px;
                                 }
+                            }
 
-                                .mat-tab-label-active {
-                                    padding: 0 !important;
-                                    border-right: none;
-                                }
-
+                            .mat-tab-label-active {
+                                padding: 0 !important;
+                                border-right: none;
                             }
                         }
                     }

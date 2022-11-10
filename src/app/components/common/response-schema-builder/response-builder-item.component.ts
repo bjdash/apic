@@ -20,7 +20,7 @@ import { Toaster } from 'src/app/services/toaster.service';
         </button>
     </div>
     <div *ngIf="edit" class="vcenter full-height">
-        <input type="text" class="form-control input-xs" #input [(ngModel)]="inputModel" (keydown.enter)="finishEdit($event)" (keydown.escape)="inputModel=resp.code;edit=false")
+        <input type="text" class="form-control input-xs" #input [(ngModel)]="inputModel" (keydown.enter)="finishEdit($event)" (keydown.escape)="inputModel=resp.code;edit=false"
             ng-change="vm.flags.traitPageDirty = true" pattern="^[a-zA-Z0-9\-\_]$" />
         <button type="button" mat-icon-button class="xs left-auto" (click)="finishEdit()">
             <mat-icon class="green">check</mat-icon>

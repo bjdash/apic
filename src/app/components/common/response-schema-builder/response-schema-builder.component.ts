@@ -233,7 +233,7 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
 
     on$refRespChange() {
         let { name, data, headers, desc, traitId } = this.responsesModels.find(responses => {
-            return responses.name = this.flags.selected$refResponse;
+            return responses.name === this.flags.selected$refResponse;
         });
         this.selectedRespForm.patchValue({ importedVia: 'NamedResponse', desc, headers, traitId, importedViaName: name });
         this.buildSchemaForm(data)

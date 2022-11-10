@@ -196,7 +196,7 @@ export class OASUtils {
         return secDefs;
     }
 
-    static prepareOasComponents(proj: ApiProject, options?: ExportOption): OpenAPIV3_1.ComponentsObject {
+    static prepareOas3Components(proj: ApiProject, options?: ExportOption): OpenAPIV3_1.ComponentsObject {
         let components: OpenAPIV3_1.ComponentsObject = {};
 
         if (proj.securityDefinitions && proj.securityDefinitions.length > 0) {
@@ -349,7 +349,7 @@ export class OASUtils {
             var responses = trait.responses;
             let tName = trait.name.replace(/\s/g, '_');
 
-            componentResponses = { ...componentResponses, ...OASUtils.transformApicRespToOas(trait.responses, proj, type, `trait.${tName}`) }
+            componentResponses = { ...componentResponses, ...OASUtils.transformApicRespToOas(trait.responses, proj, type, `trait.${tName}.`) }
         }
         return componentResponses as ResponseType<T>;
     }
@@ -379,12 +379,6 @@ export class OASUtils {
         }
         return componentParameters as ParamTypeObject<T>;
     };
-
-    static importOAS3(spec: OpenAPIV3_1.Document): ApiProject {
-        if (spec.openapi) return;
-        var proj: ApiProject = OASUtils.parseOasSpecBase(spec);
-
-    }
 
     static parseOasSpecBase(spec: OpenAPIV3_1.Document | OpenAPIV2.Document) {
         var proj: ApiProject = {
@@ -920,7 +914,6 @@ export class OASUtils {
                                 }
 
                                 if (!('$ref' in resp)) {
-                                    //TODO: Add support for response headers
                                     if ('openapi' in spec) { //for OAS3
                                         let parsedResp = OASUtils.transformOasResponseToApic(resp, statusCode, proj, { examplePathName: `${path.summary}-${statusCode}`, noneStatus: undefined });
                                         newExamples = [...newExamples, ...parsedResp.newExamples];
@@ -1015,7 +1008,7 @@ export class OASUtils {
                 in: paramIn,
                 // style: simple',
                 description: schema.description ? schema.description : '',
-                required: paramsSchema.required && paramsSchema.required.indexOf(key) > 0 ? true : false,
+                required: paramsSchema.required && paramsSchema.required.indexOf(key) >= 0,
                 ...(type === 'OAS3' ? { schema } : schema)
             } as ParamType<T>;
         })
@@ -1100,7 +1093,7 @@ export class OASUtils {
         let transformedRespMap = {};
 
         for (var j = 0; j < responses.length; j++) {
-            let response: ApiResponse = responses[1];
+            let response: ApiResponse = responses[j];
             let respName = response.noneStatus ? response.code : (namePrefix + response.code);
             let transformedResp: any = {
                 description: response.desc ? response.desc : '',
@@ -1125,7 +1118,7 @@ export class OASUtils {
                         if (Utils.objectKeys(transformedResp.content[respData.mime].examples).length == 0) {
                             delete transformedResp.content[respData.mime].examples;
                         }
-                        if (transformedResp.content[respData.mime].schema.type = 'file') {
+                        if (transformedResp.content[respData.mime].schema.type == 'file') {
                             transformedResp.content[respData.mime].schema = { type: 'string', format: 'binary' };
                         }
                     })
@@ -1162,7 +1155,7 @@ export class OASUtils {
                         }, {})
                     }
                     //prepare headers
-                    transformedResp.headers = 0
+                    transformedResp.headers = {}
                     Utils.objectEntries(response.headers?.properties).forEach(([name, properties]) => {
                         transformedResp.headers[name] = { ...properties }
                     })
@@ -1212,7 +1205,7 @@ export class OASUtils {
                 }
 
                 let schema = 'schema' in param ? (param as OpenAPIV3_1.ParameterBaseObject).schema : param as (OpenAPIV2.InBodyParameterObject | OpenAPIV2.GeneralParameterObject);
-                if (['headers', 'queryParams', 'pathParans'].indexOf(ptype) >= 0) {
+                if (['headers', 'queryParams', 'pathParams'].indexOf(ptype) >= 0) {
                     //if not a Sref
                     if ('$ref' in schema) {
                         parsedParams[ptype].properties[param.name] = schema
@@ -1313,7 +1306,8 @@ export class OASUtils {
                         .map(([name, detail]) => {
                             return {
                                 key: name,
-                                type: 'type' in detail ? (detail.format == 'binary' ? 'file' : detail.type) : "string", required: required.includes(name),
+                                type: 'type' in detail ? (detail.format == 'binary' ? 'file' : detail.type) : "string",
+                                required: required.includes(name),
                                 desc: detail.description
                             }
                         })

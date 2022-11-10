@@ -1,12 +1,13 @@
 <div class="" [formGroup]="schemaForm">
     <div class="mimeTabCont">
-        <mat-tab-group animationDuration="0ms" class="mimeTabs marg825" [(selectedIndex)]="flags.selectMimeIndex">
+        <mat-tab-group animationDuration="0ms" class="mimeTabs margB25" [(selectedIndex)]="flags.selectMimeIndex">
             <mat-tab formArrayName="data" *ngFor="let content of schemaForm.get('data')['controls']; let i = index;">
                 <div [formGroupName]="i">
                     <ng-template mat-tab-label>
                         <input type="text" formControlName="mime" placeholder="content type" class="form-control"
-                            *ngIf="i=== flags.selectMimeIndex" (keydown)="keyDown($event)" />
-                        <span class="gap" *ngIf="flags.selectMimeIndex">{{schemaForm.get('data').value[i].mime}}</span>
+                            *ngIf="i === flags.selectMimeIndex" (keydown)="keyDown($event)" />
+                        <span class="gap"
+                            *ngIf="i !== flags.selectMimeIndex">{{schemaForm.get('data').value[i].mime}}</span>
                         <mat-icon class="pointer red xs" (click)="removeMime(i, $event)">close</mat-icon>
                     </ng-template>
                     <div>
@@ -69,6 +70,6 @@
     </div>
     <div *ngIf="schemaForm.value.data.length>0">
         <label>Description</label>
-        <textarea class="form-control marg810" formControlName="desc"></textarea>
+        <textarea class="form-control margB10" formControlName="desc"></textarea>
     </div>
 </div>

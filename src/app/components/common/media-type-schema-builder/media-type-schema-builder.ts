@@ -117,11 +117,13 @@ export class MediaTypeSchemaBuilderComponent implements OnInit, ControlValueAcce
 
     removeMime(index, $event) {
         $event.stopPropagation();
-        var formArray = this.schemaForm.get('data') as FormArray; formArray.removeAt(index);
+        var formArray = this.schemaForm.get('data') as FormArray;
+        formArray.removeAt(index);
     }
 
     onSchemaUpdate() {
-        this.propagateChange(this.schemaForm.value); this.onChange.next();
+        this.propagateChange(this.schemaForm.value);
+        this.onChange.next();
     }
 
     trackByFn(index, item) {
@@ -129,6 +131,6 @@ export class MediaTypeSchemaBuilderComponent implements OnInit, ControlValueAcce
     }
 
     keyDown($event) {
-        event.stopPropagation();
+        $event.stopPropagation();
     }
 }
