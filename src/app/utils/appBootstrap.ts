@@ -74,17 +74,13 @@ export class AppBootstrap {
 
             var pr1 = iDB.upsert('ApiProjects', DemoData.demoDesignProj), //install Demo design project
                 pr2 = iDB.upsert('Environments', DemoData.demoEnv), //add the environment for the project
-                //pr3 = iDB.upsert('folders', DemoData.demoFolder), //add Requests folder
-                //pr4 = iDB.upsert('savedRequests', DemoData.demoReqs), //add Requests
-                pr5 = iDB.upsert('Projects', DemoData.demoTestProj), //create the test project
-                pr6 = iDB.upsert('TestSuits', DemoData.demoSuit); //add the test suit
+                pr3 = iDB.upsert('Projects', DemoData.demoTestProj), //create the test project
+                pr4 = iDB.upsert('TestSuits', DemoData.demoSuit); //add the test suit
 
             promises.push(pr1);
             promises.push(pr2);
-            // promises.push(pr3);
-            // promises.push(pr4);
-            promises.push(pr5);
-            promises.push(pr6);
+            promises.push(pr3);
+            promises.push(pr4);
 
             await Promise.all(promises);
             //mark first run complete

@@ -18,6 +18,10 @@ export class MigrationService {
             on: 'oldVersion',
             check: 'isVersionLower',
             value: '3.1.1'
+        }, {
+            on: 'oldVersion',
+            check: 'isVersionHigher',
+            value: '0.0.0'
         }],
         action: async () => {
             //migrate to OAS3 response and body type
@@ -31,7 +35,7 @@ export class MigrationService {
                             produces = ['application/json']
                         }
                         let updatedResponses: ApiResponse[];
-                        if (endpoint.hasOwnProperty('produces')) {
+                        if (responses.length > 0 && !(responses[0]?.data instanceof Array)) {
                             console.log('Updating endpoint response.');
                             updatedResponses = this.migrations[0].transform(responses, produces);
                         } else {
@@ -156,32 +160,34 @@ export class MigrationService {
 
     constructor(private apiProjectService: ApiProjectService, private reqService: RequestsService, private suiteService: SuiteService) { }
 
-    async migrate(newVesrion: string, oldVersion: string) {
-        this.newVersion = newVesrion;
+    async migrate(newVersion: string, oldVersion: string) {
+        this.newVersion = newVersion;
         this.oldVersion = oldVersion || '0.0.0';
-        console.debug('Migrating');
+        console.debug(`From ${this.oldVersion} to ${this.newVersion}`);
         let migrations = [], promises = [];
 
         this.migrations.forEach(m => {
-            console.debug(`Running migration: ${m.name}`);
 
             let conditions = m.conditions;
             let isApplicable = conditions.map(c => {
                 return MigrationService[c.check].call(this, this[c.on], c.value)
             }).every(e => e);
             if (isApplicable) {
+                console.debug(`Running migration: ${m.name}`);
                 migrations.push(m.action);
+            } else {
+                console.debug(`Skipping migration: ${m.name}`)
             }
         });
 
         migrations.forEach(action => {
-            promises.push(action.call(this, newVesrion, oldVersion));
+            promises.push(action.call(this, newVersion, oldVersion));
         })
 
         await Promise.all(promises);
         console.debug('Migration completed');
 
-        this.onDone(newVesrion, this.oldVersion);
+        this.onDone(newVersion, this.oldVersion);
     }
 
     onDone(newVesrion: string, oldVersion: string) {
@@ -224,6 +230,6 @@ export class MigrationService {
     }
 
     static isVersionHigher(version: string, toCompare: string): boolean {
-        return !this.isVersionEqual(version, toCompare) && !this.isVersionLower(version, toCompare);
+        return !MigrationService.isVersionEqual(version, toCompare) && !MigrationService.isVersionLower(version, toCompare);
     }
 }

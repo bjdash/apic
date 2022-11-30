@@ -19,10 +19,10 @@
                 <input type="text" maxlength="100" class="form-control" formControlName="name"
                     placeholder="Test project Name" (keydown.enter)="createProject()" id="newProjName" />
                 <span class="input-group-btn">
-                    <button mat-icon-button class="green" (click)="createProject();" title="Create" type="button">
+                    <button mat-icon-button class="green sm" (click)="createProject();" title="Create" type="button">
                         <mat-icon>done_outline</mat-icon>
                     </button>
-                    <button mat-icon-button (click)="flags.newProj= false;newProjForm.reset()" class="red"
+                    <button mat-icon-button (click)="flags.newProj= false;newProjForm.reset()" class="red sm"
                         title="Cancel">
                         <mat-icon>close</mat-icon>
                     </button>
@@ -94,10 +94,10 @@
                     <input type="text" maxlength="100" class="form-control" formControlName="name"
                         placeholder="Suite name" (keydown.enter)="createSuite()" id="newSuiteName" />
                     <span class="input-group-btn">
-                        <button mat-icon-button class="green" (click)="createSuite();" title="Create" type="button">
+                        <button mat-icon-button class="green sm" (click)="createSuite();" title="Create" type="button">
                             <mat-icon>done_outline</mat-icon>
                         </button>
-                        <button mat-icon-button (click)="flags.newSuite= false;suiteForm.reset()" class="red"
+                        <button mat-icon-button (click)="flags.newSuite= false;suiteForm.reset()" class="red sm"
                             title="Cancel">
                             <mat-icon>close</mat-icon>
                         </button>
