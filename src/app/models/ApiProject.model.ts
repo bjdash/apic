@@ -78,7 +78,7 @@ export interface ApiTag {
 }
 export interface ApiResponse {
   data: MediaTypeSchema[],
-  headers: { type: 'object', properties?: { [key: string]: any }, required?: string[] },
+  headers?: { type: 'object', properties?: { [key: string]: any }, required?: string[] },
   code: string,
   desc?: string,
   noneStatus?: boolean,
@@ -90,7 +90,7 @@ export type ApiExampleRef = KeyVal;
 export type MediaTypeSchema = {
   schema: any,
   mime: string,
-  examples: ApiExampleRef[]
+  examples?: ApiExampleRef[]
 }
 export interface ApiExample {
   _id: string,
@@ -147,12 +147,14 @@ export interface LeftTreeItem {
   children: {
     _id: string,
     name: string,
-    type: 'models' | 'examples' | 'traits' | 'endpoints',
+    type: ProjectItemTypes,
     deprecated?: boolean,
     label: string,
     desc: string
   }[]
 }
+
+export type ProjectItemTypes = 'models' | 'examples' | 'traits' | 'endpoints' | 'folders'
 
 export const NewApiFolder: ApiFolder = {
   _id: 'NEW',

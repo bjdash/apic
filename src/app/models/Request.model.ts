@@ -1,3 +1,4 @@
+import { MediaTypeSchema } from "./ApiProject.model";
 import { KeyVal } from "./KeyVal.model";
 
 export interface ApiRequest {
@@ -20,7 +21,10 @@ export interface ApiRequest {
     team?: string
     postscript?: string
     prescript?: string
-    respCodes?: any[]
+    respCodes?: {
+        data: Omit<MediaTypeSchema, 'examples'>[]
+        code: string
+    }[]
     savedResp?: SavedResp[]
     _parent?: string
     url: string

@@ -14,8 +14,8 @@ export class FieldJsonSchemaComponent {
     @Input()
     entity: Entity = {};
 
-    @Input()
-    addAdditionalProp: Function;
+    @Output()
+    onAdditionalPropAdd = new EventEmitter<Entity>();
 
     @Output() onChange = new EventEmitter()
 
@@ -25,5 +25,9 @@ export class FieldJsonSchemaComponent {
 
     onChanged() {
         this.onChange.next();
+    }
+
+    addAdditionalProp(entity: Entity) {
+        this.onAdditionalPropAdd.next(entity);
     }
 }

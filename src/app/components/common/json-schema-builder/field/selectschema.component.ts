@@ -1,6 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Entity } from '../entity.interface';
 import { JsonSchemaOption } from '../jsonschema.component';
 import { JsonSchemaService } from '../jsonschema.service';
+
+export interface JsonSchemaSetArrayTypeEvent {
+    type: SchemaArrayType,
+    entity: Entity
+}
+export type SchemaArrayType = 'Unspecified' | 'Integer' | 'Boolean' | 'Number' | 'Object' | 'String' | '$ref';
 
 @Component({
     // tslint:disable-next-line: component-selector
@@ -15,20 +22,17 @@ export class SelectSchemaJsonSchemaComponent {
     @Input()
     modelRef;
 
-    @Input()
-    modelChangesCallback;
+    @Output()
+    onModelChange = new EventEmitter<Entity>();
 
-    @Input()
-    refreshSchema
-
-    @Input()
-    openMenu;
+    @Output()
+    onSchemaUpdate = new EventEmitter()
 
     @Input()
     selectedEntity;
 
-    @Input()
-    setArrayType
+    @Output()
+    onArrayTypeSet = new EventEmitter<JsonSchemaSetArrayTypeEvent>()
 
     @Input()
     options: JsonSchemaOption;
@@ -67,14 +71,11 @@ export class SelectSchemaJsonSchemaComponent {
             this.manageModelProps(type, entity, 'add');
         }
 
-        this.modelChangesCallback(entity);
+        this.onModelChange.next(entity);
         if (event) {
             event.stopPropagation();
         }
-        this.refreshSchema();
-        // if (this.openMenu) {
-        //     this.openMenu();
-        // }
+        this.onSchemaUpdate.next()
     };
 
     manageModelProps(type, entity, action) {
@@ -111,7 +112,12 @@ export class SelectSchemaJsonSchemaComponent {
             selectedEntity._path = '#/definitions/';
             selectedEntity._value = this.modelRef;
         }
-        this.refreshSchema();
+        this.onSchemaUpdate.next();
+    }
+
+    setArrayType(type: SchemaArrayType, entity: Entity, event) {
+        event.stopPropagation();
+        this.onArrayTypeSet.next({ type, entity })
     }
 
     stopPropagation(e: MouseEvent) {

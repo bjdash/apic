@@ -20,7 +20,6 @@ import { KVEditorOptn } from "../key-value-editor/key-value-editor.component";
     }]
 })
 export class MediaTypeSchemaBuilderComponent implements OnInit, ControlValueAccessor, OnChanges {
-    // @Input() onChange: Function;
     @Input() project: ApiProject;
     @Output() onChange = new EventEmitter<any>();
 
@@ -56,9 +55,13 @@ export class MediaTypeSchemaBuilderComponent implements OnInit, ControlValueAcce
     }
 
     writeValue(value: any): void {
-        this.lastPushedValue = value;
         if (!value.data) value.data = [];
-        this.buildSchemaForm(value);
+        if (!Utils.deepEquals(this.lastPushedValue, value)) {
+            this.paused$.next(true);
+            this.lastPushedValue = value;
+            this.buildSchemaForm(value);
+            this.paused$.next(false)
+        }
     }
 
     registerOnChange(fn: any): void {
@@ -73,18 +76,18 @@ export class MediaTypeSchemaBuilderComponent implements OnInit, ControlValueAcce
     }
 
     ngOnInit(): void {
-        this.flags.overflowTabsCount = Math.floor((window.innerWidth - 416) / 170); -
-            this.paused$
-                .pipe(switchMap(paused => {
-                    return paused ? NEVER : this.schemaForm.valueChanges.pipe(debounceTime(600))
-                }))
-                .pipe(untilDestroyed(this))
-                .subscribe((value: any) => {
-                    if (!Utils.deepEquals(this.lastPushedValue, value)) {
-                        this.propagateChange(value);
-                        this.lastPushedValue = value;
-                    }
-                });
+        this.flags.overflowTabsCount = Math.floor((window.innerWidth - 416) / 170);
+        this.paused$
+            .pipe(switchMap(paused => {
+                return paused ? NEVER : this.schemaForm.valueChanges.pipe(debounceTime(600))
+            }))
+            .pipe(untilDestroyed(this))
+            .subscribe((value: any) => {
+                if (!Utils.deepEquals(this.lastPushedValue, value)) {
+                    this.propagateChange(value);
+                    this.lastPushedValue = value;
+                }
+            });
     }
 
 

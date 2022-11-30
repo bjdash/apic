@@ -6,6 +6,9 @@ import { RequestsService } from "./requests.service";
 import { ApiProjectService } from "./apiProject.service";
 import { ApiEndp, ApiProject, ApiResponse, EndpBody } from "../models/ApiProject.model";
 import { METHOD_WITH_BODY } from "../utils/constants";
+import { SuiteService } from "./suite.service";
+import { ApiRequest } from "../models/Request.model";
+import { Suite } from "../models/Suite.model";
 
 @Injectable()
 export class MigrationService {
@@ -43,7 +46,7 @@ export class MigrationService {
                         }
                         let updatedBody: EndpBody = body;
                         if (METHOD_WITH_BODY.includes(endpoint.method.toUpperCase())) {
-                            if (body.hasOwnProperty('type')) {//old endpoint
+                            if (body?.hasOwnProperty('type')) {//old endpoint
                                 console.log('Updating endp body.');
                                 if (body.type === 'form-data') {
                                     consumes = ['multipart/form-data']
@@ -74,7 +77,7 @@ export class MigrationService {
                     proj.traits = Utils.objectValues(proj.traits).map(trait => {
                         let { responses, ...rest } = trait as any;
                         let updatedResponses: ApiResponse[];
-                        if (!(responses[0]?.data instanceof Array)) {
+                        if (responses.length > 0 && !(responses[0]?.data instanceof Array)) {
                             console.log('Updating trait response. ');
                             updatedResponses = this.migrations[0].transform(responses, ['application/json']);
                         } else {
@@ -95,9 +98,43 @@ export class MigrationService {
             }));
 
             //migrate saved request responses to OAS3
+            let allReqs: ApiRequest[] = await iDB.read(iDB.TABLES.SAVED_REQUESTS);
+            let migratedReqs = allReqs.map(req => {
+                let respCodes = req.respCodes || [];
+                if (respCodes.length > 0 && !(respCodes[0]?.data instanceof Array)) {
+                    console.log('Updating saved request');
+                    req.respCodes = this.migrations[0].transform(respCodes, ['application/json'], true);
+                } else {
+                    console.log('Saved request already updated.');
+                }
+                return req;
+            });
+
+            await Promise.all(migratedReqs.map(async (req) => {
+                await this.reqService.updateRequest(req);
+            }));
+
+            //migrate saved suite request responses to OAS3
+            let allSuites: Suite[] = await iDB.read(iDB.TABLES.TEST_SUITES);
+            let migratedSuites: Suite[] = allSuites.map(suite => {
+                suite.reqs = suite.reqs.map(req => {
+                    let respCodes = req.respCodes || [];
+                    if (respCodes.length > 0 && !(respCodes[0]?.data instanceof Array)) {
+                        console.log('Updating suite request');
+                        req.respCodes = this.migrations[0].transform(respCodes, ['application/json'], true);
+                    } else {
+                        console.log('Suite request already updated.');
+                    }
+                    return req;
+                })
+                return suite
+            })
+            await Promise.all(migratedSuites.map(async (suite) => {
+                await this.suiteService.updateSuite(suite);
+            }));
         },
 
-        transform: (responses, produces) => {
+        transform: (responses, produces, isSchemaOnly: boolean = false) => {
             return responses.map(oldResp => {
                 let { data, examples, ...restOfResponse } = oldResp;
                 return {
@@ -106,10 +143,10 @@ export class MigrationService {
                         return {
                             mime,
                             schema: data,
-                            examples: examples || []
+                            ...(!isSchemaOnly && { examples: examples || [] })
                         }
                     }),
-                    headers: { type: 'object', properties: {}, required: [] }
+                    ...(!isSchemaOnly && { headers: { type: 'object', properties: {}, required: [] } })
                 }
             })
         }
@@ -117,7 +154,7 @@ export class MigrationService {
     newVersion: string;
     oldVersion: string;
 
-    constructor(private apiProjectService: ApiProjectService) { }
+    constructor(private apiProjectService: ApiProjectService, private reqService: RequestsService, private suiteService: SuiteService) { }
 
     async migrate(newVesrion: string, oldVersion: string) {
         this.newVersion = newVesrion;

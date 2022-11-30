@@ -29,8 +29,14 @@ input[type="checkbox"].small:checked:before {
     z-index: 20;
 }
 
-.json-schema .ace_editor {
-    height: 250px;
+.json-schema {
+    .ace_editor {
+        height: 250px;
+    }
+
+    .apic-ace {
+        height: 250px;
+    }
 }
 
 .model-type-selector {
@@ -160,7 +166,7 @@ button[disabled] {
 }
 
 .expanded-ref .model-detail {
-    display: none;
+    // display: none;
 }
 
 .expanded-ref .model-remove {
@@ -210,6 +216,10 @@ button[disabled] {
     padding: 1px 0 !important;
     border: 1px solid var(--border-color);
     visibility: hidden;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    z-index: 1;
 
     &.open {
         visibility: visible;

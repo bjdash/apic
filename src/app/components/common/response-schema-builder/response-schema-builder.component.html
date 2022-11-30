@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="col-xs" [formGroup]="selectedRespForm">
-        <div class="margB10">
+        <div class="margB10" *ngIf="!options.showOnlySchemaBuilder">
             <mat-radio-group [(ngModel)]="flags.use$refResponse" [ngModelOptions]="{standalone:true}"
                 *ngIf="selectedResp?.importedVia !='Trait' && !options.allowNamedResp">
                 <mat-radio-button [value]="false">Specify your own response</mat-radio-button>
@@ -77,15 +77,15 @@
 
                             <div>
                                 <mat-tab-group animationDuration="0ms">
-                                    <mat-tab label="Schema pad10">
+                                    <mat-tab label="Schema">
                                         <ng-jsonschema *ngIf="responses.length>0; else noResp"
                                             [models]="project?.models" (onSchemaChange)="onSchemaUpdate()" name="schema"
                                             [responses]="responsesModels" formControlName="schema"
-                                            [options]="{showTestBuilder: false, readOnly: !!selectedResp?.importedVia || flags.use$refResponse}"
+                                            [options]="{showTestBuilder: options.showTestBuilder, readOnly: !!selectedResp?.importedVia || flags.use$refResponse}"
                                             (onTestBuilder)="openTestBuilder($event)">
                                         </ng-jsonschema>
                                     </mat-tab>
-                                    <mat-tab label="Examples">
+                                    <mat-tab label="Examples" *ngIf="!options.showOnlySchemaBuilder">
                                         <div class="examples pad10" *ngIf="responses.length>0; else noResp">
                                             <div class="vcenter">
                                                 <div class="bold full-w">Name</div>
@@ -113,17 +113,19 @@
                 </div>
             </div>
 
-            <label>Description</label>
-            <textarea class="form-control margB10" formControlName="desc"
-                [attr.disabled]="!!(selectedResp?. importedVia || flags.use$refResponse)?'disabled':null"></textarea>
+            <div *ngIf="!options.showOnlySchemaBuilder">
+                <label>Description</label>
+                <textarea class="form-control margB10" formControlName="desc"
+                    [attr.disabled]="!!(selectedResp?. importedVia || flags.use$refResponse)?'disabled':null"></textarea>
 
-            <label>Response Headers </label>
+                <label>Response Headers </label>
 
-            <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
-                [options]="{mode: 'list', disabledKeys: [], listModeMsg: 'Define Response Headers here', readOnly:!!selectedResp?.importedVia || flags.use$refResponse}"
-                (onSchemaChange)="onSchemaUpdate()" name="headers" [responses]="responsesModels"
-                formControlName="headers">
-            </ng-jsonschema>
+                <ng-jsonschema *ngIf="responses.length>0; else noResp" [models]="project?.models"
+                    [options]="{mode: 'list', disabledKeys: [], listModeMsg: 'Define Response Headers here', readOnly:!!selectedResp?.importedVia || flags.use$refResponse}"
+                    (onSchemaChange)="onSchemaUpdate()" name="headers" [responses]="responsesModels"
+                    formControlName="headers">
+                </ng-jsonschema>
+            </div>
         </div>
     </div>
 </div>

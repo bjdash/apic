@@ -37,18 +37,18 @@
     <div>
         <fieldset [disabled]="options?.readOnly" class="js-fieldset first">
             <div class="main">
-                <ng-jsonschema-main [options]="options" [refreshSchema]="refreshSchema.bind(this)" [models]="models"
-                    (onAddNewProp)="addNewProp($event)" [removeEntity]="removeEntity.bind(this)"
-                    [openMenu]="displaySelectorModal.bind(this)" [entity]="entity" [expand$ref]="expand$ref.bind(this)"
-                    [buildTest]="buildTest.bind(this)" [addAdditionalProp]="addAdditionalProp.bind(this)">
+                <ng-jsonschema-main [options]="options" (onSchemaUpdate)="refreshSchema()" [models]="models"
+                    (onAddNewProp)="addNewProp($event)" (onEntityRemove)="removeEntity($event)"
+                    (onMenuOpen)="displaySelectorModal($event)" [entity]="entity" (on$refExpand)="expand$ref($event)"
+                    (onBuildTest)="buildTest($event)" (onAdditionalPropAdd)="addAdditionalProp($event)">
                 </ng-jsonschema-main>
             </div>
             <div *ngIf="showSelectorModal" [style.left.px]="selectorModalPosition.x"
                 [style.bottom.px]="selectorModalPosition.y" class="model-type-selector" id="model-type-selector">
-                <ng-jsonschema-selectschema [refreshSchema]="refreshSchema.bind(this)" [options]="options"
-                    [selectedEntity]="selectedEntity" [openMenu]="displaySelectorModal.bind(this)" [models]="models"
-                    [responses]="responses" [setArrayType]="setArrayType.bind(this)"
-                    [modelChangesCallback]="modelChangesCallback.bind(this)" [modelRef]="modelRef" [configs]="configs">
+                <ng-jsonschema-selectschema (onSchemaUpdate)="refreshSchema()" [options]="options"
+                    [selectedEntity]="selectedEntity" [models]="models" [responses]="responses"
+                    (onArrayTypeSet)="setArrayType($event)" (onModelChange)="modelChangesCallback($event)"
+                    [modelRef]="modelRef" [configs]="configs">
                 </ng-jsonschema-selectschema>
             </div>
         </fieldset>

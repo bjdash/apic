@@ -8,6 +8,14 @@ import { Utils } from 'src/app/services/utils.service';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+export interface RespSchemaBuilderOptions {
+    noDefault200?: boolean,
+    allowNamedResp?: boolean,
+    disabled?: boolean,
+    showOnlySchemaBuilder?: boolean,
+    showTestBuilder?: boolean
+}
+
 @UntilDestroy()
 @Component({
     selector: 'response-schema-builder',
@@ -25,7 +33,7 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
     @Input() onChange: Function;
     @Input() project: ApiProject;
     @Input() responsesModels: any[] = [];
-    @Input() options: { noDefault200?: boolean, allowNamedResp?: boolean, disabled?: boolean } = {}
+    @Input() options: RespSchemaBuilderOptions = {}
     @Output() onTestBuilder = new EventEmitter<number>();
 
     paused$ = new BehaviorSubject(false);
@@ -50,18 +58,15 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
         selected$refResponse: ''
     }
 
-    constructor(private toaster: Toaster, private fb: FormBuilder) {
-        this.selectedRespForm = this.fb.group({
-            code: ['', [Validators.required, Validators.maxLength(100)]],
-            data: this.fb.array([]),
-            headers: [''],
-            desc: ['', [Validators.maxLength(500)]],
-            noneStatus: [false],
-            importedVia: [null],
-            importedViaName: [null],
-            traitId: [null]
-        })
+    private defaultOptions: RespSchemaBuilderOptions = {
+        noDefault200: false,
+        allowNamedResp: false,
+        disabled: false,
+        showOnlySchemaBuilder: false,
+        showTestBuilder: false
     }
+
+    constructor(private toaster: Toaster, private fb: FormBuilder) { }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.project?.currentValue) {
@@ -72,7 +77,15 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
     writeValue(value: any): void {
         this.responses = value?.length > 0 ? [...value] : [];
         if (this.responses.length === 0 && !this.options.noDefault200) {
-            this.responses.push({ code: '200', data: [{ schema: { type: 'object' }, mime: 'application/json', examples: [] }], headers: { type: 'object' } });
+            this.responses.push({
+                code: '200',
+                data: [{
+                    schema: { type: 'object' },
+                    mime: 'application/json',
+                    ...(!this.options.showOnlySchemaBuilder && { examples: [] })
+                }],
+                ...(!this.options.showOnlySchemaBuilder && { headers: { type: 'object' }, desc: '' })
+            });
             setTimeout(() => {
                 this.propagateChange(this.responses);
             }, 0);
@@ -90,6 +103,9 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
     }
 
     ngOnInit(): void {
+        this.options = { ...this.defaultOptions, ...this.options };
+        this.buildForm();
+
         this.flags.overflowTabsCount = Math.floor((window.innerWidth - 416) / 170);
         this.paused$
             .pipe(switchMap(paused => {
@@ -111,8 +127,13 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
             this.flags.selectedIndex = index;
             this.selectedResp = { ...this.responses[index] }
             this.paused$.next(true);
-            let { data, code, desc, noneStatus, headers, importedVia, traitId, importedViaName } = this.responses[index];
-            this.selectedRespForm.patchValue({ code, noneStatus, desc, headers: (headers || { type: 'object' }), importedVia, traitId, importedViaName });
+            let { data, code, noneStatus, importedVia, traitId, importedViaName } = this.responses[index];
+            this.selectedRespForm.patchValue({ code, noneStatus, importedVia, traitId, importedViaName });
+            if (this.options.showOnlySchemaBuilder) {
+                let { desc, headers } = this.responses[index];
+                this.selectedRespForm.patchValue({ desc, headers: (headers || { type: 'object' }) });
+            }
+
             //create form array for the response content types
             this.buildSchemaForm(data);
 
@@ -132,6 +153,21 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
         }
     }
 
+    buildForm() {
+        this.selectedRespForm = this.fb.group({
+            code: ['', [Validators.required, Validators.maxLength(100)]],
+            data: this.fb.array([]),
+            noneStatus: [false],
+            importedVia: [null],
+            importedViaName: [null],
+            traitId: [null],
+            ...(!this.options.showOnlySchemaBuilder && {
+                headers: [''],
+                desc: ['', [Validators.maxLength(500)]],
+            })
+        })
+    }
+
     buildSchemaForm(data) {
         var respDataForm = this.selectedRespForm.get('data') as FormArray;
         while (respDataForm.length) { respDataForm.removeAt(0) }
@@ -139,7 +175,9 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
             respDataForm.push(this.fb.group({
                 schema: [d.schema],
                 mime: [d.mime, [Validators.required]],
-                examples: [{ value: d.examples, disabled: !!this.selectedResp.importedVia || this.flags.use$refResponse }]
+                ...(!this.options.showOnlySchemaBuilder && {
+                    examples: [{ value: d.examples, disabled: !!this.selectedResp.importedVia || this.flags.use$refResponse }]
+                })
             }))
         })
     }
@@ -184,11 +222,15 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
             data: [{
                 schema: { type: 'object' },
                 mime: 'application/json',
-                examples: []
+                ...(!this.options.showOnlySchemaBuilder && {
+                    examples: []
+                })
             }],
             code: code,
-            desc: '',
-            headers: { type: 'object' },
+            ...(!this.options.showOnlySchemaBuilder && {
+                desc: '',
+                headers: { type: 'object' },
+            }),
             noneStatus: noneStatus
         };
         this.responses.push(resp);
@@ -218,7 +260,9 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
         respDataForm.push(this.fb.group({
             schema: [{ type: 'object' }],
             mime: ['*/*'],
-            examples: [[]]
+            ...(!this.options.showOnlySchemaBuilder && {
+                examples: [[]]
+            })
         }))
         this.flags.selectedRespMimeIndex = respDataForm.length - 1;
     }
@@ -232,10 +276,16 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
     }
 
     on$refRespChange() {
-        let { name, data, headers, desc, traitId } = this.responsesModels.find(responses => {
+        let { name, data, traitId } = this.responsesModels.find(responses => {
             return responses.name === this.flags.selected$refResponse;
         });
-        this.selectedRespForm.patchValue({ importedVia: 'NamedResponse', desc, headers, traitId, importedViaName: name });
+        this.selectedRespForm.patchValue({ importedVia: 'NamedResponse', traitId, importedViaName: name });
+        if (!this.options.showOnlySchemaBuilder) {
+            let { headers, desc } = this.responsesModels.find(responses => {
+                return responses.name === this.flags.selected$refResponse;
+            });
+            this.selectedRespForm.patchValue({ desc, headers });
+        }
         this.buildSchemaForm(data)
     }
 

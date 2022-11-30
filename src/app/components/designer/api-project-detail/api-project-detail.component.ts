@@ -1,6 +1,6 @@
 import { ApiProjectService } from './../../../services/apiProject.service';
 import { asapScheduler, BehaviorSubject, NEVER, Observable, Subject } from 'rxjs';
-import { ApiProject, LeftTreeItem } from './../../../models/ApiProject.model';
+import { ApiProject, LeftTreeItem, ProjectItemTypes } from './../../../models/ApiProject.model';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, Event as NavigationEvent, NavigationEnd } from '@angular/router';
 import { Store } from '@ngxs/store';
@@ -16,8 +16,6 @@ import { ApiProjectDetailService } from './api-project-detail.service';
 import apic from 'src/app/utils/apic';
 import { DetachedRouteHandlerService } from 'src/app/detached-route-handler.service';
 import { SharingService } from 'src/app/services/sharing.service';
-
-type ItemTypes = 'models' | 'traits' | 'endpoints' | 'examples';
 
 @Component({
     selector: 'app-api-project-detail',
@@ -50,7 +48,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
                     ascending: true
                 }
             },
-            expanded: { ungrouped: true }, //list of expanded folders, 
+            expanded: { ungrouped: true }, //list of expanded folders,
             expandAll: false,
             tree: null,
         };
@@ -182,7 +180,7 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         this.apiProjectDetailService.selectProj(proj);
     }
 
-    async duplicateItem(id: string, type: ItemTypes) {
+    async duplicateItem(id: string, type: ProjectItemTypes) {
         var toCopy = { ...this.selectedPROJ[type][id] };
         toCopy._id = apic.s12();
         let nameProperty = this.getNameProperty(type);
@@ -220,22 +218,33 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    deleteItem(id: string, type: ItemTypes) {
+    deleteItem(id: string, type: ProjectItemTypes, deleteFolderContent = false) {
         if (!id || !this.selectedPROJ[type]) return;
 
         const { [id]: toRemove, ...remaining } = this.selectedPROJ[type];
-        let project: ApiProject = { ...this.selectedPROJ, [type]: remaining }
+        let project: ApiProject = { ...this.selectedPROJ, [type]: remaining };
+        if (type === 'folders') {
+            this.leftPanel.tree.find(f => f._id === id)
+                ?.children.forEach(child => {
+                    const { [child._id]: toRemove, ...remaining } = project[child.type];
+                    if (deleteFolderContent) {
+                        project = { ...project, [child.type]: remaining }
+                    } else {
+                        project = { ...project, [child.type]: { ...remaining, [child._id]: { ...toRemove, folder: null } } }
+                    }
+                })
+        }
         let nameProperty = this.getNameProperty(type);
+        let deleteMsg = `Do you want to delete the ${type.substring(0, type.length - 1)} '${toRemove[nameProperty]}' ${deleteFolderContent ? 'and its contents' : ''}?`
 
         this.confirmService
             .confirm({
                 confirmTitle: 'Delete Confirmation',
-                confirm: `Do you want to delete the ${type.substring(0, type.length - 1)} '${toRemove[nameProperty]}'?`,
+                confirm: deleteMsg,
                 confirmOk: 'Delete',
                 confirmCancel: 'Cancel',
             })
             .then(async () => {
-                delete project[type][id];
                 try {
                     await this.updateApiProject(project);
                     this.toaster.success(`Selected ${type.substring(0, type.length - 1)} deleted.`);
@@ -246,17 +255,18 @@ export class ApiProjectDetailComponent implements OnInit, OnDestroy {
             }).catch(() => { });
     }
 
-    checkExistingItem(nameProperty: string, nameValue: string, type: ItemTypes): boolean {
+    checkExistingItem(nameProperty: string, nameValue: string, type: ProjectItemTypes): boolean {
         if (!nameValue || !nameProperty) return false;
 
         return this.selectedPROJ[type] && Object.values(this.selectedPROJ[type]).find((item) => item[nameProperty].toLowerCase() ===
             nameValue.toLowerCase()) !== undefined;
     }
-    private getNameProperty(type: ItemTypes) {
+    private getNameProperty(type: ProjectItemTypes) {
         switch (type) {
             case 'models':
             case 'traits':
             case 'examples':
+            case 'folders':
                 return 'name';
             case 'endpoints':
                 return 'summary';

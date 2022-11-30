@@ -196,8 +196,8 @@
                 </h2>
                 <div class="" *ngIf="flags.showResp">
                     <response-schema-builder [project]="selectedPROJ" [responsesModels]="traitResponses"
-                        [onChange]="setDirty.bind(this)" (onTestBuilder)="openTestBuilder($event)"
-                        formControlName="responses">
+                        [options]="{showTestBuilder:true}" [onChange]="setDirty.bind(this)"
+                        (onTestBuilder)="openTestBuilder($event)" formControlName="responses">
                     </response-schema-builder>
                 </div>
             </div>
