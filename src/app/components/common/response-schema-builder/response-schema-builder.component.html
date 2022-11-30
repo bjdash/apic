@@ -76,7 +76,7 @@
                             </ng-template>
 
                             <div>
-                                <mat-tab-group animationDuration="0ms">
+                                <mat-tab-group animationDuration="0ms" *ngIf="!options.showOnlySchemaBuilder">
                                     <mat-tab label="Schema">
                                         <ng-jsonschema *ngIf="responses.length>0; else noResp"
                                             [models]="project?.models" (onSchemaChange)="onSchemaUpdate()" name="schema"
@@ -85,7 +85,7 @@
                                             (onTestBuilder)="openTestBuilder($event)">
                                         </ng-jsonschema>
                                     </mat-tab>
-                                    <mat-tab label="Examples" *ngIf="!options.showOnlySchemaBuilder">
+                                    <mat-tab label="Examples">
                                         <div class="examples pad10" *ngIf="responses.length>0; else noResp">
                                             <div class="vcenter">
                                                 <div class="bold full-w">Name</div>
@@ -98,6 +98,12 @@
                                         </div>
                                     </mat-tab>
                                 </mat-tab-group>
+                                <ng-jsonschema *ngIf="options.showOnlySchemaBuilder && responses.length>0; else noResp"
+                                    [models]="project?.models" (onSchemaChange)="onSchemaUpdate()" name="schema"
+                                    [responses]="responsesModels" formControlName="schema"
+                                    [options]="{showTestBuilder: options.showTestBuilder, readOnly: !!selectedResp?.importedVia || flags.use$refResponse}"
+                                    (onTestBuilder)="openTestBuilder($event)">
+                                </ng-jsonschema>
                             </div>
                         </div>
                     </mat-tab>

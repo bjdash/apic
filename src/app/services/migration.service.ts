@@ -13,7 +13,7 @@ import { Suite } from "../models/Suite.model";
 @Injectable()
 export class MigrationService {
     migrations = [{
-        name: 'Project endpoints: Modify response to support OAS3',
+        name: 'OAS3: Modify request & response to support OAS3',
         conditions: [{
             on: 'oldVersion',
             check: 'isVersionLower',
