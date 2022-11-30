@@ -22,11 +22,13 @@
             opacity: 1;
         }
     }
+
     .req-env {
         margin-left: auto;
         margin-right: 45px;
     }
 }
+
 .suit-detail {
     padding-top: 50px;
 
@@ -36,6 +38,7 @@
         }
     }
 }
+
 .big-run {
     padding: 5px;
     position: relative;
@@ -47,18 +50,21 @@
         border-bottom: 35px solid transparent;
         border-left: 60px solid var(--success);
     }
+
     .run-text {
         position: absolute;
         top: 22px;
         left: 10px;
         color: #fff;
     }
+
     .stop {
         width: 60px;
         height: 60px;
         border-radius: 5px;
         background-color: var(--error);
     }
+
     .stop-text {
         position: absolute;
         top: 16px;
@@ -66,6 +72,11 @@
         color: #fff;
     }
 }
+
+.wau-url {
+    word-break: break-word;
+}
+
 textarea.logs {
     width: 100%;
     min-height: 250px;
@@ -74,12 +85,14 @@ textarea.logs {
     line-height: 1.2;
     resize: vertical;
 }
+
 /******* Suite result**********/
 .td-cont {
     width: 90px;
     height: 90px;
     position: relative;
 }
+
 .td-perc {
     position: absolute;
     top: 30px;
@@ -87,6 +100,7 @@ textarea.logs {
     font-size: 20px;
     text-align: center;
 }
+
 .circular-chart {
     display: block;
     margin: 0;
@@ -99,6 +113,7 @@ textarea.logs {
     stroke-linecap: round;
     animation: circleAni 1s ease-out forwards;
 }
+
 .circle.redc {
     stroke: #f44336;
 }
@@ -108,56 +123,69 @@ textarea.logs {
         stroke-dasharray: 0 100;
     }
 }
+
 .suit-req-sec {
     font-size: 14px;
     margin-top: 8px;
     margin-bottom: 4px;
 }
+
 .s-raw {
     word-break: break-all;
     padding: 5px;
     font-size: 12px;
 }
+
 /******* Suite result END**********/
 
 /******* Suite requests**********/
 .req-box {
     margin: 10px;
+
     .panel-body {
         margin: 10px -10px;
         position: relative;
         padding-bottom: 5px;
     }
 }
+
 .suit-req {
     position: relative;
     padding: 7px 10px 7px 10px;
+
     &.run-res {
         margin: 0 -10px;
         opacity: 0.6;
+
         &.complete {
             opacity: 1;
         }
+
         .name {
             height: 20px;
         }
+
         &:hover {
             .name {
                 text-decoration: underline;
             }
         }
+
         .url {
             font-size: 12px;
         }
     }
+
     &.temp {
         padding: 7px 5px 7px 10px;
         border-bottom: 1px dashed var(--border-color);
+
         mat-checkbox {
             margin-left: 5px;
             margin-right: 10px;
         }
     }
+
     .run-status {
         position: absolute;
         top: 10px;
@@ -165,39 +193,46 @@ textarea.logs {
         font-size: 12px;
         margin-top: -6px;
         color: var(--text-color);
+
         div {
             font-size: 16px;
             justify-content: flex-end;
         }
 
-        & > span {
+        &>span {
             display: none;
             font-weight: normal;
         }
     }
+
     &:hover {
         background-color: var(--header-bg);
-        .run-status > span {
+
+        .run-status>span {
             display: inline-block;
         }
     }
+
     .name {
         overflow: hidden;
         font-size: 16px;
         text-overflow: ellipsis;
         height: 25px;
     }
+
     .meth {
         font-weight: bold;
         font-size: 12px;
         margin-right: 4px;
     }
+
     .url {
         overflow: hidden;
         color: #888;
         text-overflow: ellipsis;
     }
 }
+
 .suit-req .test-cont {
     padding: 5px;
     margin: 5px 0 15px;
@@ -206,31 +241,39 @@ textarea.logs {
     /* background: #fdfdfd; */
     border-radius: 10px;
 }
+
 .suit-req .test-result {
     font-size: 14px;
     padding: 3px;
+
     .t_status {
-        width: 80px;
+        flex: 0 0 80px;
     }
 }
+
 .suit-req .test-result:last-child {
     border-bottom: none;
 }
-.suit-req .test-result .glyphicon > span {
+
+.suit-req .test-result .glyphicon>span {
     font-size: 12px;
     vertical-align: text-bottom;
     /*margin-left: -5px;*/
 }
+
 .suit-req .test-result .glyphicon {
     font-size: 12px;
     padding: 2px 5px 3px;
 }
+
 .suit-req .mat-checkbox {
     margin-right: 5px;
 }
+
 .suit-req .ctrls {
     margin-left: auto;
 }
+
 .grip {
     content: "";
     width: 18px;
@@ -246,9 +289,11 @@ textarea.logs {
     font-weight: bold;
     margin-right: 5px;
 }
+
 .grip::after {
     content: ".. .. .. .. ..";
 }
+
 /******* Suite requests end**********/
 
 /****** Add new test option ****/
@@ -262,6 +307,7 @@ textarea.logs {
 
     &:hover {
         opacity: 1;
+
         .nt_options {
             left: -4px;
         }
@@ -279,6 +325,7 @@ textarea.logs {
         background: var(--content-bg);
         outline: none !important;
     }
+
     mat-icon {
         margin-left: -3px;
     }
@@ -291,22 +338,27 @@ textarea.logs {
     position: relative;
     z-index: 30;
 }
+
 .nt_options {
     left: -400px;
     position: relative;
     transition: left 0.3s;
 }
+
 .suit-req-nav {
     position: relative;
 }
+
 .sn_opt {
     position: absolute;
     top: 13px;
     opacity: 0.5;
 }
+
 .suit-req-nav:hover .sn_opt {
     opacity: 1;
 }
+
 /****** Add new test option End****/
 
 /********** DGK DRAG ***************/
@@ -324,17 +376,20 @@ textarea.logs {
 .cdk-drag-animating {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
+
 /********** DGK DRAG END***************/
 /******** Req edit **********/
 .submodMenu {
     margin-top: 24px;
 }
+
 :host ::ng-deep .suit-req-nav {
     .mat-fab {
         width: 40px;
         height: 40px;
         background-color: var(--content-bg);
         margin-left: -160px;
+
         .mat-button-wrapper {
             padding: 10px 0;
             line-height: 14px;
@@ -342,4 +397,5 @@ textarea.logs {
         }
     }
 }
+
 /******** Req edit end **********/

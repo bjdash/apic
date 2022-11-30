@@ -262,7 +262,7 @@
                             <mat-icon class="sm">language</mat-icon>
                             <span>Web Access URL</span>
                         </div>
-                        <div *ngIf="wau">
+                        <div *ngIf="wau" class="wau-url">
                             {{wau}}
                             <button mat-icon-button class="sm" (click)="utils.copyToClipboard(wau)" title="Copy">
                                 <mat-icon>content_copy</mat-icon>
@@ -403,7 +403,7 @@
                         <div class="suit-req vcenter">
                             <mat-checkbox [checked]="!req.disabled" (change)="reqStatusChange($event, i)">
                             </mat-checkbox>
-                            <!-- <input type="checkbox" ng-change="vm.updateSuit()" 
+                            <!-- <input type="checkbox" ng-change="vm.updateSuit()"
                                 ng-true-value="undefined" ng-false-value="true" /> -->
                             <span cdkDragHandle class="grip"></span>
                             <div>

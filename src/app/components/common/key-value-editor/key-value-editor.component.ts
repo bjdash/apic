@@ -20,7 +20,8 @@ export interface KVEditorOptn {
   allowFileType?: boolean,
   useRichText?: false,
   autocompletes?: string[],
-  useSelectForVal?: boolean
+  useSelectForVal?: boolean,
+  disabled?:boolean
 }
 
 @Component({
@@ -37,7 +38,7 @@ export interface KVEditorOptn {
 })
 export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() options: KVEditorOptn;
-  @Input() valueOptions: any[] = []
+  @Input() valueOptions: any[] = [];
 
   private defaultOptions: KVEditorOptn = {
     allowAdd: true,
@@ -53,7 +54,8 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     allowFileType: false,
     useRichText: false,
     autocompletes: [],
-    useSelectForVal: false
+    useSelectForVal: false,
+    disabled:false
   }
   keyValueForm: FormArray;
   focusedIndex: number = 0;
@@ -98,7 +100,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     this.propagateTouch = fn;
   }
   setDisabledState?(isDisabled: boolean): void {
-    //TODO:
+    this.options.disabled = isDisabled;
   }
 
   ngOnInit(): void {

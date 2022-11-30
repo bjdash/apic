@@ -7,19 +7,20 @@
                 <mat-icon>add_box</mat-icon>
             </button>
             <span *ngIf="(options.mode != 'list') || !entity.root$$" class="model-type-cont vcenter">
-                <button type="button" mat-icon-button class="obj-exp xs" [ngClass]="{open:!ctrl.expanded}"
-                    (click)="ctrl.expanded=!ctrl.expanded"
+                <a mat-icon-button class="obj-exp xs" [ngClass]="{open:!ctrl.expanded}"
+                    (click)="ctrl.expanded=!ctrl.expanded;$event.preventDefault()"
                     *ngIf="canAddChild(entity._type, entity._items?.[0]?._type?.[0])">
                     <mat-icon class="" *ngIf="ctrl.expanded">expand_more</mat-icon>
                     <mat-icon *ngIf="!ctrl.expanded">chevron_right</mat-icon>
-                </button>
+                </a>
                 <span *ngIf="entity._readOnlyKey">{{entity._key}} : </span>
                 <span [hidden]="entity.root$$ || entity._hideKey">
-                    <input [readonly]="options.disableManualAdd" (ngModelChange)="refreshSchema($event)"
-                        class="model-key" type="text" [(ngModel)]="entity._key" />:
+                    <input [readonly]="options.disableManualAdd" (ngModelChange)="refreshSchema()" class="model-key"
+                        type="text" [(ngModel)]="entity._key" />:
                     <!-- : -->
                 </span>
-                <button type="button" mat-button class="model-selector" (click)="openMenu(entity,$event)">
+                <button type="button" mat-button class="model-selector"
+                    (click)="openMenu({entity,clientY:$event.clientY, clientX:$event.clientX});$event.stopPropagation()">
                     <span *ngFor="let t of entity._type;let last=last">
                         <span [ngClass]="t">{{t}}</span>
                         <span *ngIf="t==='Array' && entity._items[0]" [ngClass]="entity._items?.[0]?._type?.[0]"
@@ -52,7 +53,7 @@
 
                 <span *ngIf="entity.refTxt" class="margL90">{{entity.refTxt}}</span>
             </span>
-            <span *ngIf="options.mode == 'list' && entity.root$$">{{options.listModeMsg}}</span>
+            <span *ngIf="options.mode == 'list' && entity.root$$" class="gap-left">{{options.listModeMsg}}</span>
             <span class="vcenter js-right-cont">
                 <a href="" mat-icon-button title="Expand $ref" class="xs"
                     (click)="$event.preventDefault();expand$ref(entity)"
@@ -65,15 +66,15 @@
                 </a>
                 <a href="" mat-icon-button title="Open test builder" class="xs"
                     *ngIf="options.showTestBuilder && !entity.root$$ && !entity._hideKey"
-                    (click)="$event.preventDefault();buildTest(entity, $event)">
+                    (click)="$event.preventDefault();buildTest({entity, clientY:$event.clientY})">
                     <mat-icon>science</mat-icon>
                 </a>
                 <mat-icon class="xs gap" *ngIf="entity._description" matTooltip="{{entity._description}}">description
                 </mat-icon>
                 <span *ngIf="!entity.root$$ && !entity._hideKey" class="vcenter gap">
-                    <mat-checkbox [(ngModel)]="entity._required" class="xs" (ngModelChange)="refreshSchema($event)"
+                    <mat-checkbox [(ngModel)]="entity._required" class="xs" (ngModelChange)="refreshSchema()"
                         matTooltip="Required?"></mat-checkbox>
-                    <!-- <input type="checkbox" [(ngModel)]="entity._required" (ngModelChange)="refreshSchema($event)" />
+                    <!-- <input type="checkbox" [(ngModel)]="entity._required" (ngModelChange)="refreshSchema()" />
                     <span>Required</span> -->
                 </span>
                 <!--Needs to be an anchor to make sure its enable even if the fieldset is disabled-->
@@ -100,7 +101,7 @@
                             <label class="control-label col-xs-2">Name:</label>
                             <div class="col-xs-9">
                                 <input type="text" class="form-control sm detail-ip" id="foldName"
-                                    (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}"
+                                    (ngModelChange)="refreshSchema()" [ngModelOptions]="{standalone: true}"
                                     placeholder="Field Name" [(ngModel)]="entity._key" />
                             </div>
                         </div>
@@ -108,15 +109,14 @@
                             <label class="control-label col-xs-2">Desc:</label>
                             <div class="col-xs-9">
                                 <textarea class="form-control" [(ngModel)]="entity._description"
-                                    (ngModelChange)="refreshSchema($event)"
-                                    [ngModelOptions]="{standalone: true}"></textarea>
+                                    (ngModelChange)="refreshSchema()" [ngModelOptions]="{standalone: true}"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-xs-2">Default:</label>
                             <div class="col-xs-9">
                                 <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._default"
-                                    (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}" />
+                                    (ngModelChange)="refreshSchema()" [ngModelOptions]="{standalone: true}" />
                             </div>
                         </div>
                     </form>
@@ -129,7 +129,7 @@
                         <div>
                             <div class="checkbox padding">
                                 <label><input type="checkbox" class="small" [(ngModel)]="entity._required"
-                                        (ngModelChange)="refreshSchema($event)" [ngModelOptions]="{standalone: true}" />
+                                        (ngModelChange)="refreshSchema()" [ngModelOptions]="{standalone: true}" />
                                     Required
                                     ?</label>
                             </div>
@@ -137,8 +137,8 @@
                     </div>
                     <div *ngFor="let type of entity._type">
                         <div class="t_color">{{type}} Validations</div>
-                        <ng-jsonschema-field [type]="type" [entity]="entity" (onChange)="refreshSchema($event)"
-                            [addAdditionalProp]="addAdditionalProp">
+                        <ng-jsonschema-field [type]="type" [entity]="entity" (onChange)="refreshSchema()"
+                            (onAdditionalPropAdd)="addAdditionalProp($event)">
                         </ng-jsonschema-field>
                     </div>
                 </form>
@@ -146,16 +146,16 @@
         </div>
         <div *ngIf="ctrl.expanded" class="objProps">
             <div *ngFor="let prop of entity._properties" class="propCont">
-                <ng-jsonschema-main [refreshSchema]="refreshSchema" (onAddNewProp)="addNewProp($event)"
-                    [models]="models" [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"
-                    [options]=options [addAdditionalProp]="addAdditionalProp" [buildTest]="buildTest.bind(this)"
-                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                <ng-jsonschema-main (onSchemaUpdate)="refreshSchema()" (onAddNewProp)="addNewProp($event)"
+                    [models]="models" (onEntityRemove)="removeEntity($event)" (onMenuOpen)="openMenu($event)"
+                    [entity]="prop" [options]=options (onAdditionalPropAdd)="addAdditionalProp($event)"
+                    (onBuildTest)="buildTest($event)" (on$refExpand)="expand$ref($event)"></ng-jsonschema-main>
             </div>
             <div *ngFor="let prop of entity._additionalProperties" class="propCont">
-                <ng-jsonschema-main [refreshSchema]="refreshSchema" (onAddNewProp)="addNewProp($event)"
-                    [models]="models" [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"
-                    [options]=options [addAdditionalProp]="addAdditionalProp" [buildTest]="buildTest.bind(this)"
-                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                <ng-jsonschema-main (onSchemaUpdate)="refreshSchema()" (onAddNewProp)="addNewProp($event)"
+                    [models]="models" (onEntityRemove)="removeEntity($event)" (onMenuOpen)="openMenu($event)"
+                    [entity]="prop" [options]=options (onAdditionalPropAdd)="addAdditionalProp($event)"
+                    (onBuildTest)="buildTest($event)" (on$refExpand)="expand$ref($event)"></ng-jsonschema-main>
             </div>
 
         </div>
@@ -163,23 +163,24 @@
         <div
             *ngIf="entity._items && entity._items[0] && entity._type.indexOf('Object')<0 && hasChild.indexOf(entity._items?.[0]?._type?.[0])>=0">
             <div *ngFor="let prop of entity._items[0]._properties" class="propCont" [hidden]="!ctrl.expanded">
-                <ng-jsonschema-main [refreshSchema]="refreshSchema" (onAddNewProp)="addNewProp($event)"
-                    [models]="models" [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="prop"
-                    [options]=options [addAdditionalProp]="addAdditionalProp" [buildTest]="buildTest.bind(this)"
-                    [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+                <ng-jsonschema-main (onSchemaUpdate)="refreshSchema()" (onAddNewProp)="addNewProp($event)"
+                    [models]="models" (onEntityRemove)="removeEntity($event)" (onMenuOpen)="openMenu($event)"
+                    [entity]="prop" [options]=options (onAdditionalPropAdd)="addAdditionalProp($event)"
+                    (onBuildTest)="buildTest($event)" (on$refExpand)="expand$ref($event)"></ng-jsonschema-main>
             </div>
         </div>
         <div *ngIf="entity._refExp" class="expanded-ref">
-            <ng-jsonschema-main [refreshSchema]="refreshSchema" (onAddNewProp)="addNewProp($event)" [models]="models"
-                [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._refExp" [options]=options
-                [addAdditionalProp]="addAdditionalProp" [buildTest]="buildTest.bind(this)"
-                [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+            <ng-jsonschema-main (onSchemaUpdate)="refreshSchema()" (onAddNewProp)="addNewProp($event)" [models]="models"
+                (onEntityRemove)="removeEntity($event)" (onMenuOpen)="openMenu($event)" [entity]="entity._refExp"
+                [options]="options" (onAdditionalPropAdd)="addAdditionalProp($event)" (onBuildTest)="buildTest($event)"
+                (on$refExpand)="expand$ref($event)"></ng-jsonschema-main>
         </div>
         <div *ngIf="entity._items && entity._items[0] && entity._items[0]._refExp" class="expanded-ref">
-            <ng-jsonschema-main [refreshSchema]="refreshSchema" (onAddNewProp)="addNewProp($event)" [models]="models"
-                [removeEntity]="removeEntity" [openMenu]="openMenu" [entity]="entity._items[0]._refExp"
-                [options]=options [addAdditionalProp]="addAdditionalProp" [buildTest]="buildTest.bind(this)"
-                [expand$ref]="expand$ref.bind(this)"></ng-jsonschema-main>
+            <ng-jsonschema-main (onSchemaUpdate)="refreshSchema()" (onAddNewProp)="addNewProp($event)" [models]="models"
+                (onEntityRemove)="removeEntity($event)" (onMenuOpen)="openMenu($event)"
+                [entity]="entity._items[0]._refExp" [options]="options"
+                (onAdditionalPropAdd)="addAdditionalProp($event)" (onBuildTest)="buildTest($event)"
+                (on$refExpand)="expand$ref($event)"></ng-jsonschema-main>
         </div>
 
     </fieldset>

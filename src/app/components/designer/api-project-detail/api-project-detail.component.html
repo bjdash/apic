@@ -102,11 +102,26 @@
                             <div class="folder-name m-sec">
                                 <div class="f-name">{{folder.name}}</div>
                             </div>
-                            <div class="r-sec ">
-                                <a href="" *ngIf="folder.name != 'ungrouped'" [routerLink]="['folders', folder._id]"
-                                    mat-icon-button (click)="$event.stopPropagation()">
-                                    <mat-icon>edit</mat-icon>
-                                </a>
+                            <div class="r-sec " *ngIf="folder.name != 'Ungrouped'">
+                                <button type=" button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                                    [ngClass]="{t_bg: menu.menuOpen}" mat-icon-button [matMenuTriggerFor]="folderMenu"
+                                    #menu="matMenuTrigger">
+                                    <mat-icon>more_vert</mat-icon>
+                                </button>
+                                <mat-menu #folderMenu="matMenu">
+                                    <a href="" [routerLink]="['folders', folder._id]" mat-menu-item>
+                                        <mat-icon>edit</mat-icon> Edit
+                                    </a>
+                                    <button mat-menu-item
+                                        (click)="deleteItem(folder._id, 'folders', true); $event.stopPropagation()">
+                                        <mat-icon>delete</mat-icon> Delete folder and content
+                                    </button>
+
+                                    <button mat-menu-item
+                                        (click)="deleteItem(folder._id, 'folders'); $event.stopPropagation()">
+                                        <mat-icon>delete</mat-icon> Delete only folder
+                                    </button>
+                                </mat-menu>
                             </div>
                         </div>
 
@@ -118,7 +133,8 @@
                                     <div class="l-sec">
                                         <div class="method" [ngClass]="child.label"></div>
                                     </div>
-                                    <div class="m-sec name" [ngClass]="child.deprecated?'deprecated':''" [title]="child.name">
+                                    <div class="m-sec name" [ngClass]="child.deprecated?'deprecated':''"
+                                        [title]="child.name">
                                         {{child.name}}
                                     </div>
                                     <div class="r-sec">

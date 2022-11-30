@@ -20,6 +20,10 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
     traitForm: FormGroup;
     editCode: boolean = false;
     private _destroy: Subject<boolean> = new Subject<boolean>();
+    flags = {
+        showReq: true,
+        showResp: true
+    }
 
     constructor(
         private fb: FormBuilder,
@@ -31,7 +35,7 @@ export class ProjectTraitsComponent implements OnInit, OnDestroy {
         private router: Router
     ) {
         this.traitForm = this.fb.group({
-            name: ['', [Validators.required, Validators.maxLength(100)]],
+            name: ['', [Validators.required, Validators.maxLength(100), Validators.pattern(/^[a-zA-Z0-9\-\_]+$/)]],
             folder: [''],
             summary: ['', Validators.maxLength(100)],
             queryParams: [undefined],

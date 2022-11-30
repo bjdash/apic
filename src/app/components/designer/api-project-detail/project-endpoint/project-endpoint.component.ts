@@ -14,403 +14,414 @@ import { takeUntil } from 'rxjs/operators';
 import { ApiProjectUtils } from 'src/app/utils/ApiProject.utils';
 import { TestBuilderOption } from 'src/app/models/TestBuilderOption.model';
 import { TestBuilderSave } from 'src/app/components/common/json-test-builder/json-test-builder.component';
+import { SchemaClickOpenEvent } from 'src/app/components/common/json-schema-builder/main/main.component';
 
 @Component({
-  selector: 'app-project-endpoint',
-  templateUrl: './project-endpoint.component.html',
-  styleUrls: ['../api-project-detail.component.scss'],
+    selector: 'app-project-endpoint',
+    templateUrl: './project-endpoint.component.html',
+    styleUrls: ['../api-project-detail.component.scss'],
 })
 export class ProjectEndpointComponent implements OnInit, OnDestroy {
-  selectedPROJ: ApiProject;
-  selectedEndp: ApiEndp;
-  endpForm: FormGroup;
-  private _destroy: Subject<boolean> = new Subject<boolean>();
-  testBuilderOpt: TestBuilderOption = null;
-  traitResponses = [];
+    selectedPROJ: ApiProject;
+    selectedEndp: ApiEndp;
+    endpForm: FormGroup;
+    private _destroy: Subject<boolean> = new Subject<boolean>();
+    testBuilderOpt: TestBuilderOption = null;
+    traitResponses = [];
 
-  schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
-  MIMEs = MIMEs;
-  METHOD_WITH_BODY = METHOD_WITH_BODY;
-  HTTP_METHODS = HTTP_METHODS;
-  flags = {
-    allOptn: true,
-    more: true,
-    showReq: true,
-    showResp: true,
-    traitPP: [], //path params from trait
-    traitQP: [], //query params from trait
-    traitHP: [] //header params from trait
-  }
+    schemesSugg = [{ key: 'http', val: 'HTTP' }, { key: 'https', val: 'HTTPS' }, { key: 'ws', val: 'ws' }, { key: 'wss', val: 'wss' }];
+    MIMEs = MIMEs;
+    METHOD_WITH_BODY = METHOD_WITH_BODY;
+    HTTP_METHODS = HTTP_METHODS;
+    flags = {
+        allOptn: true,
+        more: true,
+        showReq: true,
+        showResp: true,
+        showTest: true,
+        traitPP: [], //path params from trait
+        traitQP: [], //query params from trait
+        traitHP: [] //header params from trait
+    }
 
-  constructor(
-    private fb: FormBuilder,
-    private toaster: Toaster,
-    private confirmService: ConfirmService,
-    private apiProjService: ApiProjectService,
-    private apiProjectDetailService: ApiProjectDetailService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {
-    this.endpForm = this.fb.group({
-      summary: ['', [Validators.required, Validators.maxLength(255)]],
-      path: ['', [Validators.required]],
-      method: ['get'],
-      folder: [''],
-      traits: [[]],
-      tags: [[]],
-      security: [[]],
-      operationId: ['', [Validators.maxLength(255)]],
-      schemes: [[]],
-      consumes: [[]],
-      produces: [[]],
-      description: [''],
-      deprecated: [false],
-      pathParams: [{ type: 'object' }],
-      queryParams: [{ type: 'object' }],
-      headers: [{ type: 'object' }],
-      responses: [[{ code: '200', data: { type: 'object' } }]],
-      body: fb.group({
-        type: [''],
-        data: ['']
-      }),
-      postrun: [''],
-      prerun: [''],
-    });
+    constructor(
+        private fb: FormBuilder,
+        private toaster: Toaster,
+        private confirmService: ConfirmService,
+        private apiProjService: ApiProjectService,
+        private apiProjectDetailService: ApiProjectDetailService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) {
+        this.endpForm = this.fb.group({
+            summary: ['', [Validators.required, Validators.maxLength(255)]],
+            path: ['', [Validators.required]],
+            method: ['get'],
+            folder: [''],
+            traits: [[]],
+            tags: [[]],
+            security: [[]],
+            operationId: ['', [Validators.maxLength(255)]],
+            schemes: [[]],
+            description: [''],
+            deprecated: [false],
+            pathParams: [{ type: 'object', properties: {}, required: [] }],
+            queryParams: [{ type: 'object' }],
+            headers: [{ type: 'object' }],
+            responses: [[{
+                code: '200',
+                data: [{
+                    schema: { type: 'object' },
+                    mime: 'application/json',
+                    examples: []
+                }]
+            }]],
+            body: [{
+                desc: [''],
+                data: [[]]
+            }],
+            postrun: [''],
+            prerun: [''],
+        });
 
-    this.apiProjectDetailService.onSelectedProj$
-      .pipe(takeUntil(this._destroy))
-      .subscribe(project => {
-        this.selectedPROJ = project;
-        if (this.selectedEndp) {
-          this.handleEndpSelect(this.selectedEndp._id);
+        this.apiProjectDetailService.onSelectedProj$
+            .pipe(takeUntil(this._destroy))
+            .subscribe(project => {
+                this.selectedPROJ = project;
+                if (this.selectedEndp) {
+                    this.handleEndpSelect(this.selectedEndp._id);
+                }
+            })
+
+        this.route.params
+            .pipe(takeUntil(this._destroy))
+            .subscribe(({ endpId }) => {
+                this.handleEndpSelect(endpId);
+            })
+    }
+
+    private handleEndpSelect(endpId: string) {
+        this.selectedEndp = this.selectedPROJ?.endpoints?.[endpId];
+        if (!this.selectedEndp) {
+            if (endpId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
+                this.router.navigate(['../', 'new'], { relativeTo: this.route });
+                return;
+            } else {
+                this.selectedEndp = NewApiEndp;
+            }
         }
-      })
 
-    this.route.params
-      .pipe(takeUntil(this._destroy))
-      .subscribe(({ endpId }) => {
-        this.handleEndpSelect(endpId);
-      })
-  }
+        this.flags.traitPP = [];
+        this.flags.traitQP = [];
+        this.flags.traitHP = [];
+        let processedEndp = { ...this.selectedEndp }
+        if (this.selectedEndp.traits?.length > 0) {
+            this.selectedEndp.traits.forEach((t: ApiTrait) => {
+                processedEndp = ApiProjectUtils.importTraitData(t._id, processedEndp, this.selectedPROJ);
+                this.flags.traitPP = [...this.flags.traitPP, ...ApiProjectUtils.getTraitPathParamNames(t._id, this.selectedPROJ)]
+                this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(t._id, this.selectedPROJ)]
+                this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(t._id, this.selectedPROJ)]
+            })
+        }
 
-  private handleEndpSelect(endpId: string) {
-    this.selectedEndp = this.selectedPROJ?.endpoints?.[endpId];
-    if (!this.selectedEndp) {
-      if (endpId?.toLocaleLowerCase() !== 'NEW'.toLocaleLowerCase()) {
-        this.router.navigate(['../', 'new'], { relativeTo: this.route });
-        return;
-      } else {
-        this.selectedEndp = NewApiEndp;
-      }
+        let { summary, path, method, folder, traits, tags, security, operationId, schemes, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
+        if (!folder) folder = '';
+        this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...(tags || [])], security: [...(security || [])], operationId, schemes: [...(schemes || [])], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...(responses || [])], postrun, prerun });
+
+        this.addDefaultResponse();
+        this.endpForm.markAsPristine();
+        this.endpForm.markAsUntouched();
+        this.traitResponses = ApiProjectUtils.getTraitNamedResponses(this.selectedPROJ)
     }
 
-    this.flags.traitPP = [];
-    this.flags.traitQP = [];
-    this.flags.traitHP = [];
-    let processedEndp = { ...this.selectedEndp }
-    if (this.selectedEndp.traits?.length > 0) {
-      this.selectedEndp.traits.forEach((t: ApiTrait) => {
-        processedEndp = ApiProjectUtils.importTraitData(t._id, processedEndp, this.selectedPROJ);
-        this.flags.traitPP = [...this.flags.traitPP, ...ApiProjectUtils.getTraitPathParamNames(t._id, this.selectedPROJ)]
-        this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(t._id, this.selectedPROJ)]
-        this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(t._id, this.selectedPROJ)]
-      })
-    }
+    async createEndp(allowDup?: boolean) {
+        if (!this.endpForm.valid) return;
+        let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8(), };
 
-    let { summary, path, method, folder, traits, tags, security, operationId, schemes, consumes, produces, description, deprecated, pathParams, queryParams, headers, body, responses, postrun, prerun } = processedEndp;
-    if (!folder) folder = '';
-    this.endpForm.patchValue({ summary, path, method, folder, traits: [...traits], tags: [...(tags || [])], security: [...(security || [])], operationId, schemes: [...(schemes || [])], consumes: [...(consumes || [])], produces: [...(produces || [])], description, deprecated, pathParams, queryParams, headers, body: { ...body }, responses: [...(responses || [])], postrun, prerun });
+        if (this.checkExistingEndp(endp.summary) && !this.isEditing() && !allowDup) {
+            this.toaster.error('Endpoint ' + endp.summary + ' already exists');
+            return;
+        }
 
-    this.addDefaultResponse();
-    this.endpForm.markAsPristine();
-    this.endpForm.markAsUntouched();
-    this.traitResponses = ApiProjectUtils.getTraitNamedResponses(this.selectedPROJ)
-  }
+        //remove the trait data added before we save it
+        endp.traits?.forEach(t => {
+            endp = ApiProjectUtils.removeTraitData(t._id, endp, this.selectedPROJ);
+        });
 
-  async createEndp(allowDup?: boolean) {
-    if (!this.endpForm.valid) return;
-    let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8(), };
-
-    if (this.checkExistingEndp(endp.summary) && !this.isEditing() && !allowDup) {
-      this.toaster.error('Endpoint ' + endp.summary + ' already exists');
-      return;
-    }
-
-    //remove the trait data added before we save it
-    endp.traits?.forEach(t => {
-      endp = ApiProjectUtils.removeTraitData(t._id, endp, this.selectedPROJ);
-    });
-
-    //add any additional tags added here to the project.tags field if not already present
-    let existingTags = this.selectedPROJ.tags?.map(tag => tag.name);
-    let tags = [...(this.selectedPROJ.tags || [])];
-    endp.tags?.forEach(tag => {
-      if (existingTags?.indexOf(tag) == -1) {
-        tags.push({
-          name: tag,
-          description: ''
+        //add any additional tags added here to the project.tags field if not already present
+        let existingTags = this.selectedPROJ.tags?.map(tag => tag.name);
+        let tags = [...(this.selectedPROJ.tags || [])];
+        endp.tags?.forEach(tag => {
+            if (existingTags?.indexOf(tag) == -1) {
+                tags.push({
+                    name: tag,
+                    description: ''
+                })
+            }
         })
-      }
-    })
 
-    var projToUpdate: ApiProject = { ...this.selectedPROJ, tags, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
-    try {
-      await this.apiProjService.updateAPIProject(projToUpdate)
-      this.endpForm.markAsPristine();
-      this.endpForm.markAsUntouched();
-
-      if (this.isEditing()) {
-        this.toaster.success('Endpoint updated.');
-        this.selectedEndp = endp;
-      } else {
-        this.toaster.success('Endpoint created.');
-        this.router.navigate(['../', endp._id], { relativeTo: this.route })
-      }
-
-    } catch (e) {
-      console.error('Failed to create/update endpoint', e, endp);
-      this.toaster.error(`Failed to create/update endpoint: ${e?.message || e || ''}`);
-    }
-  }
-
-  checkForPathParams() {
-    var path = this.endpForm.value.path, error = false;
-    if (path.indexOf('?') >= 0) {
-      this.toaster.error("Query params can't be added here to the path property. Add them in Query Params section below.")
-      this.endpForm.patchValue({ path: path.replace(/\?/g, '') });
-      return;
-    }
-
-    var params = [],
-      rxp = /{([^}]+)}/g,
-      curMatch;
-
-    while (curMatch = rxp.exec(path)) {
-      var match = curMatch[1];
-      if (match.match(/^[a-z0-9_]+$/i)) {
-        params.push(match);
-      } else {
-        error = true;
-      }
-    }
-
-    if (error) {
-      this.toaster.warn('Path params should be alpha numeric and can only contain underscore (_). There are few in the url those are not. Please correct.');
-    }
-
-    let pathParams = Utils.clone(this.endpForm.value.pathParams);
-    let traitPathParams = this.endpForm.value.traits.map(trait => {
-      return ApiProjectUtils.getTraitPathParamNames(trait._id, this.selectedPROJ);
-    }).flat();
-
-    Utils.objectKeys(pathParams.properties).forEach(key => {
-      if (!traitPathParams.includes(key)) {
-        delete pathParams.properties[key];
-        pathParams.required = pathParams.required.filter(e => e !== key);
-      }
-    })
-
-    params.forEach(p => {
-      if (!pathParams.properties[p]) {
-        pathParams.properties[p] = { "type": "string" };
-        pathParams.required.push(p)
-      };
-    })
-    this.endpForm.patchValue({ pathParams })
-  }
-
-  importTraitData(traitId) {
-    let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8() };
-    endp = ApiProjectUtils.importTraitData(traitId, endp, this.selectedPROJ);
-    let { pathParams, queryParams, headers, responses } = endp;
-    this.endpForm.patchValue({ pathParams, queryParams, headers, responses })
-    this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(traitId, this.selectedPROJ)]
-    this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(traitId, this.selectedPROJ)]
-  }
-
-  onTraitRemove(traitId: string) {
-    let { responses, pathParams, headers, queryParams } = ApiProjectUtils.removeTraitData(traitId, this.endpForm.value, this.selectedPROJ);
-    this.endpForm.patchValue({ responses, pathParams, headers, queryParams });
-    this.checkForPathParams();
-  }
-
-  async duplicateEndp(id: string) {
-    var toCopy: ApiEndp = { ...this.selectedPROJ.endpoints[id] };
-    toCopy._id = apic.s12();
-    while (this.checkExistingEndp(toCopy.summary)) {
-      var counter = parseInt(toCopy.summary.charAt(toCopy.summary.length - 1));
-      var numberAtEnd = true;
-      if (isNaN(counter)) {
-        counter = 0;
-        numberAtEnd = false;
-      }
-      counter++;
-      toCopy.summary =
-        (numberAtEnd
-          ? toCopy.summary.substring(0, toCopy.summary.length - 1)
-          : toCopy.summary
-        ).trim() +
-        ' ' +
-        counter;
-    }
-    let project: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [toCopy._id]: toCopy } }
-    try {
-      await this.apiProjService.updateAPIProject(project)
-      this.toaster.success('Duplicate endpoint ' + toCopy.summary + ' created.');
-    } catch (e) {
-      this.toaster.error(`Failed to duplicate: ${e?.message || e || ''}`);
-    }
-  }
-
-  deleteEndp(endpId: string) {
-    if (!endpId || !this.selectedPROJ.endpoints) return;
-
-    const { [endpId]: toRemove, ...remaining } = this.selectedPROJ.endpoints;
-    let project: ApiProject = { ...this.selectedPROJ, endpoints: remaining }
-
-    this.confirmService
-      .confirm({
-        confirmTitle: 'Delete Confirmation',
-        confirm: `Do you want to delete the endpoint '${toRemove.summary}'?`,
-        confirmOk: 'Delete',
-        confirmCancel: 'Cancel',
-      })
-      .then(async () => {
-        delete project.endpoints[endpId];
+        var projToUpdate: ApiProject = { ...this.selectedPROJ, tags, endpoints: { ...this.selectedPROJ.endpoints, [endp._id]: endp } };
         try {
-          await this.apiProjService.updateAPIProject(project)
-          this.toaster.success('Endpoint deleted.');
-          this.endpForm.markAsPristine();
-          this.router.navigate(['../', 'new'], { relativeTo: this.route })
+            await this.apiProjService.updateAPIProject(projToUpdate)
+            this.endpForm.markAsPristine();
+            this.endpForm.markAsUntouched();
+
+            if (this.isEditing()) {
+                this.toaster.success('Endpoint updated.');
+                this.selectedEndp = endp;
+            } else {
+                this.toaster.success('Endpoint created.');
+                this.router.navigate(['../', endp._id], { relativeTo: this.route })
+            }
+
         } catch (e) {
-          console.error('Failed to delete endpoint', e);
-          this.toaster.error(`Failed to delete endpoint: ${e?.message || e || ''}`);
-
+            console.error('Failed to create/update endpoint', e, endp);
+            this.toaster.error(`Failed to create/update endpoint: ${e?.message || e || ''}`);
         }
-      });
-  }
-
-  addDefaultResponse() {
-    if (this.endpForm.controls['responses'].value.length === 0) {
-      this.endpForm.patchValue({
-        responses: [{
-          code: '200',
-          data: { "type": ["object"] },
-          desc: '',
-          noneStatus: false
-        }]
-      })
     }
-  }
 
-  resetBodyType(type) {
-    if (type !== this.endpForm.value.body?.type) {
-      switch (type) {
-        case 'raw':
-          setTimeout(() => {
-            this.endpForm.patchValue({ body: { data: { type: 'object' } } })
-          }, 0);
-          break;
-        case 'x-www-form-urlencoded':
-        case 'form-data':
-          setTimeout(() => {
-            this.endpForm.patchValue({ body: { data: [] } })
-          }, 0);
-      }
-    }
-  }
+    checkForPathParams() {
+        var path = this.endpForm.value.path, error = false;
+        if (path.indexOf('?') >= 0) {
+            this.toaster.error("Query params can't be added here to the path property. Add them in Query Params section below.")
+            this.endpForm.patchValue({ path: path.replace(/\?/g, '') });
+            return;
+        }
 
-  discardChange() {
-    this.handleEndpSelect(this.selectedEndp._id)
-  }
+        var params = [],
+            rxp = /{([^}]+)}/g,
+            curMatch;
 
-  setDirty() {
-    this.endpForm.markAsDirty();
-  }
+        while (curMatch = rxp.exec(path)) {
+            var match = curMatch[1];
+            if (match.match(/^[a-z0-9_]+$/i)) {
+                params.push(match);
+            } else {
+                error = true;
+            }
+        }
 
-  prerunUpdated(newVal) {
-    if (newVal != this.endpForm.value.prerun) {
-      this.endpForm.patchValue({ prerun: newVal });
-      this.setDirty();
-    }
-  }
+        if (error) {
+            this.toaster.warn('Path params should be alpha numeric and can only contain underscore (_). There are few in the url those are not. Please correct.');
+        }
 
-  postrunUpdated(newVal) {
-    if (newVal != this.endpForm.value.postrun) {
-      this.endpForm.patchValue({ postrun: newVal });
-      this.setDirty();
-    }
-  }
+        let pathParams = Utils.clone(this.endpForm.value.pathParams);
+        let traitPathParams = this.endpForm.value.traits.map(trait => {
+            return ApiProjectUtils.getTraitPathParamNames(trait._id, this.selectedPROJ);
+        }).flat();
 
-  checkExistingEndp(name: string) {
-    if (!name) return false;
-
-    return this.selectedPROJ?.endpoints && Object.values(this.selectedPROJ.endpoints).find((e: ApiEndp) => e.summary.toLowerCase() ===
-      name.toLowerCase()) !== undefined;
-  }
-
-  isEditing() {
-    return !(this.selectedEndp._id === 'NEW');
-  }
-
-  trackByFn(index, item) {
-    return index;
-  }
-
-  canDeactivate() {
-    return new Promise<boolean>((resolve) => {
-      if (this.endpForm.dirty) {
-        this.confirmService.confirm({
-          confirmTitle: 'Unsaved data !',
-          confirm: 'Endpoint view has some unsaved data. Current action will discard any unsave changes.',
-          confirmOk: 'Discard',
-          confirmCancel: 'No, let me save'
-        }).then(() => {
-          resolve(true)
-        }).catch(() => {
-          resolve(false)
+        Utils.objectKeys(pathParams.properties).forEach(key => {
+            if (!traitPathParams.includes(key)) {
+                delete pathParams.properties[key];
+                pathParams.required = pathParams.required.filter(e => e !== key);
+            }
         })
-      } else {
-        resolve(true)
-      }
-    })
-  }
 
-  run(endpId: string) {
-    this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
-  }
-
-  openTestBuilder(entity) {
-    let top = document.querySelector('.designer-cont').scrollTop;
-    this.testBuilderOpt = {
-      parent: entity._parent.replace('##ROOT##', 'data'),
-      key: entity._key,
-      val: entity._default,
-      showRun: false,
-      show: true,
-      top: entity.top + top - 100
+        params.forEach(p => {
+            if (!pathParams.properties[p]) {
+                pathParams.properties[p] = { "type": "string" };
+                pathParams.required.push(p)
+            };
+        })
+        this.endpForm.patchValue({ pathParams })
     }
-  }
 
-  saveBuilderTests({ tests, autoSave }: TestBuilderSave) {
-    this.endpForm.patchValue({ postrun: this.endpForm.value.postrun + '\n' + tests });
-    this.testBuilderOpt.show = false;
-    // if (METHOD_WITH_BODY.includes(this.endpForm.value.method.toUpperCase())) {
-    //   this.selectedTab.setValue(5)
-    // } else {
-    //   this.selectedTab.setValue(4)
-    // }
-    if (autoSave) {
-      this.createEndp();
-    } else {
-      this.toaster.info('Test added to postrun scripts.')
+    importTraitData(traitId) {
+        let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8() };
+        endp = ApiProjectUtils.importTraitData(traitId, endp, this.selectedPROJ);
+        let { pathParams, queryParams, headers, responses } = endp;
+        this.endpForm.patchValue({ pathParams, queryParams, headers, responses })
+        this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(traitId, this.selectedPROJ)]
+        this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(traitId, this.selectedPROJ)]
     }
-  }
 
-  ngOnDestroy(): void {
-    this._destroy.next(true);
-    this._destroy.complete();
-  }
+    onTraitRemove(traitId: string) {
+        let { responses, pathParams, headers, queryParams } = ApiProjectUtils.removeTraitData(traitId, this.endpForm.value, this.selectedPROJ);
+        this.endpForm.patchValue({ responses, pathParams, headers, queryParams });
+        this.checkForPathParams();
+    }
 
-  ngOnInit(): void { }
+    async duplicateEndp(id: string) {
+        var toCopy: ApiEndp = { ...this.selectedPROJ.endpoints[id] };
+        toCopy._id = apic.s12();
+        while (this.checkExistingEndp(toCopy.summary)) {
+            var counter = parseInt(toCopy.summary.charAt(toCopy.summary.length - 1));
+            var numberAtEnd = true;
+            if (isNaN(counter)) {
+                counter = 0;
+                numberAtEnd = false;
+            }
+            counter++;
+            toCopy.summary =
+                (numberAtEnd
+                    ? toCopy.summary.substring(0, toCopy.summary.length - 1)
+                    : toCopy.summary
+                ).trim() +
+                ' ' +
+                counter;
+        }
+        let project: ApiProject = { ...this.selectedPROJ, endpoints: { ...this.selectedPROJ.endpoints, [toCopy._id]: toCopy } }
+        try {
+            await this.apiProjService.updateAPIProject(project)
+            this.toaster.success('Duplicate endpoint ' + toCopy.summary + ' created.');
+        } catch (e) {
+            this.toaster.error(`Failed to duplicate: ${e?.message || e || ''}`);
+        }
+    }
+
+    deleteEndp(endpId: string) {
+        if (!endpId || !this.selectedPROJ.endpoints) return;
+
+        const { [endpId]: toRemove, ...remaining } = this.selectedPROJ.endpoints;
+        let project: ApiProject = { ...this.selectedPROJ, endpoints: remaining }
+
+        this.confirmService
+            .confirm({
+                confirmTitle: 'Delete Confirmation',
+                confirm: `Do you want to delete the endpoint '${toRemove.summary}'?`,
+                confirmOk: 'Delete',
+                confirmCancel: 'Cancel',
+            })
+            .then(async () => {
+                delete project.endpoints[endpId];
+                try {
+                    await this.apiProjService.updateAPIProject(project)
+                    this.toaster.success('Endpoint deleted.');
+                    this.endpForm.markAsPristine();
+                    this.router.navigate(['../', 'new'], { relativeTo: this.route })
+                } catch (e) {
+                    console.error('Failed to delete endpoint', e);
+                    this.toaster.error(`Failed to delete endpoint: ${e?.message || e || ''}`);
+
+                }
+            });
+    }
+
+    addDefaultResponse() {
+        if (this.endpForm.controls['responses'].value.length === 0) {
+            this.endpForm.patchValue({
+                responses: [{
+                    code: '200',
+                    data: [{
+                        schema: { type: 'object' },
+                        mime: 'application/json',
+                        examples: []
+                    }],
+                    desc: '',
+                    noneStatus: false
+                }]
+            })
+        }
+    }
+
+    resetBodyType(type) {
+        if (type !== this.endpForm.value.body?.type) {
+            switch (type) {
+                case 'raw':
+                    setTimeout(() => {
+                        this.endpForm.patchValue({ body: { data: { type: 'object' } } })
+                    }, 0);
+                    break;
+                case 'x-www-form-urlencoded':
+                case 'form-data':
+                    setTimeout(() => {
+                        this.endpForm.patchValue({ body: { data: [] } })
+                    }, 0);
+            }
+        }
+    }
+
+    discardChange() {
+        this.handleEndpSelect(this.selectedEndp._id)
+    }
+
+    setDirty() {
+        this.endpForm.markAsDirty();
+    }
+
+    prerunUpdated(newVal) {
+        if (newVal != this.endpForm.value.prerun) {
+            this.endpForm.patchValue({ prerun: newVal });
+            this.setDirty();
+        }
+    }
+
+    postrunUpdated(newVal) {
+        if (newVal != this.endpForm.value.postrun) {
+            this.endpForm.patchValue({ postrun: newVal });
+            this.setDirty();
+        }
+    }
+
+    checkExistingEndp(name: string) {
+        if (!name) return false;
+
+        return this.selectedPROJ?.endpoints && Object.values(this.selectedPROJ.endpoints).find((e: ApiEndp) => e.summary.toLowerCase() ===
+            name.toLowerCase()) !== undefined;
+    }
+
+    isEditing() {
+        return !(this.selectedEndp._id === 'NEW');
+    }
+
+    trackByFn(index, item) {
+        return index;
+    }
+
+    canDeactivate() {
+        return new Promise<boolean>((resolve) => {
+            if (this.endpForm.dirty) {
+                this.confirmService.confirm({
+                    confirmTitle: 'Unsaved data !',
+                    confirm: 'Endpoint view has some unsaved data. Current action will discard any unsave changes.',
+                    confirmOk: 'Discard',
+                    confirmCancel: 'No, let me save'
+                }).then(() => {
+                    resolve(true)
+                }).catch(() => {
+                    resolve(false)
+                })
+            } else {
+                resolve(true)
+            }
+        })
+    }
+
+    run(endpId: string) {
+        this.apiProjectDetailService.runEndp(endpId, this.selectedPROJ);
+    }
+
+    openTestBuilder(event: SchemaClickOpenEvent) {
+        let top = document.querySelector('.designer-cont').scrollTop;
+        this.testBuilderOpt = {
+            parent: event.entity._parent.replace('##ROOT##', 'data'),
+            key: event.entity._key,
+            val: event.entity._default,
+            showRun: false,
+            show: true,
+            top: event.clientY + top - 100
+        }
+    }
+
+    saveBuilderTests({ tests, autoSave }: TestBuilderSave) {
+        this.endpForm.patchValue({ postrun: this.endpForm.value.postrun + '\n' + tests });
+        this.testBuilderOpt.show = false;
+        // if (METHOD_WITH_BODY.includes(this.endpForm.value.method.toUpperCase())) {
+        //   this.selectedTab.setValue(5)
+        // } else {
+        //   this.selectedTab.setValue(4)
+        // }
+        if (autoSave) {
+            this.createEndp();
+        } else {
+            this.toaster.info('Test added to postrun scripts.')
+        }
+    }
+
+    ngOnDestroy(): void {
+        this._destroy.next(true);
+        this._destroy.complete();
+    }
+
+    ngOnInit(): void { }
 }

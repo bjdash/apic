@@ -40,7 +40,7 @@ const routes: Routes = [
     path: 'designer/:projectId',
     component: ApiProjectDetailComponent,
     data: {
-      reuse: true
+      reuse: false
     },
     children: [
       { path: '', component: ProjectHomeComponent, pathMatch: 'full' },

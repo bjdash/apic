@@ -135,12 +135,20 @@ function validateSchema(code) {
     if (code !== undefined && $request.respCodes) {
         let codeStr = `${code}`;
         //code = code.toString();
-        var schema = $request.respCodes.find(resp => resp.code == codeStr);
+        var response = $request.respCodes.find(resp => resp.code == codeStr);
+        //response schema is defined against content type so try to find the schema defined against current response content type header else fallback to application/json or at index 0
+        let schema = response.data.find(respItem => {return (respItem.mime == $response.headers['content-type']) || ($response.headers['content-type']?.indexOf(respItem.mime) == 0)})?.schema;
+        if(!schema){
+            schema = response.data.find(respItem => respItem.mime === 'application/json')?.schema;
+        }
+        if(!schema){
+            schema = response.data?.[0]?.schema;
+        }
 
         if (!schema) return false;
         // @ts-ignore
         var a = new Ajv();
-        valid = a.validate(schema.data, $response.data);
+        valid = a.validate(schema, $response.data);
         //var validate = a.compile(schema);
         //valid = validate(reqObj.response.data);
     }

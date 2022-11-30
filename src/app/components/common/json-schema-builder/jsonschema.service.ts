@@ -1,7 +1,6 @@
 
 export class JsonSchemaService {
 
-  xxxID = Math.random();
   private ENTITY_DEFAULTS = {
     _key: '',
     _title: '',
@@ -814,6 +813,14 @@ export class JsonSchemaService {
         else {
           console.warn('Unknown schema value', schemaObj); return '?';
         }
+    }
+  }
+
+  static getEmptySchema():{type:'object', properties?:{[key:string]:any}, required:string[]}{
+    return {
+      type:'object',
+      properties:{},
+      required:[]
     }
   }
 }

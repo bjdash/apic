@@ -220,7 +220,8 @@
                         </pre-post-run-script>
                     </div>
                     <div class="control-content" *ngIf="flags.reqTab == 'Schema'">
-                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="respCodes">
+                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="respCodes"
+                            [options]="{showOnlySchemaBuilder:true}">
                         </response-schema-builder>
                     </div>
                 </div>

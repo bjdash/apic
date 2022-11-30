@@ -33,7 +33,7 @@ export class ProjectExampleComponent {
     ) {
 
         this.exampleForm = this.fb.group({
-            name: ['', [Validators.required, Validators.maxLength(100)]],
+            name: ['', [Validators.required, Validators.maxLength(100), Validators.pattern(/^[a-zA-Z0-9\-\_]+$/)]],
             summary: [[]],
             folder: [''],
             description: [''],

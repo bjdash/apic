@@ -14,9 +14,9 @@ export class ApiProjectUtils {
             if (!resp.noneStatus) {
                 let existing = responses.findIndex(r => r.code == resp.code);
                 if (existing >= 0) {
-                    responses[existing] = { ...resp, fromTrait: true, traitId, traitName: trait.name }
+                    responses[existing] = { ...resp, importedVia: 'Trait', traitId, importedViaName: trait.name }
                 } else {
-                    responses.push({ ...resp, fromTrait: true, traitId, traitName: trait.name })
+                    responses.push({ ...resp, importedVia: 'Trait', traitId, importedViaName: trait.name })
                 }
             }
         })
@@ -63,7 +63,8 @@ export class ApiProjectUtils {
         if (!traitId) return;
 
         // remove responses from endpoint belonging to this trait
-        let responses = endpoint.responses.filter(resp => resp.traitId !== traitId);
+        //Ignore any imported via named response
+        let responses = endpoint.responses.filter(resp => resp.traitId !== traitId || resp.importedVia != 'Trait');
 
         var trait: ApiTrait = project.traits[traitId];
 
@@ -127,7 +128,10 @@ export class ApiProjectUtils {
                     if (resp.noneStatus) {
                         traitsModel.push({
                             name: resp.code,
-                            data: resp.data
+                            data: resp.data,
+                            desc: resp.desc,
+                            headers: resp.headers,
+                            traitId: trait._id
                         })
                     }
                 });
