@@ -129,7 +129,7 @@ export class ResponseSchemaBuilderComponent implements OnInit, ControlValueAcces
             this.paused$.next(true);
             let { data, code, noneStatus, importedVia, traitId, importedViaName } = this.responses[index];
             this.selectedRespForm.patchValue({ code, noneStatus, importedVia, traitId, importedViaName });
-            if (this.options.showOnlySchemaBuilder) {
+            if (!this.options.showOnlySchemaBuilder) {
                 let { desc, headers } = this.responses[index];
                 this.selectedRespForm.patchValue({ desc, headers: (headers || { type: 'object' }) });
             }
