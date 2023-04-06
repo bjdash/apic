@@ -33,15 +33,15 @@
       <input class="form-control" *ngIf="options.valueFieldType == 'plainText'" (focus)="onRowFocus(last, i)"
         [formControl]="kv.controls.val" [placeholder]="options.placeholderVal" />
       <apic-rich-input [formControl]="kv.controls.val" class="form-control" (focus)="onRowFocus(last, i)"
-        *ngIf="options.valueFieldType == 'richText' || (options.valueFieldType == 'fileAndText' && kv.controls.type?.value=='text')"
+        *ngIf="options.valueFieldType == 'richText' || (options.valueFieldType == 'fileAndText' && kv.controls.type?.value !=='file')"
         [placeholder]="options.placeholderVal">
       </apic-rich-input>
-      <select [formControl]="kv.controls.val" class="form-control" *ngIf="options.valueFieldType =='select'">
+      <select [formControl]="kv.controls.val" class="form-control" *ngIf="options.valueFieldType === 'select'">
         <option *ngFor="let op of valueOptions | orderBy: 'name'" [value]="op._id">{{op.name}}</option>
       </select>
 
-      <div *ngIf="options.valueFieldType == 'jsonText'" class="aceCont">
-        <label>x-propertyValue</label>
+      <div *ngIf="options.valueFieldType === 'jsonText'" class="aceCont">
+        <label>x-property value:</label>
         <div class="btn-group toggle-group" role="group">
           <button type="button" mat-button [ngClass]="kv.controls.type.value == 'text'? 't_bg t_border':''" class="xs"
             (click)="toggleAceType(i, 'text')">TEXT</button>

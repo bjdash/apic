@@ -104,6 +104,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
               return { ...d, val: jsonVal }
             })
           }
+          this.propagateChange(data)
         })
     }
   }
@@ -155,7 +156,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
 
       return this.fb.group({
         key: [kv.key || ''],
-        val: [kv.val || ''],
+        val: [val || ''],
         type: [type],
         //if checkbox is enabled and kv pair doesnt have an active property then set it to true by default
         ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] }),
@@ -216,6 +217,6 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
 
   toggleAceType(index, type) {
     this.keyValueForm.at(index).patchValue({ type });
-    this.keyValueForm.updateValueAndValidity({ onlySelf: false, emitEvent: true })
+    this.keyValueForm.updateValueAndValidity({ onlySelf: false, emitEvent: true });
   }
 }

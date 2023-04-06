@@ -214,7 +214,7 @@
       <div class="pad10">
         <h2 class="t_color pointer vcenter" (click)="flags.xProp = !flags.xProp">
           <mat-icon *ngIf="!flags.xProp">chevron_right</mat-icon>
-          Additional Properties (^x-properties)
+          Additional Properties (^x-property)
         </h2>
         <div class="" *ngIf="flags.xProp">
           <app-key-value-editor formControlName="xProperties" [options]="xPropOption"></app-key-value-editor>

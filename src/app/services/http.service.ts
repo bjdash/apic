@@ -264,8 +264,8 @@ export class HttpService {
       headers: {
         accept: 'application/octet-stream, application/json',
         'content-type': 'application/json',
-        // referrer: 'https://editor.swagger.io/'
       },
+      referrer: 'https://editor.swagger.io/',
       body: JSON.stringify({ lang, spec, type }),
       method: 'POST',
       mode: 'cors',

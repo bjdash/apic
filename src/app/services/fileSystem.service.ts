@@ -23,7 +23,7 @@ export class FileSystem {
     }
     var dataUrl, blob;
     if (type === 'text') {
-      blob = new Blob([data], { type: "text/json; charset=utf-8" })
+      blob = new Blob([data], { type: "text/json;charset=utf-8" })
     } else {
       blob = data
     }
@@ -31,7 +31,8 @@ export class FileSystem {
     var dlAnchorElem = document.createElement('a');
     dlAnchorElem.setAttribute('href', dataUrl);
     dlAnchorElem.setAttribute('download', fileName);
-    document.body.appendChild(dlAnchorElem); dlAnchorElem.click();
+    document.body.appendChild(dlAnchorElem);
+    dlAnchorElem.click();
 
     setTimeout(function () {
       document.body.removeChild(dlAnchorElem);
