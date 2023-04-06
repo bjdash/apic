@@ -1,221 +1,228 @@
 <div class="content" *ngIf="selectedPROJ">
-    <div class="submodMenu">
-        <div class="submodMenuOptn">
-            <span *ngIf="selectedEndp._id === 'NEW'">
-                <button type="button" type="button" (click)="createEndp()" form="traitForm" class="sm gap"
-                    mat-raised-button color="primary">Create</button>
-                <button mat-button class="sm" type="reset" (click)="endpForm.reset()">Reset</button>
-            </span>
-            <span *ngIf="selectedEndp._id !== 'NEW'">
-                <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
-                    (click)="createEndp()">Save</button>
-                <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
-                    (click)="deleteEndp(selectedEndp._id)">Delete</button>
-                <button type="button" type="button" *ngIf="endpForm.dirty" class="sm gap" mat-button
-                    (click)="discardChange()">Discard</button>
-                <div class="bar"></div>
-                <button type="button" type="button" (click)="run(selectedEndp._id)" class="sm gap" mat-stroked-button>
-                    <mat-icon class="sm green">play_arrow</mat-icon>Run
-                </button>
-                <div class="bar"></div>
-                <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
-                    <mat-icon class="sm">add</mat-icon>New Endpoint
-                </a>
-            </span>
-        </div>
-        <div class="tip"></div>
-    </div>
-
-    <h4 class="t_color head vcenter">
-        <span class="gap">Endpoints:</span>
-        <div class="margL10">
-            <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="endpsList">
-                <span class="gap">{{selectedEndp.summary||'Create new endpoint'}}</span>
-                <span *ngIf="endpForm.dirty">(Unsaved)</span>
-                <mat-icon>arrow_drop_down</mat-icon>
-            </button>
-            <mat-menu #endpsList="matMenu">
-                <a href="" mat-menu-item [routerLink]="['../', 'new']">Create new Endpoint</a>
-                <mat-divider></mat-divider>
-                <a href="" *ngFor="let endp of selectedPROJ.endpoints | keyvalue" [routerLink]="['../', endp.value._id]"
-                    mat-menu-item>{{endp.value.summary}}</a>
-            </mat-menu>
-        </div>
-        <a class="f18 pull-right" mat-icon-button href="https://docs.apic.app/designer/create-endpoint" target="_new">
-            <mat-icon>help</mat-icon>
+  <div class="submodMenu">
+    <div class="submodMenuOptn">
+      <span *ngIf="selectedEndp?._id === 'NEW'">
+        <button type="button" type="button" (click)="createEndp()" form="traitForm" class="sm gap" mat-raised-button
+          color="primary">Create</button>
+        <button mat-button class="sm" type="reset" (click)="endpForm.reset()">Reset</button>
+      </span>
+      <span *ngIf="selectedEndp._id !== 'NEW'">
+        <button type="button" type="button" form="traitForm" class="sm gap" mat-raised-button color="primary"
+          (click)="createEndp()">Save</button>
+        <button type="button" type="button" class="sm gap" mat-raised-button color="warn"
+          (click)="deleteEndp(selectedEndp._id)">Delete</button>
+        <button type="button" type="button" *ngIf="endpForm.dirty" class="sm gap" mat-button
+          (click)="discardChange()">Discard</button>
+        <div class="bar"></div>
+        <button type="button" type="button" (click)="run(selectedEndp._id)" class="sm gap" mat-stroked-button>
+          <mat-icon class="sm green">play_arrow</mat-icon>Run
+        </button>
+        <div class="bar"></div>
+        <a href="" type="button" type="button" [routerLink]="['../', 'new']" class="sm gap" mat-stroked-button>
+          <mat-icon class="sm">add</mat-icon>New Endpoint
         </a>
-    </h4>
-
-    <div>
-        <form class="form-horizontal form-compact " [formGroup]="endpForm" id="endpForm" (submit)="createEndp()">
-            <div class="row">
-                <label class="control-label col-sm-2">URL: <span class="red">*</span></label>
-                <div class="col-sm-2">
-                    <select class="form-control center" formControlName="method">
-                        <option *ngFor="let method of HTTP_METHODS" [value]="method.toLowerCase()">{{method}}</option>
-                    </select>
-                </div>
-                <div class="col-sm-7">
-                    <input type="text" (input)="checkForPathParams()" class="form-control" required=""
-                        placeholder="Eg: /user  or  /user/{id}/detail" maxlength="255" formControlName="path">
-                </div>
-            </div>
-
-            <div class="row">
-                <label class="control-label col-sm-2">Name/Summary: <span class="red">*</span></label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" required="" placeholder="Endpoint Name/Summary"
-                        maxlength="255" formControlName="summary">
-                </div>
-            </div>
-
-            <div class="row">
-                <label class="control-label col-sm-2">Folder: </label>
-                <div class="col-sm-8">
-                    <mat-select formControlName="folder">
-                        <mat-option value="">Un-grouped</mat-option>
-                        <mat-divider></mat-divider>
-                        <mat-option *ngFor="let folder of selectedPROJ.folders | keyvalue" [value]="folder.value._id">
-                            {{folder.value.name}}
-                        </mat-option>
-                    </mat-select>
-                </div>
-            </div>
-
-            <div class="row">
-                <label class="control-label col-sm-2">
-                    <a class="f18 icon-sm" mat-icon-button href="https://docs.apic.app/designer/create-trait"
-                        target="_new">
-                        <mat-icon class="sm">help</mat-icon>
-                    </a>
-                    Traits:
-                </label>
-                <div class="col-sm-8">
-                    <apic-tag-editor (onAdd)="importTraitData($event._id)" (onRemove)="onTraitRemove($event._id)"
-                        formControlName="traits" [suggestions]="selectedPROJ.traits" key="_id" dispValue="name"
-                        type="strict">
-                    </apic-tag-editor>
-                </div>
-            </div>
-
-            <div class="vcenter endp_more" [ngClass]="flags.more?'open':''" (click)="flags.more = !flags.more">
-                <button type="button" mat-icon-button>
-                    <mat-icon *ngIf="flags.more">expand_more</mat-icon>
-                    <mat-icon *ngIf="!flags.more">chevron_right</mat-icon>
-                </button>
-                <span [hidden]="flags.more" class="t_color">Show more</span>
-            </div>
-
-            <div [hidden]="!flags.more">
-                <div class="row">
-                    <label class="control-label col-sm-2">Tags:</label>
-                    <div class="col-sm-8">
-                        <apic-tag-editor formControlName="tags" type="freeForm" [suggestions]="selectedPROJ.tags"
-                            key="name" dispValue="name"></apic-tag-editor>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <label class="control-label col-sm-2">
-                        <a class="f18 icon-sm" mat-icon-button
-                            href="https://docs.apic.app/designer/api-security-definitions" target="_new">
-                            <mat-icon class="sm">help</mat-icon>
-                        </a>
-                        Security:
-                    </label>
-                    <div class="col-sm-8">
-                        <apic-tag-editor formControlName="security" [suggestions]="selectedPROJ.securityDefinitions"
-                            key="name" dispValue="name" type="strict">
-                        </apic-tag-editor>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <label class="control-label col-sm-2">Schemes: </label>
-                    <div class="col-sm-4">
-                        <apic-tag-editor formControlName="schemes" [suggestions]="schemesSugg" placeholder="Schemes"
-                            key="key" dispValue="val" type="strict">
-                        </apic-tag-editor>
-                    </div>
-                    <label class="control-label col-sm-2">Operation Id:</label>
-                    <div class="col-sm-4">
-                        <input type="text" class="form-control" maxlength="255" formControlName="operationId">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <label class="control-label col-sm-2">Description: </label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" formControlName="description"></textarea>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <label class="control-label col-sm-2" for="deprecated_endp">Deprecated: </label>
-                    <div class="col-sm-10">
-                        <mat-checkbox formControlName="deprecated" id="deprecated_endp"></mat-checkbox>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pad10">
-                <h2 class="t_color pointer vcenter" (click)="flags.showReq = !flags.showReq">
-                    <mat-icon *ngIf="!flags.showReq">chevron_right</mat-icon>
-                    Request
-                </h2>
-                <mat-tab-group class="margV10" animationDuration="0ms" *ngIf="flags.showReq">
-                    <mat-tab label="Request body"
-                        *ngIf="METHOD_WITH_BODY.includes(endpForm.value.method.toUpperCase())">
-                        <media-type-schema-builder formControlName="body" [project]="selectedPROJ"
-                            (onChange)="setDirty()"></media-type-schema-builder>
-                    </mat-tab>
-                    <mat-tab label="Path Params">
-                        <ng-jsonschema
-                            [options]="{mode:'list', disableManualAdd:true, disabledKeys:flags.traitPP, listModeMsg:'Path params can be specified in the URL section above using a pair of {}. Eg: /user/{id}'}"
-                            (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
-                        </ng-jsonschema>
-                    </mat-tab>
-                    <mat-tab label="Query Params">
-                        <ng-jsonschema [models]="selectedPROJ.models"
-                            [options]="{mode:'list', disabledKeys:flags.traitQP, listModeMsg:'Define Query params here and reuse them with endpoints.'}"
-                            (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams">
-                        </ng-jsonschema>
-                    </mat-tab>
-                    <mat-tab label="Request Headers">
-                        <ng-jsonschema [models]="selectedPROJ.models"
-                            [options]="{mode:'list', disabledKeys:flags.traitHP, listModeMsg:'Define Request Headers here.'}"
-                            (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
-                    </mat-tab>
-                </mat-tab-group>
-            </div>
-
-            <div class="pad10">
-                <h2 class="t_color pointer vcenter" (click)="flags.showResp = !flags.showResp">
-                    <mat-icon *ngIf="!flags.showResp">chevron_right</mat-icon>
-                    Response
-                </h2>
-                <div class="" *ngIf="flags.showResp">
-                    <response-schema-builder [project]="selectedPROJ" [responsesModels]="traitResponses"
-                        [options]="{showTestBuilder:true}" [onChange]="setDirty.bind(this)"
-                        (onTestBuilder)="openTestBuilder($event)" formControlName="responses">
-                    </response-schema-builder>
-                </div>
-            </div>
-
-            <div>
-                <h2 class="t_color pointer vcenter" (click)="flags.showTest = !flags.showTest">
-                    <mat-icon *ngIf="!flags.showTest">chevron_right</mat-icon>
-                    Test Scripts
-                </h2>
-                <div class="pad10" *ngIf="flags.showTest">
-                    <pre-post-run-script [prerun]="endpForm.value.prerun" [postrun]="endpForm.value.postrun"
-                        (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
-                    </pre-post-run-script>
-                </div>
-            </div>
-        </form>
-        <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt" (close)="testBuilderOpt.show=false"
-            (onSave)="saveBuilderTests($event)">
-        </json-test-builder>
+      </span>
     </div>
+    <div class="tip"></div>
+  </div>
+
+  <h4 class="t_color head vcenter">
+    <span class="gap">Endpoints:</span>
+    <div class="margL10">
+      <button mat-stroked-button="" class="sm gap" [matMenuTriggerFor]="endpsList">
+        <span class="gap">{{selectedEndp.summary||'Create new endpoint'}}</span>
+        <span *ngIf="endpForm.dirty">(Unsaved)</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #endpsList="matMenu">
+        <a href="" mat-menu-item [routerLink]="['../', 'new']">Create new Endpoint</a>
+        <mat-divider></mat-divider>
+        <a href="" *ngFor="let endp of selectedPROJ.endpoints | keyvalue" [routerLink]="['../', endp.value._id]"
+          mat-menu-item>{{endp.value.summary}}</a>
+      </mat-menu>
+    </div>
+    <a class="f18 pull-right" mat-icon-button href="https://docs.apic.app/designer/create-endpoint" target="_new">
+      <mat-icon>help</mat-icon>
+    </a>
+  </h4>
+
+  <div>
+    <form class="form-horizontal form-compact " [formGroup]="endpForm" id="endpForm" (submit)="createEndp()">
+      <div class="row">
+        <label class="control-label col-sm-2">URL: <span class="red">*</span></label>
+        <div class="col-sm-2">
+          <select class="form-control center" formControlName="method">
+            <option *ngFor="let method of HTTP_METHODS" [value]="method.toLowerCase()">{{method}}</option>
+          </select>
+        </div>
+        <div class="col-sm-7">
+          <input type="text" (input)="checkForPathParams()" class="form-control" required=""
+            placeholder="Eg: /user  or  /user/{id}/detail" maxlength="255" formControlName="path">
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="control-label col-sm-2">Name/Summary: <span class="red">*</span></label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" required="" placeholder="Endpoint Name/Summary" maxlength="255"
+            formControlName="summary">
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="control-label col-sm-2">Folder: </label>
+        <div class="col-sm-8">
+          <mat-select formControlName="folder">
+            <mat-option value="">Un-grouped</mat-option>
+            <mat-divider></mat-divider>
+            <mat-option *ngFor="let folder of selectedPROJ.folders | keyvalue" [value]="folder.value._id">
+              {{folder.value.name}}
+            </mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="control-label col-sm-2">
+          <a class="f18 icon-sm" mat-icon-button href="https://docs.apic.app/designer/create-trait" target="_new">
+            <mat-icon class="sm">help</mat-icon>
+          </a>
+          Traits:
+        </label>
+        <div class="col-sm-8">
+          <apic-tag-editor (onAdd)="importTraitData($event._id)" (onRemove)="onTraitRemove($event._id)"
+            formControlName="traits" [suggestions]="selectedPROJ.traits" key="_id" dispValue="name" type="strict">
+          </apic-tag-editor>
+        </div>
+      </div>
+
+      <div class="vcenter endp_more" [ngClass]="flags.more?'open':''" (click)="flags.more = !flags.more">
+        <button type="button" mat-icon-button>
+          <mat-icon *ngIf="flags.more">expand_more</mat-icon>
+          <mat-icon *ngIf="!flags.more">chevron_right</mat-icon>
+        </button>
+        <span [hidden]="flags.more" class="t_color">Show more</span>
+      </div>
+
+      <div [hidden]="!flags.more">
+        <div class="row">
+          <label class="control-label col-sm-2">Tags:</label>
+          <div class="col-sm-8">
+            <apic-tag-editor formControlName="tags" type="freeForm" [suggestions]="selectedPROJ.tags" key="name"
+              dispValue="name"></apic-tag-editor>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="control-label col-sm-2">
+            <a class="f18 icon-sm" mat-icon-button href="https://docs.apic.app/designer/api-security-definitions"
+              target="_new">
+              <mat-icon class="sm">help</mat-icon>
+            </a>
+            Security:
+          </label>
+          <div class="col-sm-8">
+            <apic-tag-editor formControlName="security" [suggestions]="selectedPROJ.securityDefinitions" key="name"
+              dispValue="name" type="strict">
+            </apic-tag-editor>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="control-label col-sm-2">Schemes: </label>
+          <div class="col-sm-4">
+            <apic-tag-editor formControlName="schemes" [suggestions]="schemesSugg" placeholder="Schemes" key="key"
+              dispValue="val" type="strict">
+            </apic-tag-editor>
+          </div>
+          <label class="control-label col-sm-2">Operation Id:</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" maxlength="255" formControlName="operationId">
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="control-label col-sm-2">Description: </label>
+          <div class="col-sm-10">
+            <textarea class="form-control" formControlName="description"></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="control-label col-sm-2" for="deprecated_endp">Deprecated: </label>
+          <div class="col-sm-10">
+            <mat-checkbox formControlName="deprecated" id="deprecated_endp"></mat-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div class="pad10">
+        <h2 class="t_color pointer vcenter" (click)="flags.showReq = !flags.showReq">
+          <mat-icon *ngIf="!flags.showReq">chevron_right</mat-icon>
+          Request
+        </h2>
+        <mat-tab-group class="margV10" animationDuration="0ms" *ngIf="flags.showReq">
+          <mat-tab label="Request body" *ngIf="METHOD_WITH_BODY.includes(endpForm.value.method.toUpperCase())">
+            <media-type-schema-builder formControlName="body" [project]="selectedPROJ"
+              (onChange)="setDirty()"></media-type-schema-builder>
+          </mat-tab>
+          <mat-tab label="Path Params">
+            <ng-jsonschema
+              [options]="{mode:'list', disableManualAdd:true, disabledKeys:flags.traitPP, listModeMsg:'Path params can be specified in the URL section above using a pair of {}. Eg: /user/{id}'}"
+              (onSchemaChange)="setDirty()" name="pathParams" formControlName="pathParams" mode="static">
+            </ng-jsonschema>
+          </mat-tab>
+          <mat-tab label="Query Params">
+            <ng-jsonschema [models]="selectedPROJ.models"
+              [options]="{mode:'list', disabledKeys:flags.traitQP, listModeMsg:'Define Query params here and reuse them with endpoints.'}"
+              (onSchemaChange)="setDirty()" name="queryParams" formControlName="queryParams">
+            </ng-jsonschema>
+          </mat-tab>
+          <mat-tab label="Request Headers">
+            <ng-jsonschema [models]="selectedPROJ.models"
+              [options]="{mode:'list', disabledKeys:flags.traitHP, listModeMsg:'Define Request Headers here.'}"
+              (onSchemaChange)="setDirty()" name="headers" formControlName="headers"></ng-jsonschema>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+
+      <div class="pad10">
+        <h2 class="t_color pointer vcenter" (click)="flags.showResp = !flags.showResp">
+          <mat-icon *ngIf="!flags.showResp">chevron_right</mat-icon>
+          Response
+        </h2>
+        <div class="" *ngIf="flags.showResp">
+          <response-schema-builder [project]="selectedPROJ" [responsesModels]="traitResponses"
+            [options]="{showTestBuilder:true}" [onChange]="setDirty.bind(this)"
+            (onTestBuilder)="openTestBuilder($event)" formControlName="responses">
+          </response-schema-builder>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="t_color pointer vcenter" (click)="flags.showTest = !flags.showTest">
+          <mat-icon *ngIf="!flags.showTest">chevron_right</mat-icon>
+          Test Scripts
+        </h2>
+        <div class="pad10" *ngIf="flags.showTest">
+          <pre-post-run-script [prerun]="endpForm.value.prerun" [postrun]="endpForm.value.postrun"
+            (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
+          </pre-post-run-script>
+        </div>
+      </div>
+
+      <div class="pad10">
+        <h2 class="t_color pointer vcenter" (click)="flags.xProp = !flags.xProp">
+          <mat-icon *ngIf="!flags.xProp">chevron_right</mat-icon>
+          Additional Properties (^x-properties)
+        </h2>
+        <div class="" *ngIf="flags.xProp">
+          <app-key-value-editor formControlName="xProperties" [options]="xPropOption"></app-key-value-editor>
+        </div>
+      </div>
+    </form>
+    <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt" (close)="testBuilderOpt.show=false"
+      (onSave)="saveBuilderTests($event)">
+    </json-test-builder>
+  </div>
 </div>

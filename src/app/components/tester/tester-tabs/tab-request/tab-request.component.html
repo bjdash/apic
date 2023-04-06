@@ -1,422 +1,416 @@
 <div class="test-tab-cont tab-req" [ngClass]="{'suit-tab':suiteRequest}">
-    <form [formGroup]="form" autocomplete="off">
-        <div class="url-cont" *ngIf="!suiteRequest">
-            <div class="progress-holder">
-                <div class="progress-bar" *ngIf="flags.running"></div>
-            </div>
-            <div class="vcenter">
-                <apic-rich-input class="URL" formControlName="url" placeholder="Request URL"></apic-rich-input>
-                <span class="url-opt vcenter">
-                    <button matTooltip="Click & hold to view compiled url" type="button" mat-icon-button class="sm"
-                        (mousedown)="showCompiledUrl()" (mouseup)="hideCompiledUrl()" matTooltipClass="url-pop">
-                        <mat-icon>visibility</mat-icon>
-                    </button>
-                    <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url"
-                        matTooltipPosition="left" (click)="copyCompiledUrl()">
-                        <mat-icon>content_copy</mat-icon>
-                    </button>
-                    <mat-select formControlName="method">
-                        <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
-                    </mat-select>
-                    <button mat-button class="run" (click)="doSingleRun()" *ngIf="!flags.running">Run</button>
-                    <button mat-button class="abort" (click)="abortRun()" *ngIf="flags.running">Abort</button>
-                    <button mat-button class="run-more sm" [disabled]="flags.running" [matMenuTriggerFor]="runLoop"
-                        #runLoopTrigger="matMenuTrigger">
-                        <mat-icon class="sm">arrow_drop_down</mat-icon>
-                    </button>
-                </span>
-                <mat-menu #runLoop="matMenu">
-                    <div class="loopRunInp" (click)="$event.stopPropagation()">
-                        <span>Run in loop</span>
-                        <span class="input-group">
-                            <input type="number" placeholder="Run count" class="form-control"
-                                [(ngModel)]="flags.runCount" [ngModelOptions]="{standalone: true}">
-                            <button class="sm t_border" mat-stroked-button (click)="startLoopRun()">Run</button>
-                        </span>
-                    </div>
-                </mat-menu>
-            </div>
+  <form [formGroup]="form" autocomplete="off">
+    <div class="url-cont" *ngIf="!suiteRequest">
+      <div class="progress-holder">
+        <div class="progress-bar" *ngIf="flags.running"></div>
+      </div>
+      <div class="vcenter">
+        <apic-rich-input class="URL" formControlName="url" placeholder="Request URL"></apic-rich-input>
+        <span class="url-opt vcenter">
+          <button matTooltip="Click & hold to view compiled url" type="button" mat-icon-button class="sm"
+            (mousedown)="showCompiledUrl()" (mouseup)="hideCompiledUrl()" matTooltipClass="url-pop">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url" matTooltipPosition="left"
+            (click)="copyCompiledUrl()">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <mat-select formControlName="method">
+            <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
+          </mat-select>
+          <button mat-button class="run" (click)="doSingleRun()" *ngIf="!flags.running">Run</button>
+          <button mat-button class="abort" (click)="abortRun()" *ngIf="flags.running">Abort</button>
+          <button mat-button class="run-more sm" [disabled]="flags.running" [matMenuTriggerFor]="runLoop"
+            #runLoopTrigger="matMenuTrigger">
+            <mat-icon class="sm">arrow_drop_down</mat-icon>
+          </button>
+        </span>
+        <mat-menu #runLoop="matMenu">
+          <div class="loopRunInp" (click)="$event.stopPropagation()">
+            <span>Run in loop</span>
+            <span class="input-group">
+              <input type="number" placeholder="Run count" class="form-control" [(ngModel)]="flags.runCount"
+                [ngModelOptions]="{standalone: true}">
+              <button class="sm t_border" mat-stroked-button (click)="startLoopRun()">Run</button>
+            </span>
+          </div>
+        </mat-menu>
+      </div>
+    </div>
+    <div class="top-spacer" *ngIf="!suiteRequest"></div>
+    <!---Suit request fields--->
+    <div *ngIf="suiteRequest" class="suit-req-det">
+      <div class="row">
+        <label class="control-label col-xs-1">Name <span class="red">*</span></label>
+        <div class="control-label col-xs-4">
+          <input type="text" formControlName="name" placeholder="Request name" required=""
+            class="form-control input-sm" />
         </div>
-        <div class="top-spacer" *ngIf="!suiteRequest"></div>
-        <!---Suit request fields--->
-        <div *ngIf="suiteRequest" class="suit-req-det">
-            <div class="row">
-                <label class="control-label col-xs-1">Name <span class="red">*</span></label>
-                <div class="control-label col-xs-4">
-                    <input type="text" formControlName="name" placeholder="Request name" required=""
-                        class="form-control input-sm" />
-                </div>
-            </div>
-            <div class="row">
-                <label class="control-label col-xs-1">URL <span class="red">*</span></label>
-                <div class="col-xs-2">
-                    <mat-select formControlName="method">
-                        <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
-                    </mat-select>
-                </div>
-                <div class="col-xs-8">
-                    <apic-rich-input class="input-sm " formControlName="url" placeholder="Request URL">
-                    </apic-rich-input>
-                </div>
-            </div>
+      </div>
+      <div class="row">
+        <label class="control-label col-xs-1">URL <span class="red">*</span></label>
+        <div class="col-xs-2">
+          <mat-select formControlName="method">
+            <mat-option *ngFor="let method of httpMethods" [value]="method">{{method}}</mat-option>
+          </mat-select>
         </div>
+        <div class="col-xs-8">
+          <apic-rich-input class="input-sm " formControlName="url" placeholder="Request URL">
+          </apic-rich-input>
+        </div>
+      </div>
+    </div>
 
-        <div class="content req-box">
-            <div class="paper visibleFlow">
-                <h3 class="panel-title pointer" (click)="flags.showReq = !flags.showReq">
-                    <mat-icon *ngIf="!flags.showReq" class="sm">chevron_right</mat-icon>
-                    <span>Request</span>
-                </h3>
-                <div class="reqControls vcenter">
-                    <a class="f18 pull-right" mat-icon-button aria-label="Make an API call"
-                        href="https://docs.apic.app/tester/make-an-api-call" target="_new">
-                        <mat-icon>help</mat-icon>
-                    </a>
-                    <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadRequest"
-                        matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
-                        <mat-icon>sync</mat-icon>
-                    </button>
-                    <button class="sm t_border gap" mat-stroked-button
-                        *ngIf="selectedReq?.savedResp?.length>0 && !runResponse" (click)="loadResponse(true)">Load saved
-                        response</button>
-                    <span class="btn-group accent gap" *ngIf="!suiteRequest">
-                        <button class="sm t_border" mat-stroked-button (click)="initReqSave()"
-                            matTooltip="This is an autogenerated request from one of your saved API project's endpoint. In this tab you can only save the modifications you make to Scripts/Test. To moidify other details navigate to Designer screen."
-                            [matTooltipDisabled]="!projId" matTooltipClass="warn-tooltip">
-                            <mat-icon [ngClass]="{warning:!!projId}">save</mat-icon>
-                            <span>Save</span>
-                        </button>
-                        <mat-menu #savemenu="matMenu">
-                            <button mat-menu-item (click)="initReqSave(true)">
-                                <mat-icon>save</mat-icon> Save as
-                            </button>
-                        </mat-menu>
-                        <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
-                            <mat-icon>arrow_drop_down</mat-icon>
-                        </button>
-                    </span>
-                </div>
-                <div class="panel-body" [hidden]="!flags.showReq">
-                    <div class="controls btn-group tab-group">
-                        <button mat-button class="sm" [matBadge]="flags.urlParamsCount"
-                            [ngClass]="{'active':flags.reqTab == 'ReqParam'}"
-                            (click)="selectTab('reqTab','ReqParam')">URL Params</button>
-                        <button mat-button class="sm" [matBadge]="flags.headersCount"
-                            [ngClass]="{'active':flags.reqTab == 'Headers'}"
-                            (click)="selectTab('reqTab','Headers')">Headers</button>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab =='Body'}"
-                            [disabled]="form.value.method == 'GET'" (click)="selectTab('reqTab','Body')">Body</button>
-                        <button mat-button class="sm" [matMenuTriggerFor]="authOpts"
-                            [ngClass]="{'active':flags.reqTab.includes('auth')}" type="button">
-                            Authorization <mat-icon class="sm">arrow_drop_down</mat-icon>
-                        </button>
-                        <mat-menu #authOpts="matMenu">
-                            <button mat-menu-item (click)="removeAuthHeader()">No Auth</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','auth_basic')">Basic Auth</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','api_key')">Api Key</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','auth_bearer')">Bearer Token</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','auth_digest')">Digest Auth</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','auth_o1')">OAuth 1.0</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','auth_o2')">OAuth 2.0</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','aws_sign')">AWS Signature</button>
-                            <button mat-menu-item (click)="selectTab('reqTab','auth_hawk')">Hawk Auth</button>
-                        </mat-menu>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Scripts'}"
-                            (click)="selectTab('reqTab','Scripts')">Tests & Scripts</button>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Schema'}"
-                            (click)="selectTab('reqTab','Schema')">Schema</button>
-                    </div>
+    <div class="content req-box">
+      <div class="paper visibleFlow">
+        <h3 class="panel-title pointer" (click)="flags.showReq = !flags.showReq">
+          <mat-icon *ngIf="!flags.showReq" class="sm">chevron_right</mat-icon>
+          <span>Request</span>
+        </h3>
+        <div class="reqControls vcenter">
+          <a class="f18 pull-right" mat-icon-button aria-label="Make an API call"
+            href="https://docs.apic.app/tester/make-an-api-call" target="_new">
+            <mat-icon>help</mat-icon>
+          </a>
+          <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadRequest"
+            matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
+            <mat-icon>sync</mat-icon>
+          </button>
+          <button class="sm t_border gap" mat-stroked-button *ngIf="selectedReq?.savedResp?.length>0 && !runResponse"
+            (click)="loadResponse(true)">Load saved
+            response</button>
+          <span class="btn-group accent gap" *ngIf="!suiteRequest">
+            <button class="sm t_border" mat-stroked-button (click)="initReqSave()"
+              matTooltip="This is an autogenerated request from one of your saved API project's endpoint. In this tab you can only save the modifications you make to Scripts/Test. To moidify other details navigate to Designer screen."
+              [matTooltipDisabled]="!projId" matTooltipClass="warn-tooltip">
+              <mat-icon [ngClass]="{warning:!!projId}">save</mat-icon>
+              <span>Save</span>
+            </button>
+            <mat-menu #savemenu="matMenu">
+              <button mat-menu-item (click)="initReqSave(true)">
+                <mat-icon>save</mat-icon> Save as
+              </button>
+            </mat-menu>
+            <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
+              <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+          </span>
+        </div>
+        <div class="panel-body" [hidden]="!flags.showReq">
+          <div class="controls btn-group tab-group">
+            <button mat-button class="sm" [matBadge]="flags.urlParamsCount"
+              [ngClass]="{'active':flags.reqTab == 'ReqParam'}" (click)="selectTab('reqTab','ReqParam')">URL
+              Params</button>
+            <button mat-button class="sm" [matBadge]="flags.headersCount"
+              [ngClass]="{'active':flags.reqTab == 'Headers'}" (click)="selectTab('reqTab','Headers')">Headers</button>
+            <button mat-button class="sm" [ngClass]="{'active':flags.reqTab =='Body'}"
+              [disabled]="form.value.method == 'GET'" (click)="selectTab('reqTab','Body')">Body</button>
+            <button mat-button class="sm" [matMenuTriggerFor]="authOpts"
+              [ngClass]="{'active':flags.reqTab.includes('auth')}" type="button">
+              Authorization <mat-icon class="sm">arrow_drop_down</mat-icon>
+            </button>
+            <mat-menu #authOpts="matMenu">
+              <button mat-menu-item (click)="removeAuthHeader()">No Auth</button>
+              <button mat-menu-item (click)="selectTab('reqTab','auth_basic')">Basic Auth</button>
+              <button mat-menu-item (click)="selectTab('reqTab','api_key')">Api Key</button>
+              <button mat-menu-item (click)="selectTab('reqTab','auth_bearer')">Bearer Token</button>
+              <button mat-menu-item (click)="selectTab('reqTab','auth_digest')">Digest Auth</button>
+              <button mat-menu-item (click)="selectTab('reqTab','auth_o1')">OAuth 1.0</button>
+              <button mat-menu-item (click)="selectTab('reqTab','auth_o2')">OAuth 2.0</button>
+              <button mat-menu-item (click)="selectTab('reqTab','aws_sign')">AWS Signature</button>
+              <button mat-menu-item (click)="selectTab('reqTab','auth_hawk')">Hawk Auth</button>
+            </mat-menu>
+            <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Scripts'}"
+              (click)="selectTab('reqTab','Scripts')">Tests & Scripts</button>
+            <button mat-button class="sm" [ngClass]="{'active':flags.reqTab == 'Schema'}"
+              (click)="selectTab('reqTab','Schema')">Schema</button>
+          </div>
 
-                    <div class="control-content short" [hidden]="flags.reqTab != 'ReqParam'">
-                        <app-key-value-editor formControlName="urlParams"
-                            [options]="{addOnFocus:true,allowToggle:true, useRichText: true,placeholderKey: 'Param name'}">
-                        </app-key-value-editor>
-                    </div>
+          <div class="control-content short" [hidden]="flags.reqTab != 'ReqParam'">
+            <app-key-value-editor formControlName="urlParams"
+              [options]="{addOnFocus:true,allowToggle:true, placeholderKey: 'Param name', valueFieldType:'richText'}">
+            </app-key-value-editor>
+          </div>
 
-                    <div class="control-content short" [hidden]="flags.reqTab != 'Headers'">
-                        <app-key-value-editor formControlName="headers"
-                            [options]="{enableAutocomplete:true,autocompletes:HTTP_HEADERS,addOnFocus:true,allowToggle:true,useRichText: true, placeholderKey: 'Header name'}">
-                        </app-key-value-editor>
-                    </div>
-                    <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="body">
-                        <mat-radio-group aria-label="Select body type" formControlName="type" class="vcenter margB10">
-                            <mat-radio-button value="form-data">form-data</mat-radio-button>
-                            <mat-radio-button value="x-www-form-urlencoded">x-www-form-urlencoded</mat-radio-button>
-                            <mat-radio-button value="raw" (click)="initRawBody()">raw</mat-radio-button>
-                            <mat-select formControlName="selectedRaw" class="raw-type"
-                                [placeholder]="form.value.body.selectedRaw.name+'('+form.value.body.selectedRaw.val+')'"
-                                auto *ngIf="form.value.body.type=='raw'">
-                                <mat-option *ngFor="let type of RAW_BODY_TYPES" [value]="type">
-                                    {{type.name+'('+type.val+')'}}</mat-option>
-                            </mat-select>
-                            <mat-radio-button value="graphql">Graphql</mat-radio-button>
-                        </mat-radio-group>
-                        <div class="xtra-opt" *ngIf="form.value.body.type=='raw'">
-                            <button mat-icon-button class="sm gap" matTooltip="Beautify body" (click)="prettifyBody()">
-                                <mat-icon>code</mat-icon>
-                            </button>
-                            <button mat-button class="sm" [matMenuTriggerFor]="reqSnip">Snippets</button>
-                            <mat-menu #reqSnip="matMenu">
-                                <button mat-menu-item *ngFor="let snip of REQ_BODY_SNIPS"
-                                    (click)="addReqBodySnip(snip.code)">{{snip.text}}</button>
-                            </mat-menu>
-                        </div>
-                        <div *ngIf="form.value.body.type==='form-data'">
-                            <app-key-value-editor formControlName="formData"
-                                [options]="{addOnFocus:true,allowToggle:true, allowFileType:true,useRichText: true,placeholderKey: 'Name'}">
-                            </app-key-value-editor>
-                        </div>
-                        <div *ngIf="form.value.body.type==='x-www-form-urlencoded'">
-                            <app-key-value-editor formControlName="xForms"
-                                [options]="{addOnFocus:true,allowToggle:true,useRichText: true,placeholderKey: 'Name'}">
-                            </app-key-value-editor>
-                        </div>
-                        <apic-ace class="test_editor" *ngIf="form.value.body.type=='raw'" #bodyAce
-                            formControlName="rawData" [mode]="form.value.body.selectedRaw.name.toLowerCase()">
-                        </apic-ace>
-                        <div *ngIf="form.value.body.type ==='graphql'">
-                            <app-graphql [url]="form.value.url" [method]="form.value.method"
-                                [gqlVars]="form.value.body.gqlVars" formControlName="rawData"
-                                (onGqlVarsChange)="onGqlVarsChange($event)">
-                            </app-graphql>
-                        </div>
-                    </div>
-
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_basic'">
-                        <app-basic-auth [headers]="form.value.headers" (onChange)="updateAuthValue($event)">
-                        </app-basic-auth>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'api_key'">
-                        <app-api-key-auth (onChange)="updateAuthValue($event)"></app-api-key-auth>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'">
-                        <app-bearer-auth [headers]="form.value.headers" (onChange)="updateAuthValue($event)">
-                        </app-bearer-auth>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'">
-                        <app-digest-auth (onChange)="updateAuthValue($event)" [url]="form.value.url"
-                            [method]="form.value.method"></app-digest-auth>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_o1'">
-                        <app-oauth1-auth [method]="form.value.method" [url]="form.value.url" [body]="form.value.body"
-                            (onChange)="updateAuthValue($event)">
-                        </app-oauth1-auth>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'">
-                        <app-auth-oauth2></app-auth-oauth2>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'aws_sign'">
-                        <app-auth-aws-signature></app-auth-aws-signature>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'">
-                        <app-hawk-auth [method]="form.value.method" [url]="form.value.url"
-                            (onChange)="updateAuthValue($event)"></app-hawk-auth>
-                    </div>
-
-                    <div class="control-content" *ngIf="flags.reqTab == 'Scripts'">
-                        <pre-post-run-script class="test_editor" [prerun]="form.value.prescript"
-                            [postrun]="form.value.postscript" (prerunChange)="prerunUpdated($event)"
-                            (postrunChange)="postrunUpdated($event)">
-                        </pre-post-run-script>
-                    </div>
-                    <div class="control-content" *ngIf="flags.reqTab == 'Schema'">
-                        <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="respCodes"
-                            [options]="{showOnlySchemaBuilder:true}">
-                        </response-schema-builder>
-                    </div>
-                </div>
+          <div class="control-content short" [hidden]="flags.reqTab != 'Headers'">
+            <app-key-value-editor formControlName="headers"
+              [options]="{enableAutocomplete:true,autocompletes:HTTP_HEADERS,addOnFocus:true,allowToggle:true, valueFieldType:'richText', placeholderKey: 'Header name'}">
+            </app-key-value-editor>
+          </div>
+          <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="body">
+            <mat-radio-group aria-label="Select body type" formControlName="type" class="vcenter margB10">
+              <mat-radio-button value="form-data">form-data</mat-radio-button>
+              <mat-radio-button value="x-www-form-urlencoded">x-www-form-urlencoded</mat-radio-button>
+              <mat-radio-button value="raw" (click)="initRawBody()">raw</mat-radio-button>
+              <mat-select formControlName="selectedRaw" class="raw-type"
+                [placeholder]="form.value.body.selectedRaw.name+'('+form.value.body.selectedRaw.val+')'" auto
+                *ngIf="form.value.body.type=='raw'">
+                <mat-option *ngFor="let type of RAW_BODY_TYPES" [value]="type">
+                  {{type.name+'('+type.val+')'}}</mat-option>
+              </mat-select>
+              <mat-radio-button value="graphql">Graphql</mat-radio-button>
+            </mat-radio-group>
+            <div class="xtra-opt" *ngIf="form.value.body.type=='raw'">
+              <button mat-icon-button class="sm gap" matTooltip="Beautify body" (click)="prettifyBody()">
+                <mat-icon>code</mat-icon>
+              </button>
+              <button mat-button class="sm" [matMenuTriggerFor]="reqSnip">Snippets</button>
+              <mat-menu #reqSnip="matMenu">
+                <button mat-menu-item *ngFor="let snip of REQ_BODY_SNIPS"
+                  (click)="addReqBodySnip(snip.code)">{{snip.text}}</button>
+              </mat-menu>
             </div>
+            <div *ngIf="form.value.body.type==='form-data'">
+              <app-key-value-editor formControlName="formData"
+                [options]="{addOnFocus:true,allowToggle:true, valueFieldType: 'textAndFile',placeholderKey: 'Name'}">
+              </app-key-value-editor>
+            </div>
+            <div *ngIf="form.value.body.type==='x-www-form-urlencoded'">
+              <app-key-value-editor formControlName="xForms"
+                [options]="{addOnFocus:true,allowToggle:true, valueFieldType:'richText',placeholderKey: 'Name'}">
+              </app-key-value-editor>
+            </div>
+            <apic-ace class="test_editor" *ngIf="form.value.body.type=='raw'" #bodyAce formControlName="rawData"
+              [mode]="form.value.body.selectedRaw.name.toLowerCase()">
+            </apic-ace>
+            <div *ngIf="form.value.body.type ==='graphql'">
+              <app-graphql [url]="form.value.url" [method]="form.value.method" [gqlVars]="form.value.body.gqlVars"
+                formControlName="rawData" (onGqlVarsChange)="onGqlVarsChange($event)">
+              </app-graphql>
+            </div>
+          </div>
 
-            <div class="paper resp-box" *ngIf="runResponse && !flags.running && runResponse?.status != 0">
-                <h3 class="panel-title pointer" (click)="flags.showResp = !flags.showResp">
-                    <mat-icon *ngIf="!flags.showResp" class="sm">chevron_right</mat-icon>
-                    Response
-                </h3>
-                <div class="reqControls vcenter">
-                    <span *ngIf="runResponse?.meta == savedRespIdentifier" class="gap-lg">Loaded from saved
-                        response</span>
-                    <span class="run-stats">
-                        <span>
-                            Time: <span class="status info">{{runResponse.timeTakenStr}}</span>
-                        </span>
-                        <span>
-                            Status: <span class="status" [ngClass]="{
+          <div class="control-content" *ngIf="flags.reqTab == 'auth_basic'">
+            <app-basic-auth [headers]="form.value.headers" (onChange)="updateAuthValue($event)">
+            </app-basic-auth>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'api_key'">
+            <app-api-key-auth (onChange)="updateAuthValue($event)"></app-api-key-auth>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'auth_bearer'">
+            <app-bearer-auth [headers]="form.value.headers" (onChange)="updateAuthValue($event)">
+            </app-bearer-auth>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'auth_digest'">
+            <app-digest-auth (onChange)="updateAuthValue($event)" [url]="form.value.url"
+              [method]="form.value.method"></app-digest-auth>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'auth_o1'">
+            <app-oauth1-auth [method]="form.value.method" [url]="form.value.url" [body]="form.value.body"
+              (onChange)="updateAuthValue($event)">
+            </app-oauth1-auth>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'auth_o2'">
+            <app-auth-oauth2></app-auth-oauth2>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'aws_sign'">
+            <app-auth-aws-signature></app-auth-aws-signature>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'auth_hawk'">
+            <app-hawk-auth [method]="form.value.method" [url]="form.value.url"
+              (onChange)="updateAuthValue($event)"></app-hawk-auth>
+          </div>
+
+          <div class="control-content" *ngIf="flags.reqTab == 'Scripts'">
+            <pre-post-run-script class="test_editor" [prerun]="form.value.prescript" [postrun]="form.value.postscript"
+              (prerunChange)="prerunUpdated($event)" (postrunChange)="postrunUpdated($event)">
+            </pre-post-run-script>
+          </div>
+          <div class="control-content" *ngIf="flags.reqTab == 'Schema'">
+            <response-schema-builder [onChange]="setDirty.bind(this)" formControlName="respCodes"
+              [options]="{showOnlySchemaBuilder:true}">
+            </response-schema-builder>
+          </div>
+        </div>
+      </div>
+
+      <div class="paper resp-box" *ngIf="runResponse && !flags.running && runResponse?.status != 0">
+        <h3 class="panel-title pointer" (click)="flags.showResp = !flags.showResp">
+          <mat-icon *ngIf="!flags.showResp" class="sm">chevron_right</mat-icon>
+          Response
+        </h3>
+        <div class="reqControls vcenter">
+          <span *ngIf="runResponse?.meta == savedRespIdentifier" class="gap-lg">Loaded from saved
+            response</span>
+          <span class="run-stats">
+            <span>
+              Time: <span class="status info">{{runResponse.timeTakenStr}}</span>
+            </span>
+            <span>
+              Status: <span class="status" [ngClass]="{
                                     info:runResponse.status<199,
                                     success:(runResponse.status>=200),
                                     warning:(runResponse.status>=300),
                                     error:(runResponse.status>=400)
                                 }">{{runResponse.status}} {{runResponse.statusText}}</span>
-                        </span>
-                        <span>
-                            Size: <span class="status info">{{runResponse.respSize}}</span>
-                        </span>
-                    </span>
-                    <button class="sm t_border gap" [matMenuTriggerFor]="savedRespMenu" mat-stroked-button>Saved
-                        response</button>
-                    <mat-menu #savedRespMenu="matMenu">
-                        <button mat-menu-item (click)="saveResponse()" ng-disabled="vm.TAB.fromProject"
-                            *ngIf="runResponse.body">Save current response</button>
-                        <button mat-menu-item
-                            *ngIf="selectedReq?.savedResp?.length>0 && runResponse?.meta !== savedRespIdentifier"
-                            (click)="loadResponse(true)">Load saved response</button>
-                    </mat-menu>
-                    <button mat-raised-button color="primary" class="sm"
-                        (click)="selectTab('respTab','Body');selectTab('respBodyTab','builder')">
-                        Build API Tests
-                    </button>
-                </div>
-                <div class="panel-body" [hidden]="!flags.showResp">
-                    <div class="controls btn-group tab-group">
-                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Body'}"
-                            (click)="selectTab('respTab','Body')">Body/Test builder</button>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Tests'}"
-                            (click)="selectTab('respTab','Tests')">Test cases
-                            <span class="badge success">{{passedTests().length}}</span> /
-                            <span class="badge error">{{failedTests().length}}</span>
-                        </button>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Headers'}"
-                            (click)="selectTab('respTab','Headers')" [matBadge]="flags.respHeadersCount">Response
-                            Headers </button>
-                        <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Logs'}"
-                            (click)="selectTab('respTab','Logs')"
-                            [matBadge]="runResponse.logs?.length || 0">Logs</button>
-                    </div>
+            </span>
+            <span>
+              Size: <span class="status info">{{runResponse.respSize}}</span>
+            </span>
+          </span>
+          <button class="sm t_border gap" [matMenuTriggerFor]="savedRespMenu" mat-stroked-button>Saved
+            response</button>
+          <mat-menu #savedRespMenu="matMenu">
+            <button mat-menu-item (click)="saveResponse()" ng-disabled="vm.TAB.fromProject"
+              *ngIf="runResponse.body">Save current response</button>
+            <button mat-menu-item *ngIf="selectedReq?.savedResp?.length>0 && runResponse?.meta !== savedRespIdentifier"
+              (click)="loadResponse(true)">Load saved response</button>
+          </mat-menu>
+          <button mat-raised-button color="primary" class="sm"
+            (click)="selectTab('respTab','Body');selectTab('respBodyTab','builder')">
+            Build API Tests
+          </button>
+        </div>
+        <div class="panel-body" [hidden]="!flags.showResp">
+          <div class="controls btn-group tab-group">
+            <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Body'}"
+              (click)="selectTab('respTab','Body')">Body/Test builder</button>
+            <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Tests'}"
+              (click)="selectTab('respTab','Tests')">Test cases
+              <span class="badge success">{{passedTests().length}}</span> /
+              <span class="badge error">{{failedTests().length}}</span>
+            </button>
+            <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Headers'}"
+              (click)="selectTab('respTab','Headers')" [matBadge]="flags.respHeadersCount">Response
+              Headers </button>
+            <button mat-button class="sm" [ngClass]="{'active':flags.respTab == 'Logs'}"
+              (click)="selectTab('respTab','Logs')" [matBadge]="runResponse.logs?.length || 0">Logs</button>
+          </div>
 
-                    <div class="control-content" *ngIf="flags.respTab == 'Body'">
-                        <div class="controls btn-group tab-group">
-                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'pretty'}"
-                                (click)="selectTab('respBodyTab','pretty')">Pretty</button>
-                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'raw'}"
-                                (click)="selectTab('respBodyTab','raw')">Raw</button>
-                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'preview'}"
-                                (click)="selectTab('respBodyTab','preview');setPreviewFrame(runResponse.body)">Preview</button>
-                            <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'builder'}"
-                                (click)="selectTab('respBodyTab','builder')">Build API Tests</button>
-                        </div>
-                        <div *ngIf=" flags.respBodyTab=='pretty'">
-                            <apic-ace class="test_editor" [(text)]=" runResponse.bodyPretty" [readOnly]="true"
-                                [mode]="flags.respAceMode"></apic-ace>
-                        </div>
-                        <div *ngIf="flags.respBodyTab == 'raw'">
-                            <textarea readonly class="raw-resp-area">{{runResponse.body}}</textarea>
-                        </div>
-                        <div *ngIf="flags.respBodyTab == 'preview'">
-                            <iframe id="iframe_" #previewFrame
-                                style="width: 100%; height: 300px;background-color: white;"
-                                sandbox="allow-same-origin"></iframe>
-                        </div>
-                        <div *ngIf="flags.respBodyTab == 'builder'">
-                            <apic-json-viewer (showTestBuilder)="onTestBuilder($event)" *ngIf="runResponse.data"
-                                [json]="runResponse.data" parent="$response.data">
-                            </apic-json-viewer>
-                            <div class="red margV10" *ngIf="!runResponse.data">Can't use test builder as response is
-                                not a json.</div>
-                        </div>
-                    </div>
-
-                    <div class="control-content" *ngIf="flags.respTab == 'Tests'">
-                        <app-resp-tab-tests [tests]="runResponse.tests" [scriptError]="runResponse.scriptError">
-                        </app-resp-tab-tests>
-                    </div>
-
-                    <div class="control-content" *ngIf="flags.respTab == 'Headers'">
-                        <div *ngFor="let header of runResponse.headers| keyvalue" class="margB5">
-                            <span class="bold">{{header.key}} : </span>
-                            <span>{{header.value}}</span>
-                        </div>
-                    </div>
-
-                    <div class="run-log" *ngIf="flags.respTab == 'Logs'">
-                        <div class="vcenter rl-row" *ngFor="let log of runResponse.logs;trackBy:trackByFn; let i=index">
-                            <span class="rl-num">{{i+1}}</span>
-                            <pre class="rl-msg" [ngClass]="{error:log.startsWith(errorIdentifier)}">{{log}}</pre>
-                            <div class="rl-btn">
-                                <button mat-icon-button class="sm" (click)="beautifyLog(i)">
-                                    <mat-icon class="xs t_color">code</mat-icon>
-                                </button>
-                                <button mat-icon-button class="sm" (click)="utils.copyToClipboard(log)">
-                                    <mat-icon class="xs t_color">content_copy</mat-icon>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="control-content" *ngIf="flags.respTab == 'Body'">
+            <div class="controls btn-group tab-group">
+              <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'pretty'}"
+                (click)="selectTab('respBodyTab','pretty')">Pretty</button>
+              <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'raw'}"
+                (click)="selectTab('respBodyTab','raw')">Raw</button>
+              <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'preview'}"
+                (click)="selectTab('respBodyTab','preview');setPreviewFrame(runResponse.body)">Preview</button>
+              <button mat-button class="sm" [ngClass]="{'active':flags.respBodyTab == 'builder'}"
+                (click)="selectTab('respBodyTab','builder')">Build API Tests</button>
             </div>
+            <div *ngIf=" flags.respBodyTab=='pretty'">
+              <apic-ace class="test_editor" [(text)]=" runResponse.bodyPretty" [readOnly]="true"
+                [mode]="flags.respAceMode"></apic-ace>
+            </div>
+            <div *ngIf="flags.respBodyTab == 'raw'">
+              <textarea readonly class="raw-resp-area">{{runResponse.body}}</textarea>
+            </div>
+            <div *ngIf="flags.respBodyTab == 'preview'">
+              <iframe id="iframe_" #previewFrame style="width: 100%; height: 300px;background-color: white;"
+                sandbox="allow-same-origin"></iframe>
+            </div>
+            <div *ngIf="flags.respBodyTab == 'builder'">
+              <apic-json-viewer (showTestBuilder)="onTestBuilder($event)" *ngIf="runResponse.data"
+                [json]="runResponse.data" parent="$response.data">
+              </apic-json-viewer>
+              <div class="red margV10" *ngIf="!runResponse.data">Can't use test builder as response is
+                not a json.</div>
+            </div>
+          </div>
 
-            <div class="paper resp-box" *ngIf="loopRunResult?.length>0">
-                <h3 class="panel-title pointer">Response</h3>
-                <div class="panel-body">
-                    <div *ngFor="let res of loopRunResult;trackBy: trackByFn;let i=index" class="loop-res">
-                        <div>
-                            <span class="run-index">#{{i+1}}</span>
-                            <span class="run-stats pull-right">
-                                <span>
-                                    Time: <span class="status info">{{res.timeTakenStr}}</span>
-                                </span>
-                                <span>
-                                    Status: <span class="status" [ngClass]="{
+          <div class="control-content" *ngIf="flags.respTab == 'Tests'">
+            <app-resp-tab-tests [tests]="runResponse.tests" [scriptError]="runResponse.scriptError">
+            </app-resp-tab-tests>
+          </div>
+
+          <div class="control-content" *ngIf="flags.respTab == 'Headers'">
+            <div *ngFor="let header of runResponse.headers| keyvalue" class="margB5">
+              <span class="bold">{{header.key}} : </span>
+              <span>{{header.value}}</span>
+            </div>
+          </div>
+
+          <div class="run-log" *ngIf="flags.respTab == 'Logs'">
+            <div class="vcenter rl-row" *ngFor="let log of runResponse.logs;trackBy:trackByFn; let i=index">
+              <span class="rl-num">{{i+1}}</span>
+              <pre class="rl-msg" [ngClass]="{error:log.startsWith(errorIdentifier)}">{{log}}</pre>
+              <div class="rl-btn">
+                <button mat-icon-button class="sm" (click)="beautifyLog(i)">
+                  <mat-icon class="xs t_color">code</mat-icon>
+                </button>
+                <button mat-icon-button class="sm" (click)="utils.copyToClipboard(log)">
+                  <mat-icon class="xs t_color">content_copy</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="paper resp-box" *ngIf="loopRunResult?.length>0">
+        <h3 class="panel-title pointer">Response</h3>
+        <div class="panel-body">
+          <div *ngFor="let res of loopRunResult;trackBy: trackByFn;let i=index" class="loop-res">
+            <div>
+              <span class="run-index">#{{i+1}}</span>
+              <span class="run-stats pull-right">
+                <span>
+                  Time: <span class="status info">{{res.timeTakenStr}}</span>
+                </span>
+                <span>
+                  Status: <span class="status" [ngClass]="{
                                         info:res.status<199,
                                         success:(res.status>=200),
                                         warning:(res.status>=300),
                                         error:(res.status>=400)
                                     }">{{res.status}}
-                                        {{res.statusText}}</span>
-                                </span>
-                                <span>
-                                    Size: <span class="status info">{{res.respSize}}</span>
-                                </span>
-                                <button class="sm" mat-icon-button (click)="utils.copyToClipboard(res.body)">
-                                    <mat-icon class="sm">content_copy</mat-icon>
-                                </button>
-                            </span>
-                        </div>
-                        <div class="margV5">{{res.body}}</div>
-                    </div>
-                </div>
+                    {{res.statusText}}</span>
+                </span>
+                <span>
+                  Size: <span class="status info">{{res.respSize}}</span>
+                </span>
+                <button class="sm" mat-icon-button (click)="utils.copyToClipboard(res.body)">
+                  <mat-icon class="sm">content_copy</mat-icon>
+                </button>
+              </span>
             </div>
-            <div class="cancel-cont" *ngIf="flags.running && flags.loopRunning">
-                <div class="loop-msg">Running in Loop <span
-                        class="bold">{{flags.runCount-flags.runCountCopy+1}}</span>/{{flags.runCount}}</div>
-                <button mat-raised-button color="primary" class="sm" (click)="abortRun()">Cancel run</button>
-            </div>
-
-            <div class="error-cont flex" *ngIf="runResponse?.status == 0 && !flags.running">
-                <mat-icon class="red">error</mat-icon>
-                <div class="err-msg">
-                    <div class="title margB10"><span class="bold">apic</span>
-                        can't establish a connection to the specified server.</div>
-                    <ul>
-                        <li>If you are using the Web version of apic, chances are the <a class="t_color"
-                                href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS"
-                                target="_new">preflight OPTIONS request(CORS)</a> didn't pass.
-                            <ul>
-                                <li>Use <a href="https://docs.apic.app/apic-web-agent-apic-cli" target="_new"
-                                        class="t_color">APIC Web Agent</a> to bypass browser cors limitations.</li>
-                                <li>Or use <a class="t_color"
-                                        href="https://chrome.google.com/webstore/detail/apic-extension/dejjobgejdajdjjhjcindbjcfohoiehn"
-                                        target="_new">apic's web extension for Chrome/Edge</a> along with the web app.
-                                    Alternatively you can use other CORS enabler extentions for other browsers.</li>
-                                <li>Or you could use the standalone version of apic available for <a class="t_color"
-                                        href="https://chrome.google.com/webstore/detail/apic-complete-api-solutio/ggnhohnkfcpcanfekomdkjffnfcjnjam"
-                                        target="_new">Chrome</a>, Windows, Mac & Linux without any dependency.</li>
-                                <li>Otherwise please make sure that your API responds to OPTIONS request</li>
-                            </ul>
-                        </li>
-                        <li>The site could be temporarily unavailable or too busy. Try again in a few moments.</li>
-                        <li>If you are unable to load any pages, check your computer's network connection.</li>
-                        <li>Insecure SSL connections are being blocked. This can be fixed by
-                            <span class="bold">importing SSL certificates in Chrome.</span>
-                        </li>
-                        <li>If your computer or network is protected by a firewall or proxy, make sure that
-                            <span class="bold">apic</span> is permitted to access the host.
-                        </li>
-                        <li>Request may have timed out. Change the default timeout duration in settings.</li>
-                    </ul>
-                </div>
-            </div>
+            <div class="margV5">{{res.body}}</div>
+          </div>
         </div>
-    </form>
+      </div>
+      <div class="cancel-cont" *ngIf="flags.running && flags.loopRunning">
+        <div class="loop-msg">Running in Loop <span
+            class="bold">{{flags.runCount-flags.runCountCopy+1}}</span>/{{flags.runCount}}</div>
+        <button mat-raised-button color="primary" class="sm" (click)="abortRun()">Cancel run</button>
+      </div>
+
+      <div class="error-cont flex" *ngIf="runResponse?.status == 0 && !flags.running">
+        <mat-icon class="red">error</mat-icon>
+        <div class="err-msg">
+          <div class="title margB10"><span class="bold">apic</span>
+            can't establish a connection to the specified server.</div>
+          <ul>
+            <li>If you are using the Web version of apic, chances are the <a class="t_color"
+                href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_new">preflight
+                OPTIONS request(CORS)</a> didn't pass.
+              <ul>
+                <li>Use <a href="https://docs.apic.app/apic-web-agent-apic-cli" target="_new" class="t_color">APIC Web
+                    Agent</a> to bypass browser cors limitations.</li>
+                <li>Or use <a class="t_color"
+                    href="https://chrome.google.com/webstore/detail/apic-extension/dejjobgejdajdjjhjcindbjcfohoiehn"
+                    target="_new">apic's web extension for Chrome/Edge</a> along with the web app.
+                  Alternatively you can use other CORS enabler extentions for other browsers.</li>
+                <li>Or you could use the standalone version of apic available for <a class="t_color"
+                    href="https://chrome.google.com/webstore/detail/apic-complete-api-solutio/ggnhohnkfcpcanfekomdkjffnfcjnjam"
+                    target="_new">Chrome</a>, Windows, Mac & Linux without any dependency.</li>
+                <li>Otherwise please make sure that your API responds to OPTIONS request</li>
+              </ul>
+            </li>
+            <li>The site could be temporarily unavailable or too busy. Try again in a few moments.</li>
+            <li>If you are unable to load any pages, check your computer's network connection.</li>
+            <li>Insecure SSL connections are being blocked. This can be fixed by
+              <span class="bold">importing SSL certificates in Chrome.</span>
+            </li>
+            <li>If your computer or network is protected by a firewall or proxy, make sure that
+              <span class="bold">apic</span> is permitted to access the host.
+            </li>
+            <li>Request may have timed out. Change the default timeout duration in settings.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
 <json-test-builder *ngIf="testBuilderOpt?.show" [options]="testBuilderOpt" [$request]="runRequest"
-    [$response]="runResponse" (onSave)="saveBuilderTests($event)" (close)="testBuilderOpt.show=false">
+  [$response]="runResponse" (onSave)="saveBuilderTests($event)" (close)="testBuilderOpt.show=false">
 </json-test-builder>

@@ -1,207 +1,188 @@
 <div class="designer" *ngIf="selectedPROJ">
-    <div class="app-body">
-        <div class="left-nav">
-            <div class="nav nav-tabs vcenter">
-                <button type="button" [routerLink]="['/designer']" mat-button>
-                    <mat-icon>keyboard_backspace</mat-icon>
+  <div class="app-body">
+    <div class="left-nav">
+      <div class="nav nav-tabs vcenter">
+        <button type="button" [routerLink]="['/designer']" mat-button>
+          <mat-icon>keyboard_backspace</mat-icon>
+        </button>
+        <span class="workspace-title">{{selectedPROJ.title}}</span>
+      </div>
+      <div class="tab-content" *ngIf="leftPanel.tree">
+        <div class="input-group search-box req-search" [ngClass]="{'visible': flags.showSearch}">
+          <input type="search" placeholder="Search by name, type/method & description" id="proj-search"
+            class="form-control" [(ngModel)]="flags.searchText" />
+          <button mat-icon-button class="red sm" (click)="flags.showSearch = false; flags.searchText=''">
+            <mat-icon>highlight_off</mat-icon>
+          </button>
+        </div>
+        <div class=" align-right">
+          <button type="button" color="primary" mat-icon-button aria-label="Expand" (click)="toggleExpandAll()"
+            matTooltip="Expand/Collapse all">
+            <mat-icon>{{leftPanel.expandAll? 'unfold_less': 'unfold_more'}}</mat-icon>
+          </button>
+          <button type=" button" color="primary" mat-icon-button aria-label="Search" matTooltip="Search"
+            (click)="showSearch()">
+            <mat-icon>search</mat-icon>
+          </button>
+          <button type="button" color="primary" mat-icon-button aria-label="Sort" [matMenuTriggerFor]="sort"
+            matTooltip="Sort">
+            <mat-icon>sort_by_alpha</mat-icon>
+          </button>
+          <a href="" mat-icon-button [routerLink]="['/', 'docs', selectedPROJ._id]" color="primary"
+            aria-label="View Docs">
+            <mat-icon>auto_stories</mat-icon>
+          </a>
+          <button type="button" mat-icon-button color="primary" [matMenuTriggerFor]="exportMenu">
+            <mat-icon>file_download</mat-icon>
+          </button>
+          <button type="button" mat-icon-button color="primary" (click)="buildRequests()">
+            <mat-icon class="sm">build</mat-icon>
+          </button>
+
+          <mat-menu #exportMenu="matMenu">
+            <button type="button" mat-menu-item (click)="openExportModal('RAW', selectedPROJ._id)">Raw APIC
+              Project</button>
+            <button type="button" mat-menu-item (click)="openExportModal('OAS3', selectedPROJ._id)">Open API Spec
+              3.0.1</button>
+            <button type="button" mat-menu-item (click)="openExportModal('OAS', selectedPROJ._id)">Swagger (OAS
+              2)</button>
+            <button type="button" mat-menu-item>RAML (Soon)</button>
+          </mat-menu>
+
+          <mat-menu #sort="matMenu">
+            <div class="sort-pan">
+              <div class="lb">Folder</div>
+              <button mat-flat-button class="sm" [ngClass]="{t_border: leftPanel.sort.folder.by === 'name'}"
+                (click)="sortTree('folder', 'name', $event)">
+                <mat-icon class="sm">
+                  {{leftPanel.sort. folder.ascending? 'get_app': 'upload'}}
+                </mat-icon>
+                Name
+              </button>
+              <div class="lb">Folder items</div>
+              <button mat-flat-button class="sm" [ngClass]="{t_border: leftPanel.sort.children.by === 'name'}"
+                (click)="sortTree('children', 'name', $event)">
+                <mat-icon class="sm" *ngIf="leftPanel.sort.children.by === 'name'">
+                  {{leftPanel.sort. children.ascending? 'get_app': 'upload'}}
+                </mat-icon>
+                Name
+              </button>
+              <button mat-flat-button class="sm" [ngClass]="{t_border:leftPanel.sort.children.by === 'label'}"
+                (click)="sortTree('children', 'label', $event)">
+                <mat-icon class="sm" *ngIf="leftPanel.sort.children.by === 'label'">
+                  {{leftPanel.sort.children.ascending?'get_app': 'upload'}}
+                </mat-icon>
+                Type/Method
+              </button>
+            </div>
+          </mat-menu>
+        </div>
+
+        <div [ngClass]="{searching:flags.showSearch}">
+          <div
+            *ngFor="let folder of leftPanel.tree | orderBy: leftPanel.sort.folder.by: (leftPanel.sort.folder.ascending?'asc': 'desc'): ['Ungrouped']">
+            <div class=" folder" (click)="toggleExpand(folder._id)"
+              [ngClass]="leftPanel.expanded[folder._id]?'opened': 'closed'">
+              <div class="l-sec">
+                <i class="icon bj-folder" *ngIf="folder._id != ' ungrouped'"
+                  [ngClass]=" leftPanel.expanded[folder._id]?'bj-folder-open': 'bj-folder'"></i>
+              </div>
+              <div class="folder-name m-sec">
+                <div class="f-name">{{folder.name}}</div>
+              </div>
+              <div class="r-sec " *ngIf="folder.name != 'Ungrouped'">
+                <button type=" button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                  [ngClass]="{t_bg: menu.menuOpen}" mat-icon-button [matMenuTriggerFor]="folderMenu"
+                  #menu="matMenuTrigger">
+                  <mat-icon>more_vert</mat-icon>
                 </button>
-                <span class="workspace-title">{{selectedPROJ.title}}</span>
+                <mat-menu #folderMenu="matMenu">
+                  <a href="" [routerLink]="['folders', folder._id]" mat-menu-item>
+                    <mat-icon>edit</mat-icon> Edit
+                  </a>
+                  <button mat-menu-item (click)="deleteItem(folder._id, 'folders', true); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon> Delete folder and content
+                  </button>
+
+                  <button mat-menu-item (click)="deleteItem(folder._id, 'folders'); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon> Delete only folder
+                  </button>
+                </mat-menu>
+              </div>
             </div>
-            <div class="tab-content" *ngIf="leftPanel.tree">
-                <div class="input-group search-box req-search" [ngClass]="{'visible': flags.showSearch}">
-                    <input type="search" placeholder="Search by name, type/method & description" id="proj-search"
-                        class="form-control" [(ngModel)]="flags.searchText" />
-                    <button mat-icon-button class="red sm" (click)="flags.showSearch = false; flags.searchText=''">
-                        <mat-icon>highlight_off</mat-icon>
+
+            <div class="sub-folder" [hidden]="!leftPanel.expanded[folder._id]">
+              <div
+                *ngFor="let child of folder.children | filter: flags.searchText:['name', 'label', 'desc']| orderBy: leftPanel.sort.children.by: (leftPanel.sort.children.ascending?'asc':'desc')">
+                <a href="" class="savedReq" matRipple [routerLink]="[child.type, child._id]"
+                  [routerLinkActive]="['active']">
+                  <div class="l-sec">
+                    <div class="method" [ngClass]="child.label"></div>
+                  </div>
+                  <div class="m-sec name" [ngClass]="child.deprecated?'deprecated':''" [title]="child.name">
+                    {{child.name}}
+                  </div>
+                  <div class="r-sec">
+                    <button type="button" (click)="$event.preventDefault(); $event.stopPropagation()"
+                      [ngClass]="{t_bg:e.menuOpen}" mat-icon-button [matMenuTriggerFor]="endpMenu" #e="matMenuTrigger">
+                      <mat-icon>more_vert</mat-icon>
                     </button>
-                </div>
-                <div class=" align-right">
-                    <button type="button" color="primary" mat-icon-button aria-label="Expand"
-                        (click)="toggleExpandAll()" matTooltip="Expand/Collapse all">
-                        <mat-icon>{{leftPanel.expandAll? 'unfold_less': 'unfold_more'}}</mat-icon>
-                    </button>
-                    <button type=" button" color="primary" mat-icon-button aria-label="Search" matTooltip="Search"
-                        (click)="showSearch()">
-                        <mat-icon>search</mat-icon>
-                    </button>
-                    <button type="button" color="primary" mat-icon-button aria-label="Sort" [matMenuTriggerFor]="sort"
-                        matTooltip="Sort">
-                        <mat-icon>sort_by_alpha</mat-icon>
-                    </button>
-                    <button type="button" color="primary" mat-icon-button aria-label="Menu" matTooltip="Menu"
-                        [matMenuTriggerFor]="projectMenu">
-                        <mat-icon>menu</mat-icon>
-                    </button>
-                    <mat-menu #projectMenu="matMenu">
-                        <a href="" mat-menu-item [routerLink]="['/', 'docs', selectedPROJ._id]" color="primary"
-                            aria-label="View Docs">
-                            <mat-icon>auto_stories</mat-icon>
-                            <span>View Docs</span>
-                        </a>
-                        <button mat-menu-item [matMenuTriggerFor]="exportMenu">
-                            <mat-icon>file_download</mat-icon>
-                            <span>Export</span>
-                        </button>
-                        <button mat-menu-item (click)="buildRequests()">
-                            <mat-icon>build</mat-icon>
-                            <span>Build requests</span>
-                        </button>
+                    <mat-menu #endpMenu="matMenu">
+                      <a href="" [routerLink]="[child.type, child._id]" mat-menu-item>
+                        <mat-icon>edit</mat-icon> Edit
+                      </a>
+                      <button mat-menu-item *ngIf="child.type=='endpoints'"
+                        (click)="run(child._id); $event.stopPropagation()">
+                        <mat-icon class="green">play_arrow</mat-icon> Run
+                      </button>
+                      <button mat-menu-item (click)="duplicateItem(child._id, child.type); $event.stopPropagation()">
+                        <mat-icon>content_copy</mat-icon> Duplicate
+                      </button>
+                      <button mat-menu-item (click)="deleteItem(child._id, child.type); $event.stopPropagation()">
+                        <mat-icon>delete</mat-icon> Delete
+                      </button>
                     </mat-menu>
-
-                    <mat-menu #exportMenu="matMenu">
-                        <button mat-menu-item (click)="openExportModal('RAW', selectedPROJ._id)">Raw APIC
-                            Project</button>
-                        <button mat-menu-item (click)="openExportModal('OAS3', selectedPROJ._id)">Open API Spec
-                            3.0.1</button>
-                        <button mat-menu-item (click)="openExportModal('OAS', selectedPROJ._id)">Swagger (OAS
-                            2)</button>
-                        <button mat-menu-item>RAML (Soon)</button>
-                    </mat-menu>
-
-                    <mat-menu #sort="matMenu">
-                        <div class="sort-pan">
-                            <div class="lb">Folder</div>
-                            <button mat-flat-button class="sm"
-                                [ngClass]="{t_border: leftPanel.sort.folder.by === 'name'}"
-                                (click)="sortTree('folder', 'name', $event)">
-                                <mat-icon class="sm">
-                                    {{leftPanel.sort. folder.ascending? 'get_app': 'upload'}}
-                                </mat-icon>
-                                Name
-                            </button>
-                            <div class="lb">Folder items</div>
-                            <button mat-flat-button class="sm"
-                                [ngClass]="{t_border: leftPanel.sort.children.by === 'name'}"
-                                (click)="sortTree('children', 'name', $event)">
-                                <mat-icon class="sm" *ngIf="leftPanel.sort.children.by === 'name'">
-                                    {{leftPanel.sort. children.ascending? 'get_app': 'upload'}}
-                                </mat-icon>
-                                Name
-                            </button>
-                            <button mat-flat-button class="sm"
-                                [ngClass]="{t_border:leftPanel.sort.children.by === 'label'}"
-                                (click)="sortTree('children', 'label', $event)">
-                                <mat-icon class="sm" *ngIf="leftPanel.sort.children.by === 'label'">
-                                    {{leftPanel.sort.children.ascending?'get_app': 'upload'}}
-                                </mat-icon>
-                                Type/Method
-                            </button>
-                        </div>
-                    </mat-menu>
-                </div>
-
-                <div [ngClass]="{searching:flags.showSearch}">
-                    <div
-                        *ngFor="let folder of leftPanel.tree | orderBy: leftPanel.sort.folder.by: (leftPanel.sort.folder.ascending?'asc': 'desc'): ['Ungrouped']">
-                        <div class=" folder" (click)="toggleExpand(folder._id)"
-                            [ngClass]="leftPanel.expanded[folder._id]?'opened': 'closed'">
-                            <div class="l-sec">
-                                <i class="icon bj-folder" *ngIf="folder._id != ' ungrouped'"
-                                    [ngClass]=" leftPanel.expanded[folder._id]?'bj-folder-open': 'bj-folder'"></i>
-                            </div>
-                            <div class="folder-name m-sec">
-                                <div class="f-name">{{folder.name}}</div>
-                            </div>
-                            <div class="r-sec " *ngIf="folder.name != 'Ungrouped'">
-                                <button type=" button" (click)="$event.preventDefault(); $event.stopPropagation()"
-                                    [ngClass]="{t_bg: menu.menuOpen}" mat-icon-button [matMenuTriggerFor]="folderMenu"
-                                    #menu="matMenuTrigger">
-                                    <mat-icon>more_vert</mat-icon>
-                                </button>
-                                <mat-menu #folderMenu="matMenu">
-                                    <a href="" [routerLink]="['folders', folder._id]" mat-menu-item>
-                                        <mat-icon>edit</mat-icon> Edit
-                                    </a>
-                                    <button mat-menu-item
-                                        (click)="deleteItem(folder._id, 'folders', true); $event.stopPropagation()">
-                                        <mat-icon>delete</mat-icon> Delete folder and content
-                                    </button>
-
-                                    <button mat-menu-item
-                                        (click)="deleteItem(folder._id, 'folders'); $event.stopPropagation()">
-                                        <mat-icon>delete</mat-icon> Delete only folder
-                                    </button>
-                                </mat-menu>
-                            </div>
-                        </div>
-
-                        <div class="sub-folder" [hidden]="!leftPanel.expanded[folder._id]">
-                            <div
-                                *ngFor="let child of folder.children | filter: flags.searchText:['name', 'label', 'desc']| orderBy: leftPanel.sort.children.by: (leftPanel.sort.children.ascending?'asc':'desc')">
-                                <a href="" class="savedReq" matRipple [routerLink]="[child.type, child._id]"
-                                    [routerLinkActive]="['active']">
-                                    <div class="l-sec">
-                                        <div class="method" [ngClass]="child.label"></div>
-                                    </div>
-                                    <div class="m-sec name" [ngClass]="child.deprecated?'deprecated':''"
-                                        [title]="child.name">
-                                        {{child.name}}
-                                    </div>
-                                    <div class="r-sec">
-                                        <button type="button"
-                                            (click)="$event.preventDefault(); $event.stopPropagation()"
-                                            [ngClass]="{t_bg:e.menuOpen}" mat-icon-button [matMenuTriggerFor]="endpMenu"
-                                            #e="matMenuTrigger">
-                                            <mat-icon>more_vert</mat-icon>
-                                        </button>
-                                        <mat-menu #endpMenu="matMenu">
-                                            <a href="" [routerLink]="[child.type, child._id]" mat-menu-item>
-                                                <mat-icon>edit</mat-icon> Edit
-                                            </a>
-                                            <button mat-menu-item *ngIf="child.type=='endpoints'"
-                                                (click)="run(child._id); $event.stopPropagation()">
-                                                <mat-icon class="green">play_arrow</mat-icon> Run
-                                            </button>
-                                            <button mat-menu-item
-                                                (click)="duplicateItem(child._id, child.type); $event.stopPropagation()">
-                                                <mat-icon>content_copy</mat-icon> Duplicate
-                                            </button>
-                                            <button mat-menu-item
-                                                (click)="deleteItem(child._id, child.type); $event.stopPropagation()">
-                                                <mat-icon>delete</mat-icon> Delete
-                                            </button>
-                                        </mat-menu>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                  </div>
+                </a>
+              </div>
             </div>
+          </div>
         </div>
-
-        <div class="right-cont">
-            <div class="tab-container">
-                <ol class="breadcrumb proj-brcmb">
-                    <li>
-                        <a href="" [routerLink]="['/designer']">Workspace</a>
-                    </li>
-                    <li>
-                        <a href="" class="btn-link bold" [routerLink]="['./']">{{selectedPROJ.title}}</a>
-                    </li>
-                    <li>
-                        <button class="btn-link capitalize" [matMenuTriggerFor]="brcmbMenu">{{flags.stage}}
-                            ⯆</button>
-                        <mat-menu #brcmbMenu="matMenu">
-                            <a [routerLink]="['./']" mat-menu-item>Dashboard</a>
-                            <a [routerLink]="['api-builder']" mat-menu-item>API Builder</a>
-                            <a [routerLink]="['folders', 'new']" mat-menu-item>Folders</a>
-                            <a [routerLink]="['models', 'new']" mat-menu-item>Models</a>
-                            <a [routerLink]="['endpoints', 'new']" mat-menu-item>Endpoints</a>
-                            <a [routerLink]="['traits', 'new']" mat-menu-item>Traits</a>
-                            <a [routerLink]="['examples', 'new']" mat-menu-item>Examples</a>
-                        </mat-menu>
-                    </li>
-                </ol>
-            </div>
-
-            <div class="designer-cont">
-                <router-outlet></router-outlet>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <div class="right-cont">
+      <div class="tab-container">
+        <ol class="breadcrumb proj-brcmb">
+          <li>
+            <a href="" [routerLink]="['/designer']">Workspace</a>
+          </li>
+          <li>
+            <a href="" class="btn-link bold" [routerLink]="['./']">{{selectedPROJ.title}}</a>
+          </li>
+          <li>
+            <button class="btn-link capitalize" [matMenuTriggerFor]="brcmbMenu">{{flags.stage}}
+              ⯆</button>
+            <mat-menu #brcmbMenu="matMenu">
+              <a [routerLink]="['./']" mat-menu-item>Dashboard</a>
+              <a [routerLink]="['api-builder']" mat-menu-item>API Builder</a>
+              <a [routerLink]="['folders', 'new']" mat-menu-item>Folders</a>
+              <a [routerLink]="['models', 'new']" mat-menu-item>Models</a>
+              <a [routerLink]="['endpoints', 'new']" mat-menu-item>Endpoints</a>
+              <a [routerLink]="['traits', 'new']" mat-menu-item>Traits</a>
+              <a [routerLink]="['examples', 'new']" mat-menu-item>Examples</a>
+            </mat-menu>
+          </li>
+        </ol>
+      </div>
+
+      <div class="designer-cont">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="center f18" *ngIf="!selectedPROJ && !flags.loading"> The specified Project doesnt
-    exist.
-    <a [routerLink]="'/designer'" class="t_color">Go back to all projects.</a>
+  exist.
+  <a [routerLink]="'/designer'" class="t_color">Go back to all projects.</a>
 </div>

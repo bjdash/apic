@@ -1,31 +1,49 @@
 .kvCont {
-    border: none;
-    margin: 0;
-    margin-bottom: 5px;
-    padding: 0;
+  border: none;
+  margin: 0;
+  margin-bottom: 5px;
+  padding: 0;
 }
 .val,
 .key {
-    width: 100%;
-    display: flex;
-    apic-rich-input {
-        flex: 1;
-    }
+  width: 100%;
+  display: flex;
+  apic-rich-input {
+    flex: 1;
+  }
 }
 .val {
-    apic-rich-input {
-        width: 1px;
-    }
+  apic-rich-input {
+    width: 1px;
+  }
 }
 
 .placeholder {
-    width: 28px;
-    height: 28px;
+  width: 28px;
+  height: 28px;
 }
 .kvCtrls .copy .material-icons,
 .kvCtrls .paste .material-icons {
-    font-size: 16px;
+  font-size: 16px;
 }
 .kv-type {
-    width: 65px;
+  width: 65px;
+}
+.flexColumn {
+  flex-direction: column;
+
+  .val {
+    margin-top: 10px;
+  }
+}
+
+.aceCont {
+  width: 100%;
+  position: relative;
+}
+
+.toggle-group {
+  position: absolute;
+  top: 0;
+  right: 0;
 }

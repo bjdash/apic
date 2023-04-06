@@ -54,6 +54,7 @@ export interface ApiEndp {
   responses?: ApiResponse[],
   postrun?: string,
   prerun?: string,
+  xProperties?: KeyVal[]
 }
 
 export interface ApiTrait {
@@ -220,4 +221,5 @@ export const NewApiEndp: ApiEndp = {
   }],
   postrun: '',
   prerun: '',
+  xProperties: []
 }

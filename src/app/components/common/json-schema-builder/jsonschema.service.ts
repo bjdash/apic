@@ -298,7 +298,7 @@ export class JsonSchemaService {
             schema.default = entity._default;
           }
           if (entity._enum) {
-            const _enum = entity._enum;
+            schema.enum = entity._enum;
           }
           break;
         case 'Array':
@@ -350,12 +350,7 @@ export class JsonSchemaService {
             schema.format = entity._format;
           }
           if (entity._enum) {
-            const _enum = '[' + entity._enum + ']';
-            try {
-              schema.enum = JSON.parse(_enum);
-            } catch (e) {
-              delete schema.enum;
-            }
+            schema.enum = entity._enum;
           }
           break;
         case 'Boolean':
@@ -816,11 +811,11 @@ export class JsonSchemaService {
     }
   }
 
-  static getEmptySchema():{type:'object', properties?:{[key:string]:any}, required:string[]}{
+  static getEmptySchema(): { type: 'object', properties?: { [key: string]: any }, required: string[] } {
     return {
-      type:'object',
-      properties:{},
-      required:[]
+      type: 'object',
+      properties: {},
+      required: []
     }
   }
 }

@@ -51,12 +51,12 @@ export class ApicListComponent implements OnInit, ControlValueAccessor {
   }
   toggle(i) {
     this.onToggle.next(this.items[i]);
-    this._onChange(this.items)
+    this._onChange([...this.items])
   }
   remove(i: number) {
     this.onRemove.next(this.items[i])
     this.items.splice(i, 1);
-    this._onChange(this.items)
+    this._onChange([...this.items])
   }
   add() {
     let existing = this.items.find(i => typeof i != 'object' ? i === this.newItem : i.name === this.newItem);
@@ -71,7 +71,7 @@ export class ApicListComponent implements OnInit, ControlValueAccessor {
     } : this.newItem;
     this.newItem = ''
     this.items.push(newItem);
-    this._onChange(this.items)
+    this._onChange([...this.items])
     this.onAdd.next(newItem)
   }
   ngOnInit(): void {

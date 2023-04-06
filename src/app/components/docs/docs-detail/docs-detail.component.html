@@ -1,235 +1,233 @@
 <div class="app-body" *ngIf="selectedPROJ">
-    <div class="left-nav">
-        <div class="nav nav-tabs vcenter">
-            <button type="button" [routerLink]="['/docs']" mat-button>
-                <mat-icon>keyboard_backspace</mat-icon>
-            </button>
-            <button mat-button [matMenuTriggerFor]="menu" class="workspace-title">
-                <mat-icon>arrow_drop_down</mat-icon>
-                {{selectedPROJ?.title}}
-            </button>
-            <mat-menu #menu="matMenu">
-                <a [routerLink]="['/docs', p._id]" mat-menu-item *ngFor="let p of projects$|async">{{p.title}}</a>
-            </mat-menu>
-        </div>
-        <div class="tab-content">
-            <div class="align-right" style="padding: 3px 5px 0;">
-                <a color="primary" mat-stroked-button aria-label="Build requests" class="gap t_border"
-                    [routerLink]="['/designer', selectedPROJ._id]" matTooltip="Open in designer">
-                    <mat-icon>architecture</mat-icon>
-                    Edit
-                </a>
-                <span role="group" class="btn-group toggle-group" matTooltip="Group apis by">
-                    <button type="button" mat-button [ngClass]="flags.groupBy == 'tags'?'t_bg t_border':''" class=""
-                        (click)="tabs.get(0).selectedIndex = 2;flags.groupBy='tags'">Tags</button>
-                    <button type="button" mat-button [ngClass]="flags.groupBy == 'url'?'t_bg t_border':''" class=""
-                        (click)="tabs.get(0).selectedIndex = 2;flags.groupBy='url'">URL</button>
-                </span>
-            </div>
-
-            <div *ngIf="flags.groupBy=='url' && resolvedSpec">
-                <div *ngFor="let pathItem of resolvedSpec.paths|keyvalue;let i=index" class="margB25">
-                    <div class="doc-link vcenter mono">
-                        <mat-icon>expand_more</mat-icon>
-                        {{pathItem?.key}}
-                    </div>
-                    <div class="sub-folder">
-                        <div class="savedReq vcenter"
-                            *ngFor="let operationItem of pathItem.value|keyvalue; let j=index;">
-                            <span class="method" [ngClass]="operationItem.value.method.toUpperCase()"></span>
-                            <a [routerLink]="['./']" (click)="scrollInView(pathItem.key,i,j)"
-                                [fragment]="operationItem.value.method+'-'+operationItem.value.path.slice(1)">{{operationItem.value.summary}}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="flags.groupBy=='tags' && tagGroups">
-                <div *ngFor="let pathItem of tagGroups|keyvalue;let i=index">
-                    <div class="doc-link vcenter">
-                        <mat-icon>expand_more</mat-icon>
-                        {{pathItem?.key}}
-                    </div>
-                    <div class="sub-folder">
-                        <div class="savedReq vcenter"
-                            *ngFor="let operationItem of pathItem.value|keyvalue; let j=index;">
-                            <span class="method" [ngClass]="operationItem.value.method.toUpperCase()"></span>
-                            <a [routerLink]="['./']" (click)="scrollInView('tag-'+pathItem.key,i,j)" class="mono"
-                                [fragment]="operationItem.value.method+'-'+operationItem.value.path.slice(1)">{{operationItem.value.path}}</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="left-nav">
+    <div class="nav nav-tabs vcenter">
+      <button type="button" [routerLink]="['/docs']" mat-button>
+        <mat-icon>keyboard_backspace</mat-icon>
+      </button>
+      <button mat-button [matMenuTriggerFor]="menu" class="workspace-title">
+        <mat-icon>arrow_drop_down</mat-icon>
+        {{selectedPROJ?.title}}
+      </button>
+      <mat-menu #menu="matMenu">
+        <a [routerLink]="['/docs', p._id]" mat-menu-item *ngFor="let p of projects$|async">{{p.title}}</a>
+      </mat-menu>
     </div>
-    <div class="right-cont">
-        <div class="docs-content" *ngIf="resolvedSpec">
-            <mat-tab-group animationDuration="0ms" class="main-tab">
-                <mat-tab label="Details">
-                    <h3 class="title t_color">{{resolvedSpec.info.title}}<span
-                            class="badge">{{resolvedSpec.info.version}}</span>
-                    </h3>
-                    <div class="margB25" markdown>{{resolvedSpec.info?.description||'(No description available)'}}</div>
-                    <div class="margB25">
-                        <div class="section-header">Terms of service</div>
-                        <div *ngIf="resolvedSpec.info?.termsOfService">{{resolvedSpec.info.termsOfService}}</div>
-                        <img *ngIf="!resolvedSpec.info?.termsOfService" src="assets/images/blank.svg" class="blank-img"
-                            alt="blank" />
-                    </div>
-                    <div class="margB25">
-                        <div class="section-header">Contact information</div>
-                        <div *ngIf="resolvedSpec.info?.contact?.name" class="">{{resolvedSpec.info.contact.name}}</div>
-                        <div *ngIf="resolvedSpec.info?.contact?.email" class="">
-                            <a class="t_color" [href]="'mailto:'+resolvedSpec.info.contact.email"
-                                target="_blank">{{resolvedSpec.info.contact.email}}</a>
-                        </div>
-                        <div *ngIf="resolvedSpec.info?.contact?.url" class="">
-                            <a class="t_color" [href]="resolvedSpec.info.contact.url"
-                                target="_blank">{{resolvedSpec.info.contact.url}}</a>
-                        </div>
-                        <img *ngIf="!resolvedSpec.info?.contact?.name && !resolvedSpec.info?.contact?.url && !resolvedSpec.info?.contact?.email"
-                            src="assets/images/blank.svg" class="blank-img" alt="blank" />
-                    </div>
-                    <div class="margB25">
-                        <div class="section-header">License</div>
-                        <div *ngIf="resolvedSpec.info?.license">
-                            <div class="" *ngIf="!resolvedSpec.info.license.url">{{resolvedSpec.info.license.name}}
-                            </div>
-                            <div class="" *ngIf="resolvedSpec.info.license.url">
-                                <a target="_blank" class="t_color"
-                                    [href]="resolvedSpec.info.license.url">{{resolvedSpec.info.license.name}}</a>
-                            </div>
-                        </div>
-                        <img *ngIf="!resolvedSpec.info?.license" src="assets/images/blank.svg" class="blank-img"
-                            alt="blank" />
-                    </div>
-                    <div class="margB25">
-                        <div class="section-header">Tags</div>
-                        <div *ngIf="resolvedSpec.tags?.length>0" class="tags">
-                            <div class="tag" *ngFor="let tag of resolvedSpec.tags">
-                                <div class="tName">{{tag.name}}</div>
-                                <div class="tDesc">{{tag.description||'(no description)'}}</div>
-                                <div class="tExt" *ngIf="tag.externalDocs">
-                                    <a class="t_color" [href]="tag.externalDocs.url" target="_blank">
-                                        {{tag.externalDocs.description || 'Know more'}}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <img *ngIf="resolvedSpec.tags?.length==0 || !resolvedSpec.tags" src="assets/images/blank.svg"
-                            class="blank-img" alt="blank" />
-                    </div>
-                </mat-tab>
+    <div class="tab-content">
+      <div class="align-right" style="padding: 3px 5px 0;">
+        <a color="primary" mat-stroked-button aria-label="Build requests" class="gap t_border"
+          [routerLink]="['/designer', selectedPROJ._id]" matTooltip="Open in designer">
+          <mat-icon>architecture</mat-icon>
+          Edit
+        </a>
+        <span role="group" class="btn-group toggle-group" matTooltip="Group apis by">
+          <button type="button" mat-button [ngClass]="flags.groupBy == 'tags'?'t_bg t_border':''" class=""
+            (click)="tabs.get(0).selectedIndex = 2;flags.groupBy='tags'">Tags</button>
+          <button type="button" mat-button [ngClass]="flags.groupBy == 'url'?'t_bg t_border':''" class=""
+            (click)="tabs.get(0).selectedIndex = 2;flags.groupBy='url'">URL</button>
+        </span>
+      </div>
 
-                <mat-tab label="Security">
-                    <div class="margB25">
-                        <div class="section-header margV10">Security definitions</div>
-                        <div>Security scheme definitions that can be used across the specification.</div>
-                        <div class="secDefs">
-                            <div *ngFor="let secDef of resolvedSpec.components.securitySchemes|keyvalue" class="secDef">
-                                <div class="sName margB10">
-                                    {{secDef.key}}
-                                    <span>{{secDef.value.type}}</span>
-                                </div>
-                                <div class="sDesc margB10">{{secDef.value.description || '(no description)'}}</div>
-                                <div class="section-header sm">Properties</div>
-                                <div *ngIf="secDef.value.type == 'apiKey'">
-                                    <div class="prop">
-                                        <span>Name</span>
-                                        <span class="t_color">{{secDef.key}}</span>
-                                    </div>
-                                    <div class="prop">
-                                        <span>in</span>
-                                        <span class="t_color">{{secDef.value.in}}</span>
-                                    </div>
-                                </div>
-                                <div *ngIf="secDef.value.type == 'oauth2'">
-                                    <div *ngFor="let flow of secDef.value.flows|keyvalue">
-                                        <div class="prop">
-                                            <span>flow</span>
-                                            <span class="t_color">{{flow.key}}</span>
-                                        </div>
-                                        <div class="prop">
-                                            <span>authorizationUrl</span>
-                                            <span>
-                                                <a mat-icon-button target="_blank" *ngIf="flow.value.authorizationUrl"
-                                                    [href]="flow.value.authorizationUrl" class="t_color sm">
-                                                    <mat-icon>open_in_new</mat-icon>
-                                                </a>
-                                            </span>
-                                        </div>
-                                        <div class="prop">
-                                            <span>tokenUrl</span>
-                                            <span>
-                                                <a mat-icon-button target="_blank" *ngIf="flow.value.tokenUrl"
-                                                    [href]="flow.value.tokenUrl" class="t_color sm">
-                                                    <mat-icon>open_in_new</mat-icon>
-                                                </a>
-                                            </span>
-                                        </div>
-                                        <div class="section-header sm">Scopes</div>
-                                        <div *ngFor="let scope of flow.value.scopes|keyvalue" class="prop scope">
-                                            <span class="t_color">{{scope.key}}</span>
-                                            <span class="mono">{{scope.value}}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--Print any x-properties-->
-                                <div *ngFor="let prop of secDef.value|keyvalue">
-                                    <div class="prop" *ngIf="prop.key.startsWith('x-')">
-                                        <span class="">{{prop.key}}</span>
-                                        <span class="t_color">{{prop.value|json}}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <img *ngIf="['{}', undefined].includes((resolvedSpec.components.securitySchemes|json))"
-                            src="assets/images/blank.svg" class="blank-img margV10" alt="blank" />
-                    </div>
-                </mat-tab>
+      <div *ngIf="flags.groupBy=='url' && resolvedSpec">
+        <div *ngFor="let pathItem of resolvedSpec.paths|keyvalue;let i=index" class="margB25">
+          <div class="doc-link vcenter mono">
+            <mat-icon>expand_more</mat-icon>
+            {{pathItem?.key}}
+          </div>
+          <div class="sub-folder">
+            <div class="savedReq vcenter" *ngFor="let operationItem of pathItem.value|keyvalue; let j=index;">
+              <span class="method" [ngClass]="operationItem.value.method.toUpperCase()"></span>
+              <a [routerLink]="['./']" (click)="scrollInView(pathItem.key,i,j)"
+                [fragment]="operationItem.value.method+'-'+operationItem.value.path.slice(1)">{{operationItem.value.summary}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="flags.groupBy=='tags' && tagGroups">
+        <div *ngFor="let pathItem of tagGroups|keyvalue;let i=index">
+          <div class="doc-link vcenter">
+            <mat-icon>expand_more</mat-icon>
+            {{pathItem?.key}}
+          </div>
+          <div class="sub-folder">
+            <div class="savedReq vcenter" *ngFor="let operationItem of pathItem.value|keyvalue; let j=index;">
+              <span class="method" [ngClass]="operationItem.value.method.toUpperCase()"></span>
+              <a [routerLink]="['./']" (click)="scrollInView('tag-'+pathItem.key,i,j)" class="mono"
+                [fragment]="operationItem.value.method+'-'+operationItem.value.path.slice(1)">{{operationItem.value.path}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="right-cont">
+    <div class="docs-content" *ngIf="resolvedSpec">
+      <mat-tab-group animationDuration="0ms" class="main-tab">
+        <mat-tab label="Details">
+          <h3 class="title t_color">{{resolvedSpec.info.title}}<span class="badge">{{resolvedSpec.info.version ||
+              'NA'}}</span>
+          </h3>
+          <div class="margB25" markdown>{{resolvedSpec.info?.description||'(No description available)'}}</div>
+          <div class="margB25">
+            <div class="section-header">Terms of service</div>
+            <div *ngIf="resolvedSpec.info?.termsOfService">{{resolvedSpec.info.termsOfService}}</div>
+            <img *ngIf="!resolvedSpec.info?.termsOfService" src="assets/images/blank.svg" class="blank-img"
+              alt="blank" />
+          </div>
+          <div class="margB25">
+            <div class="section-header">Contact information</div>
+            <div *ngIf="resolvedSpec.info?.contact?.name" class="">{{resolvedSpec.info.contact.name}}</div>
+            <div *ngIf="resolvedSpec.info?.contact?.email" class="">
+              <a class="t_color" [href]="'mailto:'+resolvedSpec.info.contact.email"
+                target="_blank">{{resolvedSpec.info.contact.email}}</a>
+            </div>
+            <div *ngIf="resolvedSpec.info?.contact?.url" class="">
+              <a class="t_color" [href]="resolvedSpec.info.contact.url"
+                target="_blank">{{resolvedSpec.info.contact.url}}</a>
+            </div>
+            <img
+              *ngIf="!resolvedSpec.info?.contact?.name && !resolvedSpec.info?.contact?.url && !resolvedSpec.info?.contact?.email"
+              src="assets/images/blank.svg" class="blank-img" alt="blank" />
+          </div>
+          <div class="margB25">
+            <div class="section-header">License</div>
+            <div *ngIf="resolvedSpec.info?.license">
+              <div class="" *ngIf="!resolvedSpec.info.license.url">{{resolvedSpec.info.license.name}}
+              </div>
+              <div class="" *ngIf="resolvedSpec.info.license.url">
+                <a target="_blank" class="t_color"
+                  [href]="resolvedSpec.info.license.url">{{resolvedSpec.info.license.name}}</a>
+              </div>
+            </div>
+            <img *ngIf="!resolvedSpec.info?.license" src="assets/images/blank.svg" class="blank-img" alt="blank" />
+          </div>
+          <div class="margB25">
+            <div class="section-header">Tags</div>
+            <div *ngIf="resolvedSpec.tags?.length>0" class="tags">
+              <div class="tag" *ngFor="let tag of resolvedSpec.tags">
+                <div class="tName">{{tag.name}}</div>
+                <div class="tDesc">{{tag.description||'(no description)'}}</div>
+                <div class="tExt" *ngIf="tag.externalDocs">
+                  <a class="t_color" [href]="tag.externalDocs.url" target="_blank">
+                    {{tag.externalDocs.description || 'Know more'}}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <img *ngIf="resolvedSpec.tags?.length==0 || !resolvedSpec.tags" src="assets/images/blank.svg"
+              class="blank-img" alt="blank" />
+          </div>
+        </mat-tab>
 
-                <mat-tab label="Operations">
-                    <ng-template mat-tab-label>Operations</ng-template>
-                    <div class="" *ngIf="flags.groupBy=='url'">
-                        <div class="path" *ngFor="let pathItem of resolvedSpec.paths|keyvalue">
-                            <h3 class="apiheader vcenter" [id]="pathItem.key"
-                                (click)="hiddenPaths[pathItem.key] = !hiddenPaths[pathItem.key]">
-                                <mat-icon *ngIf="!hiddenPaths[pathItem.key]">expand_more</mat-icon>
-                                <mat-icon *ngIf="hiddenPaths[pathItem.key]">chevron_right</mat-icon>
-                                {{pathItem.key}}
-                            </h3>
-                            <div [hidden]="hiddenPaths[pathItem.key]">
-                                <mat-tab-group animationDuration="0ms" class="op-tabs">
-                                    <mat-tab *ngFor="let operationItem of pathItem.value|keyvalue">
-                                        <ng-template mat-tab-label>
-                                            <div class="op-label vcenter"
-                                                [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
-                                                {{operationItem.value.method|uppercase}}
-                                            </div>
-                                        </ng-template>
-                                        <div class="operation2"
-                                            [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
-                                            <ng-container [ngTemplateOutlet]="OpRef2"
-                                                [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.value.method, pathName:pathItem.key,isTabbed:true}">
-                                            </ng-container>
-                                        </div>
-                                    </mat-tab>
-                                </mat-tab-group>
-
-                            </div>
-                        </div>
+        <mat-tab label="Security">
+          <div class="margB25">
+            <div class="section-header margV10">Security definitions</div>
+            <div>Security scheme definitions that can be used across the specification.</div>
+            <div class="secDefs">
+              <div *ngFor="let secDef of resolvedSpec.components.securitySchemes|keyvalue" class="secDef">
+                <div class="sName margB10">
+                  {{secDef.key}}
+                  <span>{{secDef.value.type}}</span>
+                </div>
+                <div class="sDesc margB10">{{secDef.value.description || '(no description)'}}</div>
+                <div class="section-header sm">Properties</div>
+                <div *ngIf="secDef.value.type == 'apiKey'">
+                  <div class="prop">
+                    <span>Name</span>
+                    <span class="t_color">{{secDef.key}}</span>
+                  </div>
+                  <div class="prop">
+                    <span>in</span>
+                    <span class="t_color">{{secDef.value.in}}</span>
+                  </div>
+                </div>
+                <div *ngIf="secDef.value.type == 'oauth2'">
+                  <div *ngFor="let flow of secDef.value.flows|keyvalue">
+                    <div class="prop">
+                      <span>flow</span>
+                      <span class="t_color">{{flow.key}}</span>
                     </div>
-                    <div class="" *ngIf="flags.groupBy=='tags'">
-                        <div class="path" *ngFor="let pathItem of tagGroups|keyvalue">
-                            <h3 class="apiheader" [id]="'tag-'+pathItem.key"
-                                (click)="hiddenPaths[pathItem.key] = !hiddenPaths[pathItem.key]">
-                                <mat-icon *ngIf="!hiddenPaths[pathItem.key]">expand_more</mat-icon>
-                                <mat-icon *ngIf="hiddenPaths[pathItem.key]">chevron_right</mat-icon>
-                                {{pathItem.key}}
-                            </h3>
-                            <div [hidden]="hiddenPaths[pathItem.key]">
-                                <!-- <mat-tab-group animationDuration="0ms" class="op-tabs"> -->
-                                <div *ngFor="let operationItem of pathItem.value|keyvalue">
-                                    <!-- <ng-template mat-tab-label>
+                    <div class="prop">
+                      <span>authorizationUrl</span>
+                      <span>
+                        <a mat-icon-button target="_blank" *ngIf="flow.value.authorizationUrl"
+                          [href]="flow.value.authorizationUrl" class="t_color sm">
+                          <mat-icon>open_in_new</mat-icon>
+                        </a>
+                      </span>
+                    </div>
+                    <div class="prop">
+                      <span>tokenUrl</span>
+                      <span>
+                        <a mat-icon-button target="_blank" *ngIf="flow.value.tokenUrl" [href]="flow.value.tokenUrl"
+                          class="t_color sm">
+                          <mat-icon>open_in_new</mat-icon>
+                        </a>
+                      </span>
+                    </div>
+                    <div class="section-header sm">Scopes</div>
+                    <div *ngFor="let scope of flow.value.scopes|keyvalue" class="prop scope">
+                      <span class="t_color">{{scope.key}}</span>
+                      <span class="mono">{{scope.value}}</span>
+                    </div>
+                  </div>
+                </div>
+                <!--Print any x-properties-->
+                <div *ngFor="let prop of secDef.value|keyvalue">
+                  <div class="prop" *ngIf="prop.key.startsWith('x-')">
+                    <span class="">{{prop.key}}</span>
+                    <span class="t_color">{{prop.value|json}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <img *ngIf="['{}', undefined].includes((resolvedSpec.components.securitySchemes|json))"
+              src="assets/images/blank.svg" class="blank-img margV10" alt="blank" />
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Operations">
+          <ng-template mat-tab-label>Operations</ng-template>
+          <div class="" *ngIf="flags.groupBy=='url'">
+            <div class="path" *ngFor="let pathItem of resolvedSpec.paths|keyvalue">
+              <h3 class="apiheader vcenter" [id]="pathItem.key"
+                (click)="hiddenPaths[pathItem.key] = !hiddenPaths[pathItem.key]">
+                <mat-icon *ngIf="!hiddenPaths[pathItem.key]">expand_more</mat-icon>
+                <mat-icon *ngIf="hiddenPaths[pathItem.key]">chevron_right</mat-icon>
+                {{pathItem.key}}
+              </h3>
+              <div [hidden]="hiddenPaths[pathItem.key]">
+                <mat-tab-group animationDuration="0ms" class="op-tabs">
+                  <mat-tab *ngFor="let operationItem of pathItem.value|keyvalue">
+                    <ng-template mat-tab-label>
+                      <div class="op-label vcenter"
+                        [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
+                        {{operationItem.value.method|uppercase}}
+                      </div>
+                    </ng-template>
+                    <div class="operation2"
+                      [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
+                      <ng-container [ngTemplateOutlet]="OpRef2"
+                        [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.value.method, pathName:pathItem.key,isTabbed:true}">
+                      </ng-container>
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
+
+              </div>
+            </div>
+          </div>
+          <div class="" *ngIf="flags.groupBy=='tags'">
+            <div class="path" *ngFor="let pathItem of tagGroups|keyvalue">
+              <h3 class="apiheader" [id]="'tag-'+pathItem.key"
+                (click)="hiddenPaths[pathItem.key] = !hiddenPaths[pathItem.key]">
+                <mat-icon *ngIf="!hiddenPaths[pathItem.key]">expand_more</mat-icon>
+                <mat-icon *ngIf="hiddenPaths[pathItem.key]">chevron_right</mat-icon>
+                {{pathItem.key}}
+              </h3>
+              <div [hidden]="hiddenPaths[pathItem.key]">
+                <!-- <mat-tab-group animationDuration="0ms" class="op-tabs"> -->
+                <div *ngFor="let operationItem of pathItem.value|keyvalue">
+                  <!-- <ng-template mat-tab-label>
                                             <div class="op-label vcenter"
                                                 [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
                                                 {{(operationItem.value.method|uppercase)+
@@ -237,75 +235,75 @@
                                                 +operationItem.value.path}}
                                             </div>
                                         </ng-template> -->
-                                    <div class="operation2 margB10"
-                                        [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
-                                        <ng-container [ngTemplateOutlet]="OpRef2"
-                                            [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.value.method, pathName:pathItem.key,isTabbed:false}">
-                                        </ng-container>
-                                    </div>
-                                </div>
-                                <!-- </mat-tab-group> -->
-                            </div>
-                        </div>
-                    </div>
-                </mat-tab>
+                  <div class="operation2 margB10"
+                    [ngClass]="operationItem.value.deprecated?'deprecated':operationItem.value.method">
+                    <ng-container [ngTemplateOutlet]="OpRef2"
+                      [ngTemplateOutletContext]="{operation: operationItem.value, operationName:operationItem.value.method, pathName:pathItem.key,isTabbed:false}">
+                    </ng-container>
+                  </div>
+                </div>
+                <!-- </mat-tab-group> -->
+              </div>
+            </div>
+          </div>
+        </mat-tab>
 
-                <mat-tab label="Definitions">
-                    <ng-template matTabContent>
-                        <div class="definition" *ngFor="let modelItem of resolvedSpec.components.schemas|keyvalue"
-                            id="model-{{modelItem.key}}">
-                            <div class="doc-model label-sm t_color vcenter"
-                                (click)="hiddenPaths[modelItem.key] = !hiddenPaths[modelItem.key]">
-                                <mat-icon *ngIf="hiddenPaths[modelItem.key] ">chevron_right</mat-icon>
-                                {{modelItem.key}}
-                            </div>
-                            <div [hidden]="hiddenPaths[modelItem.key]">
-                                <json-schema-viewer [schema]="modelItem.value" open="3"></json-schema-viewer>
-                            </div>
-                        </div>
-                    </ng-template>
-                </mat-tab>
-            </mat-tab-group>
-        </div>
+        <mat-tab label="Definitions">
+          <ng-template matTabContent>
+            <div class="definition" *ngFor="let modelItem of resolvedSpec.components.schemas|keyvalue"
+              id="model-{{modelItem.key}}">
+              <div class="doc-model label-sm t_color vcenter"
+                (click)="hiddenPaths[modelItem.key] = !hiddenPaths[modelItem.key]">
+                <mat-icon *ngIf="hiddenPaths[modelItem.key] ">chevron_right</mat-icon>
+                {{modelItem.key}}
+              </div>
+              <div [hidden]="hiddenPaths[modelItem.key]">
+                <json-schema-viewer [schema]="modelItem.value" open="3"></json-schema-viewer>
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
     </div>
+  </div>
 </div>
 
 <ng-template #OpRef2 let-operation="operation" let-operationName="operationName" let-pathName="pathName"
-    let-isTabbed="isTabbed">
-    <details [attr.open]="isTabbed?'':undefined">
-        <summary [ngStyle]="{'pointer-events':isTabbed?'none':'auto'}">
-            <header [ngClass]="{deprecated:operation.deprecated, collapsible:!isTabbed}">
-                <span *ngIf="!isTabbed" class="http_method bold">{{operationName}}</span>
-                <span class="http-path gap f18">{{operation.path}}</span>
-                <div class="name" *ngIf="!isTabbed">{{operation.summary}}</div>
-                <!-- <button mat-flat-button class="sm" matTooltip="Run endpoint" (click)="run(operation['x-apic-id'])">
+  let-isTabbed="isTabbed">
+  <details [attr.open]="isTabbed?'':undefined">
+    <summary [ngStyle]="{'pointer-events':isTabbed?'none':'auto'}">
+      <header [ngClass]="{deprecated:operation.deprecated, collapsible:!isTabbed}">
+        <span *ngIf="!isTabbed" class="http_method bold">{{operationName}}</span>
+        <span class="http-path gap f18">{{operation.path}}</span>
+        <div class="name" *ngIf="!isTabbed">{{operation.summary}}</div>
+        <!-- <button mat-flat-button class="sm" matTooltip="Run endpoint" (click)="run(operation['x-apic-id'])">
                     <mat-icon class="gap green">play_arrow</mat-icon> Run
                 </button> -->
-                <button class="run vcenter" (click)="run(operation['x-apic-id'])">
-                    <mat-icon class="green">play_arrow</mat-icon>
-                    <span>Run</span>
-                </button>
-            </header>
-        </summary>
+        <button class="run vcenter" (click)="run(operation['x-apic-id'])">
+          <mat-icon class="green">play_arrow</mat-icon>
+          <span>Run</span>
+        </button>
+      </header>
+    </summary>
 
-        <div class='content'>
-            <div class="margB20">
-                <div class="vcenter">
-                    <div class="f20 bold">{{operation.summary}}</div>
-                    <div *ngIf="operation.deprecated" class="badge left-auto">Deprecated</div>
-                    <div *ngIf="operation.operationId" class="badge left-auto" matTooltip="Operation Id">
-                        {{operation.operationId}}</div>
-                </div>
-                <div class="mono margB10">{{operation.path}}</div>
-                <section class="description" *ngIf="operation.description">
-                    {{operation.description || '(no description specified)'}}
-                </section>
-            </div>
-            <div class="margB20" title="Tags" *ngIf="operation.tags?.length>0">
-                <span class="section-header sm">Tags</span>
-                <span class="badge gap" *ngFor="let tag of operation.tags">{{tag}}</span>
-            </div>
-            <!-- <div class="vcenter eq-col">
+    <div class='content'>
+      <div class="margB20">
+        <div class="vcenter">
+          <div class="f20 bold">{{operation.summary}}</div>
+          <div *ngIf="operation.deprecated" class="badge left-auto">Deprecated</div>
+          <div *ngIf="operation.operationId" class="badge left-auto" matTooltip="Operation Id">
+            {{operation.operationId}}</div>
+        </div>
+        <div class="mono margB10">{{operation.path}}</div>
+        <section class="description" *ngIf="operation.description">
+          {{operation.description || '(no description specified)'}}
+        </section>
+      </div>
+      <div class="margB20" title="Tags" *ngIf="operation.tags?.length>0">
+        <span class="section-header sm">Tags</span>
+        <span class="badge gap" *ngFor="let tag of operation.tags">{{tag}}</span>
+      </div>
+      <!-- <div class="vcenter eq-col">
                 <div *ngIf="operation.consumes?.length>0">
                     <div class="section-header sm">Consumes</div>
                     <span *ngFor="let itm of operation.consumes" class="badge">{{itm}}</span>
@@ -316,116 +314,110 @@
                 </div>
             </div> -->
 
-            <section class="parameters margB20">
-                <div class="section-header sm margV10">Parameters</div>
-                <table class="table" cellSpacing="0" *ngIf="operation.parameters?.length>0">
-                    <thead>
-                        <tr>
-                            <th style="width: 35%">Name</th>
-                            <th style="width: 65%">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let parameter of operation.parameters;">
-                            <td>
-                                <div class="mono f16 bold margV10">
-                                    {{parameter.name}}
-                                    <span class="sup red" *ngIf="parameter.required">*required</span>
-                                </div>
-                                <div>Located in: <span class="bold">{{parameter.in}}</span></div>
-                            </td>
-                            <td>
-                                <div class="margB10">{{parameter.description}}</div>
-                                <!-- <div class="section-header sm">Schema</div> -->
-                                <json-schema-viewer *ngIf="!parameter.type" [schema]="parameter.schema">
-                                </json-schema-viewer>
-                                <json-schema-viewer *ngIf="parameter.type" [schema]="{type:parameter.type}">
-                                </json-schema-viewer>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div *ngIf="!operation.parameters || operation.parameters.length === 0" class="faint">No parameters
+      <section class="parameters margB20">
+        <div class="section-header sm margV10">Parameters</div>
+        <table class="table" cellSpacing="0" *ngIf="operation.parameters?.length>0">
+          <thead>
+            <tr>
+              <th style="width: 35%">Name</th>
+              <th style="width: 65%">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let parameter of operation.parameters;">
+              <td>
+                <div class="mono f16 bold margV10">
+                  {{parameter.name}}
+                  <span class="sup red" *ngIf="parameter.required">*required</span>
                 </div>
-            </section>
+                <div>Located in: <span class="bold">{{parameter.in}}</span></div>
+              </td>
+              <td>
+                <div class="margB10">{{parameter.description}}</div>
+                <!-- <div class="section-header sm">Schema</div> -->
+                <json-schema-viewer *ngIf="!parameter.type" [schema]="parameter.schema">
+                </json-schema-viewer>
+                <json-schema-viewer *ngIf="parameter.type" [schema]="{type:parameter.type}">
+                </json-schema-viewer>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="!operation.parameters || operation.parameters.length === 0" class="faint">No parameters
+        </div>
+      </section>
 
-            <section class="requestBody margB20" *ngIf="operation.requestBody">
-                <div class="section-header sm margV10 vcenter">
-                    <span>
-                        Request Body <span class="sup red">*required</span>
-                    </span>
-                    <!--TODO: Better handel for selecting first value using objRef.keys-->
-                    <select class="flex-right" [ngModel]="objRef.keys(operation.requestBody.content)[0]"
-                        #mimeType="ngModel">
-                        <option *ngFor="let body of operation.requestBody.content|keyvalue;let i=index"
-                            [attr.value]="body.key">
-                            {{body.key}}</option>
-                    </select>
-                </div>
-                <!--Add descriptions to request body-->
-                <div *ngIf="operation.requestBody.description" class="margB20">{{operation.requestBody.description}}
-                </div>
-                <mat-tab-group animationDuration="0ms">
+      <section class="requestBody margB20" *ngIf="operation.requestBody">
+        <div class="section-header sm margV10 vcenter">
+          <span>
+            Request Body <span class="sup red">*required</span>
+          </span>
+          <!--TODO: Better handel for selecting first value using objRef.keys-->
+          <select class="flex-right" [ngModel]="objRef.keys(operation.requestBody.content)[0]" #mimeType="ngModel">
+            <option *ngFor="let body of operation.requestBody.content|keyvalue;let i=index" [attr.value]="body.key">
+              {{body.key}}</option>
+          </select>
+        </div>
+        <!--Add descriptions to request body-->
+        <div *ngIf="operation.requestBody.description" class="margB20">{{operation.requestBody.description}}
+        </div>
+        <mat-tab-group animationDuration="0ms">
+          <mat-tab label="Schema">
+            <json-schema-viewer [schema]="operation.requestBody.content[mimeType.value]?.schema">
+            </json-schema-viewer>
+          </mat-tab>
+          <mat-tab label="Example">
+            <ng-template matTabContent>
+              <apic-ace [text]="generateExample(operation.requestBody.content[mimeType.value])|json" [mode]="'json'"
+                [readOnly]="true"></apic-ace>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </section>
+
+      <section class="responses" ng-if="operation">
+        <div class="section-header sm margV10">Responses</div>
+        <table class="table" cellSpacing="0">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let response of operation.responses|keyvalue">
+              <td style="width:100px">
+                <span class="resp-code"
+                  [ngClass]="{info:response.key.charAt(0)=='1',success:response.key.charAt(0)=='2',warning:response.key.charAt(0)=='3',error:response.key.charAt(0)=='5'||response.key.charAt(0)=='4'}">
+                  {{response.key}}</span>
+              </td>
+              <td style="width:auto">
+                <div class="resp-desc margB10">{{response.value.description}}</div>
+                <select class="flex-right" [ngModel]="objRef.keys(response.value.content)[0]" #mimeType="ngModel">
+                  <option *ngFor="let body of response.value.content | keyvalue; let i= index" [attr.value]="body.key">
+                    {{body.key}}</option>
+                </select>
+                <div *ngIf="shouldShowSchema (response.value.content[mimeType.value]?.schema); else notSpecified">
+                  <mat-tab-group animationDuration="0ms">
                     <mat-tab label="Schema">
-                        <json-schema-viewer [schema]="operation.requestBody.content[mimeType.value]?.schema">
-                        </json-schema-viewer>
+                      <json-schema-viewer [schema]="response.value.content[mimeType.value]?.schema">
+                      </json-schema-viewer>
                     </mat-tab>
                     <mat-tab label="Example">
-                        <ng-template matTabContent>
-                            <apic-ace [text]="generateExample(operation.requestBody.content[mimeType.value])|json"
-                                [mode]="'json'" [readOnly]="true"></apic-ace>
-                        </ng-template>
+                      <ng-template matTabContent>
+                        <apic-ace [text]="generateExample(response.value.content[mimeType.value])|json" [mode]="'json'"
+                          [readOnly]="true"></apic-ace>
+                      </ng-template>
                     </mat-tab>
-                </mat-tab-group>
-            </section>
-
-            <section class="responses" ng-if="operation">
-                <div class="section-header sm margV10">Responses</div>
-                <table class="table" cellSpacing="0">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Detail</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr *ngFor="let response of operation.responses|keyvalue">
-                            <td style="width:100px">
-                                <span class="resp-code"
-                                    [ngClass]="{info:response.key.charAt(0)=='1',success:response.key.charAt(0)=='2',warning:response.key.charAt(0)=='3',error:response.key.charAt(0)=='5'||response.key.charAt(0)=='4'}">
-                                    {{response.key}}</span>
-                            </td>
-                            <td style="width:auto">
-                                <div class="resp-desc margB10">{{response.value.description}}</div>
-                                <select class="flex-right" [ngModel]="objRef.keys(response.value.content)[0]"
-                                    #mimeType="ngModel">
-                                    <option *ngFor="let body of response.value.content | keyvalue; let i= index"
-                                        [attr.value]="body.key">{{body.key}}</option>
-                                </select>
-                                <div
-                                    *ngIf="shouldShowSchema (response.value.content[mimeType.value]?.schema); else notSpecified">
-                                    <mat-tab-group animationDuration="0ms">
-                                        <mat-tab label="Schema">
-                                            <json-schema-viewer
-                                                [schema]="response.value.content[mimeType.value]?.schema">
-                                            </json-schema-viewer>
-                                        </mat-tab>
-                                        <mat-tab label="Example">
-                                            <ng-template matTabContent>
-                                                <apic-ace
-                                                    [text]="generateExample(response.value.content[mimeType.value])|json"
-                                                    [mode]="'json'" [readOnly]="true"></apic-ace>
-                                            </ng-template>
-                                        </mat-tab>
-                                    </mat-tab-group>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </div>
-    </details>
+                  </mat-tab-group>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </details>
 </ng-template>
 <ng-template #notSpecified>Schema not specified.</ng-template>

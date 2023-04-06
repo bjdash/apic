@@ -21,94 +21,86 @@ import { first } from 'rxjs/operators';
 
 @Injectable()
 export class AppBootstrap {
-    // static httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
+  // static httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
 
-    constructor(private httpClient: HttpClient,
-        private httpService: HttpService,
-        private migrationService: MigrationService,
-        private apiProjectService: ApiProjectService,
-        private envService: EnvService,
-        private reqService: RequestsService,
-        private suiteService: SuiteService,
-        private themeService: ThemesService,
-        private reqHistoryService: ReqHistoryService) {
+  constructor(private httpClient: HttpClient,
+    private httpService: HttpService,
+    private migrationService: MigrationService,
+    private apiProjectService: ApiProjectService,
+    private envService: EnvService,
+    private reqService: RequestsService,
+    private suiteService: SuiteService,
+    private themeService: ThemesService,
+    private reqHistoryService: ReqHistoryService) {
 
-    }
+  }
 
-    async init() {
-        const newVersion = environment.VERSION, oldVersion = LocalStore.get(LocalStore.VERSION);
+  async init() {
+    const newVersion = environment.VERSION, oldVersion = LocalStore.get(LocalStore.VERSION);
 
-        //check if the dummy user is registered, otherwise add a dummy user.
-        this.addDummyUser();
+    //check if the dummy user is registered, otherwise add a dummy user.
+    this.addDummyUser();
 
-        //do firstRun
-        await this.doFirstRunIfRequired();
+    //do firstRun
+    await this.doFirstRunIfRequired();
 
-        this.migrationService.migrate(newVersion, oldVersion);
+    this.migrationService.migrate(newVersion, oldVersion);
 
-        //check if APIC was updated, and show notification
-        // this.checkIfUpdated();
+    //check if APIC was updated, and show notification
+    // this.checkIfUpdated();
 
-        //apply theme
-        this.themeService.applyCurrentTheme();
+    //apply theme
+    this.themeService.applyCurrentTheme();
 
-        //read all data from index DB
-        this.readAllDbs();
-    }
+    //read all data from index DB
+    this.readAllDbs();
+  }
 
-    private async addDummyUser() {
-        //check if the dummy user is registered, otherwise add a dummy user.
-        this.httpService.addDummyUser()
-            .pipe(first())
-            .subscribe(respData => {
-                LocalStore.set(LocalStore.USER_ID, respData.id);
-            });
-    }
+  private async addDummyUser() {
+    //check if the dummy user is registered, otherwise add a dummy user.
+    this.httpService.addDummyUser()
+      .pipe(first())
+      .subscribe(respData => {
+        LocalStore.set(LocalStore.USER_ID, respData.id);
+      });
+  }
 
-    async doFirstRunIfRequired() {
-        //detect for first run of APIC
-        const firstRun = LocalStore.get(LocalStore.FIRST_RUN);
+  async doFirstRunIfRequired() {
+    //detect for first run of APIC
+    const firstRun = LocalStore.get(LocalStore.FIRST_RUN);
 
-        if (!firstRun) { //first run
-            var promises = [];
+    if (!firstRun) { //first run
+      var promises = [];
 
-            var pr1 = iDB.upsert('ApiProjects', DemoData.demoDesignProj), //install Demo design project
-                pr2 = iDB.upsert('Environments', DemoData.demoEnv), //add the environment for the project
-                pr3 = iDB.upsert('Projects', DemoData.demoTestProj), //create the test project
-                pr4 = iDB.upsert('TestSuits', DemoData.demoSuit); //add the test suit
+      var pr1 = iDB.upsert('ApiProjects', DemoData.demoDesignProj), //install Demo design project
+        pr2 = iDB.upsert('Environments', DemoData.demoEnv), //add the environment for the project
+        pr3 = iDB.upsert('Projects', DemoData.demoTestProj), //create the test project
+        pr4 = iDB.upsert('TestSuits', DemoData.demoSuit); //add the test suit
 
-            promises.push(pr1);
-            promises.push(pr2);
-            promises.push(pr3);
-            promises.push(pr4);
+      promises.push(pr1);
+      promises.push(pr2);
+      promises.push(pr3);
+      promises.push(pr4);
 
-            await Promise.all(promises);
-            //mark first run complete
-            LocalStore.set(LocalStore.FIRST_RUN, true);
-
-        }
-    }
-
-    async readAllDbs() {
-        return await Promise.all([
-            this.apiProjectService.loadApiProjs(),
-            this.envService.getAllEnvs(),
-            this.reqService.loadFolders(),
-            this.reqService.loadRequests(),
-            this.reqHistoryService.refresh(),
-            this.suiteService.loadTestProjects(),
-            this.suiteService.loadTestSuites()
-        ])
+      await Promise.all(promises);
+      //mark first run complete
+      LocalStore.set(LocalStore.FIRST_RUN, true);
 
     }
+  }
 
-    // checkIfUpdated() {
-    //     let version = LocalStore.get(LocalStore.VERSION) || '0.0.0';
-    //     if (MigrationService.isVersionHigher(environment.VERSION, version)) {
-    //         Utils.notify('APIC Updated', `Apic has been updated to a new version ${environment.VERSION}.`, 'https://apic.app/changelog.html');
-    //     }
-    //     LocalStore.set(LocalStore.VERSION, environment.VERSION);
-    // }
+  async readAllDbs() {
+    return await Promise.all([
+      this.apiProjectService.loadApiProjs(),
+      this.envService.getAllEnvs(),
+      this.reqService.loadFolders(),
+      this.reqService.loadRequests(),
+      this.reqHistoryService.refresh(),
+      this.suiteService.loadTestProjects(),
+      this.suiteService.loadTestSuites()
+    ])
+
+  }
 }
 
 

@@ -80,8 +80,6 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   }
 
   refresh() {
-    console.log(this.ace);
-
     this.ace.directiveRef.ace().resize()
   }
 

@@ -1,8 +1,8 @@
 import { Component, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { ControlValueAccessor, FormArray, FormBuilder, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, NEVER, Observable, Subject } from 'rxjs';
 import { Subscription, timer } from 'rxjs';
-import { debounce, delay, map, startWith, takeUntil, tap } from 'rxjs/operators';
+import { debounce, delay, map, startWith, takeUntil, switchMap, debounceTime } from 'rxjs/operators';
 import { KeyVal } from 'src/app/models/KeyVal.model';
 import { Utils } from 'src/app/services/utils.service';
 
@@ -17,11 +17,9 @@ export interface KVEditorOptn {
   placeholderKey?: string,
   placeholderVal?: string,
   enableAutocomplete?: boolean,
-  allowFileType?: boolean,
-  useRichText?: false,
   autocompletes?: string[],
-  useSelectForVal?: boolean,
-  disabled?:boolean
+  disabled?: boolean,
+  valueFieldType?: 'plainText' | 'richText' | 'select' | 'fullEditor' | 'fileAndText' | 'jsonText'
 }
 
 @Component({
@@ -51,16 +49,16 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     placeholderKey: 'Key',
     placeholderVal: 'Value',
     enableAutocomplete: false,
-    allowFileType: false,
-    useRichText: false,
     autocompletes: [],
-    useSelectForVal: false,
-    disabled:false
+    disabled: false,
+    valueFieldType: 'plainText'
   }
   keyValueForm: FormArray;
   focusedIndex: number = 0;
   private _destroy = new Subject<boolean>();
   filteredOptions$: Observable<string[]>;
+  paused$ = new BehaviorSubject(false);
+  changeSubscription: Subscription
 
   propagateChange: any = () => { };
   propagateTouch: any = () => { };
@@ -81,17 +79,33 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
         initialValue = [{ key: '', val: '', ...(this.options.allowToggle && { active: true }) }]
       }
     }
+    this.paused$.next(true);
     while (this.keyValueForm.length !== 0) {
       this.keyValueForm.removeAt(0)
     }
-    this.buildForm(initialValue).forEach(form => this.keyValueForm.push(form));
-    // this.keyValueForm = this.fb.array();
-    this.keyValueForm.valueChanges
-      .pipe(takeUntil(this._destroy))
-      .pipe(debounce(() => timer(200)))
-      .subscribe(data => {
-        this.propagateChange(data)
-      })
+    this.buildForm(initialValue, true).forEach(form => this.keyValueForm.push(form));
+    this.paused$.next(false);
+    if (!this.changeSubscription || this.changeSubscription.closed) {
+      this.changeSubscription = this.paused$
+        .pipe(takeUntil(this._destroy))
+        .pipe(switchMap(paused => {
+          return paused ? NEVER : this.keyValueForm.valueChanges.pipe(debounceTime(600))
+        }))
+        .pipe(debounce(() => timer(200)))
+        .subscribe((data: KeyVal[]) => {
+          if (this.options.valueFieldType === 'jsonText') {
+            data = data.map(d => {
+              let jsonVal = d.val;
+              if (d.type === 'json') {
+                try {
+                  jsonVal = JSON.parse(jsonVal)
+                } catch (e) { }
+              }
+              return { ...d, val: jsonVal }
+            })
+          }
+        })
+    }
   }
   registerOnChange(fn: any): void {
     this.propagateChange = fn;
@@ -124,14 +138,28 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     return this.options.autocompletes.filter(option => option.toLowerCase().indexOf(filterValue) === 0);
   }
 
-  buildForm(initialValue: KeyVal[]) {
+  buildForm(initialValue: KeyVal[], pausePropagation?: boolean) {
     return initialValue.map(kv => {
+      let val = kv.val;
+      let type = 'text';
+      if (this.options.valueFieldType === 'jsonText') {
+        if (typeof kv.val !== 'string') {
+          try {
+            val = JSON.stringify(val, null, '\t');
+            type = 'json';
+          } catch (e) {
+
+          }
+        }
+      }
+
       return this.fb.group({
         key: [kv.key || ''],
         val: [kv.val || ''],
+        type: [type],
         //if checkbox is enabled and kv pair doesnt have an active property then set it to true by default
         ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] }),
-        ...(this.options.allowFileType && { type: [kv.type || 'text'], meta: [kv.meta] })
+        ...(this.options.valueFieldType === 'fileAndText' && { type: [kv.type || 'text'], meta: [kv.meta] })
       })
     });
   }
@@ -140,8 +168,9 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
     this.keyValueForm.push(this.fb.group({
       key: [''],
       val: [''],
+      ...(this.options.valueFieldType && { type: ['json'] }),
       ...(this.options.allowToggle && { active: [true] }),
-      ...(this.options.allowFileType && { type: ['text'], meta: [null] }),
+      ...(this.options.valueFieldType === 'fileAndText' && { type: ['text'], meta: [null] }),
     }))
   }
 
@@ -163,7 +192,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
       key: kvPair.key,
       val: kvPair.val,
       ...(this.options.allowToggle && { active: kvPair.active }),
-      ...(this.options.allowFileType && { type: kvPair.type, meta: null }),
+      ...(this.options.valueFieldType === 'fileAndText' && { type: kvPair.type, meta: null }),
     };
     this.utils.copyToClipboard(JSON.stringify(copyText));
   }
@@ -183,5 +212,10 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
 
   trackByFn(index, item) {
     return index;
+  }
+
+  toggleAceType(index, type) {
+    this.keyValueForm.at(index).patchValue({ type });
+    this.keyValueForm.updateValueAndValidity({ onlySelf: false, emitEvent: true })
   }
 }

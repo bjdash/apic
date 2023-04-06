@@ -1,278 +1,270 @@
 <div class="test-tab-cont tab-socket">
-    <form [formGroup]="form" autocomplete="off">
-        <div class="url-cont">
-            <div class="progress-holder">
-                <div class="progress-bar" *ngIf="flags.connecting"></div>
+  <form [formGroup]="form" autocomplete="off">
+    <div class="url-cont">
+      <div class="progress-holder">
+        <div class="progress-bar" *ngIf="flags.connecting"></div>
+      </div>
+      <div class="vcenter">
+        <apic-rich-input class="URL" formControlName="url" placeholder="Request URL"></apic-rich-input>
+        <span class="url-opt vcenter">
+          <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url" matTooltipPosition="left"
+            (click)="copyCompiledUrl()">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button mat-button class="run" (click)="connect()"
+            *ngIf="!flags.connecting && !flags.connected">Connect</button>
+          <button mat-button class="abort" (click)="disconnect()"
+            *ngIf="flags.connecting || flags.connected">Disconnect</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="top-spacer"></div>
+    <div class="row">
+      <!-----Socket type selector------>
+      <div class="col-xs-7">
+        <div class="paper visibleFlow">
+          <h3 class="panel-title pointer" (click)="flags.showConnection = !flags.showConnection">
+            Connection type
+          </h3>
+          <div class="pull-right margB5 vcenter">
+            <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadRequest"
+              matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
+              <mat-icon>sync</mat-icon>
+            </button>
+            <span class="btn-group accent gap">
+              <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
+                <mat-icon>save</mat-icon> Save
+              </button>
+              <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
+                <mat-icon>arrow_drop_down</mat-icon>
+              </button>
+            </span>
+            <mat-menu #savemenu="matMenu">
+              <button mat-menu-item (click)="initReqSave(true)">
+                <mat-icon>save</mat-icon> Save as
+              </button>
+            </mat-menu>
+            <button class="sm" mat-icon-button (click)="flags.showConnection = !flags.showConnection">
+              <mat-icon *ngIf="flags.showConnection">expand_less</mat-icon>
+              <mat-icon *ngIf="!flags.showConnection">expand_more</mat-icon>
+            </button>
+          </div>
+          <div class="panel-body" [hidden]="!flags.showConnection">
+            <fieldset class="controls btn-group tab-group" [disabled]="flags.connected">
+              <button mat-button [ngClass]="{'active':method == 'Websocket'}"
+                (click)="method = 'Websocket'">Websocket</button>
+              <button mat-button [ngClass]="{'active':method == 'Socketio'}"
+                (click)="method = 'Socketio'">Socket.io</button>
+              <button mat-button [ngClass]="{'active':method =='Stomp'}" (click)="method ='Stomp'">Stomp</button>
+              <button mat-button [ngClass]="{'active':method =='SSE'}" (click)="method ='SSE'">SSE</button>
+            </fieldset>
+            <div class="padV5 form-horizontal" *ngIf="method === 'Stomp'" formGroupName="stomp">
+              <div class="row">
+                <label class="col-sm-4 align-right">Subscription URL:</label>
+                <div class="col-sm-8">
+                  <apic-rich-input formControlName="subscUrl" class="form-control"
+                    placeholder="Stomp Subscription URL"></apic-rich-input>
+                </div>
+              </div>
+              <div class="row">
+                <label class="col-sm-4 align-right">Virtual Host:</label>
+                <div class="col-sm-8">
+                  <apic-rich-input formControlName="host" class="form-control"
+                    placeholder="Stomp Virtual Host name (optional)"></apic-rich-input>
+                </div>
+              </div>
+              <div *ngIf="flags.stompUseCred">
+                <div class="row">
+                  <label class="col-sm-4 align-right" for="email">Login:</label>
+                  <div class="col-sm-8">
+                    <apic-rich-input formControlName="login" class="form-control"
+                      placeholder="Login Id"></apic-rich-input>
+                  </div>
+                </div>
+                <div class="row">
+                  <label class="col-sm-4 align-right" for="pwd">Passcode:</label>
+                  <div class="col-sm-8">
+                    <input type="{{flags.stompShowPsd?'text':'password'}}" formControlName="passcode" value=""
+                      class="form-control" id="pwd" placeholder="Password" />
+                    <mat-checkbox [(ngModel)]="flags.stompShowPsd" [ngModelOptions]="{standalone:true}">Show
+                      password</mat-checkbox>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-xs-offset-4">
+                <button type="button" mat-stroked-button class="sm" (click)="flags.stompUseCred = true"
+                  *ngIf="!flags.stompUseCred">Use credentials</button>
+              </div>
+              <div class="headers form-inline" role="form" style="clear: both">
+                <div>Headers</div>
+                <app-key-value-editor formControlName="headers"
+                  [options]="{addOnFocus:true,allowToggle:true, valueFieldType:'richText'}">
+                </app-key-value-editor>
+              </div>
             </div>
-            <div class="vcenter">
-                <apic-rich-input class="URL" formControlName="url" placeholder="Request URL"></apic-rich-input>
-                <span class="url-opt vcenter">
-                    <button type="button" mat-icon-button class="sm" matTooltip="Copy compiled url"
-                        matTooltipPosition="left" (click)="copyCompiledUrl()">
-                        <mat-icon>content_copy</mat-icon>
+            <div *ngIf="method=='SSE'" formGroupName="sse">
+              <div class="row">
+                <div class="col-xs-7">
+                  <apic-list [options]="{label:'Listeners', itemType:'object'}"
+                    (onToggle)="wsToggleListener($event, 'sse')" (onRemove)="wsRemoveListener($event, 'sse')"
+                    (onAdd)="wsAddListener($event, 'sse')" formControlName="listeners"></apic-list>
+                </div>
+                <div class="col-xs-5">
+                  <mat-checkbox formControlName="withCred">With credentials</mat-checkbox>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="method=='Socketio'" class="form-horizontal" formGroupName="socketio">
+              <div class="row">
+                <div class="col-sm-6">
+                  <div>
+                    <label>Path:</label>
+                    <div class="margV5">
+                      <apic-rich-input formControlName="path" class="form-control"
+                        placeholder="Default /socket.io"></apic-rich-input>
+                    </div>
+                  </div>
+                  <div class="margV5">
+                    <label>Transport:</label>
+                    <div class="row">
+                      <mat-checkbox class="col-sm-6" formControlName="pooling">Pooling
+                      </mat-checkbox>
+                      <mat-checkbox class="col-sm-6" formControlName="ws">Websockets
+                      </mat-checkbox>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <apic-list [options]="{label:'Listeners', itemType:'object'}"
+                    (onToggle)="wsToggleListener($event, 'socketio')" (onRemove)="wsRemoveListener($event, 'socketio')"
+                    (onAdd)="wsAddListener($event, 'socketio')" formControlName="listeners">
+                  </apic-list>
+                </div>
+              </div>
+              <div class="left15 margB5">
+                <div>Query params</div>
+                <app-key-value-editor formControlName="query"
+                  [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Query param name', valueFieldType:'richText'}">
+                </app-key-value-editor>
+              </div>
+              <div class="left15">
+                <div>Headers</div>
+                <app-key-value-editor formControlName="headers"
+                  [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Header name', valueFieldType:'richText'}">
+                </app-key-value-editor>
+              </div>
+              <div class="sio-info">
+                <mat-icon class="sm ">info</mat-icon> APIC is currently using version <a
+                  href="https://www.npmjs.com/package/socket.io-client/v/2.4.0" class="t_color underline"
+                  target="_new">2.4.0</a> of socket.io client. If you are
+                unable to connect to server
+                chances are your server version is higher. <a class="t_color underline"
+                  href="https://socket.io/docs/v4/server-initialization/#allowEIO3" target="_new">Know
+                  more</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-----Messages------>
+      <div class="col-xs-5">
+        <div class="paper">
+          <h3 class="panel-title pointer" (click)="flags.showMsgs = !flags.showMsgs">
+            Messages
+          </h3>
+          <div class="pull-right vcenter">
+            <button class="sm gap" mat-icon-button (click)="messages=[]">
+              <mat-icon>clear_all</mat-icon>
+            </button>
+            <button class="sm" mat-icon-button (click)="flags.showMsgs = !flags.showMsgs">
+              <mat-icon *ngIf="flags.showMsgs">expand_less</mat-icon>
+              <mat-icon *ngIf="!flags.showMsgs">expand_more</mat-icon>
+            </button>
+          </div>
+          <div class="panel-body msgs" [hidden]="!flags.showMsgs">
+            <div *ngFor="let msg of messages; trackBy: trackByFn" attr.time="{{msg.time | date:'hh:mm:ss a'}}"
+              class="sock-resp" [ngClass]="msg.type">
+              <div *ngIf="msg.head" class="bold">{{msg.head}}</div>
+              <pre [ngClass]="msg.type==='error'?'red bold':''">{{msg.body | json }}</pre>
+            </div>
+            <div *ngIf="messages.length===0" class="bold center">
+              No messages to show yet...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="col-xs-12">
+      <div class="paper" *ngIf="method !='SSE'">
+        <h3 class="panel-title pointer" (click)="flags.showSend = !flags.showSend">
+          Send
+        </h3>
+        <div class="pull-right vcenter">
+          <span class="green gap vcenter" *ngIf="flags.sent">
+            <mat-icon class="sm">done</mat-icon>Sent
+          </span>
+          <div class="btn-group toggle-group gap">
+            <button type="button" mat-button class="xs" [ngClass]="flags.sendMsgType==='text'?'t_bg t_border':''"
+              (click)="flags.sendMsgType='text'">Text</button>
+            <button type="button" mat-button class="xs" [ngClass]="flags.sendMsgType==='json'?'t_bg t_border':''"
+              (click)="flags.sendMsgType='json'">Json</button>
+          </div>
+          <button class="sm" mat-icon-button (click)="flags.showSend = !flags.showSend">
+            <mat-icon *ngIf="flags.showSend">expand_less</mat-icon>
+            <mat-icon *ngIf="!flags.showSend">expand_more</mat-icon>
+          </button>
+        </div>
+        <div class="panel-body sock-resp-cont" [hidden]="!flags.showSend">
+          <div class="s-send-cont">
+            <div *ngIf="method === 'Stomp'">
+              <div class="form-group" formGroupName="stomp">
+                <label>Destination Queue:</label>
+                <apic-rich-input formControlName="destQ" class="form-control"
+                  placeholder="Destination Queue URL"></apic-rich-input>
+              </div>
+            </div>
+            <div *ngIf="method === 'Socketio'" class="row" formGroupName="socketio">
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <label>Event name to emit:</label>
+                  <apic-rich-input formControlName="emitName" class="form-control"
+                    placeholder="Event name"></apic-rich-input>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">Arguments</label>
+                  <div>
+                    <button mat-stroked-button class="sioarg" (click)="sioSaveCurrentArg();sioLoadArgVal(i)"
+                      *ngFor="let x of socketIo.args; trackBy: trackByFn;let i = index;"
+                      [ngClass]="i===socketIo.curArg?'t_bg t_border':''">
+                      <mat-icon *ngIf="socketIo.args.length > 1" class="sm red"
+                        (click)="sioRemoveArg(i, $event)">close</mat-icon>
+                      Arg {{i+1}}
                     </button>
-                    <button mat-button class="run" (click)="connect()"
-                        *ngIf="!flags.connecting && !flags.connected">Connect</button>
-                    <button mat-button class="abort" (click)="disconnect()"
-                        *ngIf="flags.connecting || flags.connected">Disconnect</button>
-                </span>
-            </div>
-        </div>
-
-        <div class="top-spacer"></div>
-        <div class="row">
-            <!-----Socket type selector------>
-            <div class="col-xs-7">
-                <div class="paper visibleFlow">
-                    <h3 class="panel-title pointer" (click)="flags.showConnection = !flags.showConnection">
-                        Connection type
-                    </h3>
-                    <div class="pull-right margB5 vcenter">
-                        <button mat-icon-button class="gap pulse" (click)="reload()" *ngIf="reloadRequest"
-                            matTooltip="This request is updated by another user. Reload?" matTooltipPosition="left">
-                            <mat-icon>sync</mat-icon>
-                        </button>
-                        <span class="btn-group accent gap">
-                            <button class="sm t_border" mat-stroked-button (click)="initReqSave()">
-                                <mat-icon>save</mat-icon> Save
-                            </button>
-                            <button class="sm saveas t_border" mat-stroked-button [matMenuTriggerFor]="savemenu">
-                                <mat-icon>arrow_drop_down</mat-icon>
-                            </button>
-                        </span>
-                        <mat-menu #savemenu="matMenu">
-                            <button mat-menu-item (click)="initReqSave(true)">
-                                <mat-icon>save</mat-icon> Save as
-                            </button>
-                        </mat-menu>
-                        <button class="sm" mat-icon-button (click)="flags.showConnection = !flags.showConnection">
-                            <mat-icon *ngIf="flags.showConnection">expand_less</mat-icon>
-                            <mat-icon *ngIf="!flags.showConnection">expand_more</mat-icon>
-                        </button>
-                    </div>
-                    <div class="panel-body" [hidden]="!flags.showConnection">
-                        <fieldset class="controls btn-group tab-group" [disabled]="flags.connected">
-                            <button mat-button [ngClass]="{'active':method == 'Websocket'}"
-                                (click)="method = 'Websocket'">Websocket</button>
-                            <button mat-button [ngClass]="{'active':method == 'Socketio'}"
-                                (click)="method = 'Socketio'">Socket.io</button>
-                            <button mat-button [ngClass]="{'active':method =='Stomp'}"
-                                (click)="method ='Stomp'">Stomp</button>
-                            <button mat-button [ngClass]="{'active':method =='SSE'}"
-                                (click)="method ='SSE'">SSE</button>
-                        </fieldset>
-                        <div class="padV5 form-horizontal" *ngIf="method === 'Stomp'" formGroupName="stomp">
-                            <div class="row">
-                                <label class="col-sm-4 align-right">Subscription URL:</label>
-                                <div class="col-sm-8">
-                                    <apic-rich-input formControlName="subscUrl" class="form-control"
-                                        placeholder="Stomp Subscription URL"></apic-rich-input>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="col-sm-4 align-right">Virtual Host:</label>
-                                <div class="col-sm-8">
-                                    <apic-rich-input formControlName="host" class="form-control"
-                                        placeholder="Stomp Virtual Host name (optional)"></apic-rich-input>
-                                </div>
-                            </div>
-                            <div *ngIf="flags.stompUseCred">
-                                <div class="row">
-                                    <label class="col-sm-4 align-right" for="email">Login:</label>
-                                    <div class="col-sm-8">
-                                        <apic-rich-input formControlName="login" class="form-control"
-                                            placeholder="Login Id"></apic-rich-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <label class="col-sm-4 align-right" for="pwd">Passcode:</label>
-                                    <div class="col-sm-8">
-                                        <input type="{{flags.stompShowPsd?'text':'password'}}"
-                                            formControlName="passcode" value="" class="form-control" id="pwd"
-                                            placeholder="Password" />
-                                        <mat-checkbox [(ngModel)]="flags.stompShowPsd"
-                                            [ngModelOptions]="{standalone:true}">Show password</mat-checkbox>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-xs-offset-4">
-                                <button type="button" mat-stroked-button class="sm" (click)="flags.stompUseCred = true"
-                                    *ngIf="!flags.stompUseCred">Use credentials</button>
-                            </div>
-                            <div class="headers form-inline" role="form" style="clear: both">
-                                <div>Headers</div>
-                                <app-key-value-editor formControlName="headers"
-                                    [options]="{addOnFocus:true,allowToggle:true,useRichText:true}">
-                                </app-key-value-editor>
-                            </div>
-                        </div>
-                        <div *ngIf="method=='SSE'" formGroupName="sse">
-                            <div class="row">
-                                <div class="col-xs-7">
-                                    <apic-list [options]="{label:'Listeners', itemType:'object'}"
-                                        (onToggle)="wsToggleListener($event, 'sse')"
-                                        (onRemove)="wsRemoveListener($event, 'sse')"
-                                        (onAdd)="wsAddListener($event, 'sse')" formControlName="listeners"></apic-list>
-                                </div>
-                                <div class="col-xs-5">
-                                    <mat-checkbox formControlName="withCred">With credentials</mat-checkbox>
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="method=='Socketio'" class="form-horizontal" formGroupName="socketio">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div>
-                                        <label>Path:</label>
-                                        <div class="margV5">
-                                            <apic-rich-input formControlName="path" class="form-control"
-                                                placeholder="Default /socket.io"></apic-rich-input>
-                                        </div>
-                                    </div>
-                                    <div class="margV5">
-                                        <label>Transport:</label>
-                                        <div class="row">
-                                            <mat-checkbox class="col-sm-6" formControlName="pooling">Pooling
-                                            </mat-checkbox>
-                                            <mat-checkbox class="col-sm-6" formControlName="ws">Websockets
-                                            </mat-checkbox>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <apic-list [options]="{label:'Listeners', itemType:'object'}"
-                                        (onToggle)="wsToggleListener($event, 'socketio')"
-                                        (onRemove)="wsRemoveListener($event, 'socketio')"
-                                        (onAdd)="wsAddListener($event, 'socketio')" formControlName="listeners">
-                                    </apic-list>
-                                </div>
-                            </div>
-                            <div class="left15 margB5">
-                                <div>Query params</div>
-                                <app-key-value-editor formControlName="query"
-                                    [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Query param name',useRichText:true}">
-                                </app-key-value-editor>
-                            </div>
-                            <div class="left15">
-                                <div>Headers</div>
-                                <app-key-value-editor formControlName="headers"
-                                    [options]="{addOnFocus:true,allowToggle:true, placeholderKey:'Header name',useRichText:true}">
-                                </app-key-value-editor>
-                            </div>
-                            <div class="sio-info">
-                                <mat-icon class="sm ">info</mat-icon> APIC is currently using version <a
-                                    href="https://www.npmjs.com/package/socket.io-client/v/2.4.0"
-                                    class="t_color underline" target="_new">2.4.0</a> of socket.io client. If you are
-                                unable to connect to server
-                                chances are your server version is higher. <a class="t_color underline"
-                                    href="https://socket.io/docs/v4/server-initialization/#allowEIO3" target="_new">Know
-                                    more</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-----Messages------>
-            <div class="col-xs-5">
-                <div class="paper">
-                    <h3 class="panel-title pointer" (click)="flags.showMsgs = !flags.showMsgs">
-                        Messages
-                    </h3>
-                    <div class="pull-right vcenter">
-                        <button class="sm gap" mat-icon-button (click)="messages=[]">
-                            <mat-icon>clear_all</mat-icon>
-                        </button>
-                        <button class="sm" mat-icon-button (click)="flags.showMsgs = !flags.showMsgs">
-                            <mat-icon *ngIf="flags.showMsgs">expand_less</mat-icon>
-                            <mat-icon *ngIf="!flags.showMsgs">expand_more</mat-icon>
-                        </button>
-                    </div>
-                    <div class="panel-body msgs" [hidden]="!flags.showMsgs">
-                        <div *ngFor="let msg of messages; trackBy: trackByFn"
-                            attr.time="{{msg.time | date:'hh:mm:ss a'}}" class="sock-resp" [ngClass]="msg.type">
-                            <div *ngIf="msg.head" class="bold">{{msg.head}}</div>
-                            <pre [ngClass]="msg.type==='error'?'red bold':''">{{msg.body | json }}</pre>
-                        </div>
-                        <div *ngIf="messages.length===0" class="bold center">
-                            No messages to show yet...
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-
-        <div class="col-xs-12">
-            <div class="paper" *ngIf="method !='SSE'">
-                <h3 class="panel-title pointer" (click)="flags.showSend = !flags.showSend">
-                    Send
-                </h3>
-                <div class="pull-right vcenter">
-                    <span class="green gap vcenter" *ngIf="flags.sent">
-                        <mat-icon class="sm">done</mat-icon>Sent
-                    </span>
-                    <div class="btn-group toggle-group gap">
-                        <button type="button" mat-button class="xs"
-                            [ngClass]="flags.sendMsgType==='text'?'t_bg t_border':''"
-                            (click)="flags.sendMsgType='text'">Text</button>
-                        <button type="button" mat-button class="xs"
-                            [ngClass]="flags.sendMsgType==='json'?'t_bg t_border':''"
-                            (click)="flags.sendMsgType='json'">Json</button>
-                    </div>
-                    <button class="sm" mat-icon-button (click)="flags.showSend = !flags.showSend">
-                        <mat-icon *ngIf="flags.showSend">expand_less</mat-icon>
-                        <mat-icon *ngIf="!flags.showSend">expand_more</mat-icon>
+                    <button mat-stroked-button class="sioarg" (click)="sioAddArg()">
+                      <mat-icon>add</mat-icon> Add Arg
                     </button>
+                  </div>
                 </div>
-                <div class="panel-body sock-resp-cont" [hidden]="!flags.showSend">
-                    <div class="s-send-cont">
-                        <div *ngIf="method === 'Stomp'">
-                            <div class="form-group" formGroupName="stomp">
-                                <label>Destination Queue:</label>
-                                <apic-rich-input formControlName="destQ" class="form-control"
-                                    placeholder="Destination Queue URL"></apic-rich-input>
-                            </div>
-                        </div>
-                        <div *ngIf="method === 'Socketio'" class="row" formGroupName="socketio">
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    <label>Event name to emit:</label>
-                                    <apic-rich-input formControlName="emitName" class="form-control"
-                                        placeholder="Event name"></apic-rich-input>
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label">Arguments</label>
-                                    <div>
-                                        <button mat-stroked-button class="sioarg"
-                                            (click)="sioSaveCurrentArg();sioLoadArgVal(i)"
-                                            *ngFor="let x of socketIo.args; trackBy: trackByFn;let i = index;"
-                                            [ngClass]="i===socketIo.curArg?'t_bg t_border':''">
-                                            <mat-icon *ngIf="socketIo.args.length > 1" class="sm red"
-                                                (click)="sioRemoveArg(i, $event)">close</mat-icon>
-                                            Arg {{i+1}}
-                                        </button>
-                                        <button mat-stroked-button class="sioarg" (click)="sioAddArg()">
-                                            <mat-icon>add</mat-icon> Add Arg
-                                        </button>
-                                    </div>
-                                </div>
 
-                            </div>
-                        </div>
-
-                        <div style="flex:2">
-                            <apic-ace class="socket-editor" [mode]="flags.sendMsgType" formControlName="sendText">
-                            </apic-ace>
-                        </div>
-                        <button mat-raised-button color="primary" class="sm" (click)="send()">
-                            <mat-icon class="sm">send</mat-icon> Send
-                        </button>
-                    </div>
-                </div>
+              </div>
             </div>
-        </div>
 
-    </form>
+            <div style="flex:2">
+              <apic-ace class="socket-editor" [mode]="flags.sendMsgType" formControlName="sendText">
+              </apic-ace>
+            </div>
+            <button mat-raised-button color="primary" class="sm" (click)="send()">
+              <mat-icon class="sm">send</mat-icon> Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
 </div>

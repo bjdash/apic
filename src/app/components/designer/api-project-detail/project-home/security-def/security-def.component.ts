@@ -23,7 +23,8 @@ export class SecurityDefComponent implements OnInit, OnChanges {
   addPropOption: KVEditorOptn = {
     allowZeroItem: true,
     placeholderKey: 'Property name (must start with x-)',
-    placeholderVal: 'Property value'
+    placeholderVal: 'Property value',
+    valueFieldType: 'jsonText'
   }
 
   constructor(private formBuilder: FormBuilder, private toaster: Toaster) {

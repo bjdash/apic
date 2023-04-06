@@ -1,151 +1,151 @@
 <!-- Object-schema.html -->
 <div *ngIf="type=='Object'">
-    <ng-container [ngTemplateOutlet]="objectFileds" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
+  <ng-container [ngTemplateOutlet]="objectFileds" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
 </div>
 
 <!-- String-schema.html -->
 <div *ngIf="type=='String'">
-    <ng-container [ngTemplateOutlet]="stringFields" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
+  <ng-container [ngTemplateOutlet]="stringFields" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
 </div>
 
 
 <!-- Array-schema.html', ArraySchema); -->
 <div *ngIf="type=='Array'">
-    <div>
-        <div class="checkbox padding">
-            <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems" (ngModelChange)="onChanged()">
-                Allow only unique
-                items?</label>
-        </div>
+  <div>
+    <div class="checkbox padding">
+      <label><input type="checkbox" class="small" [(ngModel)]="entity._uniqueItems" (ngModelChange)="onChanged()">
+        Allow only unique
+        items?</label>
     </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">minItems:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minItems" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">maxItems:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxItems" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
-    </div>
-    <div class="t_color margT5">Array items properties</div>
-    <ng-container *ngIf="entity._items[0]?._type=='String' ||entity._items[0]?._type[0]=='String'"
-        [ngTemplateOutlet]="stringFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
-    <ng-container *ngIf="entity._items[0]?._type=='Number' ||entity._items[0]?._type[0]=='Number'"
-        [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
-    <ng-container *ngIf="entity._items[0]?._type=='Integer' ||entity._items[0]?._type[0]=='Integer'"
-        [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
-    <ng-container *ngIf="entity._items[0]?._type=='Object' ||entity._items[0]?._type[0]=='Object'"
-        [ngTemplateOutlet]="objectFileds" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">minItems:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minItems" min="0"
+      (ngModelChange)="onChanged()" placeholder=">=0" />
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">maxItems:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxItems" min="0"
+      (ngModelChange)="onChanged()" placeholder=">=0" />
+  </div>
+  <div class="t_color margT5">Array items properties</div>
+  <ng-container *ngIf="entity._items[0]?._type=='String' ||entity._items[0]?._type[0]=='String'"
+    [ngTemplateOutlet]="stringFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+  <ng-container *ngIf="entity._items[0]?._type=='Number' ||entity._items[0]?._type[0]=='Number'"
+    [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+  <ng-container *ngIf="entity._items[0]?._type=='Integer' ||entity._items[0]?._type[0]=='Integer'"
+    [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
+  <ng-container *ngIf="entity._items[0]?._type=='Object' ||entity._items[0]?._type[0]=='Object'"
+    [ngTemplateOutlet]="objectFileds" [ngTemplateOutletContext]="{entity:entity._items[0]}"></ng-container>
 </div>
 
 <!-- Integer-schema.html', IntNumSchema); -->
 <div *ngIf="type=='Integer'">
-    <ng-container [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
+  <ng-container [ngTemplateOutlet]="integerFields" [ngTemplateOutletContext]="{entity:entity}"></ng-container>
 </div>
 
 <div *ngIf="type=='Boolean'">
-    No additional validations for this type..
+  No additional validations for this type..
 </div>
 
 <div *ngIf="type=='Null'">
-    No additional validations for this type..
+  No additional validations for this type..
 </div>
 
 <div *ngIf="type=='refSchema'">
-    No additional validations for this type..
+  No additional validations for this type..
 </div>
 
 <ng-template #objectFileds let-entity="entity">
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">minProperties:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minProperties" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">minProperties:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minProperties" min="0"
+      (ngModelChange)="onChanged()" placeholder=">=0" />
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">maxProperties:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxProperties" min="0"
+      (ngModelChange)="onChanged()" placeholder=">=0" />
+  </div>
+  <div class="form-group col-xs-12">
+    <div class="t_color">Additional Properties</div>
+    <div *ngIf="!entity._additionalProperties || entity._additionalProperties.length==0">
+      <button mat-stroked-button class="sm" (click)="addAdditionalProp(entity)">Define Additional
+        properties schema</button>
+      <div class="checkbox padding">
+        <label><input type="checkbox" class="small" [(ngModel)]="entity._disallowAdditional"
+            (ngModelChange)="onChanged()"> Disallow
+          Additipnal
+          Properties</label>
+      </div>
     </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">maxProperties:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxProperties" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
+    <div *ngIf="entity._additionalProperties && entity._additionalProperties.length!=0">
+      <button mat-stroked-button color="warn" class="sm" (click)="removeAdditionalProp(entity)">Remove Additional
+        properties schema</button>
     </div>
-    <div class="form-group col-xs-12">
-        <div class="t_color">Additional Properties</div>
-        <div *ngIf="!entity._additionalProperties || entity._additionalProperties.length==0">
-            <button mat-stroked-button class="sm" (click)="addAdditionalProp(entity)">Define Additional
-                properties schema</button>
-            <div class="checkbox padding">
-                <label><input type="checkbox" class="small" [(ngModel)]="entity._disallowAdditional"
-                        (ngModelChange)="onChanged()"> Disallow
-                    Additipnal
-                    Properties</label>
-            </div>
-        </div>
-        <div *ngIf="entity._additionalProperties && entity._additionalProperties.length!=0">
-            <button mat-stroked-button color="warn" class="sm" (click)="removeAdditionalProp(entity)">Remove Additional
-                properties schema</button>
-        </div>
-    </div>
+  </div>
 </ng-template>
 <ng-template #stringFields let-entity="entity">
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">minLength:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minLength" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">maxLength:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxLength" min="0"
-            (ngModelChange)="onChanged()" placeholder=">=0" />
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">Pattern:</label>
-        <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._pattern" min="0"
-            (ngModelChange)="onChanged()" />
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">Format:</label>
-        <select class="form-control sm detail-ip" [(ngModel)]="entity._format" (ngModelChange)="onChanged()">
-            <option value="">--no-format--</option>
-            <option value="email">email</option>
-            <option value="hostname">hostname</option>
-            <option value="date-time">date-time</option>
-            <option value="ipv4">ipv4</option>
-            <option value="ipv6">ipv6</option>
-            <option value="uri">uri</option>
-        </select>
-    </div>
-    <div class="form-group col-xs-12">
-        <apic-list [options]="{label:'Enum', itemType:'string'}" [(ngModel)]="entity._enum"></apic-list>
-    </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">minLength:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minLength" min="0"
+      (ngModelChange)="onChanged()" placeholder=">=0" />
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">maxLength:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maxLength" min="0"
+      (ngModelChange)="onChanged()" placeholder=">=0" />
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">Pattern:</label>
+    <input type="text" class="form-control sm detail-ip" [(ngModel)]="entity._pattern" min="0"
+      (ngModelChange)="onChanged()" />
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">Format:</label>
+    <select class="form-control sm detail-ip" [(ngModel)]="entity._format" (ngModelChange)="onChanged()">
+      <option value="">--no-format--</option>
+      <option value="email">email</option>
+      <option value="hostname">hostname</option>
+      <option value="date-time">date-time</option>
+      <option value="ipv4">ipv4</option>
+      <option value="ipv6">ipv6</option>
+      <option value="uri">uri</option>
+    </select>
+  </div>
+  <div class="form-group col-xs-12">
+    <apic-list [options]="{label:'Enum', itemType:'string'}" [(ngModel)]="entity._enum"
+      (ngModelChange)="onChanged()"></apic-list>
+  </div>
 </ng-template>
 
 <ng-template #integerFields let-entity="entity">
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">minimum:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minimum" min="0"
-            (ngModelChange)="onChanged()" />
-        <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMinimum"> Exclude minimum ?</label>
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">maximum:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maximum" min="0"
-            (ngModelChange)="onChanged()" />
-        <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMaximum"> Exclude maximum ?</label>
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">multipleOf:</label>
-        <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._multipleOf" min="0"
-            (ngModelChange)="onChanged()" />
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">Format:</label>
-        <select class="form-control sm detail-ip" [(ngModel)]="entity._format" (ngModelChange)="onChanged()">
-            <option value="int32">int32</option>
-            <option value="int64">int64</option>
-        </select>
-    </div>
-    <div class="form-group col-xs-12">
-        <label class="model-label-x">Enum:</label>
-        <textarea class="form-control sm detail-ip" [(ngModel)]="entity._enum" (ngModelChange)="onChanged()"
-            [ngModelOptions]="{ updateOn: 'blur' }" placeholder=" abcd, 1,1.5,etc"></textarea>
-    </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">minimum:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._minimum" min="0"
+      (ngModelChange)="onChanged()" />
+    <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMinimum"> Exclude minimum ?</label>
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">maximum:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._maximum" min="0"
+      (ngModelChange)="onChanged()" />
+    <label><input type="checkbox" class="small" [(ngModel)]="entity._exclusiveMaximum"> Exclude maximum ?</label>
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">multipleOf:</label>
+    <input type="number" class="form-control sm detail-ip" [(ngModel)]="entity._multipleOf" min="0"
+      (ngModelChange)="onChanged()" />
+  </div>
+  <div class="form-group col-xs-12">
+    <label class="model-label-x">Format:</label>
+    <select class="form-control sm detail-ip" [(ngModel)]="entity._format" (ngModelChange)="onChanged()">
+      <option value="int32">int32</option>
+      <option value="int64">int64</option>
+    </select>
+  </div>
+  <div class="form-group col-xs-12">
+    <apic-list [options]="{label:'Enum', itemType:'object'}" [(ngModel)]="entity._enum"
+      (ngModelChange)="onChanged()"></apic-list>
+  </div>
 </ng-template>

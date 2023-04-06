@@ -1,69 +1,81 @@
 <fieldset class="kvCont" [attr.disabled]="options.disabled?'disabled':null"
-    *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
-    <div class="vcenter">
-        <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
-        <div class="key gap">
-            <input *ngIf="!options.enableAutocomplete && !options.useRichText" class="form-control"
-                (focus)="onRowFocus(last, i)" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey" />
-            <apic-rich-input class="form-control" [formControl]="kv.controls.key" (focus)="onRowFocus(last, i)"
-                *ngIf="options.useRichText && !options.enableAutocomplete" [placeholder]="options.placeholderKey">
-            </apic-rich-input>
-            <span *ngIf="options.enableAutocomplete" class="form-control">
-                <input [matAutocomplete]="auto" class="form-control" (focus)="onRowFocus(last, i)"
-                    *ngIf="!options.useRichText" [formControl]="kv.controls.key"
-                    [placeholder]="options.placeholderKey" />
-                <apic-rich-input [matAutocomplete]="auto" class="form-control" (focus)="onRowFocus(last, i)"
-                    *ngIf="options.useRichText" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey">
-                </apic-rich-input>
+  *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
+  <div class="vcenter" [ngClass]="{flexColumn: options.valueFieldType === 'jsonText'}">
+    <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
+    <div class="key gap">
+      <input *ngIf="!options.enableAutocomplete && options.valueFieldType !== 'richText'" class="form-control"
+        (focus)="onRowFocus(last, i)" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey" />
+      <apic-rich-input class="form-control" [formControl]="kv.controls.key" (focus)="onRowFocus(last, i)"
+        *ngIf="!options.enableAutocomplete && options.valueFieldType == 'richText'"
+        [placeholder]="options.placeholderKey">
+      </apic-rich-input>
+      <span *ngIf="options.enableAutocomplete" class="form-control">
+        <input [matAutocomplete]="auto" class="form-control" (focus)="onRowFocus(last, i)"
+          *ngIf="options.valueFieldType !== 'richText'" [formControl]="kv.controls.key"
+          [placeholder]="options.placeholderKey" />
+        <apic-rich-input [matAutocomplete]="auto" class="form-control" (focus)="onRowFocus(last, i)"
+          *ngIf="options.valueFieldType == 'richText'" [formControl]="kv.controls.key"
+          [placeholder]="options.placeholderKey">
+        </apic-rich-input>
 
-                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-                    <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
-                        {{option}}
-                    </mat-option>
-                </mat-autocomplete>
-            </span>
-        </div>
-
-        <div class="val gap">
-            <input class="form-control"
-                *ngIf="!options.useRichText && !options.useSelectForVal && (!options.allowFileType || kv.controls.type?.value=='text')"
-                (focus)="onRowFocus(last, i)" [formControl]="kv.controls.val" [placeholder]="options.placeholderVal" />
-            <apic-rich-input [formControl]="kv.controls.val" class="form-control" (focus)="onRowFocus(last, i)"
-                *ngIf="options.useRichText && !options.useSelectForVal && (!options.allowFileType || kv.controls.type?.value=='text')"
-                [placeholder]="options.placeholderVal">
-            </apic-rich-input>
-            <input type="file" class="form-control"
-                *ngIf="options.allowFileType && !options.useSelectForVal && kv.controls.type?.value=='file'"
-                (change)="onFileChange($event, i)" />
-            <select [formControl]="kv.controls.val" class="form-control" *ngIf="options.useSelectForVal">
-                <option *ngFor="let op of valueOptions | orderBy: 'name'" [value]="op._id">{{op.name}}</option>
-            </select>
-        </div>
-
-        <div class="kvCtrls vcenter">
-            <mat-select *ngIf="options.allowFileType" [formControl]="kv.controls.type" class="kv-type">
-                <mat-option value="text">Text</mat-option>
-                <mat-option value="file">File</mat-option>
-            </mat-select>
-            <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
-                *ngIf="(count!==1 || options.allowZeroItem ) && options.allowRemove">
-                <mat-icon>close</mat-icon>
-            </button>
-            <button type="button" (click)="copyKV(i)" mat-icon-button class="sm copy" *ngIf="options.allowCopy">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-            <button type="button" (click)="pasteKV(i)" mat-icon-button class="sm paste" *ngIf="options.allowPaste">
-                <mat-icon>content_paste</mat-icon>
-            </button>
-            <button type="button" (click)="addKv()" mat-icon-button class="sm green" *ngIf="last && options.allowAdd">
-                <mat-icon>add</mat-icon>
-            </button>
-            <div class="placeholder" *ngIf="!last && options.allowAdd"></div>
-        </div>
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+          <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </span>
     </div>
+
+    <div class="val gap">
+      <input type="file" class="form-control"
+        *ngIf="options.valueFieldType == 'fileAndText' && kv.controls.type?.value=='file'"
+        (change)="onFileChange($event, i)" />
+      <input class="form-control" *ngIf="options.valueFieldType == 'plainText'" (focus)="onRowFocus(last, i)"
+        [formControl]="kv.controls.val" [placeholder]="options.placeholderVal" />
+      <apic-rich-input [formControl]="kv.controls.val" class="form-control" (focus)="onRowFocus(last, i)"
+        *ngIf="options.valueFieldType == 'richText' || (options.valueFieldType == 'fileAndText' && kv.controls.type?.value=='text')"
+        [placeholder]="options.placeholderVal">
+      </apic-rich-input>
+      <select [formControl]="kv.controls.val" class="form-control" *ngIf="options.valueFieldType =='select'">
+        <option *ngFor="let op of valueOptions | orderBy: 'name'" [value]="op._id">{{op.name}}</option>
+      </select>
+
+      <div *ngIf="options.valueFieldType == 'jsonText'" class="aceCont">
+        <label>x-propertyValue</label>
+        <div class="btn-group toggle-group" role="group">
+          <button type="button" mat-button [ngClass]="kv.controls.type.value == 'text'? 't_bg t_border':''" class="xs"
+            (click)="toggleAceType(i, 'text')">TEXT</button>
+          <button type="button" mat-button [ngClass]="kv.controls.type.value == 'json'? 't_bg t_border':''" class="xs"
+            (click)="toggleAceType(i, 'json')">JSON</button>
+        </div>
+        <apic-ace [formControl]="kv.controls.val" class="full-width" [mode]="kv.controls.type.val"></apic-ace>
+      </div>
+    </div>
+
+    <div class="kvCtrls vcenter">
+      <mat-select *ngIf="options.valueFieldType=='fileAndText'" [formControl]="kv.controls.type" class="kv-type">
+        <mat-option value="text">Text</mat-option>
+        <mat-option value="file">File</mat-option>
+      </mat-select>
+      <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
+        *ngIf="(count!==1 || options.allowZeroItem ) && options.allowRemove">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button type="button" (click)="copyKV(i)" mat-icon-button class="sm copy" *ngIf="options.allowCopy">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <button type="button" (click)="pasteKV(i)" mat-icon-button class="sm paste" *ngIf="options.allowPaste">
+        <mat-icon>content_paste</mat-icon>
+      </button>
+      <button type="button" (click)="addKv()" mat-icon-button class="sm green" *ngIf="last && options.allowAdd">
+        <mat-icon>add</mat-icon>
+      </button>
+      <div class="placeholder" *ngIf="!last && options.allowAdd"></div>
+    </div>
+  </div>
 </fieldset>
 <button type="button" (click)="addKv()" mat-stroked-button class="sm green"
-    [disabled]="options.disabled?'disabled':null"
-    *ngIf="options.allowZeroItem && options.allowAdd && keyValueForm?.controls.length == 0">
-    <mat-icon>add</mat-icon> Add new
+  [disabled]="options.disabled?'disabled':null"
+  *ngIf="options.allowZeroItem && options.allowAdd && keyValueForm?.controls.length == 0">
+  <mat-icon>add</mat-icon> Add new
 </button>
