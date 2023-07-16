@@ -17,19 +17,17 @@
   },
   "action": {
     "default_icon": "icon_64.png",
+    "default_title": "Open APIC",
     "default_popup": "popup.html"
   },
   "permissions": [
     "unlimitedStorage",
-    "storage",
     "tabs",
-    "webRequest",
-    "webRequestBlocking",
-    "notifications"
+    "notifications",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
-    "http://*/*",
-    "https://*/*"
+    "<all_urls>"
   ],
   "sandbox": {
     "pages": [
@@ -38,7 +36,7 @@
     ]
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self' https://apis.google.com https://www.gstatic.com https://www.googleapis.com https://securetoken.googleapis.com; object-src 'self'; style-src 'unsafe-inline';",
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'unsafe-inline';",
     "sandbox": "sandbox allow-scripts allow-popups; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
   },
   "manifest_version": 3,
