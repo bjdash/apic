@@ -1,10 +1,84 @@
 chrome.runtime.onInstalled.addListener(({ reason }) => {
-  if (reason === 'install') {
-    chrome.tabs.create({
-      url: "index.html"
-    });
-  }
+    if (reason === 'install') {
+        chrome.tabs.create({
+            url: "index.html"
+        });
+    }
 });
+
+chrome.runtime.onConnect.addListener(function (port) {
+    console.assert(port.name === "apic_extn");
+    port.onMessage.addListener(async (msg) => {
+        console.log('From app', msg);
+        if (msg.type === 'ADD_HEADERS') {
+            let rules = Object.keys(msg.data).map((key, index) => {
+                return {
+                    id: (index + 1),
+                    priority: 1,
+                    action: {
+                        type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                        requestHeaders: [
+                            {
+                                operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+                                header: key,
+                                value: msg.data[key],
+                            },
+                        ]
+                    },
+                    condition: {
+                        requestDomains: ['apic.apps', 'postman-echo.com'],
+                        resourceTypes: allResourceTypes,
+                    }
+                }
+            });
+            chrome.declarativeNetRequest.updateSessionRules({
+                addRules: rules
+            });
+            port.postMessage({status: 'OK'});
+        }else if(msg.type === 'CLEAR_HEADERS'){
+            let existingRules = await chrome.declarativeNetRequest.getDynamicRules()
+            chrome.declarativeNetRequest.updateSessionRules({
+                removeRuleIds: existingRules.map(rule=>rule.id)
+            });
+            port.postMessage({status: 'OK'});
+        }
+    });
+});
+
+
+const allResourceTypes = Object.values(chrome.declarativeNetRequest.ResourceType);
+// chrome.storage.onChanged.addListener(
+//     function (changes, areaName) {
+//         console.log(changes, areaName);
+//         let rules = [];
+//         if (areaName === 'session') {
+//             let headers = changes.restrictedHeaders.newValue;
+//             rules = Object.keys(headers).map((key, index) => {
+//                 return {
+//                     id: (index + 1),
+//                     priority: 1,
+//                     action: {
+//                         type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+//                         requestHeaders: [
+//                             {
+//                                 operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+//                                 header: key,
+//                                 value: headers[key],
+//                             },
+//                         ]
+//                     },
+//                     condition: {
+//                         requestDomains: ['apic.apps', 'postman-echo.com'],
+//                         resourceTypes: allResourceTypes,
+//                     }
+//                 }
+//             })
+//         }
+//         chrome.declarativeNetRequest.updateSessionRules({
+//             addRules: rules
+//         })
+//     }
+// )
 // var accessControlRequestHeaders;
 // var ReqIDs = [];
 // var prefix = 'APIC-';

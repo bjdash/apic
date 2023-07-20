@@ -98,8 +98,13 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
 
     this.text.valueChanges.pipe(takeUntil(this._destroy)).subscribe(val => {
       this.editor.nativeElement.innerText = val;
-      this.onChangeHandle();
-    })
+      this.onChangeHandle(true);
+    });
+
+    // this.matAutocomplete?.optionSelected?.subscribe(event => {
+    //   console.log('selected', event);
+    //   this.onChangeHandle();
+    // })
   }
 
   onKeyDown(e) {
@@ -109,7 +114,7 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
     }
   }
 
-  onChangeHandle() {
+  onChangeHandle(forceUpdate=false) {
     var text = this.editor.nativeElement.innerText, oldHtml = this.editor.nativeElement.innerHTML.replace(/&amp;/g, '&');
     var caret = this.getCaretPosition(this.editor.nativeElement);
     var parts = this.getEnvParts(text);
@@ -138,7 +143,7 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
       }
     }
     var newValue = this.editor.nativeElement.innerText;
-    if (this.text.value !== newValue) {
+    if (this.text.value !== newValue || forceUpdate) {
       // this.text.setValue(newValue);
       this.propagateChange(newValue);
       if (this.autocomplete) {

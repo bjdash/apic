@@ -2,7 +2,10 @@
   *ngFor="let kv of keyValueForm?.controls; trackBy: trackByFn;let last = last;let count = count;let i=index">
   <div class="vcenter" [ngClass]="{flexColumn: options.valueFieldType === 'jsonText'}">
     <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
-    <div class="key gap">
+    <div class="key gap vcenter">
+      <a [href]="options.extraInfo.link" target="_new" mat-icon-button class="sm warning gap" *ngIf="options.extraInfo?.show(kv.controls.key.value)" [matTooltip]="options.extraInfo?.tooltip">
+        <mat-icon class="sm">{{options.extraInfo?.icon}}</mat-icon>
+      </a>
       <input *ngIf="!options.enableAutocomplete && options.valueFieldType !== 'richText'" class="form-control"
         (focus)="onRowFocus(last, i)" [formControl]="kv.controls.key" [placeholder]="options.placeholderKey" />
       <apic-rich-input class="form-control" [formControl]="kv.controls.key" (focus)="onRowFocus(last, i)"

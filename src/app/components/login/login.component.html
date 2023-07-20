@@ -70,7 +70,7 @@
         <div class="msg" *ngIf="message.text" [ngClass]="message.type">{{message.text}}</div>
 
         <form class="form-horizontal" role="form" [formGroup]="regForm" (ngSubmit)="register()"
-            *ngIf="PLATFORM !== 'ELECTRON'">
+            *ngIf="PLATFORM === 'WEB'">
             <div class="row form-group">
                 <label class="control-label col-sm-1" for="name-reg">
                     <mat-icon>badge</mat-icon>
@@ -112,7 +112,7 @@
                 </div>
             </div>
         </form>
-        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="electronRegister()">
+        <div class="ext-action" *ngIf="PLATFORM !== 'WEB'" (click)="browserRegister()">
             <button type="button" mat-raised-button color="primary">Register with APIC</button>
         </div>
     </div>
@@ -146,7 +146,7 @@
                 </div>
             </div>
         </form>
-        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="electronForgotPsd()">
+        <div class="ext-action" *ngIf="PLATFORM == 'ELECTRON'" (click)="browserForgotPsd()">
             <button type="button" mat-raised-button color="primary">Requet password reset</button>
         </div>
     </div>

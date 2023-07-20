@@ -64,7 +64,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (environment.PLATFORM === 'WEB') {
       googleAuth.initialize().catch((e) => {
         console.error('Failed to load google auth plugin', e);
-        toaster.error(`Failed to load google auth plugin: ${e.message}`);
+        toaster.error(`Failed to load google auth plugin: ${e.error}`);
       });
     }
   }
@@ -199,79 +199,23 @@ export class LoginComponent implements OnInit, OnDestroy {
     })
   }
 
-  electronRegister() {
-    window.apicElectron.openUrl('https://apic.app/identity/#!/register');
+  browserRegister() {
+    if(environment.PLATFORM ==='ELECTRON'){
+        window.apicElectron.openUrl('https://apic.app/identity/#!/register');
+    }else if(environment.PLATFORM === 'CHROME'){
+        window.open('https://apic.app/identity/#!/register')
+    }
     this.setMesssage('info', 'Please complete resistration in the opened browser tab.');
   }
 
-  electronForgotPsd() {
-    window.apicElectron.openUrl('https://apic.app/identity/#!/forgotPassword')
+  browserForgotPsd() {
+    if(environment.PLATFORM ==='ELECTRON'){
+        window.apicElectron.openUrl('https://apic.app/identity/#!/forgotPassword');
+    }else if(environment.PLATFORM === 'CHROME'){
+        window.open('https://apic.app/identity/#!/forgotPassword')
+    }
     this.setMesssage('info', 'Please complete the form in the opened browser tab.');
   }
-
-  // config = {
-  //   "userInfoUrl": "https://www.googleapis.com/plus/v1/people/me",
-  //   "userInfoNameField": "displayName",
-  //   "implicitGrantUrl": "https://accounts.google.com/o/oauth2/auth",
-  //   "logoutUrl": "https://accounts.google.com/logout",
-  //   "tokenInfoUrl": "https://www.googleapis.com/oauth2/v3/tokeninfo",
-  //   "clientId": "918023175434-a2g8ipi3cp3l7bmd2r0tc9knlov6dm2i.apps.googleusercontent.com",
-  //   "scopes": "https://www.googleapis.com/auth/userinfo.profile",
-  //   "logoutWarningSeconds": 60,
-  //   "autoReLogin": true
-  // }
-  // async googleLoginChromeExtn(callback) {
-  //   var authUrl = this.config.implicitGrantUrl
-  //     + '?response_type=token&client_id=' + this.config.clientId
-  //     + '&scope=' + this.config.scopes
-  //     + '&redirect_uri=' + chrome.identity.getRedirectURL("oauth2");
-
-  //   console.log('launchWebAuthFlow:', authUrl);
-
-  //   chrome.identity.launchWebAuthFlow({ 'url': authUrl, 'interactive': true }, function (redirectUrl) {
-  //     if (redirectUrl) {
-  //       console.log('launchWebAuthFlow login successful: ', redirectUrl);
-  //       var parsed = this.parse(redirectUrl.substr(chrome.identity.getRedirectURL("oauth2").length + 1));
-  //       let token = parsed.access_token;
-  //       console.log('Background login complete', token);
-  //       return callback(redirectUrl); // call the original callback now that we've intercepted what we needed
-  //     } else {
-  //       console.log("launchWebAuthFlow login failed. Is your redirect URL (" + chrome.identity.getRedirectURL("oauth2") + ") configured with your OAuth2 provider?");
-  //       return (null);
-  //     }
-  //   });
-  // }
-
-  // parse(str) {
-  //   if (typeof str !== 'string') {
-  //     return {};
-  //   }
-  //   str = str.trim().replace(/^(\?|#|&)/, '');
-  //   if (!str) {
-  //     return {};
-  //   }
-  //   return str.split('&').reduce(function (ret, param) {
-  //     var parts = param.replace(/\+/g, ' ').split('=');
-  //     // Firefox (pre 40) decodes `%3D` to `=`
-  //     // https://github.com/sindresorhus/query-string/pull/37
-  //     var key = parts.shift();
-  //     var val = parts.length > 0 ? parts.join('=') : undefined;
-  //     key = decodeURIComponent(key);
-  //     // missing `=` should be `null`:
-  //     // http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-  //     val = val === undefined ? null : decodeURIComponent(val);
-  //     if (!ret.hasOwnProperty(key)) {
-  //       ret[key] = val;
-  //     }
-  //     else if (Array.isArray(ret[key])) {
-  //       ret[key].push(val);
-  //     }
-  //     else {
-  //       ret[key] = [ret[key], val];
-  //     }
-  //     return ret;
-  //   }, {});
-  // }
 
   setMesssage(type, text, autoClear?: boolean) {
     this.message = { type, text };

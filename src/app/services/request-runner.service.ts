@@ -16,6 +16,8 @@ import { ApicAgentService } from './apic-agent.service';
 import { InterpolationOption, InterpolationService } from './interpolation.service';
 import { TesterOptions, TesterService } from './tester.service';
 import { Utils } from './utils.service';
+import { environment } from 'src/environments/environment';
+import ExtentionHelper from './extention.helper';
 
 export interface RunOption {
   useInMemEnv?: boolean,
@@ -79,7 +81,7 @@ export class RequestRunnerService {
       this._xhr = new XMLHttpRequest();
       this._xhr.open($request.method, $request.url, true);
 
-      this.addHeadersFromObj($request.headers);
+      await this.addHeadersFromObj($request.headers);
       this._xhr.onreadystatechange = (event) => {
         this.onreadystatechange(event, $request, preRunResponse, resolve, testerOption)
       };
@@ -170,6 +172,9 @@ export class RequestRunnerService {
           $response.scriptError = $response.scriptError ? $response.scriptError + '\n' + postRunResponse.scriptError : postRunResponse.scriptError;
         }
       }
+      if(environment.PLATFORM === 'CHROME'){
+        await ExtentionHelper.clearRestrictedHeaders();
+      }
       resolve({ $request, $response })
     }
   }
@@ -243,20 +248,26 @@ export class RequestRunnerService {
     }
   }
 
-  addHeadersFromObj(headers) {
+  async addHeadersFromObj(headers) {
+    
+    let restrictedHeaders = {};
     for (let [key, val] of Utils.objectEntries(headers as { [key: string]: string })) {
       if (key) {
         var headerName = key.toUpperCase().trim();
-        if (RESTRICTED_HEADERS.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-')) {
-          key = 'APIC-' + key;
-        }
-        try {
-          this._xhr.setRequestHeader(key, val);
-        } catch (e) {
-          var m = e.message;
-          console.warn(m.slice(m.indexOf(':') + 1).trim());
+        if ((RESTRICTED_HEADERS.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-'))) {
+            restrictedHeaders[key] = val;
+        }else{
+            try {
+              this._xhr.setRequestHeader(key, val);
+            } catch (e) {
+              var m = e.message;
+              console.warn(m.slice(m.indexOf(':') + 1).trim());
+            }
         }
       }
+    }
+    if(Object.keys(restrictedHeaders).length>0 && environment.PLATFORM === 'CHROME'){
+        await ExtentionHelper.addRestrictedHeaders(restrictedHeaders)
     }
   };
 

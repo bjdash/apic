@@ -1,44 +1,45 @@
 {
-  "name": "DEV: Apic - Complete API solution",
-  "short_name": "apic",
-  "version": "3.1.2",
-  "minimum_chrome_version": "28",
-  "description": "The only tool you will ever need for all you API Design, Documentation and Testing needs.",
-  "devtools_page": "devtools/devtools.html",
-  "background": {
-    "service_worker": "background.js"
-  },
-  "icons": {
-    "16": "icon_16.png",
-    "32": "icon_32.png",
-    "48": "icon_48.png",
-    "64": "icon_64.png",
-    "128": "icon_128.png"
-  },
-  "action": {
-    "default_icon": "icon_64.png",
-    "default_title": "Open APIC",
-    "default_popup": "popup.html"
-  },
-  "permissions": [
-    "unlimitedStorage",
-    "tabs",
-    "notifications"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
-  "sandbox": {
-    "pages": [
-      "assets/tester/tester.html",
-      "assets/tester/tester.js"
-    ]
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'unsafe-inline';",
-    "sandbox": "sandbox allow-scripts allow-popups; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-  },
-  "manifest_version": 3,
-  "offline_enabled": true
-}
+    "name": "DEV: Apic - Complete API solution",
+    "short_name": "apic",
+    "version": "3.1.2",
+    "minimum_chrome_version": "28",
+    "description": "The only tool you will ever need for all you API Design, Documentation and Testing needs.",
+    "devtools_page": "devtools/devtools.html",
+    "background": {
+      "service_worker": "background.js"
+    },
+    "icons": {
+      "16": "icon_16.png",
+      "32": "icon_32.png",
+      "48": "icon_48.png",
+      "64": "icon_64.png",
+      "128": "icon_128.png"
+    },
+    "action": {
+      "default_icon": "icon_64.png",
+      "default_title": "Open APIC",
+      "default_popup": "popup.html"
+    },
+    "permissions": [
+      "unlimitedStorage",
+      "tabs",
+      "notifications",
+      "declarativeNetRequest",
+      "storage"
+    ],
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "sandbox": {
+      "pages": [
+        "assets/tester/tester.html",
+        "assets/tester/tester.js"
+      ]
+    },
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'; style-src 'unsafe-inline';",
+      "sandbox": "sandbox allow-scripts allow-popups; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    },
+    "manifest_version": 3,
+    "offline_enabled": true
+  }
