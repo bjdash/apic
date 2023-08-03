@@ -20,12 +20,12 @@ export default class ExtentionHelper {
         })
     }
 
-    static async addRestrictedHeaders(headers:{ [key: string]: string }){
+    static async addRestrictedHeaders(headers:{ [key: string]: string }, host:string){
         // chrome.storage.session.set({headers});
         return new Promise((resolve, reject)=>{
             this.resolve = resolve;
             this.reject = reject;
-            this.port.postMessage({type: 'ADD_HEADERS',  data: headers});
+            this.port.postMessage({type: 'ADD_HEADERS',  data: {headers, host}});
         })
     }
 

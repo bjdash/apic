@@ -15,7 +15,7 @@
     </script>
 
     <script type="module">
-        import {apic, TestMessanger, SandboxTester} from './sandbox.js';
+        import {apic, SandboxMessanger, SandboxTester} from './sandbox.js';
         
         chai.Assertion.addProperty('date', function () {
             this.assert(
@@ -35,7 +35,7 @@
             );
         });
 
-        var msg = new TestMessanger();
+        new SandboxMessanger().initialize();
     </script>
 </head>
 

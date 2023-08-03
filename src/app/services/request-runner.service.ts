@@ -81,7 +81,7 @@ export class RequestRunnerService {
       this._xhr = new XMLHttpRequest();
       this._xhr.open($request.method, $request.url, true);
 
-      await this.addHeadersFromObj($request.headers);
+      await this.addHeadersFromObj($request);
       this._xhr.onreadystatechange = (event) => {
         this.onreadystatechange(event, $request, preRunResponse, resolve, testerOption)
       };
@@ -248,10 +248,10 @@ export class RequestRunnerService {
     }
   }
 
-  async addHeadersFromObj(headers) {
+  async addHeadersFromObj(request:CompiledApiRequest) {
     
     let restrictedHeaders = {};
-    for (let [key, val] of Utils.objectEntries(headers as { [key: string]: string })) {
+    for (let [key, val] of Utils.objectEntries(request.headers as { [key: string]: string })) {
       if (key) {
         var headerName = key.toUpperCase().trim();
         if ((RESTRICTED_HEADERS.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-'))) {
@@ -267,7 +267,8 @@ export class RequestRunnerService {
       }
     }
     if(Object.keys(restrictedHeaders).length>0 && environment.PLATFORM === 'CHROME'){
-        await ExtentionHelper.addRestrictedHeaders(restrictedHeaders)
+        let host = new URL(request.url).hostname;
+        await ExtentionHelper.addRestrictedHeaders(restrictedHeaders, host)
     }
   };
 

@@ -7,6 +7,6 @@
       "strict": false
     },
     "include": [
-      "src/assets/tester/sandbox.ts"
+      "src/assets/sandbox/sandbox.ts"
     ]
   }

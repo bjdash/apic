@@ -1,42 +1,67 @@
-//if file is modified then run tsc --project tsconfig.tester.json to generate the required js file before startign the application
+//if file is modified then run tsc --project tsconfig.sandbox.json to generate the required js file before startign the application
+
+import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
+import { SandboxTestMessage, SandboxSchemaValidationMessage, SandboxEvent, SandboxSchemaValidationResponse } from '../../app/models/Sandbox.model'
+import { RunResponse } from 'src/app/models/RunResponse.model';
+
 //Test globals
-var $scriptType, $response, $request, $env;
-export class TestMessanger {
+var $scriptType, $response: RunResponse, $request: CompiledApiRequest, $env: { [key: string]: any };
+
+export class SandboxMessanger {
     constructor() {
+        
+    }
+
+    initialize(){
         window.addEventListener('message', (event) => {
-            let eventData = event.data;
+            let eventData = event.data as SandboxEvent;
             if (eventData.type === 'TestMessage') {
-                this.onTestMessage(eventData.payload);
-            }
-            else if (eventData.type === 'SchemaValidationMessage') {
-                this.onSchemaValidationMessage(eventData.payload);
+                this.onTestMessage(eventData.payload as SandboxTestMessage)
+            } else if (eventData.type === 'SchemaValidationMessage') {
+                this.onSchemaValidationMessage(eventData.payload as SandboxSchemaValidationMessage)
             }
         }, false);
     }
-    onTestMessage(payload) {
-        let runResullt = new SandboxTester(payload).runTest();
+
+    onTestMessage(payload: SandboxTestMessage) {
+        let runResullt = new SandboxTester(payload).runTest()
         this.#sendResponseBack(runResullt);
     }
-    onSchemaValidationMessage(payload) {
-        let response = {
-            valid: false
+
+    onSchemaValidationMessage(payload: SandboxSchemaValidationMessage) {
+        let response:SandboxSchemaValidationResponse = {
+            valid:false
         };
         try {
-            response.valid = apic.validateSchema(payload.schema, payload.data);
-        }
-        catch (error) {
+            response.valid = apic.validateSchema(payload.schema, payload.data);   
+        } catch (error) {
             console.log(error);
-            response.error = error;
+            response.error = error
         }
-        this.#sendResponseBack(response);
+        this.#sendResponseBack(response)
     }
-    #sendResponseBack(msg) {
+
+    #sendResponseBack(msg: any) {
         window.parent.postMessage(msg, '*');
     }
 }
+
+
+type TestRunCOntext = {
+    envs: {
+        saved: { [key: string]: string },
+        inMem: { [key: string]: any }
+    },
+    logs: string[],
+    tests: {
+        name: string,
+        success: boolean,
+        reason?: string
+    }[],
+    scriptError: string
+}
 export class SandboxTester {
-    payload;
-    static #TEST_RUN_CONTEXT = {
+    static #TEST_RUN_CONTEXT: TestRunCOntext = {
         envs: {
             saved: {},
             inMem: {}
@@ -44,9 +69,10 @@ export class SandboxTester {
         logs: [],
         tests: [],
         scriptError: null
-    };
-    constructor(payload) {
-        this.payload = payload;
+    }
+
+
+    constructor(private payload: SandboxTestMessage) {
         SandboxTester.#TEST_RUN_CONTEXT = {
             envs: {
                 saved: {},
@@ -61,57 +87,67 @@ export class SandboxTester {
         $response = payload.$response;
         $env = { ...payload.envs.saved, ...payload.envs.inMem };
     }
+
     runTest() {
         let code = this.#prepareScript(this.payload.script || this.payload.$request[this.payload.type]);
         Object.freeze($env);
         Object.freeze($request);
         Object.freeze($response);
+
         try {
             eval(code);
-        }
-        catch (e) {
+        } catch (e) {
             SandboxTester.#TEST_RUN_CONTEXT.scriptError = e?.message || e?.stack || e.toString();
             console.error('error', e);
             apic.log(`Error: ${e?.message || e?.stack || e.toString()}`);
         }
         console.log(SandboxTester.#TEST_RUN_CONTEXT);
+
         return {
             type: $scriptType,
             inMem: SandboxTester.#TEST_RUN_CONTEXT.envs.inMem,
             logs: SandboxTester.#TEST_RUN_CONTEXT.logs,
             tests: SandboxTester.#TEST_RUN_CONTEXT.tests,
             scriptError: SandboxTester.#TEST_RUN_CONTEXT.scriptError
-        };
+        }
     }
-    #prepareScript(code) {
+
+    #prepareScript(code: string): string {
         return '(function (){\n' + code + '\n})()';
     }
-    static log(str) {
-        SandboxTester.#TEST_RUN_CONTEXT.logs.push(str);
+
+    static log(str: string) {
+        SandboxTester.#TEST_RUN_CONTEXT.logs.push(str)
     }
+
     static addTest(test) {
         SandboxTester.#TEST_RUN_CONTEXT.tests.push(test);
     }
-    static setEnv(key, value) {
+
+    static setEnv(key: string, value: any) {
         if (!key)
             return false;
         if (!SandboxTester.#TEST_RUN_CONTEXT.envs.inMem)
             SandboxTester.#TEST_RUN_CONTEXT.envs.inMem = {};
+
         SandboxTester.#TEST_RUN_CONTEXT.envs.inMem = { ...SandboxTester.#TEST_RUN_CONTEXT.envs.inMem, [key]: value };
         return true;
     }
-    static removeEnv(key) {
+
+    static removeEnv(key: string) {
         if (key) {
             let { [key]: omit, ...rest } = SandboxTester.#TEST_RUN_CONTEXT.envs.inMem;
             SandboxTester.#TEST_RUN_CONTEXT.envs.inMem = rest;
         }
     }
-    static getEnv(key) {
+
+    static getEnv(key: string) {
         if (SandboxTester.#TEST_RUN_CONTEXT.envs.inMem?.hasOwnProperty(key))
-            return SandboxTester.#TEST_RUN_CONTEXT.envs.inMem[key];
+            return SandboxTester.#TEST_RUN_CONTEXT.envs.inMem[key]
         else
-            return SandboxTester.#TEST_RUN_CONTEXT.envs.saved?.[key];
+            return SandboxTester.#TEST_RUN_CONTEXT.envs.saved?.[key]
     }
+
     static validateSchema(code) {
         if (code === undefined) {
             code = $response.status || undefined;
@@ -121,37 +157,41 @@ export class SandboxTester {
             let codeStr = `${code}`;
             var response = $request.respCodes.find(resp => resp.code == codeStr);
             //response schema is defined against content type so try to find the schema defined against current response content type header else fallback to application/json or at index 0
-            let schema = response.data.find(respItem => { return (respItem.mime == $response.headers['content-type']) || ($response.headers['content-type']?.indexOf(respItem.mime) == 0); })?.schema;
+            let schema = response.data.find(respItem => { return (respItem.mime == $response.headers['content-type']) || ($response.headers['content-type']?.indexOf(respItem.mime) == 0) })?.schema;
             if (!schema) {
                 schema = response.data.find(respItem => respItem.mime === 'application/json')?.schema;
             }
             if (!schema) {
                 schema = response.data?.[0]?.schema;
             }
-            if (!schema)
-                return false;
+
+            if (!schema) return false;
             valid = apic.validateSchema(schema, $response.data);
         }
         return valid;
     }
 }
+
+declare const Ajv;
 export class apic {
-    static log(...args) {
-        let argsString = [];
+    static log(...args: any[]) {
+        let argsString = []
+
         for (let i = 0; i < args.length; i++) {
             try {
                 argsString.push(JSON.stringify(args[i]));
-            }
-            catch (e) {
+            } catch (e) {
                 argsString.push(`'Error parsing data. Could not convert to string: ${e.message}`);
             }
         }
-        SandboxTester.log(argsString.join(', '));
+        SandboxTester.log(argsString.join(', '))
     }
-    static randomStr(minLen, maxLen) {
+
+    static randomStr(minLen, maxLen?) {
         if (minLen < 1) {
             return '';
         }
+
         if (maxLen !== undefined) {
             minLen = apic.randomNum(minLen, maxLen);
         }
@@ -159,46 +199,58 @@ export class apic {
             return ((Math.random() * 36) | 0).toString(36)[Math.random() < .5 ? 'toString' : 'toUpperCase']();
         });
     }
+
     static randomNum(min, max, isFloat = false) {
         min = min === undefined || typeof min !== 'number' ? 0 : min;
         max = max === undefined || typeof min !== 'number' ? 0 : max;
+
         if (isFloat) {
             return Math.random() * (max - min) + min;
-        }
-        else {
+        } else {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
     }
+
     static randomEmail() {
         return apic.randomStr(5) + '.' + apic.randomStr(4) + '@' + apic.randomStr(4) + '.' + apic.randomStr(3);
     }
-    static randomInList(list) {
+
+    static randomInList(list: any[]) {
         if (!list || list.length === 0) {
             return undefined;
         }
         var index = apic.randomNum(0, list.length - 1);
         return list[index];
     }
+
     static time() {
         return new Date().getTime();
     }
+
     static s4() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     }
+
     static s8() {
         return apic.s4() + apic.s4();
     }
+
     static s12() {
         return apic.s4() + apic.s4() + apic.s4();
     }
+
     static uuid() {
         return apic.s4() + apic.s4() + '-' + apic.s4() + '-' + apic.s4() + '-' + apic.s4() + '-' + apic.s4() + apic.s4() + apic.s4();
     }
     static dataId() {
-        var prefix = '', possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', index = 0;
+        var prefix = '',
+            possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            index = 0;
+
         for (index = 0; index < 3; index++) {
             prefix += possible.charAt(Math.floor(Math.random() * possible.length));
         }
+
         return prefix + apic.s4() + apic.s4();
     }
     static removeDemoItems(items) {
@@ -209,12 +261,12 @@ export class apic {
                     itemsToReturn.push(items[i]);
                 }
             }
-        }
-        else if (items._id.indexOf('-demo') < 0) {
+        } else if (items._id.indexOf('-demo') < 0) {
             itemsToReturn.push(items);
         }
         return itemsToReturn;
     }
+
     static test(name, testFn) {
         try {
             testFn();
@@ -222,8 +274,7 @@ export class apic {
                 name: name,
                 success: true
             });
-        }
-        catch (e) {
+        } catch (e) {
             SandboxTester.addTest({
                 name: name,
                 success: false,
@@ -231,38 +282,43 @@ export class apic {
             });
         }
     }
+
     static _try(testFn) {
         try {
             testFn();
-        }
-        catch (e) {
-            SandboxTester.log(`Error: ${e.message}`);
+        } catch (e) {
+            SandboxTester.log(`Error: ${e.message}`)
         }
     }
+
     static basicAuth(userName, password) {
         return "Basic " + btoa(userName + ":" + password);
     }
+
     static validateSchema(schema, obj) {
-        if (!Ajv)
-            return false;
+        if (!Ajv) return false;
         let validator = new Ajv(), valid = false;
+
         valid = validator.validate(schema, obj);
-        if (valid)
-            return valid;
-        else
-            throw new Error(validator.errorsText());
+
+        if (valid) return valid
+        else throw new Error(validator.errorsText())
     }
 }
+
 //global functions
-function log(...args) {
+function log(...args: any[]) {
     apic.log(args);
 }
-function setEnv(key, value) {
-    return SandboxTester.setEnv(key, value);
+
+function setEnv(key: string, value: any) {
+    return SandboxTester.setEnv(key, value)
 }
-function removeEnv(key) {
+
+function removeEnv(key: string) {
     SandboxTester.removeEnv(key);
 }
-function getEnv(key) {
-    return SandboxTester.getEnv;
+
+function getEnv(key: string) {
+    return SandboxTester.getEnv
 }

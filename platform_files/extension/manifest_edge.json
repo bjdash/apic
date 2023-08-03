@@ -24,16 +24,15 @@
       "unlimitedStorage",
       "tabs",
       "notifications",
-      "declarativeNetRequest",
-      "storage"
+      "declarativeNetRequest"
     ],
     "host_permissions": [
       "<all_urls>"
     ],
     "sandbox": {
       "pages": [
-        "assets/tester/tester.html",
-        "assets/tester/tester.js"
+        "assets/sandbox/sandbox.html",
+        "assets/sandbox/sandbox.js"
       ]
     },
     "content_security_policy": {
