@@ -1,4 +1,4 @@
-//if file is modified then run tsc --project tsconfig.tester.json to generate the required js file before startign the application
+//if file is modified then run tsc --project tsconfig.sandbox.json to generate the required js file before startign the application
 //Test globals
 var $scriptType, $response, $request, $env;
 export class SandboxMessanger {
@@ -76,7 +76,6 @@ export class SandboxTester {
             console.error('error', e);
             apic.log(`Error: ${e?.message || e?.stack || e.toString()}`);
         }
-        console.log(SandboxTester.#TEST_RUN_CONTEXT);
         return {
             type: $scriptType,
             inMem: SandboxTester.#TEST_RUN_CONTEXT.envs.inMem,

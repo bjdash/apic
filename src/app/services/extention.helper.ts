@@ -9,7 +9,6 @@ export default class ExtentionHelper {
         this.port = chrome.runtime.connect({ name: this.portName });
         console.log('Service worker port connected.')
         this.port.onMessage.addListener((msg) => {
-            console.log('from sw', msg);
             if(! msg.error){this.resolve()}
             else(this.reject(msg))
         });

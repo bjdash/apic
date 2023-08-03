@@ -9,9 +9,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 const allResourceTypes = Object.values(chrome.declarativeNetRequest.ResourceType);
 
 chrome.runtime.onConnect.addListener(function (port) {
-    console.assert(port.name === "apic_extn");
     port.onMessage.addListener(async (msg) => {
-        console.log('From app', msg);
         if (msg.type === 'ADD_HEADERS') {
             let host = msg.data.host
             let rules = Object.keys(msg.data.headers).map((key, index) => {

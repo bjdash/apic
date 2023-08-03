@@ -101,7 +101,6 @@ export class SandboxTester {
             console.error('error', e);
             apic.log(`Error: ${e?.message || e?.stack || e.toString()}`);
         }
-        console.log(SandboxTester.#TEST_RUN_CONTEXT);
 
         return {
             type: $scriptType,

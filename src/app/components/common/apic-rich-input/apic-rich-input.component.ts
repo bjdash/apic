@@ -100,11 +100,6 @@ export class ApicRichInputComponent implements OnInit, OnDestroy, ControlValueAc
       this.editor.nativeElement.innerText = val;
       this.onChangeHandle(true);
     });
-
-    // this.matAutocomplete?.optionSelected?.subscribe(event => {
-    //   console.log('selected', event);
-    //   this.onChangeHandle();
-    // })
   }
 
   onKeyDown(e) {
