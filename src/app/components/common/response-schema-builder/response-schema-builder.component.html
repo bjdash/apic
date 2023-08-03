@@ -98,12 +98,14 @@
                                         </div>
                                     </mat-tab>
                                 </mat-tab-group>
-                                <ng-jsonschema *ngIf="options.showOnlySchemaBuilder && responses.length>0; else noResp"
-                                    [models]="project?.models" (onSchemaChange)="onSchemaUpdate()" name="schema"
-                                    [responses]="responsesModels" formControlName="schema"
-                                    [options]="{showTestBuilder: options.showTestBuilder, readOnly: !!selectedResp?.importedVia || flags.use$refResponse}"
-                                    (onTestBuilder)="openTestBuilder($event)">
-                                </ng-jsonschema>
+                                <div *ngIf="options.showOnlySchemaBuilder">
+                                    <ng-jsonschema *ngIf="responses.length>0; else noResp"
+                                        [models]="project?.models" (onSchemaChange)="onSchemaUpdate()" name="schema"
+                                        [responses]="responsesModels" formControlName="schema"
+                                        [options]="{showTestBuilder: options.showTestBuilder, readOnly: !!selectedResp?.importedVia || flags.use$refResponse}"
+                                        (onTestBuilder)="openTestBuilder($event)">
+                                    </ng-jsonschema>
+                                </div>
                             </div>
                         </div>
                     </mat-tab>

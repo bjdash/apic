@@ -1,5 +1,4 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import Ajv from "ajv";
 import { Store } from '@ngxs/store';
 import { Env } from './../models/Envs.model';
 import { EnvsAction } from './../actions/envs.action';
@@ -15,17 +14,16 @@ import { UserState } from '../state/user.state';
 import { SAVED_SETTINGS } from '../utils/constants';
 import { EnvState } from '../state/envs.state';
 import { first } from 'rxjs/operators';
+import { SandboxService } from './tester.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EnvService {
-  private ajv;
   authUser: User;
 
 
-  constructor(private store: Store, private syncService: SyncService) {
-    this.ajv = new Ajv();
+  constructor(private store: Store, private syncService: SyncService, private sandboxService: SandboxService) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
     });
@@ -185,7 +183,7 @@ export class EnvService {
 
   }
 
-  validateImportData(importData): boolean {
+  async validateImportData(importData):Promise<boolean> {
     const schema = {
       "type": "object",
       "properties": {
@@ -232,10 +230,7 @@ export class EnvService {
       },
       "required": ["TYPE", "value"]
     }
-    const validate = this.ajv.compile(schema);
-    const valid = validate(importData);
-    if (!valid) console.error(validate.errors);
-    return valid;
+    return await this.sandboxService.validateSchema(schema, importData);
   }
 
   async clear() {

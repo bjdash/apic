@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "ESNext",
+      
+      "declaration": false,
+      "strict": false
+    },
+    "include": [
+      "src/assets/tester/sandbox.ts"
+    ]
+  }

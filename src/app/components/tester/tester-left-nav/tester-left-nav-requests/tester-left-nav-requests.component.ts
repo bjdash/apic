@@ -175,7 +175,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       return;
 
     if (data.TYPE === 'Folder') {
-      if (this.reqService.validateImportData(data) === true) {
+      if (await this.reqService.validateImportData(data)) {
         try {
           await this.processImportedFolder(data.value, null);
           this.toastr.success('Import Complete.');

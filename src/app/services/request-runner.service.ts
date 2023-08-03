@@ -8,13 +8,13 @@ import { ApiRequest } from '../models/Request.model';
 import { RunResponse } from '../models/RunResponse.model';
 import { RunResult } from '../models/RunResult.model';
 import { TestResponse } from '../models/TestResponse.model';
-import { TestScript } from '../models/TestScript.model';
+import { SandboxTestMessage } from '../models/Sandbox.model';
 import { EnvState } from '../state/envs.state';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { RequestUtils } from '../utils/request.util';
 import { ApicAgentService } from './apic-agent.service';
 import { InterpolationOption, InterpolationService } from './interpolation.service';
-import { TesterOptions, TesterService } from './tester.service';
+import { TesterOptions, SandboxService } from './tester.service';
 import { Utils } from './utils.service';
 import { environment } from 'src/environments/environment';
 import ExtentionHelper from './extention.helper';
@@ -35,7 +35,7 @@ export class RequestRunnerService {
   private defaultLogMsg = 'Logs can be added in PreRun/PostRun scripts with "log()" function. Eg: log($response)';
 
   constructor(
-    private tester: TesterService,
+    private tester: SandboxService,
     private apicAgentService: ApicAgentService,
     private store: Store,
     private interpolationService: InterpolationService
@@ -64,7 +64,7 @@ export class RequestRunnerService {
       let preRunResponse: TestResponse = null;
       const testerOption: TesterOptions = { skipinMemUpdate: options?.skipinMemUpdate }
       if (req.prescript) {
-        var script: TestScript = {
+        var script: SandboxTestMessage = {
           type: 'prescript',
           script: $request.prescript,
           $request
@@ -158,7 +158,7 @@ export class RequestRunnerService {
 
       //Run postrun script
       if ($request.postscript) {
-        var script: TestScript = {
+        var script: SandboxTestMessage = {
           type: 'postscript',
           script: $request.postscript,
           $request,

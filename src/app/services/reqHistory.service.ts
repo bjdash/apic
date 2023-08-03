@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import Ajv from 'ajv';
 import { ReqHistoryAction } from '../actions/reqHistory.actions';
 import { HistoryRequest } from '../models/ReqHistory.model';
 import apic from '../utils/apic';
 import iDB from './IndexedDB';
+import { SandboxService } from './tester.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReqHistoryService {
-    constructor(private store: Store) { }
+    constructor(private store: Store, private sandboxService: SandboxService) { }
 
     add(reqs: HistoryRequest[]): Promise<IDBValidKey> {
         const now = Date.now();
@@ -39,7 +39,7 @@ export class ReqHistoryService {
         this.store.dispatch(new ReqHistoryAction.Clear())
     }
 
-    validateImportData(importData): boolean {
+    async validateImportData(importData): Promise<boolean> {
         const schema = {
             "type": "object",
             "properties": {
@@ -55,10 +55,6 @@ export class ReqHistoryService {
             },
             "required": ["TYPE", "value"]
         }
-        let ajv = new Ajv();
-        const validate = ajv.compile(schema);
-        const valid = validate(importData);
-        if (!valid) console.error(validate.errors);
-        return valid as boolean;
+        return await this.sandboxService.validateSchema(schema, importData);
     }
 }

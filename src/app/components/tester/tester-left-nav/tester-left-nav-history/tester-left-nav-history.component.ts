@@ -42,7 +42,7 @@ export class TesterLeftNavHistoryComponent implements OnInit {
       data = JSON.parse(file.data);
 
       if (data.TYPE === 'History') {
-        if (this.reqHistoryService.validateImportData(data) === true) {
+        if (await this.reqHistoryService.validateImportData(data)) {
           var history: HistoryRequest[] = [];
           Object.keys(data.value).forEach(function (date) {
             var ts = Date.now();

@@ -1,6 +1,5 @@
 import { Select, Store } from '@ngxs/store';
 import { Injectable } from '@angular/core';
-import Ajv from "ajv";
 import { ApiProject } from './../models/ApiProject.model';
 import { ApiProjectsAction } from './../actions/apiProject.actions';
 import iDB from './IndexedDB';
@@ -15,15 +14,15 @@ import { BehaviorSubject, from, Observable } from 'rxjs';
 import { delay, delayWhen, first } from 'rxjs/operators';
 import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 import { DataChangeNotifier } from './dataChangeNotifier.service';
+import { SandboxService } from './tester.service';
 
 @Injectable()
 export class ApiProjectService {
     authUser: User;
-    ajv = null;
     updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
 
 
-    constructor(private store: Store, private syncService: SyncService, private dataChangeNotifier: DataChangeNotifier) {
+    constructor(private store: Store, private syncService: SyncService, private dataChangeNotifier: DataChangeNotifier, private sandboxService: SandboxService) {
         this.store.select(UserState.getAuthUser).subscribe(user => {
             this.authUser = user;
         });
@@ -31,8 +30,6 @@ export class ApiProjectService {
             this.onSyncMessage(message);
         })
         this.updatedViaSync$ = new BehaviorSubject(null);
-        this.ajv = new Ajv();
-        // this.loadApiProjs();
     }
 
     async loadApiProjs() {
@@ -202,7 +199,7 @@ export class ApiProjectService {
 
     }
 
-    isImportValid(importData) {
+    async isImportValid(importData) {
         const schema = {
             "type": "object",
             "properties": {
@@ -235,10 +232,7 @@ export class ApiProjectService {
             },
             "required": ["TYPE", "value"]
         }
-        const validate = this.ajv.compile(schema);
-        const valid = validate(importData);
-        if (!valid) console.error(validate.errors);
-        return valid;
+        return await this.sandboxService.validateSchema(schema, importData);
     }
     async clear() {
         return await Promise.all([

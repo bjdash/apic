@@ -96,7 +96,7 @@ import { RouteReuseStrategy } from '@angular/router';
 import { ApicRouteReuseStrategy } from './ApicRouteReuseStrategy';
 import { SaveReqDialogComponent } from './components/tester/save-req-dialog/save-req-dialog.component';
 import { TesterTabsService } from './components/tester/tester-tabs/tester-tabs.service';
-import { TesterService } from './services/tester.service';
+import { SandboxService } from './services/tester.service';
 import { RespTabTestsComponent } from './components/tester/tester-tabs/tab-request/resp-tab-tests/resp-tab-tests.component';
 import { BearerAuthComponent } from './components/tester/tester-tabs/tab-request/auth-bearer/bearer-auth.component';
 import { JsonViewerComponent } from './components/common/json-viewer/json-viewer.component';
@@ -304,7 +304,7 @@ const DEFAULT_ACE_CONFIG: AceConfigInterface = {
         SyncService,
         RememberService,
         TesterTabsService,
-        TesterService,
+        SandboxService,
         ReqHistoryService,
         DataChangeNotifier,
         ProjectDetailRouteGuard,
