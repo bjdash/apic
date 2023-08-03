@@ -139,7 +139,7 @@ export class EnvsComponent implements OnInit, OnDestroy {
 
     try {
       if (data.TYPE === 'Environment') {
-        if (this.envService.validateImportData(data) === true) {
+        if (await this.envService.validateImportData(data)) {
           if (data.value.length > 0) {//collectn of envs
             let envs: Env[] = data.value.map(e => {
               return {

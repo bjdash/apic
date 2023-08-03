@@ -39,7 +39,7 @@ export class MainJsonSchemaComponent implements OnInit {
     @Output()
     on$refExpand = new EventEmitter<Entity>();
 
-    @Input()
+    @Output()
     onBuildTest = new EventEmitter<SchemaClickOpenEvent>()
 
     @Output()

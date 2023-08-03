@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import Ajv from 'ajv';
 import { StompMessage } from '../models/StompMessage.model';
 import { User } from '../models/User.model';
 import { UserState } from '../state/user.state';
@@ -17,20 +16,20 @@ import { SyncModifiedNotification } from '../models/SyncModifiedNotification';
 import { HttpClient } from '@angular/common/http';
 import { SuitesStateSelector } from '../state/suites.selector';
 import { first } from 'rxjs/operators';
+import { SandboxService } from './tester.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SuiteService {
   authUser: User;
-  ajv = null;
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = null;
   private _initAddReq = new Subject<any>();
   initAddReq$ = this._initAddReq.asObservable();
   private _initDevtoolsImport = new Subject<any>();
   initDevtoolsImport$ = this._initDevtoolsImport.asObservable();
 
-  constructor(private store: Store, private syncService: SyncService, private httpClient: HttpClient) {
+  constructor(private store: Store, private syncService: SyncService, private httpClient: HttpClient, private sandboxService:SandboxService) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
     });
@@ -38,7 +37,6 @@ export class SuiteService {
       this.onSyncMessage(message);
     });
     this.updatedViaSync$ = new BehaviorSubject(null);
-    this.ajv = new Ajv();
   }
 
   async loadTestProjects(): Promise<TestProject[]> {
@@ -340,7 +338,7 @@ export class SuiteService {
     this._initDevtoolsImport.next({ suiteId, harReqs });
   }
 
-  validateProjectImportData(importData): boolean {
+  async validateProjectImportData(importData): Promise<boolean> {
     const schema = {
       "type": "object",
       "properties": {
@@ -380,13 +378,10 @@ export class SuiteService {
       },
       "required": ["TYPE", "value"]
     }
-    const validate = this.ajv.compile(schema);
-    const valid = validate(importData);
-    if (!valid) console.error(validate.errors);
-    return valid;
+    return await this.sandboxService.validateSchema(schema, importData);
   }
 
-  validateSuiteImportData(importData): boolean {
+  async validateSuiteImportData(importData): Promise<boolean> {
     const schema = {
       "type": "object",
       "properties": {
@@ -416,9 +411,6 @@ export class SuiteService {
       },
       "required": ["TYPE", "value"]
     }
-    const validate = this.ajv.compile(schema);
-    const valid = validate(importData);
-    if (!valid) console.error(validate.errors);
-    return valid;
+    return await this.sandboxService.validateSchema(schema, importData);
   }
 }

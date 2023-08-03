@@ -28,11 +28,12 @@ import { Utils } from 'src/app/services/utils.service';
 import { RequestsStateSelector } from 'src/app/state/requests.selector';
 import apic from 'src/app/utils/apic';
 import { Beautifier } from 'src/app/utils/Beautifier';
-import { HTTP_HEADERS, HTTP_METHODS, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS } from 'src/app/utils/constants';
+import { HTTP_HEADERS, HTTP_METHODS, METHOD_WITH_BODY, RAW_BODY_TYPES, REQ_BODY_SNIPS, RESTRICTED_HEADERS } from 'src/app/utils/constants';
 import { RequestUtils } from 'src/app/utils/request.util';
 import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.component';
 import { TesterTabInterface } from '../tester-tabs.interface';
 import { TesterTabsService } from '../tester-tabs.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-tab-request',
@@ -597,5 +598,9 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges, Tester
             existingKeys.pop()
         }
         patchTo.patchValue({ [patchKey]: [...existingKeys, ...valsToAdd] });
+    }
+
+    isRestrictedHeader(value){
+        return environment.PLATFORM === 'WEB' && RESTRICTED_HEADERS.includes(value?.toUpperCase())
     }
 }

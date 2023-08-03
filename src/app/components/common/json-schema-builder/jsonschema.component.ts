@@ -224,9 +224,9 @@ export class JsonSchemaComponent implements OnInit, ControlValueAccessor, OnChan
         this.addNewPropArrObj(entity, entity._items[0]._type[0], event);
         break;
       case 'XOf':
-        var apic = this.JsonSchema.newString(
-          '',
-          this.options?.requiredOnAdd,
+        var apic = this.JsonSchema.newObject(
+          'xOf',
+          [],
           entity._parent + '.' + entity._key.replace('##ROOT##', 'data')
         );
         apic._hideKey = true;

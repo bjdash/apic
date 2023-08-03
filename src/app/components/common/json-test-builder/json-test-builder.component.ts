@@ -3,8 +3,8 @@ import { CompiledApiRequest } from 'src/app/models/CompiledRequest.model';
 import { RunResponse } from 'src/app/models/RunResponse.model';
 import { TestBuilderOption } from 'src/app/models/TestBuilderOption.model';
 import { TestResponse } from 'src/app/models/TestResponse.model';
-import { TestScript } from 'src/app/models/TestScript.model';
-import { TesterService } from 'src/app/services/tester.service';
+import { SandboxTestMessage } from 'src/app/models/Sandbox.model';
+import { SandboxService } from 'src/app/services/tester.service';
 import { Toaster } from 'src/app/services/toaster.service';
 import { Utils } from 'src/app/services/utils.service';
 import { TEST_BUILDER_OPS } from 'src/app/utils/constants';
@@ -50,7 +50,7 @@ export class JsonTestBuilderComponent implements OnInit {
     saved: true,
     hideRun: false
   };
-  constructor(private utils: Utils, private toaster: Toaster, private tester: TesterService) { }
+  constructor(private utils: Utils, private toaster: Toaster, private tester: SandboxService) { }
 
   ngOnInit(): void {
     if (typeof this.options.val != 'object') this.models.input = this.options.val;
@@ -157,7 +157,7 @@ export class JsonTestBuilderComponent implements OnInit {
   async runTests(tests?: Test[]) {
     if (!tests) tests = this.tests;
     var testStr = tests.reduce((acc, t) => { return acc + t.val + '\n' }, '')
-    var script: TestScript = {
+    var script: SandboxTestMessage = {
       type: 'tempTest',
       script: testStr,
       $request: this.$request,

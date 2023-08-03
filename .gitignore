@@ -2,6 +2,7 @@
 
 # compiled output
 /dist/*
+# this is added to git so that the web version doesnt require building
 !/dist/web
 /tmp
 /out-tsc

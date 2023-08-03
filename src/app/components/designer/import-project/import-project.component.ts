@@ -79,7 +79,7 @@ export class ImportProjectComponent implements OnInit {
     if (!importData) return;
 
     if (importData.TYPE === 'APIC Api Project') {
-      if (this.apiProjectService.isImportValid(importData)) {
+      if (await this.apiProjectService.isImportValid(importData)) {
         this.projToImport = this.sanitizeProjImport(importData.value);
       } else {
         this.toaster.error('Selected file doesn\'t contain valid Project information');

@@ -19,7 +19,13 @@ export interface KVEditorOptn {
   enableAutocomplete?: boolean,
   autocompletes?: string[],
   disabled?: boolean,
-  valueFieldType?: 'plainText' | 'richText' | 'select' | 'fullEditor' | 'fileAndText' | 'jsonText'
+  valueFieldType?: 'plainText' | 'richText' | 'select' | 'fullEditor' | 'fileAndText' | 'jsonText',
+  extraInfo?:{
+    show: (value:string)=>boolean,
+    icon: string,
+    tooltip:string,
+    link?: string
+  }
 }
 
 @Component({

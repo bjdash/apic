@@ -22,6 +22,7 @@ import { SuiteService } from './services/suite.service';
 import { environment } from 'src/environments/environment';
 import { IntroComponent } from './components/intro/intro.component';
 import { MatDialog } from '@angular/material/dialog';
+import ExtentionHelper from './services/extention.helper';
 
 declare global {
   interface Window {
@@ -64,6 +65,11 @@ export class AppComponent {
           height: '100vh', maxWidth: '100vw'
         });
       LocalStore.set(LocalStore.INTRO_SHOWN, true)
+    }
+
+    //connect to extention service worker
+    if(environment.PLATFORM === 'CHROME'){
+        ExtentionHelper.connect();
     }
 
     //for receiving messages from APIC dev tools

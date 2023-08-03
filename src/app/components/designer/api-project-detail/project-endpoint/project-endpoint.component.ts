@@ -403,7 +403,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   openTestBuilder(event: SchemaClickOpenEvent) {
     let top = document.querySelector('.designer-cont').scrollTop;
     this.testBuilderOpt = {
-      parent: event.entity._parent.replace('##ROOT##', 'data'),
+      parent: event.entity._parent.replace('##ROOT##', 'data').replace('.xOf', ''),
       key: event.entity._key,
       val: event.entity._default,
       showRun: false,

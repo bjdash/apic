@@ -134,7 +134,19 @@
 
           <div class="control-content short" [hidden]="flags.reqTab != 'Headers'">
             <app-key-value-editor formControlName="headers"
-              [options]="{enableAutocomplete:true,autocompletes:HTTP_HEADERS,addOnFocus:true,allowToggle:true, valueFieldType:'richText', placeholderKey: 'Header name'}">
+              [options]="{
+                enableAutocomplete:true,
+                autocompletes:HTTP_HEADERS,
+                addOnFocus:true,
+                allowToggle:true,
+                valueFieldType:'richText',
+                placeholderKey: 'Header name',
+                extraInfo:{
+                    show:isRestrictedHeader,
+                    icon:'warning',
+                    tooltip:'You are trying to send a header which is forbidden by browsers. If you would still like to send this header click on the warning icon to know how.',
+                    link: 'https://docs.apic.app/tester/sending-forbidden-request-headers-with-apic'
+                }}">
             </app-key-value-editor>
           </div>
           <div class="control-content" [hidden]="flags.reqTab != 'Body'" formGroupName="body">
@@ -162,7 +174,7 @@
             </div>
             <div *ngIf="form.value.body.type==='form-data'">
               <app-key-value-editor formControlName="formData"
-                [options]="{addOnFocus:true,allowToggle:true, valueFieldType: 'textAndFile',placeholderKey: 'Name'}">
+                [options]="{addOnFocus:true,allowToggle:true, valueFieldType: 'fileAndText',placeholderKey: 'Name'}">
               </app-key-value-editor>
             </div>
             <div *ngIf="form.value.body.type==='x-www-form-urlencoded'">

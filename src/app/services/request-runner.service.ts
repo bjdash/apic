@@ -8,14 +8,16 @@ import { ApiRequest } from '../models/Request.model';
 import { RunResponse } from '../models/RunResponse.model';
 import { RunResult } from '../models/RunResult.model';
 import { TestResponse } from '../models/TestResponse.model';
-import { TestScript } from '../models/TestScript.model';
+import { SandboxTestMessage } from '../models/Sandbox.model';
 import { EnvState } from '../state/envs.state';
 import { METHOD_WITH_BODY, RESTRICTED_HEADERS } from '../utils/constants';
 import { RequestUtils } from '../utils/request.util';
 import { ApicAgentService } from './apic-agent.service';
 import { InterpolationOption, InterpolationService } from './interpolation.service';
-import { TesterOptions, TesterService } from './tester.service';
+import { TesterOptions, SandboxService } from './tester.service';
 import { Utils } from './utils.service';
+import { environment } from 'src/environments/environment';
+import ExtentionHelper from './extention.helper';
 
 export interface RunOption {
   useInMemEnv?: boolean,
@@ -33,7 +35,7 @@ export class RequestRunnerService {
   private defaultLogMsg = 'Logs can be added in PreRun/PostRun scripts with "log()" function. Eg: log($response)';
 
   constructor(
-    private tester: TesterService,
+    private tester: SandboxService,
     private apicAgentService: ApicAgentService,
     private store: Store,
     private interpolationService: InterpolationService
@@ -62,7 +64,7 @@ export class RequestRunnerService {
       let preRunResponse: TestResponse = null;
       const testerOption: TesterOptions = { skipinMemUpdate: options?.skipinMemUpdate }
       if (req.prescript) {
-        var script: TestScript = {
+        var script: SandboxTestMessage = {
           type: 'prescript',
           script: $request.prescript,
           $request
@@ -79,7 +81,7 @@ export class RequestRunnerService {
       this._xhr = new XMLHttpRequest();
       this._xhr.open($request.method, $request.url, true);
 
-      this.addHeadersFromObj($request.headers);
+      await this.addHeadersFromObj($request);
       this._xhr.onreadystatechange = (event) => {
         this.onreadystatechange(event, $request, preRunResponse, resolve, testerOption)
       };
@@ -156,7 +158,7 @@ export class RequestRunnerService {
 
       //Run postrun script
       if ($request.postscript) {
-        var script: TestScript = {
+        var script: SandboxTestMessage = {
           type: 'postscript',
           script: $request.postscript,
           $request,
@@ -169,6 +171,9 @@ export class RequestRunnerService {
         if (postRunResponse.scriptError) {
           $response.scriptError = $response.scriptError ? $response.scriptError + '\n' + postRunResponse.scriptError : postRunResponse.scriptError;
         }
+      }
+      if(environment.PLATFORM === 'CHROME'){
+        await ExtentionHelper.clearRestrictedHeaders();
       }
       resolve({ $request, $response })
     }
@@ -243,20 +248,27 @@ export class RequestRunnerService {
     }
   }
 
-  addHeadersFromObj(headers) {
-    for (let [key, val] of Utils.objectEntries(headers as { [key: string]: string })) {
+  async addHeadersFromObj(request:CompiledApiRequest) {
+    
+    let restrictedHeaders = {};
+    for (let [key, val] of Utils.objectEntries(request.headers as { [key: string]: string })) {
       if (key) {
         var headerName = key.toUpperCase().trim();
-        if (RESTRICTED_HEADERS.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-')) {
-          key = 'APIC-' + key;
-        }
-        try {
-          this._xhr.setRequestHeader(key, val);
-        } catch (e) {
-          var m = e.message;
-          console.warn(m.slice(m.indexOf(':') + 1).trim());
+        if ((RESTRICTED_HEADERS.includes(headerName) || headerName.startsWith('SEC-') || headerName.startsWith('PROXY-'))) {
+            restrictedHeaders[key] = val;
+        }else{
+            try {
+              this._xhr.setRequestHeader(key, val);
+            } catch (e) {
+              var m = e.message;
+              console.warn(m.slice(m.indexOf(':') + 1).trim());
+            }
         }
       }
+    }
+    if(Object.keys(restrictedHeaders).length>0 && environment.PLATFORM === 'CHROME'){
+        let host = new URL(request.url).hostname;
+        await ExtentionHelper.addRestrictedHeaders(restrictedHeaders, host)
     }
   };
 

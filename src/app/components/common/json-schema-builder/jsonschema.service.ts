@@ -506,7 +506,7 @@ export class JsonSchemaService {
           if (schema.oneOf || schema.anyOf || schema.allOf) {
             var fld = type[0].toLowerCase() + type.slice(1);
             schema[fld].forEach((item, i) => {
-              var res = this.schema2obj(item, i.toString(), false, false, modelObjs, parent + parentDelim + key.replace('##ROOT##', 'data'));
+              var res = this.schema2obj(item, 'xOf', false, false, modelObjs, parent + parentDelim + key.replace('##ROOT##', 'data'));
               res._hideKey = true;
               obj._properties.push(res);
             })

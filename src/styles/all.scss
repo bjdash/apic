@@ -558,7 +558,7 @@ a.panel-fab {
 .status.warning,
 .warning,
 .WARNING {
-  color: var(--warn);
+  color: var(--warn) !important;
 }
 .status.error,
 .error,

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import Ajv from 'ajv';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { RequestsAction } from '../actions/requests.action';
@@ -15,24 +14,23 @@ import apic from '../utils/apic';
 import { SAVED_SETTINGS } from '../utils/constants';
 import iDB from './IndexedDB';
 import { SyncService } from './sync.service';
+import { SandboxService } from './tester.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RequestsService {
   authUser: User;
-  ajv = null;
 
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = new BehaviorSubject(null);;
 
-  constructor(private store: Store, private syncService: SyncService) {
+  constructor(private store: Store, private syncService: SyncService, private sandboxService:SandboxService) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
     });
     this.syncService.onRequestsMessage$.subscribe(async message => {
       this.onSyncMessage(message);
     })
-    this.ajv = new Ajv();
   }
 
   async loadRequests() {
@@ -298,7 +296,7 @@ export class RequestsService {
     }
   }
 
-  validateImportData(importData): boolean {
+  async validateImportData(importData): Promise<boolean> {
     const schema = {
       "type": "object",
       "properties": {
@@ -314,10 +312,7 @@ export class RequestsService {
       },
       "required": ["TYPE", "value"]
     }
-    const validate = this.ajv.compile(schema);
-    const valid = validate(importData);
-    if (!valid) console.error(validate.errors);
-    return valid;
+    return await this.sandboxService.validateSchema(schema, importData);
   }
 
   async clearFolders() {

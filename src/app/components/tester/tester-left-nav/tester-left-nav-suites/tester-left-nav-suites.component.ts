@@ -144,7 +144,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
     if (!data)
       return;
     if (data.TYPE === 'APICSuite' && data.value) {
-      if (this.suiteService.validateSuiteImportData(data) === true) {
+      if (await this.suiteService.validateSuiteImportData(data)) {
         let suite: Suite = data.value;
         suite.projId = projId;
         try {
@@ -178,7 +178,7 @@ export class TesterLeftNavSuitesComponent implements OnInit, OnDestroy {
         data.value.suites = Utils.objectValues(data.value.suits);
         delete data.value.suits;
       }
-      if (this.suiteService.validateProjectImportData(data) === true) {
+      if (await this.suiteService.validateProjectImportData(data)) {
         let project: TestProject = { _id: null, name: data.value.name }
         try {
           let newProj = await this.suiteService.createTestProject(project, true);

@@ -6,41 +6,39 @@
     "description": "The only tool you will ever need for all you API Design, Documentation and Testing needs.",
     "devtools_page": "devtools/devtools.html",
     "background": {
-        "scripts": [
-            "background.js"
-        ]
+      "service_worker": "background.js"
     },
     "icons": {
-        "16": "icon_16.png",
-        "32": "icon_32.png",
-        "48": "icon_48.png",
-        "64": "icon_64.png",
-        "128": "icon_128.png"
+      "16": "icon_16.png",
+      "32": "icon_32.png",
+      "48": "icon_48.png",
+      "64": "icon_64.png",
+      "128": "icon_128.png"
     },
-    "browser_action": {
-        "default_icon": "icon_64.png",
-        "default_popup": "popup.html"
+    "action": {
+      "default_icon": "icon_64.png",
+      "default_title": "Open APIC",
+      "default_popup": "popup.html"
     },
     "permissions": [
-        "http://*/*",
-        "https://*/*",
-        "unlimitedStorage",
-        "storage",
-        "tabs",
-        "webRequest",
-        "webRequestBlocking",
-        "identity",
-        "notifications"
+      "unlimitedStorage",
+      "tabs",
+      "notifications",
+      "declarativeNetRequest"
+    ],
+    "host_permissions": [
+      "<all_urls>"
     ],
     "sandbox": {
-        "pages": [
-            "assets/tester/tester.html",
-            "assets/tester/tester.js"
-        ],
-        "content_security_policy": "sandbox allow-scripts allow-popups; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+      "pages": [
+        "assets/sandbox/sandbox.html",
+        "assets/sandbox/sandbox.js"
+      ]
     },
-    "content_security_policy": "script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ ; object-src 'self'; style-src 'unsafe-inline';",
-    "manifest_version": 2,
-    "offline_enabled": true,
-    "update_URL": "https://edge.microsoft.com/extensionwebstorebase/v1/crx"
-}
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'; style-src 'unsafe-inline';",
+      "sandbox": "sandbox allow-scripts allow-popups; script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    },
+    "manifest_version": 3,
+    "offline_enabled": true
+  }
