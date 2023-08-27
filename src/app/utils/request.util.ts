@@ -9,7 +9,7 @@ import apic from "./apic";
 import { ApiProjectUtils } from "./ApiProject.utils";
 import { METHOD_WITH_BODY } from "./constants";
 import { SchemaDref } from "./SchemaDref";
-import { Aceutils } from '../services/ace.utils';
+import { AceUtils } from '../services/ace.utils';
 
 export class RequestUtils {
   static {
@@ -286,7 +286,7 @@ export class RequestUtils {
         }
       } else {
         request.Body.type = 'raw';
-        request.Body.selectedRaw = { name: Aceutils.getModeFromContentType(bodyToUse.mime), val: bodyToUse.mime };
+        request.Body.selectedRaw = { name: AceUtils.getModeFromContentType(bodyToUse.mime), val: bodyToUse.mime };
         var schema = { ...bodyToUse.schema };
         if (schema) {
           schema.definitions = modelRefs;

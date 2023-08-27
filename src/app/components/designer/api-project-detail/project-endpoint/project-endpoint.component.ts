@@ -55,7 +55,7 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
       show: (kv: KeyVal) => {
         return kv.meta === TXT_TRAIT_IMPORT;
       },
-      icon: 'help',
+      icon: 'info',
       tooltip: 'This property is imported from a trait.',
       link: 'https://docs.apic.app/designer/create-trait'
     }

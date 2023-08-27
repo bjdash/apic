@@ -1,4 +1,4 @@
-export class Aceutils {
+export class AceUtils {
   static SUPPORTED_MODES = ['json', 'yaml', 'xml', 'javascript', 'graphql', 'html'];
   static getModeFromContentType(cType: string): string {
     let groups = cType?.match(/.*\/([\w\-\+]+)/);

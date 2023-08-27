@@ -100,7 +100,7 @@ export class RequestsStateSelector {
         return a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase() ? -1 : 1
       })
       .forEach(f => {
-        let folder = { ...f, children: [], requests: reqMap[f._id] || [] };
+        let folder: LeftTreeFolder = { ...f, children: [], requests: reqMap[f._id] || [], treeItem: 'Folder' };
         folderMap[f.parentId].children.push(folder);
       })
     return folderTree;

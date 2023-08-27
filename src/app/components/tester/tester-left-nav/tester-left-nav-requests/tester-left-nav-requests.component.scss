@@ -74,7 +74,7 @@
 }
 .drop-target {
   border: 1px solid var(--accent-color);
-  .folder {
+  >.folder {
     box-shadow: 0px 0px 5px 5px var(--accent-shadow) inset;
   }
 }

@@ -2,7 +2,7 @@
   <div class="ctrls">
     <button mat-icon-button class="t_color" matTooltip="Import APIs" (click)="importFolder()"
       matTooltipPosition="below">
-      <mat-icon>file_import</mat-icon>
+      <mat-icon>file_upload</mat-icon>
     </button>
     <button mat-icon-button class="t_color" (click)="showFolderForm()" matTooltip="New folder"
       matTooltipPosition="below">
@@ -92,7 +92,7 @@
     </div>
     <div *ngIf="flags.savedReqs">
       <!---ROOT FOLDER--->
-      <div *ngFor="let folder of folders$ |async" class="forlder-wrap" draggable="true"
+      <div *ngFor="let folder of folders$ |async" class="folder-wrap" draggable="true"
         (drop)="handleDrop($event, folder)" (dragstart)="handleDragstart($event, folder)"
         (dragleave)="handleDragleave($event)" (dragover)="handleDragover($event, folder)"
         (dragenter)="handleDragenter($event, folder)" (dragend)="handleDragend($event)">
@@ -101,7 +101,7 @@
 
         <div class="sub-folder" [hidden]="!flags.expanded[folder._id] && !flags.expandAll">
           <!--SUB FOLDER-->
-          <div *ngFor="let subfolder of folder.children" class="forlder-wrap" draggable="true"
+          <div *ngFor="let subfolder of folder.children" class="folder-wrap" draggable="true"
             (drop)="handleDrop($event, subfolder)" (dragstart)="handleDragstart($event, subfolder)"
             (dragleave)="handleDragleave($event)" (dragover)="handleDragover($event, subfolder)"
             (dragenter)="handleDragenter($event, subfolder)" (dragend)="handleDragend($event)">

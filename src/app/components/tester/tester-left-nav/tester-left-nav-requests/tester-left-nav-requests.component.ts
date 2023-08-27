@@ -315,7 +315,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
   }
 
   async initCopyMove() {
-    this.toastr.info('You can move a request or a folder by dragging it nto another folder. Hold Ctrl/Cmd for copy.');
+    this.toastr.info('You can move a request or a folder by dragging it into another folder. Hold Ctrl/Cmd for copy.', 6000);
   }
 
 
@@ -529,8 +529,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     if ('treeItem' in node) {
       $event.dataTransfer.setData('type', node.treeItem);
       $event.dataTransfer.setData('isRoot', (!node.parentId).toString())
-    }
-    else {
+    } else {
       $event.dataTransfer.setData('type', 'Request');
     }
   }
@@ -542,7 +541,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       $event.stopPropagation();
 
       let target: HTMLElement = $event.target as HTMLElement;
-      let parent = target.closest('div. folder-wrap') as HTMLElement;
+      let parent = target.closest('div.folder-wrap') as HTMLElement;
       parent.classList.add('drop-target');
     }, 0);
   }
@@ -588,8 +587,8 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
         isTargetARootFolder = !targetFolder.parentId
 
       if (moveId !== targetFolder._id) {
-        let srcFolder = await this.store.select(RequestsStateSelector.getFolderById).
-          pipe(map(filterFn => filterFn(moveId))).pipe(take(1)).toPromise();
+        let srcFolder = await this.store.select(RequestsStateSelector.getFolderById)
+          .pipe(map(filterFn => filterFn(moveId))).pipe(take(1)).toPromise();
 
 
         if (isSrcARootFolder && isTargetARootFolder) {//root to root - merge 
@@ -610,15 +609,16 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           })
 
         } else if (isSrcARootFolder && !isTargetARootFolder) {//root to subfolder - not allowed 
-          this.toastr.error('You are trying to move a root folder into a subfolder which is not supported as of now as we currently support only 1 level of nested folders.');
+          this.toastr.error('You are trying to move a root folder into a subfolder which is not supported as of now as we currently support only 1 level of nested folders.', 7000);
         } else if (!isSrcARootFolder && isTargetARootFolder) {//subfolder to root - add
-          let fname = await this.#copyMoveFolder(srcFolder, targetFolder, isCopy);
-          if (fname !== srcFolder.name) {
-            this.toastr.success(`Folder renamed to ${fname} as destination already has a folder with the same name`, 5000);
-          } else {
-            this.toastr.success(isCopy ? 'Copied' : 'Moved.');
+          if (srcFolder.parentId != targetFolder._id) {
+            let fname = await this.#copyMoveFolder(srcFolder, targetFolder, isCopy);
+            if (fname !== srcFolder.name) {
+              this.toastr.success(`Folder renamed to ${fname} as destination already has a folder with the same name`, 5000);
+            } else {
+              this.toastr.success(isCopy ? 'Copied.' : 'Moved.');
+            }
           }
-
         } else if (!isSrcARootFolder && !isTargetARootFolder) {//subfolder to subfolder merge 
           let srcParentFolderTree = await this.store.select(RequestsStateSelector.getFoldersTreeById)
             .pipe(map(filterFn => filterFn(srcFolder.parentId)))

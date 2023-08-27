@@ -34,7 +34,7 @@ import { SaveReqDialogComponent } from '../../save-req-dialog/save-req-dialog.co
 import { TesterTabInterface } from '../tester-tabs.interface';
 import { TesterTabsService } from '../tester-tabs.service';
 import { environment } from 'src/environments/environment';
-import { Aceutils } from 'src/app/services/ace.utils';
+import { AceUtils } from 'src/app/services/ace.utils';
 
 @Component({
   selector: 'app-tab-request',
@@ -363,7 +363,7 @@ export class TabRequestComponent implements OnInit, OnDestroy, OnChanges, Tester
       this.runResponse = { ...result.$response };
       this.runRequest = result.$request;
       this.runResponse.bodyPretty = this.beautifyResponse(this.runResponse?.headers?.['content-type'], this.runResponse.body);
-      this.flags.respAceMode = Aceutils.getModeFromContentType(this.runResponse?.headers?.['content-type'])
+      this.flags.respAceMode = AceUtils.getModeFromContentType(this.runResponse?.headers?.['content-type'])
       this.flags.respHeadersCount = Utils.objectKeys(this.runResponse.headers).length;
       this.applyRunStatus(false);
       if (this.flags.respBodyTab == 'preview' && this.flags.respTab == 'Body') {
