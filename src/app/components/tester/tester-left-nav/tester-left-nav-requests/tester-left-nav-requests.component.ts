@@ -591,22 +591,33 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
           .pipe(map(filterFn => filterFn(moveId))).pipe(take(1)).toPromise();
 
 
-        if (isSrcARootFolder && isTargetARootFolder) {//root to root - merge 
+        if (isSrcARootFolder && isTargetARootFolder) {//root to root - if root has no subfolder - add, else - merge 
           let srcFolderTree = await this.store.select(RequestsStateSelector.getFoldersTreeById)
             .pipe(map(filterFn => filterFn(moveId))).pipe(take(1)).toPromise();
 
-          srcFolderTree.requests.forEach(async req => {
-            let reqToMove: ApiRequest = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(req._id))
-              .pipe(take(1)).toPromise();
-            await this.#copyMoveRequest(reqToMove, targetFolder.requests, targetFolder._id, isCopy);
-          });
+          if (srcFolderTree.children.length === 0) {
+            let fname = await this.#copyMoveFolder(srcFolder, targetFolder, isCopy);
+            if (fname !== srcFolder.name) {
+              this.toastr.success(`Folder renamed to ${fname} as destination already has a folder with the same name`, 5000);
+            } else {
+              this.toastr.success(isCopy ? 'Copied.' : 'Moved.');
+            }
+          } else {
+            srcFolderTree.requests.forEach(async req => {
+              let reqToMove: ApiRequest = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(req._id))
+                .pipe(take(1)).toPromise();
+              await this.#copyMoveRequest(reqToMove, targetFolder.requests, targetFolder._id, isCopy);
+            });
 
-          //move sub folders
-          srcFolderTree.children.forEach(async subfolder => {
-            let srcSubFolder = await this.store.select(RequestsStateSelector.getFolderById)
-              .pipe(map(filterFn => filterFn(subfolder._id))).pipe(take(1)).toPromise();
-            await this.#copyMoveFolder(srcSubFolder, targetFolder, isCopy);
-          })
+            //move sub folders
+            srcFolderTree.children.forEach(async subfolder => {
+              let srcSubFolder = await this.store.select(RequestsStateSelector.getFolderById)
+                .pipe(map(filterFn => filterFn(subfolder._id))).pipe(take(1)).toPromise();
+              await this.#copyMoveFolder(srcSubFolder, targetFolder, isCopy);
+            })
+          }
+
+
 
         } else if (isSrcARootFolder && !isTargetARootFolder) {//root to subfolder - not allowed 
           this.toastr.error('You are trying to move a root folder into a subfolder which is not supported as of now as we currently support only 1 level of nested folders.', 7000);
