@@ -11,6 +11,7 @@
     position: relative;
     font-family: "Poppins", sans-serif !important;
     min-height: 45px;
+    margin-bottom: 5px;
 
     &:hover {
         background: var(--main-bg);
@@ -41,5 +42,7 @@
 
     .h-icon {
         padding: 3px 10px;
+        width: 60px;
+        text-align: center;
     }
 }

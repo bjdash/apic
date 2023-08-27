@@ -151,7 +151,7 @@ textarea.logs {
 
 .suit-req {
     position: relative;
-    padding: 7px 10px 7px 10px;
+    padding: 15px 10px;
 
     &.run-res {
         margin: 0 -10px;
@@ -230,6 +230,8 @@ textarea.logs {
         overflow: hidden;
         color: #888;
         text-overflow: ellipsis;
+        word-break: break-word;
+        font-size: 12px;
     }
 }
 
@@ -272,6 +274,7 @@ textarea.logs {
 
 .suit-req .ctrls {
     margin-left: auto;
+    min-width: 90px;
 }
 
 .grip {
@@ -303,11 +306,8 @@ textarea.logs {
     z-index: 10;
     width: 235px;
     left: 40%;
-    opacity: 0.4;
 
     &:hover {
-        opacity: 1;
-
         .nt_options {
             left: -4px;
         }

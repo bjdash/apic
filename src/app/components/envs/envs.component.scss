@@ -15,7 +15,7 @@
     .envs-left {
         width: 370px;
         border-right: 1px solid var(--border-color);
-        max-height: calc(100vh - 200px);
+        max-height: 65vh;
         overflow-y: auto;
 
         .mat-list-text {

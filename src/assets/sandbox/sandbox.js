@@ -50,10 +50,7 @@ export class SandboxTester {
     constructor(payload) {
         this.payload = payload;
         SandboxTester.#TEST_RUN_CONTEXT = {
-            envs: {
-                saved: {},
-                inMem: {}
-            },
+            envs: payload.envs,
             logs: [],
             tests: [],
             scriptError: null
@@ -265,5 +262,5 @@ function removeEnv(key) {
     SandboxTester.removeEnv(key);
 }
 function getEnv(key) {
-    return SandboxTester.getEnv;
+    return SandboxTester.getEnv(key);
 }

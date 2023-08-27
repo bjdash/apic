@@ -3,7 +3,10 @@
 }
 
 .new-folder {
-    padding: 0 10px;
+    padding: 10px 5px;
+    margin: 5px 5px 25px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color)
 }
 
 .reqSection {
@@ -56,4 +59,22 @@
         color: var(--accent-bg-text);
         padding: 2px 1px;
     }
+}
+.f-name,
+.l-sec,
+.m-sec {
+  pointer-events: none;
+}
+.method {
+  text-align: left;
+}
+
+.drag-target {
+  box-shadow: 0px 0px 5px 3px var(--accent-shadow) inset;
+}
+.drop-target {
+  border: 1px solid var(--accent-color);
+  .folder {
+    box-shadow: 0px 0px 5px 5px var(--accent-shadow) inset;
+  }
 }

@@ -3,20 +3,20 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Injectable()
 export class Toaster {
-    config: MatSnackBarConfig = { horizontalPosition: 'center', verticalPosition: 'bottom', duration: 2500 }
+  config: MatSnackBarConfig = { horizontalPosition: 'center', verticalPosition: 'bottom', duration: 3000 }
 
-    constructor(private snackBar: MatSnackBar) { }
+  constructor(private snackBar: MatSnackBar) { }
 
-    success(message: string) {
-        this.snackBar.open(message, 'x', { ...this.config, panelClass: 'success' });
-    }
-    error(message: string) {
-        this.snackBar.open(message, 'x', { ...this.config, panelClass: 'error' });
-    }
-    warn(message: string) {
-        this.snackBar.open(message, 'x', { ...this.config, panelClass: 'warning' });
-    }
-    info(message: string) {
-        this.snackBar.open(message, 'x', { ...this.config, panelClass: 'info' });
-    }
+  success(message: string, duration?: number) {
+    this.snackBar.open(message, 'x', { ...this.config, ...(duration ? { duration } : {}), panelClass: 'success' });
+  }
+  error(message: string, duration?: number) {
+    this.snackBar.open(message, 'x', { ...this.config, ...(duration ? { duration } : {}), panelClass: 'error' });
+  }
+  warn(message: string, duration?: number) {
+    this.snackBar.open(message, 'x', { ...this.config, ...(duration ? { duration } : {}), panelClass: 'warning' });
+  }
+  info(message: string, duration?: number) {
+    this.snackBar.open(message, 'x', { ...this.config, ...(duration ? { duration } : {}), panelClass: 'info' });
+  }
 }

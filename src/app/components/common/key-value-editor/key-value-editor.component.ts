@@ -20,10 +20,10 @@ export interface KVEditorOptn {
   autocompletes?: string[],
   disabled?: boolean,
   valueFieldType?: 'plainText' | 'richText' | 'select' | 'fullEditor' | 'fileAndText' | 'jsonText',
-  extraInfo?:{
-    show: (value:string)=>boolean,
+  extraInfo?: {
+    show: (value: KeyVal) => boolean,
     icon: string,
-    tooltip:string,
+    tooltip: string,
     link?: string
   }
 }
@@ -161,12 +161,18 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
       }
 
       return this.fb.group({
-        key: [kv.key || ''],
-        val: [val || ''],
-        type: [type],
+        key: { value: kv.key || '', disabled: !!kv.readOnly },
+        val: { value: val || '', disabled: !!kv.readOnly },
+        type: { value: type, disabled: !!kv.readOnly },
         //if checkbox is enabled and kv pair doesnt have an active property then set it to true by default
-        ...(this.options.allowToggle && { active: [kv.hasOwnProperty('active') ? kv.active : true] }),
-        ...(this.options.valueFieldType === 'fileAndText' && { type: [kv.type || 'text'], meta: [kv.meta] })
+        ...(this.options.allowToggle && { active: { value: kv.hasOwnProperty('active') ? kv.active : true, disabled: !!kv.readOnly } }),
+        ...(this.options.valueFieldType === 'fileAndText' && {
+          type: { value: kv.type || 'text', disabled: !!kv.readOnly }
+        }),
+        ...((this.options.valueFieldType === 'fileAndText' || kv.meta) && {
+          meta: { value: kv.meta, disabled: !!kv.readOnly }
+        }),
+
       })
     });
   }
@@ -206,7 +212,7 @@ export class KeyValueEditorComponent implements OnInit, OnDestroy, ControlValueA
   async pasteKV(index: number) {
     var text = await navigator.clipboard.readText();
     var pair = JSON.parse(text);
-    this.keyValueForm.at(index).setValue(pair);
+    this.keyValueForm.at(index).patchValue(pair);
   }
 
   onFileChange(event, index: number) {

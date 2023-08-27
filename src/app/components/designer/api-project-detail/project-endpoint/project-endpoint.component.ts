@@ -3,7 +3,7 @@ import { ApiEndp, ApiProject, ApiTrait, NewApiEndp } from 'src/app/models/ApiPro
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ConfirmService } from 'src/app/directives/confirm.directive';
 import { Toaster } from 'src/app/services/toaster.service';
-import { METHOD_WITH_BODY, MIMEs, HTTP_METHODS } from 'src/app/utils/constants';
+import { METHOD_WITH_BODY, MIMEs, HTTP_METHODS, TXT_TRAIT_IMPORT } from 'src/app/utils/constants';
 import { Utils } from 'src/app/services/utils.service';
 import apic from 'src/app/utils/apic';
 import { Subject } from 'rxjs';
@@ -16,6 +16,7 @@ import { TestBuilderOption } from 'src/app/models/TestBuilderOption.model';
 import { TestBuilderSave } from 'src/app/components/common/json-test-builder/json-test-builder.component';
 import { SchemaClickOpenEvent } from 'src/app/components/common/json-schema-builder/main/main.component';
 import { KVEditorOptn } from 'src/app/components/common/key-value-editor/key-value-editor.component';
+import { KeyVal } from 'src/app/models/KeyVal.model';
 
 @Component({
   selector: 'app-project-endpoint',
@@ -49,7 +50,15 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
     allowZeroItem: true,
     placeholderKey: 'Property name (Must start with x-)',
     placeholderVal: 'Property value',
-    valueFieldType: 'jsonText'
+    valueFieldType: 'jsonText',
+    extraInfo: {
+      show: (kv: KeyVal) => {
+        return kv.meta === TXT_TRAIT_IMPORT;
+      },
+      icon: 'help',
+      tooltip: 'This property is imported from a trait.',
+      link: 'https://docs.apic.app/designer/create-trait'
+    }
   }
 
   constructor(
@@ -238,8 +247,8 @@ export class ProjectEndpointComponent implements OnInit, OnDestroy {
   importTraitData(traitId) {
     let endp: ApiEndp = { ...this.endpForm.value, _id: this.isEditing() ? this.selectedEndp._id : new Date().getTime() + apic.s8() };
     endp = ApiProjectUtils.importTraitData(traitId, endp, this.selectedPROJ);
-    let { pathParams, queryParams, headers, responses } = endp;
-    this.endpForm.patchValue({ pathParams, queryParams, headers, responses })
+    let { pathParams, queryParams, headers, responses, xProperties } = endp;
+    this.endpForm.patchValue({ pathParams, queryParams, headers, responses, xProperties })
     this.flags.traitQP = [...this.flags.traitQP, ...ApiProjectUtils.getTraitQueryParamNames(traitId, this.selectedPROJ)]
     this.flags.traitHP = [...this.flags.traitHP, ...ApiProjectUtils.getTraitHeaderNames(traitId, this.selectedPROJ)]
   }

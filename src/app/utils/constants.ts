@@ -272,3 +272,5 @@ export const ERROR_CODES = {
     UNAUTHORIZED_NO_OWNER: 'You can\'t delete this %s as you are not the owner. If you have permission you can still edit it.',
     get: (str: string, ...args) => args.reduce((s, v) => s.replace('%s', v), str)
 }
+
+export const TXT_TRAIT_IMPORT = 'Imported from Trait.'

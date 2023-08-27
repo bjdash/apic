@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
+import { ReqFolder, LeftTreeFolder } from 'src/app/models/ReqFolder.model';
 import { ApiRequest } from 'src/app/models/Request.model';
 import { RequestsService } from 'src/app/services/requests.service';
 import { Toaster } from 'src/app/services/toaster.service';
@@ -20,7 +20,7 @@ import { TesterTabsService } from '../tester-tabs/tester-tabs.service';
 export class SaveReqDialogComponent implements OnInit {
   @Select(RequestsStateSelector.getFoldersTree) folders$: Observable<any[]>;
   form: FormGroup;
-  selectedFolder: TreeReqFolder;
+  selectedFolder: LeftTreeFolder;
   title = 'Save Request';
 
   constructor(fb: FormBuilder,
@@ -96,7 +96,7 @@ export class SaveReqDialogComponent implements OnInit {
     }
   }
 
-  selectFolder(folder: TreeReqFolder) {
+  selectFolder(folder: LeftTreeFolder) {
     this.selectedFolder = folder;
     setTimeout(() => {
       //timeout for ripple to show

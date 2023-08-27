@@ -150,6 +150,8 @@ export class EnvsComponent implements OnInit, OnDestroy {
             await Promise.all(envs.map(async (env) => {
               return await this.envService.addEnv(env, true);
             }));
+          } else {
+            this.toaster.error('This is a valid environment file but doesn not contain any environments')
           }
         } else {
           this.toaster.error('Selected file doesn\'t contain valid environment information');
@@ -287,14 +289,10 @@ export class EnvsComponent implements OnInit, OnDestroy {
   }
 
   downloadMultiple() {
-    var toDownload = [];
-    for (var i = 0; i < this.bulkSelectIds.export.length; i++) {
-      if (this.bulkSelectIds.export[i] === this.envsList[i]._id) {
-        delete this.envsList[i].owner;
-        delete this.envsList[i].team;
-        toDownload.push(this.envsList[i]);
-      }
-    }
+    var toDownload = this.bulkSelectIds.export.map(selectedId => {
+      let { owner, team, ...envToExport } = this.envsList.find(env => env._id === selectedId);
+      return envToExport;
+    })
     this.downloadEnv(toDownload);
   }
 

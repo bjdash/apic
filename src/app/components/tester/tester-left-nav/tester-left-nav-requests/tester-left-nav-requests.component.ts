@@ -7,8 +7,8 @@ import { first, map, take, takeUntil } from 'rxjs/operators';
 import { LeftMenuTreeSelectorOptn } from 'src/app/components/common/left-menu-tree-selector/left-menu-tree-selector.component';
 import { SharingComponent } from 'src/app/components/sharing/sharing.component';
 import { ApiProject } from 'src/app/models/ApiProject.model';
-import { ReqFolder, TreeReqFolder } from 'src/app/models/ReqFolder.model';
-import { ApiRequest } from 'src/app/models/Request.model';
+import { ReqFolder, LeftTreeFolder } from 'src/app/models/ReqFolder.model';
+import { ApiRequest, LeftTreeRequest } from 'src/app/models/Request.model';
 import { Suite, SuiteReq } from 'src/app/models/Suite.model';
 import { Team } from 'src/app/models/Team.model';
 import { User } from 'src/app/models/User.model';
@@ -256,7 +256,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
 
   }
 
-  async deleteFolder(folder: TreeReqFolder) {
+  async deleteFolder(folder: LeftTreeFolder) {
     let reqsToDelete = folder.requests?.map(r => r._id) || [];
     let foldersToDelete = folder.children?.map(f => {
       if (f.requests?.length > 0) {
@@ -314,60 +314,10 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
       });
   }
 
-  async initCopyMove(type: 'copy' | 'move', reqId: string, reqName: string) {
-    this.copyMoveOption = {
-      ...this.copyMoveOption,
-      type,
-      reqId,
-      reqName
-    }
-    let folders = await this.folders$.pipe(take(1)).toPromise()
-    this.treeSelectorOpt = {
-      show: true,
-      items: folders,
-      options: {
-        title: 'Select Folder',
-        doneText: type,
-        treeOptions: { showChildren: true }
-      },
-      onDone: this.doCopyMove.bind(this)
-    }
+  async initCopyMove() {
+    this.toastr.info('You can move a request or a folder by dragging it nto another folder. Hold Ctrl/Cmd for copy.');
   }
 
-  doCopyMove(parent) {
-    if (!parent) {
-      this.toastr.error('Please select the destination folder.');
-      return;
-    }
-    this.store.select(RequestsStateSelector.getRequestByIdDynamic(this.copyMoveOption.reqId))
-      .pipe(take(1))
-      .subscribe(originalReq => {
-        if (originalReq) {
-          this.store.select(RequestsStateSelector.getRequestsInFolder)
-            .pipe(map(filterFn => filterFn(parent)))
-            .pipe(take(1))
-            .subscribe(async (reqs) => {
-              let duplicate = false, reqName = this.copyMoveOption.reqName, counter = 0;
-              do {
-                counter++;
-                duplicate = reqs.some(r => r.name.toLocaleLowerCase() == reqName.toLocaleLowerCase())
-                if (duplicate) {
-                  reqName = this.copyMoveOption.reqName + ' ' + counter;
-                }
-              } while (duplicate);
-
-              let newReq = { ...originalReq, name: reqName, _parent: parent };
-              if (this.copyMoveOption.type == 'copy') {
-                await this.reqService.createRequest(newReq)
-              } else {
-                await this.reqService.updateRequest(newReq)
-              }
-              this.toastr.success('Done');
-              this.treeSelectorOpt.show = false;
-            });
-        }
-      })
-  }
 
   downloadFolder(folderId: string) {
     this.store.select(RequestsStateSelector.getFoldersTreeById)
@@ -423,7 +373,6 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     let project = await this.store.select(ApiProjectStateSelector.getByIdDynamic(projectId)).pipe(first()).toPromise();
     let endpoint = project.endpoints?.[endpId];
     if (endpoint && project) {
-      console.log(project, endpoint);
       let request: ApiRequest = RequestUtils.endpointToApiRequest(endpoint, project);
       this.testerTabService.addEndpointReqTab(request, projectId)
     } else {
@@ -431,7 +380,7 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async convertFolderToSuite(folder: TreeReqFolder, reqIsFrom: ReqIsFrom, projectId?: string) {
+  async convertFolderToSuite(folder: LeftTreeFolder, reqIsFrom: ReqIsFrom, projectId?: string) {
     let testProjects = await this.suitesTree$.pipe(take(1)).toPromise();
     this.treeSelectorOpt = {
       show: true,
@@ -572,4 +521,156 @@ export class TesterLeftNavRequestsComponent implements OnInit, OnDestroy {
         this.flags.unsharingId = '';
       })
   }
+
+  handleDragstart($event: DragEvent, node: LeftTreeRequest | LeftTreeFolder) {
+    $event.stopPropagation();
+    ($event.target as HTMLElement).classList.add('drag-target');
+    $event.dataTransfer.setData('id', node._id);
+    if ('treeItem' in node) {
+      $event.dataTransfer.setData('type', node.treeItem);
+      $event.dataTransfer.setData('isRoot', (!node.parentId).toString())
+    }
+    else {
+      $event.dataTransfer.setData('type', 'Request');
+    }
+  }
+
+  handleDragenter($event: DragEvent, node: LeftTreeFolder) {
+    setTimeout(() => {
+      this.flags.expanded[node._id] = true;
+      $event.preventDefault();
+      $event.stopPropagation();
+
+      let target: HTMLElement = $event.target as HTMLElement;
+      let parent = target.closest('div. folder-wrap') as HTMLElement;
+      parent.classList.add('drop-target');
+    }, 0);
+  }
+
+  handleDragleave($event: DragEvent) {
+    $event.stopPropagation();
+
+    let target: HTMLElement = $event.target as HTMLElement;
+    let parent = target.closest('div.folder-wrap') as HTMLElement;
+    parent.classList.remove('drop-target');
+  }
+
+  handleDragover($event: DragEvent, node) {
+    $event.preventDefault();
+  }
+
+  handleDragend($event: DragEvent) {
+    document.querySelector('.drop-target')?.classList.remove('drop-target');
+    document.querySelector('.drag-target')?.classList.remove('drag-target');
+  }
+
+  async handleDrop($event: DragEvent, targetFolder: LeftTreeFolder) {
+    $event.stopPropagation();
+    let moveId: string = $event.dataTransfer.getData('id'),
+      moveType = $event.dataTransfer.getData('type') as 'Request' | 'Folder',
+      isCopy = $event.ctrlKey || $event.metaKey;
+
+    if (moveType === 'Request') {
+      let reqBeingMoved = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(moveId))
+        .pipe(take(1)).toPromise();
+      if (reqBeingMoved._parent != targetFolder._id) {
+        let reqs = await this.store.select(RequestsStateSelector.getRequestsInFolder)
+          .pipe(map(filterFn => filterFn(targetFolder._id))).pipe(take(1)).toPromise()
+        let newReqName = await this.#copyMoveRequest(reqBeingMoved, reqs, targetFolder._id, isCopy);
+        if (newReqName !== reqBeingMoved.name) {
+          this.toastr.success(`Destination has a request with same name. Request renamed to ${newReqName}`, 5000)
+        } else {
+          this.toastr.success(isCopy ? 'Copied.' : 'Moved.');
+        }
+      }
+    } else {
+      let isSrcARootFolder: boolean = $event.dataTransfer.getData('isRoot') == 'true',
+        isTargetARootFolder = !targetFolder.parentId
+
+      if (moveId !== targetFolder._id) {
+        let srcFolder = await this.store.select(RequestsStateSelector.getFolderById).
+          pipe(map(filterFn => filterFn(moveId))).pipe(take(1)).toPromise();
+
+
+        if (isSrcARootFolder && isTargetARootFolder) {//root to root - merge 
+          let srcFolderTree = await this.store.select(RequestsStateSelector.getFoldersTreeById)
+            .pipe(map(filterFn => filterFn(moveId))).pipe(take(1)).toPromise();
+
+          srcFolderTree.requests.forEach(async req => {
+            let reqToMove: ApiRequest = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(req._id))
+              .pipe(take(1)).toPromise();
+            await this.#copyMoveRequest(reqToMove, targetFolder.requests, targetFolder._id, isCopy);
+          });
+
+          //move sub folders
+          srcFolderTree.children.forEach(async subfolder => {
+            let srcSubFolder = await this.store.select(RequestsStateSelector.getFolderById)
+              .pipe(map(filterFn => filterFn(subfolder._id))).pipe(take(1)).toPromise();
+            await this.#copyMoveFolder(srcSubFolder, targetFolder, isCopy);
+          })
+
+        } else if (isSrcARootFolder && !isTargetARootFolder) {//root to subfolder - not allowed 
+          this.toastr.error('You are trying to move a root folder into a subfolder which is not supported as of now as we currently support only 1 level of nested folders.');
+        } else if (!isSrcARootFolder && isTargetARootFolder) {//subfolder to root - add
+          let fname = await this.#copyMoveFolder(srcFolder, targetFolder, isCopy);
+          if (fname !== srcFolder.name) {
+            this.toastr.success(`Folder renamed to ${fname} as destination already has a folder with the same name`, 5000);
+          } else {
+            this.toastr.success(isCopy ? 'Copied' : 'Moved.');
+          }
+
+        } else if (!isSrcARootFolder && !isTargetARootFolder) {//subfolder to subfolder merge 
+          let srcParentFolderTree = await this.store.select(RequestsStateSelector.getFoldersTreeById)
+            .pipe(map(filterFn => filterFn(srcFolder.parentId)))
+            .pipe(take(1)).toPromise();
+
+          srcParentFolderTree.children.find(c => c._id === moveId)
+            .requests.forEach(async req => {
+              let reqToMove: ApiRequest = await this.store.select(RequestsStateSelector.getRequestByIdDynamic(req._id))
+                .pipe(take(1)).toPromise();
+              await this.#copyMoveRequest(reqToMove, targetFolder.requests, targetFolder._id, isCopy);
+            });
+        }
+      }
+    }
+  }
+
+
+  async #copyMoveRequest(reqBeingMoved: ApiRequest, existingReqs: ApiRequest[], targetFolderId: string, isCopy: boolean): Promise<string> {
+    let reqName = this.#getDuplicateName(reqBeingMoved.name, existingReqs);
+    let newReq: ApiRequest = { ...(reqBeingMoved as ApiRequest), name: reqName, _parent: targetFolderId };
+    if (isCopy) {
+      await this.reqService.createRequest(newReq)
+    } else {
+      await this.reqService.updateRequest(newReq)
+    }
+    return reqName;
+
+  }
+
+  async #copyMoveFolder(folderBeingMoved: ReqFolder, targetFolder: LeftTreeFolder, isCopy: boolean): Promise<string> {
+    let fname = this.#getDuplicateName(folderBeingMoved.name, targetFolder.children);
+    let newFolder: ReqFolder = { ...folderBeingMoved, name: fname, parentId: targetFolder._id };
+    if (isCopy) {
+      await this.reqService.createFolder(newFolder)
+    } else {
+      await this.reqService.updateFolder(newFolder)
+    }
+    return fname;
+  }
+
+
+  #getDuplicateName(originalName: string, existingItems: ApiRequest[] | ReqFolder[] | LeftTreeFolder[]) {
+    let duplicate = false, name = originalName, counter = 0;
+    do {
+      counter++;
+      duplicate = existingItems.some(r => r.name.toLocaleLowerCase() == name.toLocaleLowerCase());
+      if (duplicate) {
+        name = originalName + ' ' + counter;
+      }
+    } while (duplicate);
+    return name
+  }
 }
+
+

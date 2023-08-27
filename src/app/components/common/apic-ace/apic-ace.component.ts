@@ -45,6 +45,9 @@ export class ApicAceComponent implements OnInit, ControlValueAccessor, OnDestroy
   registerOnTouched(fn: any): void {
     this._onTouched = fn;
   }
+  setDisabledState(isDisabled: boolean): void {
+    this.readOnly = isDisabled
+  }
 
   ngOnInit(): void {
   }

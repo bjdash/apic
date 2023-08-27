@@ -6,6 +6,7 @@ import 'brace/mode/json';
 import 'brace/mode/yaml';
 import 'brace/mode/xml';
 import 'brace/mode/javascript';
+import 'brace/mode/html';
 import 'brace/ext/searchbox';
 import 'brace/theme/monokai';
 import 'brace/ext/language_tools';
@@ -68,8 +69,8 @@ export class AppComponent {
     }
 
     //connect to extention service worker
-    if(environment.PLATFORM === 'CHROME'){
-        ExtentionHelper.connect();
+    if (environment.PLATFORM === 'CHROME') {
+      ExtentionHelper.connect();
     }
 
     //for receiving messages from APIC dev tools

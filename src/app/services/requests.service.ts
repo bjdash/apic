@@ -24,7 +24,7 @@ export class RequestsService {
 
   updatedViaSync$: BehaviorSubject<SyncModifiedNotification> = new BehaviorSubject(null);;
 
-  constructor(private store: Store, private syncService: SyncService, private sandboxService:SandboxService) {
+  constructor(private store: Store, private syncService: SyncService, private sandboxService: SandboxService) {
     this.store.select(UserState.getAuthUser).subscribe(user => {
       this.authUser = user;
     });
@@ -305,9 +305,7 @@ export class RequestsService {
           "enum": ["Folder"]
         },
         "value": {
-          "type": "object",
-          "properties": {},
-          "required": []
+          "type": "object"
         }
       },
       "required": ["TYPE", "value"]

@@ -133,8 +133,7 @@
           </div>
 
           <div class="control-content short" [hidden]="flags.reqTab != 'Headers'">
-            <app-key-value-editor formControlName="headers"
-              [options]="{
+            <app-key-value-editor formControlName="headers" [options]="{
                 enableAutocomplete:true,
                 autocompletes:HTTP_HEADERS,
                 addOnFocus:true,

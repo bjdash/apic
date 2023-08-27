@@ -1,195 +1,190 @@
 <div class="tab-content">
-    <div class="ctrls">
-        <button mat-icon-button class="t_color" matTooltip="Import Test Project" (click)="importProject()"
-            matTooltipPosition="left">
-            <mat-icon>transit_enterexit</mat-icon>
-        </button>
-        <button mat-icon-button class="t_color" (click)="showProjForm()" matTooltip="New test project"
-            matTooltipPosition="left">
-            <mat-icon>add</mat-icon>
-        </button>
-        <!-- <button mat-icon-button class="t_color" matTooltip="Search" matTooltipPosition="left">
+  <div class="ctrls">
+    <button mat-icon-button class="t_color" matTooltip="Import Test Project" (click)="importProject()"
+      matTooltipPosition="below">
+      <mat-icon>file_upload</mat-icon>
+    </button>
+    <button mat-icon-button class="t_color" (click)="showProjForm()" matTooltip="New test project"
+      matTooltipPosition="below">
+      <mat-icon>add</mat-icon>
+    </button>
+    <!-- <button mat-icon-button class="t_color" matTooltip="Search" matTooltipPosition="left">
             <mat-icon>search</mat-icon>
         </button> -->
-    </div>
+  </div>
 
-    <div class="new-folder" *ngIf="flags.newProj;">
-        <form [formGroup]="newProjForm">
-            <div class="input-group">
-                <input type="text" maxlength="100" class="form-control" formControlName="name"
-                    placeholder="Test project Name" (keydown.enter)="createProject()" id="newProjName" />
-                <span class="input-group-btn">
-                    <button mat-icon-button class="green sm" (click)="createProject();" title="Create" type="button">
-                        <mat-icon>done_outline</mat-icon>
-                    </button>
-                    <button mat-icon-button (click)="flags.newProj= false;newProjForm.reset()" class="red sm"
-                        title="Cancel">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                </span>
-            </div>
-        </form>
-    </div>
-    <div *ngFor="let project of testProjects$ |async">
-        <div class="folder project" (click)="toggleExpand(project._id)"
-            [ngClass]="flags.expanded[project._id]?'opened':'closed'">
-            <div class="l-sec vcenter">
-                <mat-icon>fact_check</mat-icon>
-                <mat-icon class="shared" *ngIf="!!project.owner && project.owner!=authUser?.UID"
-                    matTooltip="Shared with you">share</mat-icon>
-            </div>
-            <div class="folder-name m-sec">
-                <div class="f-name">
-                    <span *ngIf="rename._id !== project._id">{{project.name}}</span>
-                    <span *ngIf="flags.unsharingId == project._id" class="spinner"></span>
-                    <span *ngIf="rename._id == project._id">
-                        <input id="proj_{{project._id}}" class="form-control" (keydown.escape)="rename._id=''"
-                            (keydown.enter)="saveProjectRename()" [(ngModel)]="rename.name"
-                            (click)="$event.stopPropagation()" /></span>
-                </div>
-            </div>
-            <div class="r-sec">
-                <button class="new-suite" mat-icon-button *ngIf="!project._id.includes('demo')"
-                    (click)="showNewSuitForm(project._id);$event.stopPropagation()" matTooltip="New suite">
-                    <mat-icon>add</mat-icon>
-                </button>
-                <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()"
-                    [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
-                    <mat-icon>more_vert</mat-icon>
-                </button>
-                <mat-menu #folderMenu="matMenu">
-                    <button mat-menu-item class="sm" (click)="showNewSuitForm(project._id);">
-                        <mat-icon>add</mat-icon> New Test Suite
-                    </button>
-                    <button mat-menu-item class="sm" (click)="importSuite(project._id)">
-                        <mat-icon>add</mat-icon> Import Test Suite
-                    </button>
-                    <button mat-menu-item class="sm" (click)="showRename(project)">
-                        <mat-icon>edit</mat-icon> Rename
-                    </button>
-                    <button mat-menu-item class="sm" (click)="shareProject(project)"
-                        *ngIf="project.owner == authUser?.UID && !project.team">
-                        <mat-icon>share</mat-icon> Share
-                    </button>
-                    <button mat-menu-item class="sm" *ngIf="project.team && project.owner === authUser?.UID"
-                        (confirm-click)="unshareProject(project)" confirm="Do you want to unshare this project?"
-                        confirmTitle="Unshare Project" confirmOk="Unshare">
-                        <span class="icon bj-unshare f18 red" style="margin-right: 22px;"></span> Unshare:
-                        {{teams[project.team]?.name}}
-                    </button>
-                    <button mat-menu-item class="sm" (click)="exportProject(project)">
-                        <mat-icon>download</mat-icon> Export
-                    </button>
-                    <button mat-menu-item class="sm"
-                        confirm="Do you want to delete this test project & all test suites under it?"
-                        confirmTitle="Delete Confirmation" confirmOk="Delete" (confirm-click)="deleteProject(project);">
-                        <mat-icon class="red">delete</mat-icon> Delete
-                    </button>
-                </mat-menu>
-            </div>
+  <div class="new-folder" *ngIf="flags.newProj;">
+    <form [formGroup]="newProjForm">
+      <div class="input-group">
+        <input type="text" maxlength="100" class="form-control" formControlName="name" placeholder="Test project Name"
+          (keydown.enter)="createProject()" id="newProjName" />
+        <span class="input-group-btn">
+          <button mat-icon-button class="green sm" (click)="createProject();" title="Create" type="button">
+            <mat-icon>done_outline</mat-icon>
+          </button>
+          <button mat-icon-button (click)="flags.newProj= false;newProjForm.reset()" class="red sm" title="Cancel">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      </div>
+    </form>
+  </div>
+  <div *ngFor="let project of testProjects$ |async">
+    <div class="folder project" (click)="toggleExpand(project._id)"
+      [ngClass]="flags.expanded[project._id]?'opened':'closed'">
+      <div class="l-sec vcenter">
+        <mat-icon>fact_check</mat-icon>
+        <mat-icon class="shared" *ngIf="!!project.owner && project.owner!=authUser?.UID"
+          matTooltip="Shared with you">share</mat-icon>
+      </div>
+      <div class="folder-name m-sec">
+        <div class="f-name">
+          <span *ngIf="rename._id !== project._id">{{project.name}}</span>
+          <span *ngIf="flags.unsharingId == project._id" class="spinner"></span>
+          <span *ngIf="rename._id == project._id">
+            <input id="proj_{{project._id}}" class="form-control" (keydown.escape)="rename._id=''"
+              (keydown.enter)="saveProjectRename()" [(ngModel)]="rename.name"
+              (click)="$event.stopPropagation()" /></span>
         </div>
-        <div class="sub-folder" [hidden]="!flags.expanded[project._id]">
-            <form [formGroup]="suiteForm">
-                <div class="input-group" *ngIf="flags.newSuite && suiteForm.value.projId == project._id">
-                    <input type="text" maxlength="100" class="form-control" formControlName="name"
-                        placeholder="Suite name" (keydown.enter)="createSuite()" id="newSuiteName" />
-                    <span class="input-group-btn">
-                        <button mat-icon-button class="green sm" (click)="createSuite();" title="Create" type="button">
-                            <mat-icon>done_outline</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="flags.newSuite= false;suiteForm.reset()" class="red sm"
-                            title="Cancel">
-                            <mat-icon>close</mat-icon>
-                        </button>
-                    </span>
-                </div>
-            </form>
-            <div *ngFor="let suite of project.suites" class="">
-                <div class="savedReq" (click)="toggleExpand(suite._id)">
-                    <div class="l-sec">
-                        <mat-icon>receipt_long</mat-icon>
-                        <mat-icon class="shared" *ngIf="!!suite.owner && suite.owner!=authUser?.UID"
-                            matTooltip="Shared with you">share</mat-icon>
-                    </div>
-                    <div class="m-sec name">
-                        {{suite.name}}
-                    </div>
-                    <div class="r-sec three">
-                        <button mat-icon-button (click)="openSuite(suite);$event.stopPropagation()" class="green">
-                            <mat-icon>play_arrow</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="addReqToSuite(suite)">
-                            <mat-icon>add</mat-icon>
-                        </button>
-                        <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
-                            [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
-                            <mat-icon>more_vert</mat-icon>
-                        </button>
-                        <mat-menu #reqManu="matMenu">
-                            <button mat-menu-item (click)="addReqToSuite(suite)">
-                                <mat-icon>add</mat-icon> Add request
-                            </button>
-                            <button mat-menu-item (click)="openSuite(suite)">
-                                <mat-icon>launch</mat-icon> Open Suite
-                            </button>
-                            <button mat-menu-item (click)="exportSuite(suite)">
-                                <mat-icon>download</mat-icon> Export Suite
-                            </button>
-                            <button mat-menu-item (click)="exportSuite(suite, true)">
-                                <mat-icon>download</mat-icon> Export Suite with environment
-                            </button>
-                            <button mat-menu-item (click)="shareSuite()">
-                                <mat-icon>add</mat-icon> Share/Unshare
-                            </button>
-                            <button mat-menu-item confirm="Do you want to delete this test suite?"
-                                confirmTitle="Delete Confirmation" confirmOk="Delete"
-                                (confirm-click)="deleteSuite(suite._id, suite.owner)">
-                                <mat-icon class="red">delete</mat-icon> Delete
-                            </button>
-                        </mat-menu>
-                    </div>
-                </div>
-
-                <div [hidden]="!flags.expanded[suite._id]" style="padding-left: 10px;">
-                    <div *ngFor="let req of suite.reqs;let i=index" class="savedReq sm"
-                        (click)="openSuite(suite, req._id)">
-                        <div class="l-sec">
-                            <div class="method" [ngClass]="req.method"></div>
-                        </div>
-                        <div class="name m-sec" ng-click="vm.openSuitReq(req._id, suit, $index)">{{req.name}}</div>
-                        <div class="r-sec">
-                            <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
-                                [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
-                                <mat-icon>more_vert</mat-icon>
-                            </button>
-                            <mat-menu #reqManu="matMenu">
-                                <button mat-menu-item (click)="duplicateReqInSuit(suite, req,i)">
-                                    <mat-icon>content_copy</mat-icon> Duplicate
-                                </button>
-
-                                <button mat-menu-item confirm="Do you want to remove this request from the suite ?"
-                                    confirmTitle="Remove request" confirmOk="Remove"
-                                    (confirm-click)="removeReqFromSuit(suite, req._id, i)">
-                                    <mat-icon class="red">delete</mat-icon> Remove from suite
-                                </button>
-                            </mat-menu>
-                        </div>
-                    </div>
-                    <span *ngIf="suite.reqs?.length == 0">Empty suite</span>
-                </div>
-            </div>
-            <span *ngIf="project.suites?.length == 0">No Test Suites in this project. <button
-                    (click)="showNewSuitForm(project._id)" mat-button class="sm t_color">Create one</button></span>
-        </div>
-    </div>
-    <div class="center margV10">
-        <button mat-stroked-button class="sm t_border" (click)="showProjForm()">
-            <mat-icon>add</mat-icon>New project
+      </div>
+      <div class="r-sec">
+        <button class="new-suite" mat-icon-button *ngIf="!project._id.includes('demo')"
+          (click)="showNewSuitForm(project._id);$event.stopPropagation()" matTooltip="New suite">
+          <mat-icon>add</mat-icon>
         </button>
+        <button mat-icon-button [matMenuTriggerFor]="folderMenu" (click)="$event.stopPropagation()"
+          [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #folderMenu="matMenu">
+          <button mat-menu-item class="sm" (click)="showNewSuitForm(project._id);">
+            <mat-icon>add</mat-icon> New Test Suite
+          </button>
+          <button mat-menu-item class="sm" (click)="importSuite(project._id)">
+            <mat-icon>add</mat-icon> Import Test Suite
+          </button>
+          <button mat-menu-item class="sm" (click)="showRename(project)">
+            <mat-icon>edit</mat-icon> Rename
+          </button>
+          <button mat-menu-item class="sm" (click)="shareProject(project)"
+            *ngIf="project.owner == authUser?.UID && !project.team">
+            <mat-icon>share</mat-icon> Share
+          </button>
+          <button mat-menu-item class="sm" *ngIf="project.team && project.owner === authUser?.UID"
+            (confirm-click)="unshareProject(project)" confirm="Do you want to unshare this project?"
+            confirmTitle="Unshare Project" confirmOk="Unshare">
+            <span class="icon bj-unshare f18 red" style="margin-right: 22px;"></span> Unshare:
+            {{teams[project.team]?.name}}
+          </button>
+          <button mat-menu-item class="sm" (click)="exportProject(project)">
+            <mat-icon>download</mat-icon> Export
+          </button>
+          <button mat-menu-item class="sm" confirm="Do you want to delete this test project & all test suites under it?"
+            confirmTitle="Delete Confirmation" confirmOk="Delete" (confirm-click)="deleteProject(project);">
+            <mat-icon class="red">delete</mat-icon> Delete
+          </button>
+        </mat-menu>
+      </div>
     </div>
+    <div class="sub-folder" [hidden]="!flags.expanded[project._id]">
+      <form [formGroup]="suiteForm">
+        <div class="input-group" *ngIf="flags.newSuite && suiteForm.value.projId == project._id">
+          <input type="text" maxlength="100" class="form-control" formControlName="name" placeholder="Suite name"
+            (keydown.enter)="createSuite()" id="newSuiteName" />
+          <span class="input-group-btn">
+            <button mat-icon-button class="green sm" (click)="createSuite();" title="Create" type="button">
+              <mat-icon>done_outline</mat-icon>
+            </button>
+            <button mat-icon-button (click)="flags.newSuite= false;suiteForm.reset()" class="red sm" title="Cancel">
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        </div>
+      </form>
+      <div *ngFor="let suite of project.suites" class="">
+        <div class="savedReq" (click)="toggleExpand(suite._id)">
+          <div class="l-sec">
+            <mat-icon>receipt_long</mat-icon>
+            <mat-icon class="shared" *ngIf="!!suite.owner && suite.owner!=authUser?.UID"
+              matTooltip="Shared with you">share</mat-icon>
+          </div>
+          <div class="m-sec name">
+            {{suite.name}}
+          </div>
+          <div class="r-sec three">
+            <button mat-icon-button (click)="openSuite(suite);$event.stopPropagation()" class="green">
+              <mat-icon>play_arrow</mat-icon>
+            </button>
+            <button mat-icon-button (click)="addReqToSuite(suite)">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
+              [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #reqManu="matMenu">
+              <button mat-menu-item (click)="addReqToSuite(suite)">
+                <mat-icon>add</mat-icon> Add request
+              </button>
+              <button mat-menu-item (click)="openSuite(suite)">
+                <mat-icon>launch</mat-icon> Open Suite
+              </button>
+              <button mat-menu-item (click)="exportSuite(suite)">
+                <mat-icon>download</mat-icon> Export Suite
+              </button>
+              <button mat-menu-item (click)="exportSuite(suite, true)">
+                <mat-icon>download</mat-icon> Export Suite with environment
+              </button>
+              <button mat-menu-item (click)="shareSuite()">
+                <mat-icon>add</mat-icon> Share/Unshare
+              </button>
+              <button mat-menu-item confirm="Do you want to delete this test suite?" confirmTitle="Delete Confirmation"
+                confirmOk="Delete" (confirm-click)="deleteSuite(suite._id, suite.owner)">
+                <mat-icon class="red">delete</mat-icon> Delete
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div [hidden]="!flags.expanded[suite._id]" style="padding-left: 10px;">
+          <div *ngFor="let req of suite.reqs;let i=index" class="savedReq sm" (click)="openSuite(suite, req._id)">
+            <div class="l-sec">
+              <div class="method" [ngClass]="req.method"></div>
+            </div>
+            <div class="name m-sec" ng-click="vm.openSuitReq(req._id, suit, $index)">{{req.name}}</div>
+            <div class="r-sec">
+              <button mat-icon-button [matMenuTriggerFor]="reqManu" (click)="$event.stopPropagation()"
+                [ngClass]="{t_bg:e.menuOpen}" #e="matMenuTrigger">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #reqManu="matMenu">
+                <button mat-menu-item (click)="duplicateReqInSuit(suite, req,i)">
+                  <mat-icon>content_copy</mat-icon> Duplicate
+                </button>
+
+                <button mat-menu-item confirm="Do you want to remove this request from the suite ?"
+                  confirmTitle="Remove request" confirmOk="Remove"
+                  (confirm-click)="removeReqFromSuit(suite, req._id, i)">
+                  <mat-icon class="red">delete</mat-icon> Remove from suite
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+          <span *ngIf="suite.reqs?.length == 0">Empty suite</span>
+        </div>
+      </div>
+      <span *ngIf="project.suites?.length == 0">No Test Suites in this project. <button
+          (click)="showNewSuitForm(project._id)" mat-button class="sm t_color">Create one</button></span>
+    </div>
+  </div>
+  <div class="center margV10">
+    <button mat-stroked-button class="sm t_border" (click)="showProjForm()">
+      <mat-icon>add</mat-icon>New project
+    </button>
+  </div>
 </div>
 <div class="tree-select-dialog" *ngIf="treeSelectorOpt.show">
-    <left-menu-tree-selector [options]="treeSelectorOpt.options" [items]="treeSelectorOpt.items"
-        (onClose)="this.treeSelectorOpt.show = false" (onDone)="treeSelectorOpt.onDone($event)">
-    </left-menu-tree-selector>
+  <left-menu-tree-selector [options]="treeSelectorOpt.options" [items]="treeSelectorOpt.items"
+    (onClose)="this.treeSelectorOpt.show = false" (onDone)="treeSelectorOpt.onDone($event)">
+  </left-menu-tree-selector>
 </div>

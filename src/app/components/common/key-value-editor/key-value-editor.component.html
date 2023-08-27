@@ -3,7 +3,8 @@
   <div class="vcenter" [ngClass]="{flexColumn: options.valueFieldType === 'jsonText'}">
     <mat-checkbox *ngIf="options.allowToggle" class="gap" [formControl]="kv.controls.active"></mat-checkbox>
     <div class="key gap vcenter">
-      <a [href]="options.extraInfo.link" target="_new" mat-icon-button class="sm warning gap" *ngIf="options.extraInfo?.show(kv.controls.key.value)" [matTooltip]="options.extraInfo?.tooltip">
+      <a [href]="options.extraInfo.link" target="_new" mat-icon-button class="sm gap"
+        *ngIf="options.extraInfo?.show(kv.value)" [matTooltip]="options.extraInfo?.tooltip">
         <mat-icon class="sm">{{options.extraInfo?.icon}}</mat-icon>
       </a>
       <input *ngIf="!options.enableAutocomplete && options.valueFieldType !== 'richText'" class="form-control"
@@ -51,7 +52,7 @@
           <button type="button" mat-button [ngClass]="kv.controls.type.value == 'json'? 't_bg t_border':''" class="xs"
             (click)="toggleAceType(i, 'json')">JSON</button>
         </div>
-        <apic-ace [formControl]="kv.controls.val" class="full-width" [mode]="kv.controls.type.val"></apic-ace>
+        <apic-ace [formControl]="kv.controls.val" class="full-width" [mode]="kv.controls.type.value"></apic-ace>
       </div>
     </div>
 
@@ -60,7 +61,7 @@
         <mat-option value="text">Text</mat-option>
         <mat-option value="file">File</mat-option>
       </mat-select>
-      <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red"
+      <button type="button" (click)="removeKv(i)" mat-icon-button class="sm red" [disabled]="kv.controls.val.disabled"
         *ngIf="(count!==1 || options.allowZeroItem ) && options.allowRemove">
         <mat-icon>close</mat-icon>
       </button>

@@ -300,6 +300,13 @@ export class OASUtils {
               '$ref': (type === 'OAS3' ? '#/components/parameters/' : '#/parameters/') + xPath
             });
           }
+        });
+
+        //x-properties
+        traitObj.xProperties?.forEach(kv => {
+          if (kv.key?.startsWith('x-')) {
+            reqObj[kv.key] = kv.val;
+          }
         })
       }
 

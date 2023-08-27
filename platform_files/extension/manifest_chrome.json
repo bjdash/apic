@@ -2,7 +2,7 @@
     "name": "Apic - Complete API solution",
     "short_name": "apic",
     "version": "3.2.0",
-    "minimum_chrome_version": "28",
+    "minimum_chrome_version": "88",
     "description": "The only tool you will ever need for all you API Design, Documentation and Testing needs.",
     "devtools_page": "devtools/devtools.html",
     "background": {

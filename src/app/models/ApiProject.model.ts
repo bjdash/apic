@@ -65,7 +65,8 @@ export interface ApiTrait {
   headers?: any,
   pathParams?: any,
   queryParams?: any,
-  responses?: ApiResponse[]
+  responses?: ApiResponse[],
+  xProperties?: KeyVal[]
 }
 
 export interface ApiTag {
@@ -188,7 +189,8 @@ export const NewApiTrait: ApiTrait = {
   headers: { type: "object" },
   pathParams: { type: "object" },
   queryParams: { type: "object" },
-  responses: []
+  responses: [],
+  xProperties: []
 }
 
 export const NewApiEndp: ApiEndp = {
