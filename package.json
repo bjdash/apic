@@ -34,7 +34,7 @@
     "@ngxs/store": "^3.7.3",
     "@stomp/rx-stomp": "^1.1.4",
     "@ungap/structured-clone": "^1.0.1",
-    "crypto-js": "^4.1.1",
+    "crypto-js": "^4.2.0",
     "expression-eval": "^4.0.0",
     "idb": "^7.0.2",
     "js-yaml": "^4.1.0",
