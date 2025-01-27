@@ -7,7 +7,7 @@
     "start-hmr": "ng serve --port=5000 --hmr",
     "bump": "gulp bump",
     "web:local": "ng build --output-path=dist/webLocal",
-    "web": "ng build --configuration production --base-href=/online/ --output-path=dist/web",
+    "web": "ng build --configuration production --base-href=/online/ --output-path=docs",
     "extn:local": "gulp cleanExtnLocal && ng build --configuration=extnLocal --base-href=index.html --output-path=dist/extnLocal --stats-json && gulp buildExtnLocal",
     "extn:chrome": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtnChrome",
     "extn:edge": "gulp cleanExtn && ng build --configuration=extn --base-href=index.html --output-path=dist/extn && gulp buildExtnEdge",

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <script type="text/javascript" src="./apic-lib.js"></script> -->
+    <!-- <script type="text/javascript" src="../apic-proto.js"></script> TTODO:-->
+    <script type="text/javascript" src="./chai.min.js"></script>
+    <script type="text/javascript" src="./ajv.bundle.js"></script>
+
+    <script type="text/javascript">
+        var expect = chai.expect;
+        var should = chai.should();
+        var assert = chai.assert;
+    </script>
+
+    <script type="module">
+        import {apic, SandboxMessanger, SandboxTester} from './sandbox.js';
+        
+        chai.Assertion.addProperty('date', function () {
+            this.assert(
+                new Date(this._obj).getTime() > 0
+                , 'expected #{this} to be a valid Date'
+                , 'expected #{this} to not be a valid Date'
+            );
+        })
+
+        chai.Assertion.addMethod('matchSchema', function (statusCode) {
+            var status = statusCode || this._obj.status || 'current';
+            let isValidorError = SandboxTester.validateSchema(statusCode);
+            this.assert(
+                isValidorError === true
+                , `expected response to match schema for status code: ${status}. Error: ${isValidorError}`
+                , `expected response not to match schema for status code: ${status}. Error: ${isValidorError}`
+            );
+        });
+
+        new SandboxMessanger().initialize();
+    </script>
+</head>
+
+<body></body>
+
+</html>
